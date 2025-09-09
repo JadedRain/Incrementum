@@ -1,7 +1,20 @@
-version: '3.9'
-
 services:
-  web:
-    build: .
+  api:
+    build:
+      context: ./Incrementum.api
+    container_name: incrementum_api
     ports:
-      - "8080:80"
+      - "8000:8000"
+    environment:
+      - DJANGO_ENV=development
+    restart: unless-stopped
+
+  client:
+    build:
+      context: ./Incrementum.client
+    container_name: incrementum_client
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+    restart: unless-stopped
