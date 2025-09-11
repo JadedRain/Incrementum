@@ -17,6 +17,5 @@ class stock:
     self.symbol = json['symbol']
     self.sector = json['sector']
     self.sectorKey = json['sectorKey']
-    self.shortName = json['shortName']
     
 
