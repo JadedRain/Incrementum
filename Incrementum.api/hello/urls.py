@@ -6,4 +6,5 @@ urlpatterns = [
     path('hello_world/', HelloWorldView.as_view(), name='hello_world'),
     path('getStocks/<str:ticker>/', getStocks.as_view(), name='get_stocks'),
     path('getStockInfo/', GetStockInfo.as_view(), name='get_stock_info'),
+    path('searchStocks/<str:query>/', GetStockInfo.as_view(), name='search_stocks'),
 ]
