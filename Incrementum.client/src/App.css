@@ -103,3 +103,36 @@
   flex-direction: column;
   align-items: center;
 }
+
+.WatchlistPage-Custom-Button {
+  display: block;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  border-radius: 20px;
+  font-size: 1.2rem;
+  border: 2px solid #888;
+  cursor: pointer;
+}
+
+.WatchlistPage-Sidebar {
+  width: 200px;
+  margin-left: 2rem;
+  background: #f5f5f5;
+  border-radius: 12px;
+  padding: 1rem;
+  min-height: 400px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.WatchlistPage-card {
+  background: #747373;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 2rem;
+  text-align: center;
+  font-size: 1.1rem;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
