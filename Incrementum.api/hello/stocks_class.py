@@ -1,21 +1,21 @@
 class stock:
     def __init__(self, json):
-        self.country = json['country']
-        self.currentPrice = json['currentPrice']
-        self.dayHigh = json['dayHigh']
-        self.dayLow = json['dayLow']
-        self.exchange = json['exchange']
-        self.displayName = json['displayName']
-        self.fiftyDayAverage = json['fiftyDayAverage']
-        self.fullExchangeName = json['fullExchangeName']
-        self.industry = json['industry']
-        self.industryKey = json['industryKey']
-        self.longName = json['longName']
-        self.open = json['open']
-        self.previousClose = json['previousClose']
-        self.shortName = json['shortName']
-        self.symbol = json['symbol']
-        self.sector = json['sector']
-        self.sectorKey = json['sectorKey']
+        self.country = json['country'] ?? None
+        self.currentPrice = json['currentPrice'] ?? None
+        self.dayHigh = json['dayHigh'] ?? None
+        self.dayLow = json['dayLow'] ?? None
+        self.exchange = json['exchange'] ?? None
+        self.displayName = json['displayName'] ?? None
+        self.fiftyDayAverage = json['fiftyDayAverage'] ?? None
+        self.fullExchangeName = json['fullExchangeName'] ?? None
+        self.industry = json['industry'] ?? None
+        self.industryKey = json['industryKey'] ?? None
+        self.longName = json['longName'] ?? None
+        self.open = json['open'] ?? None
+        self.previousClose = json['previousClose'] ?? None
+        self.shortName = json['shortName'] ?? None
+        self.symbol = json['symbol'] ?? None
+        self.sector = json['sector'] ?? None
+        self.sectorKey = json['sectorKey'] ?? None
     
 
