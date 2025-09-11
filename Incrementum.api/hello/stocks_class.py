@@ -1,21 +1,24 @@
 class Stock:
     def __init__(self, json):
-        self.country = json['country'] ?? None
-        self.currentPrice = json['currentPrice'] ?? None
-        self.dayHigh = json['dayHigh'] ?? None
-        self.dayLow = json['dayLow'] ?? None
-        self.exchange = json['exchange'] ?? None
-        self.displayName = json['displayName'] ?? None
-        self.fiftyDayAverage = json['fiftyDayAverage'] ?? None
-        self.fullExchangeName = json['fullExchangeName'] ?? None
-        self.industry = json['industry'] ?? None
-        self.industryKey = json['industryKey'] ?? None
-        self.longName = json['longName'] ?? None
-        self.open = json['open'] ?? None
-        self.previousClose = json['previousClose'] ?? None
-        self.shortName = json['shortName'] ?? None
-        self.symbol = json['symbol'] ?? None
-        self.sector = json['sector'] ?? None
-        self.sectorKey = json['sectorKey'] ?? None
+        self.country = json.get('country')
+        self.currentPrice = json.get('currentPrice')
+        self.dayHigh = json.get('dayHigh')
+        self.dayLow = json.get('dayLow')
+        self.exchange = json.get('exchange')
+        self.displayName = json.get('displayName')
+        self.fiftyDayAverage = json.get('fiftyDayAverage')
+        self.fullExchangeName = json.get('fullExchangeName')
+        self.industry = json.get('industry')
+        self.industryKey = json.get('industryKey')
+        self.longName = json.get('longName')
+        self.open = json.get('open')
+        self.previousClose = json.get('previousClose')
+        self.shortName = json.get('shortName')
+        self.symbol = json.get('symbol')
+        self.sector = json.get('sector')
+        self.sectorKey = json.get('sectorKey')
+
+    def to_dict(self):
+        return self.__dict__
     
 

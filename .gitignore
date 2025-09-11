@@ -1,0 +1,13 @@
+Incrementum.api/db.sqlite3
+Incrementum.api/api_project/__pycache__/__init__.cpython-313.pyc
+Incrementum.api/api_project/__pycache__/settings.cpython-313.pyc
+Incrementum.api/api_project/__pycache__/urls.cpython-313.pyc
+Incrementum.api/api_project/__pycache__/wsgi.cpython-313.pyc
+Incrementum.api/hello/__pycache__/__init__.cpython-313.pyc
+
+Incrementum.api/hello/__pycache__/admin.cpython-313.pyc
+Incrementum.api/hello/__pycache__/apps.cpython-313.pyc
+Incrementum.api/hello/__pycache__/models.cpython-313.pyc
+Incrementum.api/hello/__pycache__/urls.cpython-313.pyc
+Incrementum.api/hello/__pycache__/views.cpython-313.pyc
+Incrementum.api/hello/migrations/__pycache__/__init__.cpython-313.pyc
