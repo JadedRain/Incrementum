@@ -2,24 +2,39 @@ import pandas as pd
 import yfinance as yf
 import os
 import json
-from .stocks_class import Stock
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,  # Minimum level to capture (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CSV_PATH = os.path.join(BASE_DIR, 'data', 'ticker_info.csv')
-tickers = pd.read_csv(CSV_PATH, index_col=0)
-def search_stocks(query):
+def setup():
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    CSV_PATH = os.path.join(BASE_DIR, 'data', 'ticker_info.csv')
+    tickers = pd.read_csv(CSV_PATH, index_col=0)
+    return tickers
+
+def search_stocks(query, source=setup):
+    tickers = source()
+    logging.info(f"Searching for stocks with query: {query}")
     results = []
     query = query.lower()
     for _, stock in tickers.iterrows():
-        if query in stock['symbol'].lower() or query in stock['name'].lower():
+        symbol = str(stock['symbol'])
+        name = str(stock['companyName'])
+        if query.lower() in symbol.lower() or query.lower() in name.lower():
+            logging.info(f"Match found: {symbol} - {name}")
             results.append({
-                'symbol': stock['symbol'],
-                'name': stock['name']
+                'symbol': symbol,
+                'name': name,
             })
     return results
 
 def get_stock_info(max, offset):
+    tickers = setup()
     stocks = []
     # Ensure max and offset are integers
     max = int(max)
