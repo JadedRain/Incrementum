@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import SearchBar from "./searchBar";
 
 export default function SearchResults() {
   const { query } = useParams<{ query: string }>();
@@ -27,6 +28,7 @@ export default function SearchResults() {
 
   return (
     <div style={{ padding: "20px", fontFamily: "serif" }}>
+      <SearchBar />
       <h2>Results for "{query}"</h2>
       {loading && <p>Loading...</p>}
       {!loading && results.length === 0 && <p>No results found.</p>}
