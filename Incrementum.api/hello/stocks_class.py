@@ -1,4 +1,4 @@
-class stock:
+class Stock:
     def __init__(self, json):
         self.country = json['country'] ?? None
         self.currentPrice = json['currentPrice'] ?? None
