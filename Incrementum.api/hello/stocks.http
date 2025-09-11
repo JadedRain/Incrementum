@@ -4,3 +4,6 @@ GET {{host}}/getStocks/AAPL
 
 ###
 GET {{host}}/getStockInfo/?max=5&offset=0
+
+###
+GET {{host}}/watchlist/
