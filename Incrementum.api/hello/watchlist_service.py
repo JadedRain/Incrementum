@@ -6,14 +6,17 @@ class WatchlistService:
         self.watchlist = []
 
     def add(self, symbol):
-        if symbol and not any(s.symbol == symbol for s in self.watchlist):
-            stock_obj = fetch_stock_data(symbol)
-            self.watchlist.append(stock_obj)
-        return [s.to_dict() for s in self.watchlist]
+        if symbol and symbol not in self.watchlist:
+            self.watchlist.append(symbol)
+        return self.watchlist
 
     def get(self):
-        return [s.to_dict() for s in self.watchlist]
+        stocks = []
+        for symbol in self.watchlist:
+            stock_obj = fetch_stock_data(symbol)
+            stocks.append(stock_obj.to_dict())
+        return stocks
 
     def remove(self, symbol):
-        self.watchlist = [s for s in self.watchlist if s.symbol != symbol]
-        return [s.to_dict() for s in self.watchlist]
+        self.watchlist = [s for s in self.watchlist if s != symbol]
+        return self.watchlist
