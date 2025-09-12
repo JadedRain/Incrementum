@@ -6,4 +6,37 @@ GET {{host}}/getStocks/AAPL
 GET {{host}}/getStockInfo/?max=5&offset=0
 
 ###
+POST {{host}}/watchlist/add/
+Content-Type: application/json
+
+{
+	"symbol": "AAPL"
+}
+
+###
 GET {{host}}/watchlist/
+
+###
+DELETE {{host}}/watchlist/remove/
+Content-Type: application/json
+
+{
+	"symbol": "AAPL"
+}
+
+###
+POST {{host}}/watchlist/add/
+Content-Type: application/json
+
+{
+	"symbol": "BRX"
+}
+
+###
+GET {{host}}/watchlist/search/?query=Apple
+
+###
+GET {{host}}/watchlist/sorted/
+
+###
+GET {{host}}/watchlist/sorted/?reverse=true
