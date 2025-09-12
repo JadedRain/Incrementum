@@ -6,7 +6,7 @@ GET {{host}}/getStocks/AAPL
 GET {{host}}/getStockInfo/?max=5&offset=0
 
 ###
-POST http://localhost:8000/watchlist/add/
+POST {{host}}/watchlist/add/
 Content-Type: application/json
 
 {
@@ -14,10 +14,10 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:8000/watchlist/
+GET {{host}}/watchlist/
 
 ###
-DELETE http://localhost:8000/watchlist/remove/
+DELETE {{host}}/watchlist/remove/
 Content-Type: application/json
 
 {
@@ -25,7 +25,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:8000/watchlist/add/
+POST {{host}}/watchlist/add/
 Content-Type: application/json
 
 {
@@ -33,4 +33,10 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:8000/watchlist/search/?query=Apple
+GET {{host}}/watchlist/search/?query=Apple
+
+###
+GET {{host}}/watchlist/sorted/
+
+###
+GET {{host}}/watchlist/sorted/?reverse=true

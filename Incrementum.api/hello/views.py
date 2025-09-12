@@ -40,6 +40,12 @@ def search_stocks_watchlist(request):
 	results = watchlist_service.search(query, max_results)
 	return Response({'results': results})
 
+@api_view(['GET'])
+def get_sorted_watchlist(request):
+	reverse = request.GET.get('reverse', 'false').lower() == 'true'
+	sorted_list = watchlist_service.get_sorted(reverse)
+	return Response({'watchlist': sorted_list})
+
 class GetStockInfo(APIView):
 	permission_classes = [AllowAny]
 

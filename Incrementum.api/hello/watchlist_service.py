@@ -43,3 +43,10 @@ class WatchlistService:
             if len(results) >= max_results:
                 break
         return results
+
+    def get_sorted(self, reverse=False):
+        sorted_list = sorted(self.watchlist, key=lambda x: x['companyName'].lower(), reverse=reverse)
+        result = []
+        for item in sorted_list:
+            result.append(fetch_stock_data(item['symbol']).to_dict())
+        return result
