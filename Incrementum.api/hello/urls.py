@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import HelloWorldView, getStocks, remove_from_watchlist
+from .views import HelloWorldView, getStocks, remove_from_watchlist, search_stocks_watchlist
 from .views import GetStockInfo
 from .views import add_to_watchlist, get_watchlist
 
@@ -10,4 +10,5 @@ urlpatterns = [
     path('watchlist/add/', add_to_watchlist, name='add_to_watchlist'),
     path('watchlist/', get_watchlist, name='get_watchlist'),
     path('watchlist/remove/', remove_from_watchlist, name='remove_from_watchlist'),
+    path('watchlist/search/', search_stocks_watchlist, name='search_stocks_watchlist'),
 ]

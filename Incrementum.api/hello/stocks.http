@@ -23,3 +23,14 @@ Content-Type: application/json
 {
 	"symbol": "AAPL"
 }
+
+###
+POST http://localhost:8000/watchlist/add/
+Content-Type: application/json
+
+{
+	"symbol": "BRX"
+}
+
+###
+GET http://localhost:8000/watchlist/search/?query=Apple

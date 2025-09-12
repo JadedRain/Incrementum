@@ -30,6 +30,16 @@ def remove_from_watchlist(request):
 @api_view(['GET'])
 def get_watchlist(request):
 	return Response({'watchlist': watchlist_service.get()})
+
+@api_view(['GET'])
+def search_stocks_watchlist(request):
+	query = request.GET.get('query', '')
+	if not query:
+		return Response({'error': 'Query parameter is required'}, status=status.HTTP_400_BAD_REQUEST)
+	max_results = int(request.GET.get('max', 10))
+	results = watchlist_service.search(query, max_results)
+	return Response({'results': results})
+
 class GetStockInfo(APIView):
 	permission_classes = [AllowAny]
 
