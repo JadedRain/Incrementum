@@ -1,12 +1,16 @@
-
+// import { useState } from 'react'
 import './App.css'
-import StockInfoList from './StockInfoList'
+import SearchBar from './searchBar'
 
 function App() {
+  // const [count, setCount] = useState(0)
+
   return (
-    <div>
-      <StockInfoList />
-    </div>
+    <>
+      <div>
+        <SearchBar />
+      </div>
+    </>
   )
 }
 
