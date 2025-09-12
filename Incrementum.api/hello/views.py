@@ -1,3 +1,4 @@
+from .get_stock_info import get_stock_info, search_stocks
 from rest_framework import status
 from rest_framework.decorators import api_view
 from .watchlist_service import WatchlistService
@@ -6,6 +7,23 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 import yfinance as yf
+import logging
+
+# Configure logging
+
+
+
+class SearchStocksView(APIView):
+	def __init__(self):
+		logging.basicConfig(
+    	level=logging.INFO,  # Minimum level to capture (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    	format="%(asctime)s - %(levelname)s - %(message)s")
+
+
+	def get(self, request, query):
+		results = search_stocks(query)
+		logging.info(f"results: {results}")
+		return Response(results)
 
 
 # Singleton instance for demo (not thread-safe, not persistent)
