@@ -29,3 +29,11 @@ class getStocks(APIView):
 	def get(self, request, ticker):
 		stock = yf.Ticker(ticker)
 		return Response({"stocks": stock.history(period = '1y')})
+
+class WatchlistList(APIView):
+	permission_classes = [AllowAny]
+
+	def get(self, request):
+		# For now, empty list
+		watchlist = []
+		return Response({"watchlist": watchlist})
