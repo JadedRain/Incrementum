@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from .watchlist_service import WatchlistService
 from .get_stock_info import get_stock_info
+from .get_stock_info import get_stock_by_ticker
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
@@ -64,7 +65,7 @@ def get_sorted_watchlist(request):
 	sorted_list = watchlist_service.get_sorted(reverse)
 	return Response({'watchlist': sorted_list})
 
-class GetStockInfo(APIView):
+class GetStocksInfo(APIView):
 	permission_classes = [AllowAny]
 
 	def get(self, request):
@@ -76,7 +77,14 @@ class GetStockInfo(APIView):
 		stocks = get_stock_info(max_val, offset)
 
 		return Response({'stocks': [s.to_dict() for s in stocks]})
-	
+class GetStockInfo(APIView):
+	permission_classes = [AllowAny]
+
+	def get(self, request, ticker):
+		try:
+			return Response(get_stock_by_ticker(ticker).to_dict(), status=200)
+		except AttributeError:
+			return Response({'error': 'Page Not Found'}, status=404)
 class HelloWorldView(APIView):
 	permission_classes = [AllowAny]
 
