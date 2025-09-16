@@ -17,7 +17,7 @@ function StocksPage() {
           Stocks Page
         </h1>
       </div>
-      <div style={{ textAlign: 'center', alignItems: 'center', justifyContent: 'center', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ alignItems: 'center', display: 'flex', flexDirection: 'column' }}>
         <StockInfoList />
       </div>
     </div>

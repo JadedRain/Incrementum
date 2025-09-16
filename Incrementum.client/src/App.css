@@ -237,6 +237,7 @@
   @apply bg-[#BEB7A7];
   @apply rounded-2xl;
   @apply shadow-md;
+  /* @apply text-[#302D27]; */
   @apply p-4;
   @apply flex;
 }
@@ -249,17 +250,17 @@
   @apply px-3;
   @apply py-1;
   @apply hover:bg-[#7E8D5E];
-  @apply transition-colors;
   @apply duration-200;
 }
 
 .nav-button {
   @apply text-[#DCAF56];
   @apply rounded-lg;
+  @apply w-[100px];
+  @apply h-[60px];
   @apply px-4;
   @apply py-2;
   @apply hover:bg-[#6C5019];
-  @apply transition-colors;
   @apply duration-200;
   font-family: "Newsreader", serif;
 }
