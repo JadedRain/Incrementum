@@ -33,7 +33,14 @@ def search_stocks(query, source=setup):
                 'name': name,
             })
     return results
-
+def get_stock_by_ticker(ticker, source=setup):
+    tickers = source()
+    stock_row = tickers[tickers['symbol'].str.lower() == ticker.lower()]
+    if stock_row.empty:
+        logging.warning(f"No stock found for ticker: {ticker}")
+        return None
+    stock_data = fetch_stock_data(ticker)
+    return stock_data
 def get_stock_info(max, offset):
     tickers = setup()
     stocks = []

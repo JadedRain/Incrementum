@@ -12,7 +12,8 @@ Content-Type: application/json
 {
 	"symbol": "AAPL"
 }
-
+###
+Get {{host}}/stock/aapl
 ###
 GET {{host}}/watchlist/
 

@@ -4,7 +4,6 @@ import SearchBar from './searchBar'
 import StockInfoList from './StockInfoList'
 
 function App() {
-  // const [count, setCount] = useState(0)
 
 
   return (
