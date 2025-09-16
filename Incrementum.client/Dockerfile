@@ -1,21 +1,12 @@
-# Build stage
-FROM node:20-alpine AS build
+FROM node:20-alpine AS BUILD
+
 WORKDIR /app
 
-# install deps (no lockfile)
-COPY package.json ./
-RUN npm install
+COPY package.json pnpm-lock.yaml ./
+RUN npm install -g pnpm && pnpm install
 
-# copy source
 COPY . .
 
-RUN npm run build
+EXPOSE 5173
 
-FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# custom nginx config to handle SPA routing
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["pnpm", "run", "dev", "--host"]

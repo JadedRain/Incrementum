@@ -14,7 +14,7 @@ services:
       context: ./Incrementum.client
     container_name: incrementum_client
     ports:
-      - "5173:80"
+      - "5173:5173"
     depends_on:
       - api
     restart: unless-stopped
