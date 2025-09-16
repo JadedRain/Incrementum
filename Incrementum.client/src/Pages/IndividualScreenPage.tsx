@@ -16,7 +16,6 @@ function IndividualScreenPage() {
       </div>
       <div className="pt-32 px-8 ScreenerPage-main-layout">
         <div className="w-full">
-          {/* Replace with your list items */}
           <ul className="bg-white rounded-2xl shadow-md p-8 text-[#222]">
             <li className="py-2 border-b">List Item 1</li>
             <li className="py-2 border-b">List Item 2</li>
