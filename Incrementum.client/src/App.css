@@ -1,46 +1,4 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
+@import "tailwindcss";
 
 .WatchlistPage-header {
   position: fixed;
@@ -117,7 +75,7 @@
 .WatchlistPage-Sidebar {
   width: 200px;
   margin-left: 2rem;
-  background: #f5f5f5;
+  background: #747373;
   border-radius: 12px;
   padding: 1rem;
   min-height: 400px;
@@ -136,3 +94,47 @@
   flex-direction: column;
   justify-content: center;
 }
+
+.ScreenerPage-h1 {
+  @apply text-white text-4xl m-0 flex-1 text-center tracking-wide;
+}
+
+
+.ScreenerPage-card {
+  @apply w-[240px] h-[160px] bg-white rounded-2xl shadow-md p-8 text-center flex flex-col justify-center items-center font-semibold text-[#222] transition-shadow duration-200;
+}
+
+.ScreenerPage-card-custom {
+  @apply w-[240px] h-[160px] bg-[#222] text-white cursor-pointer shadow-lg rounded-2xl p-8 text-center flex flex-col justify-center items-center font-semibold transition-shadow duration-200 hover:bg-[#444];
+}
+.ScreenerPage-card-custom:hover {
+  @apply hover:bg-[#444];
+}
+
+.sidebar {
+  @apply fixed top-0 right-0 w-[340px] h-screen bg-[#23272f] text-slate-200 rounded-bl-2xl shadow-lg py-24 px-8 pb-8 flex flex-col items-start;
+}
+
+.sidebar-nav {
+  @apply flex flex-col gap-4 w-full;
+}
+
+.sidebar-links {
+  @apply text-slate-200 no-underline text-base py-2 px-4 rounded-lg transition-colors duration-200 bg-transparent hover:bg-[#374151] hover:text-white;
+}
+.sidebar-links:hover {
+  @apply hover:bg-[#374151] hover:text-white;
+}
+
+.ScreenerPage-main-layout {
+  @apply pt-32 px-8 flex flex-row justify-start items-start gap-8 mr-[360px];
+}
+
+.ScreenerPage-sidebar {
+  @apply w-[220px] min-h-[220px] bg-[#444] text-white rounded-2xl shadow-md py-8 px-4 mt-2 flex flex-col items-center;
+}
+
+.ScreenerPage-card-grid {
+  @apply grid grid-cols-5 gap-x-16 gap-y-10 justify-end;
+}
+
