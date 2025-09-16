@@ -121,6 +121,7 @@
   @apply text-[#222];
   @apply transition-shadow;
   @apply duration-200;
+  @apply px-10;
 }
 
 .ScreenerPage-card-custom {
@@ -210,8 +211,20 @@
 
 .ScreenerPage-card-grid {
   @apply grid;
+  @apply flex-row;
   @apply grid-cols-5;
-  @apply gap-x-16;
+  @apply gap-50;
   @apply gap-y-10;
   @apply justify-end;
+}
+
+.ScreenerPage-container {
+  @apply pt-32;
+  @apply px-8;
+  @apply flex;
+  @apply flex-row;
+  @apply justify-start;
+  @apply items-start;
+  @apply gap-8;
+  @apply mr-[360px];
 }

@@ -18,10 +18,11 @@ function ScreenerPage() {
                 </h1>
                 <div className="w-20 mr-8 bg-gray-600"></div>
             </div>
-            <div className="pt-32 px-8 flex flex-row justify-start items-start gap-8 mr-[360px]">
+            <div className="ScreenerPage-container">
                 <div className="ScreenerPage-card-grid">
                     <div className="ScreenerPage-card cursor-pointer" onClick={() => handleCardClick('Temp Card 1')}>Temp Card 1</div>
                     <div className="ScreenerPage-card cursor-pointer" onClick={() => handleCardClick('Temp Card 2')}>Temp Card 2</div>
+                    <div className="ScreenerPage-card cursor-pointer" onClick={() => handleCardClick('Temp Card 3')}>Temp Card 3</div>
                     <div className="ScreenerPage-card-custom cursor-pointer" onClick={() => handleCardClick('Create Custom')}>Create Custom</div>
                 </div>
                 <aside className="sidebar">

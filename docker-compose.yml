@@ -17,6 +17,10 @@ services:
       - "5173:5173"
     volumes:
       - ./Incrementum.client:/app
+      - client_node_modules:/app/node_modules
     depends_on:
       - api
     restart: unless-stopped
+
+volumes:
+  client_node_modules:
