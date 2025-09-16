@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap");
 @import "tailwindcss";
 
 .WatchlistPage-header {
@@ -36,7 +37,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  background: #535353;
+  @apply bg-[#251C09];
   display: flex;
   align-items: center;
   padding: 1rem 0;
@@ -45,12 +46,13 @@
 }
 
 .StocksPage-h1 {
-  color: #fff;
+  @apply text-[#DCAF56];
   font-Size: 2.5rem;
   margin: 0;
   flex: 1;
   text-Align: center;
   letter-Spacing: 1px;
+  font-family: 'Newsreader', serif;
 }
 
 .StocksPage-Loading {
@@ -227,4 +229,41 @@
   @apply items-start;
   @apply gap-8;
   @apply mr-[360px];
+}
+
+.stock-card {
+  @apply w-[900px];
+  @apply h-[60px];
+  @apply bg-[#BEB7A7];
+  @apply rounded-2xl;
+  @apply shadow-md;
+  @apply p-4;
+  @apply flex;
+}
+
+.add-to-watchlist-button {
+  @apply ml-4;
+  @apply bg-[#657465];
+  @apply text-[#C5D69E];
+  @apply rounded-lg;
+  @apply px-3;
+  @apply py-1;
+  @apply hover:bg-[#7E8D5E];
+  @apply transition-colors;
+  @apply duration-200;
+}
+
+.nav-button {
+  @apply text-[#DCAF56];
+  @apply rounded-lg;
+  @apply px-4;
+  @apply py-2;
+  @apply hover:bg-[#6C5019];
+  @apply transition-colors;
+  @apply duration-200;
+  font-family: "Newsreader", serif;
+}
+
+.newsreader-font {
+  font-family: 'Newsreader', serif;
 }

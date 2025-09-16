@@ -20,7 +20,7 @@ const StockInfoList: React.FC = () => {
         //   throw new Error('Network response was not ok');
         // }
         const data = await response.json();
-        setStocks(data.stocks);
+        setStocks(data.stocks.slice(0, 11));
         console.log(stocks.length);
       }  finally {
         setLoading(false);
@@ -38,9 +38,9 @@ const StockInfoList: React.FC = () => {
         {stocks.map((item, idx) => {
           const name = item.displayName || item.longName || item.shortName || 'Unnamed Stock';
           return (
-            <li key={idx} style={{ marginBottom: '1rem' }}>
-              <span style={{ marginRight: '1rem', fontWeight: 'bold' }}>{name}</span>
-              <button>Add</button>
+            <li className="stock-card" key={idx} style={{ marginBottom: '1rem' }}>
+              <span className='p-1 newsreader-font'>{name} </span>
+              <button className='add-to-watchlist-button'>Add to Watchlist</button>
             </li>
           );
         })}

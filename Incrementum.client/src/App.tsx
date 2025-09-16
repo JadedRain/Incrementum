@@ -4,8 +4,6 @@ import SearchBar from './searchBar'
 import StockInfoList from './StockInfoList'
 
 function App() {
-
-
   return (
     <>
       <div>
