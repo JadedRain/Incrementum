@@ -1,46 +1,4 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
+@import "tailwindcss";
 
 .WatchlistPage-header {
   position: fixed;
@@ -117,7 +75,7 @@
 .WatchlistPage-Sidebar {
   width: 200px;
   margin-left: 2rem;
-  background: #f5f5f5;
+  background: #747373;
   border-radius: 12px;
   padding: 1rem;
   min-height: 400px;
@@ -135,4 +93,138 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.ScreenerPage-h1 {
+  @apply text-white; 
+  @apply text-4xl; 
+  @apply m-0; 
+  @apply flex-1; 
+  @apply text-center; 
+  @apply tracking-wide;
+}
+
+
+.ScreenerPage-card {
+  @apply w-[240px];
+  @apply h-[160px];
+  @apply bg-white;
+  @apply rounded-2xl;
+  @apply shadow-md;
+  @apply p-8;
+  @apply text-center;
+  @apply flex;
+  @apply flex-col;
+  @apply justify-center;
+  @apply items-center;
+  @apply font-semibold;
+  @apply text-[#222];
+  @apply transition-shadow;
+  @apply duration-200;
+  @apply px-10;
+}
+
+.ScreenerPage-card-custom {
+  @apply w-[240px];
+  @apply h-[160px];
+  @apply bg-[#222];
+  @apply text-white;
+  @apply cursor-pointer;
+  @apply shadow-lg;
+  @apply rounded-2xl;
+  @apply p-8;
+  @apply text-center;
+  @apply flex;
+  @apply flex-col;
+  @apply justify-center;
+  @apply items-center;
+  @apply font-semibold;
+  @apply transition-shadow;
+  @apply duration-200;
+  @apply hover:bg-[#444];
+}
+
+.sidebar {
+  @apply fixed;
+  @apply top-0;
+  @apply right-0;
+  @apply w-[340px];
+  @apply h-screen;
+  @apply bg-[#23272f];
+  @apply text-slate-200;
+  @apply rounded-bl-2xl;
+  @apply shadow-lg;
+  @apply py-24;
+  @apply px-8;
+  @apply pb-8;
+  @apply flex;
+  @apply flex-col;
+  @apply items-start;
+}
+
+.sidebar-nav {
+  @apply flex;
+  @apply flex-col;
+  @apply gap-4;
+  @apply w-full;
+}
+
+.sidebar-links {
+  @apply text-slate-200;
+  @apply no-underline;
+  @apply text-base;
+  @apply py-2;
+  @apply px-4;
+  @apply rounded-lg;
+  @apply transition-colors;
+  @apply duration-200;
+  @apply bg-transparent;
+  @apply hover:bg-[#374151];
+  @apply hover:text-white;
+}
+
+.ScreenerPage-main-layout {
+  @apply pt-32;
+  @apply px-8;
+  @apply flex;
+  @apply flex-row;
+  @apply justify-start;
+  @apply items-start;
+  @apply gap-8;
+  @apply mr-[360px];
+}
+
+.ScreenerPage-sidebar {
+  @apply w-[220px];
+  @apply min-h-[220px];
+  @apply bg-[#444];
+  @apply text-white;
+  @apply rounded-2xl;
+  @apply shadow-md;
+  @apply py-8;
+  @apply px-4;
+  @apply mt-2;
+  @apply flex;
+  @apply flex-col;
+  @apply items-center;
+}
+
+.ScreenerPage-card-grid {
+  @apply grid;
+  @apply flex-row;
+  @apply grid-cols-5;
+  @apply gap-50;
+  @apply gap-y-10;
+  @apply justify-end;
+}
+
+.ScreenerPage-container {
+  @apply pt-32;
+  @apply px-8;
+  @apply flex;
+  @apply flex-row;
+  @apply justify-start;
+  @apply items-start;
+  @apply gap-8;
+  @apply mr-[360px];
 }

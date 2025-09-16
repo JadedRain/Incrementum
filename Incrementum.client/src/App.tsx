@@ -1,7 +1,6 @@
 // import { useState } from 'react'
 import './App.css'
 import SearchBar from './searchBar'
-
 import StockInfoList from './StockInfoList'
 
 function App() {
@@ -12,7 +11,6 @@ function App() {
       <div>
         <SearchBar />
       </div>
-
     <div>
       <StockInfoList />
     </div>
