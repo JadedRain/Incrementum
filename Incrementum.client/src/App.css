@@ -95,8 +95,34 @@
   justify-content: center;
 }
 
+/* ScreenerPage Styles */
+
+.ScreenerPage-header {
+    @apply fixed; 
+    @apply top-0; 
+    @apply left-0;
+    @apply w-full;
+    @apply bg-[hsl(41,61%,9%)]; 
+    @apply flex; 
+    @apply items-center;
+    @apply py-4;
+    @apply z-[1000]; 
+    @apply shadow-md;
+  }
+
+.ScreenerPage-button {
+    @apply ml-4;
+    @apply px-4;
+    @apply py-2;
+    @apply rounded;
+    @apply bg-[hsl(40,61%,55%)];
+    @apply text-[hsl(40,62%,26%)];
+    @apply cursor-pointer;
+}
+
 .ScreenerPage-h1 {
-  @apply text-white; 
+  @apply text-[hsl(40,61%,55%)];
+  @apply bg-[hsl(41,61%,9%)]; 
   @apply text-4xl; 
   @apply m-0; 
   @apply flex-1; 
@@ -144,50 +170,12 @@
   @apply hover:bg-[#444];
 }
 
-.sidebar {
-  @apply fixed;
-  @apply top-0;
-  @apply right-0;
-  @apply w-[340px];
-  @apply h-screen;
-  @apply bg-[#23272f];
-  @apply text-slate-200;
-  @apply rounded-bl-2xl;
-  @apply shadow-lg;
-  @apply py-24;
-  @apply px-8;
-  @apply pb-8;
-  @apply flex;
-  @apply flex-col;
-  @apply items-start;
-}
-
-.sidebar-nav {
-  @apply flex;
-  @apply flex-col;
-  @apply gap-4;
-  @apply w-full;
-}
-
-.sidebar-links {
-  @apply text-slate-200;
-  @apply no-underline;
-  @apply text-base;
-  @apply py-2;
-  @apply px-4;
-  @apply rounded-lg;
-  @apply transition-colors;
-  @apply duration-200;
-  @apply bg-transparent;
-  @apply hover:bg-[#374151];
-  @apply hover:text-white;
-}
-
 .ScreenerPage-main-layout {
   @apply pt-32;
   @apply px-8;
   @apply flex;
   @apply flex-row;
+  @apply bg-[hsl(39,13%,21%)];
   @apply justify-start;
   @apply items-start;
   @apply gap-8;
@@ -227,4 +215,86 @@
   @apply items-start;
   @apply gap-8;
   @apply mr-[360px];
+}
+
+.StockTable-container {
+  @apply bg-[hsl(41,61%,9%)]; 
+  @apply rounded-2xl; 
+  @apply shadow-md p-8; 
+  @apply text-[#222]; 
+  @apply w-full;
+}
+.StockTable-header-row {
+  @apply flex;
+  @apply bg-[hsl(40,61%,55%)];
+  @apply text-[hsl(40,62%,26%)];
+  @apply rounded-t-xl;
+  @apply font-semibold;
+  @apply text-lg mb-2;
+}
+.StockTable-header {
+  @apply flex-1; 
+  @apply px-4; 
+  @apply py-3; 
+  @apply text-left;
+}
+.StockTable-row {
+  @apply flex; 
+  @apply bg-[hsl(40,61%,55%)];
+  @apply text-[hsl(40,62%,26%)];
+  @apply rounded-lg;
+  @apply mb-2;
+}
+.StockTable-cell {
+  @apply flex-1; 
+  @apply px-4; 
+  @apply py-3; 
+  @apply text-left;
+}
+.text-green-500 {
+  @apply text-green-500;
+}
+.text-red-500 {
+  @apply text-red-500;
+}
+
+/* Sidebar styles */
+
+.sidebar {
+  @apply fixed;
+  @apply top-0;
+  @apply right-0;
+  @apply w-[340px];
+  @apply h-screen;
+  @apply bg-[hsl(40,61%,55%)];
+  @apply text-[hsl(40,62%,26%)];
+  @apply rounded-bl-2xl;
+  @apply shadow-lg;
+  @apply py-24;
+  @apply px-8;
+  @apply pb-8;
+  @apply flex;
+  @apply flex-col;
+  @apply items-start;
+}
+
+.sidebar-nav {
+  @apply flex;
+  @apply flex-col;
+  @apply gap-4;
+  @apply w-full;
+}
+
+.sidebar-links {
+  @apply text-[hsl(40,62%,26%)];
+  @apply no-underline;
+  @apply text-base;
+  @apply py-2;
+  @apply px-4;
+  @apply rounded-lg;
+  @apply transition-colors;
+  @apply duration-200;
+  @apply bg-transparent;
+  @apply hover:bg-[#374151];
+  @apply hover:text-white;
 }
