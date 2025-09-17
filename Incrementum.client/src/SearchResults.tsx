@@ -20,7 +20,7 @@ export default function SearchResults() {
         const data = await res.json();
 
         setResults(data);
-        setHasMore(data.length > 0); // if empty, no more pages
+        setHasMore(data.length >= 10); // if empty, no more pages
       } catch (err) {
         console.error("Error fetching search results:", err);
       } finally {
