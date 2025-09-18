@@ -15,3 +15,6 @@ Incrementum.api/hello/migrations/__pycache__/__init__.cpython-313.pyc
 Incrementum.api/.venv
 __pycache__/
 
+Incrementum.api/api_project/.my_pgpass
+.pytest_cache/
+.env
