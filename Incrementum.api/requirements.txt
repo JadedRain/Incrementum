@@ -27,4 +27,6 @@ websockets==15.0.1
 yfinance==0.2.65
 djangorestframework
 django-cors-headers
+psycopg2-binary
+
 matplotlib

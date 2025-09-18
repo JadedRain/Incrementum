@@ -197,7 +197,7 @@
   @apply px-8;
   @apply flex;
   @apply flex-row;
-  @apply bg-[hsl(39,13%,21%)];
+  /* @apply bg-[hsl(39,13%,21%)]; */
   @apply justify-start;
   @apply items-start;
   @apply gap-8;
@@ -240,7 +240,7 @@
 }
 
 .StockTable-container {
-  @apply bg-[hsl(41,61%,9%)]; 
+  /* @apply bg-[hsl(41,61%,9%)];  */
   @apply rounded-2xl; 
   @apply shadow-md p-8; 
   @apply text-[#222]; 
