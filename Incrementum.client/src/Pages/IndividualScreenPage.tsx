@@ -60,7 +60,7 @@ function IndividualScreenPage() {
                     <div className="StockTable-cell">{symbol}</div>
                     <div className="StockTable-cell">{symbol[0] || '?'}</div>
                     <div className={`StockTable-cell ${percent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {percent >= 0 ? `+${percent}%` : `${percent}%`}
+                      {percent >= 0 ? `+${percent}%` : `${percent}%`}x
                     </div>
                   </div>
                 );
