@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 import yfinance as yf
 import logging
+from django.http import HttpResponse
 # Configure logging
 
 
@@ -101,7 +102,7 @@ class GetStocks(APIView):
             return Response("No data found for ticker", status=404)
 
         png_bytes = generate_stock_graph(history, ticker)
-        return Response(png_bytes, content_type="image/png")
+        return HttpResponse(png_bytes, content_type="image/png")
 class WatchlistList(APIView):
 	permission_classes = [AllowAny]
 

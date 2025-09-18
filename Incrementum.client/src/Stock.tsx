@@ -23,7 +23,7 @@ export default function Stock() {
   const { token } = useParams<{ token: string }>();
   const [results, setResults] = useState<StockData | null>(null);
   const [loading, setLoading] = useState(false);
-
+  const imgUrl = `http://localhost:8000/getStocks/${token}/`;
   useEffect(() => {
     if (!token) return;
 
@@ -50,7 +50,7 @@ export default function Stock() {
     <div style={{ padding: "20px", fontFamily: "serif" }} className="bg-[#6C5019]">
       <div className = "stock-grid">
         <div className='StocksPage-header grid-top'>
-          <h1 className="StocksPage-h1">{results.displayName} ({results.symbol})</h1> 
+          <h1 className="StocksPage-h1">{results.shortName} ({results.symbol})</h1> 
         </div>
         <div className="grid-right">
           <p><strong>Current Price:</strong> ${results.currentPrice}</p>
@@ -63,6 +63,11 @@ export default function Stock() {
           <p><strong>Sector:</strong> {results.sector}</p>
           <p><strong>Country:</strong> {results.country}</p>
         </div>
+        <img
+        src={imgUrl}
+        alt={`${token} stock chart`}
+        className="rounded-lg shadow-md max-w-full h-auto grid-middle"
+      />
       </div>
     </div>
   );

@@ -24,7 +24,7 @@
 .stock-grid
 {
   display: grid;
-  grid-template-columns: 3fr 1fr;
+  grid-template-columns: 1fr 2fr 1fr;
   grid-template-rows: 100px auto;
   height: 100vh;
 
@@ -33,10 +33,15 @@
 {
   grid-row: 1;
 }
-.grid-right
+.grid-middle
 {
   grid-row: 2;
   grid-column: 2;
+}
+.grid-right
+{
+  grid-row: 2;
+  grid-column: 3;
 }
 .WatchlistPage-Loading {
   color: #fff;
