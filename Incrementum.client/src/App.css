@@ -1,46 +1,5 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap");
+@import "tailwindcss";
 
 .WatchlistPage-header {
   position: fixed;
@@ -54,7 +13,6 @@
   z-index: 1000;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
-
 .WatchlistPage-h1 {
   color: #fff;
   font-Size: 2.5rem;
@@ -63,7 +21,28 @@
   text-Align: center;
   letter-Spacing: 1px;
 }
+.stock-grid
+{
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-rows: 100px auto;
+  height: 100vh;
 
+}
+.grid-top
+{
+  grid-row: 1;
+}
+.grid-middle
+{
+  grid-row: 2;
+  grid-column: 2;
+}
+.grid-right
+{
+  grid-row: 2;
+  grid-column: 3;
+}
 .WatchlistPage-Loading {
   color: #fff;
   text-align: center;
@@ -78,7 +57,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  background: #535353;
+  @apply bg-[#251C09];
   display: flex;
   align-items: center;
   padding: 1rem 0;
@@ -87,12 +66,13 @@
 }
 
 .StocksPage-h1 {
-  color: #fff;
+  @apply text-[#DCAF56];
   font-Size: 2.5rem;
   margin: 0;
   flex: 1;
   text-Align: center;
   letter-Spacing: 1px;
+  font-family: 'Newsreader', serif;
 }
 
 .StocksPage-Loading {
@@ -117,7 +97,7 @@
 .WatchlistPage-Sidebar {
   width: 200px;
   margin-left: 2rem;
-  background: #f5f5f5;
+  background: #747373;
   border-radius: 12px;
   padding: 1rem;
   min-height: 400px;
@@ -135,4 +115,246 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+/* ScreenerPage Styles */
+
+.ScreenerPage-header {
+    @apply fixed; 
+    @apply top-0; 
+    @apply left-0;
+    @apply w-full;
+    @apply bg-[hsl(41,61%,9%)]; 
+    @apply flex; 
+    @apply items-center;
+    @apply py-4;
+    @apply z-[1000]; 
+    @apply shadow-md;
+  }
+
+.ScreenerPage-button {
+    @apply ml-4;
+    @apply px-4;
+    @apply py-2;
+    @apply rounded;
+    @apply bg-[hsl(40,61%,55%)];
+    @apply text-[hsl(40,62%,26%)];
+    @apply cursor-pointer;
+}
+
+.ScreenerPage-h1 {
+  @apply text-[hsl(40,61%,55%)];
+  @apply bg-[hsl(41,61%,9%)]; 
+  @apply text-4xl; 
+  @apply m-0; 
+  @apply flex-1; 
+  @apply text-center; 
+  @apply tracking-wide;
+}
+
+
+.ScreenerPage-card {
+  @apply w-[240px];
+  @apply h-[160px];
+  @apply bg-white;
+  @apply rounded-2xl;
+  @apply shadow-md;
+  @apply p-8;
+  @apply text-center;
+  @apply flex;
+  @apply flex-col;
+  @apply justify-center;
+  @apply items-center;
+  @apply font-semibold;
+  @apply text-[#222];
+  @apply transition-shadow;
+  @apply duration-200;
+  @apply px-10;
+}
+
+.ScreenerPage-card-custom {
+  @apply w-[240px];
+  @apply h-[160px];
+  @apply bg-[#222];
+  @apply text-white;
+  @apply cursor-pointer;
+  @apply shadow-lg;
+  @apply rounded-2xl;
+  @apply p-8;
+  @apply text-center;
+  @apply flex;
+  @apply flex-col;
+  @apply justify-center;
+  @apply items-center;
+  @apply font-semibold;
+  @apply transition-shadow;
+  @apply duration-200;
+  @apply hover:bg-[#444];
+}
+
+.ScreenerPage-main-layout {
+  @apply pt-32;
+  @apply px-8;
+  @apply flex;
+  @apply flex-row;
+  /* @apply bg-[hsl(39,13%,21%)]; */
+  @apply justify-start;
+  @apply items-start;
+  @apply gap-8;
+  @apply mr-[360px];
+}
+
+.ScreenerPage-sidebar {
+  @apply w-[220px];
+  @apply min-h-[220px];
+  @apply bg-[#444];
+  @apply text-white;
+  @apply rounded-2xl;
+  @apply shadow-md;
+  @apply py-8;
+  @apply px-4;
+  @apply mt-2;
+  @apply flex;
+  @apply flex-col;
+  @apply items-center;
+}
+
+.ScreenerPage-card-grid {
+  @apply grid;
+  @apply flex-row;
+  @apply grid-cols-5;
+  @apply gap-50;
+  @apply gap-y-10;
+  @apply justify-end;
+}
+
+.ScreenerPage-container {
+  @apply pt-32;
+  @apply px-8;
+  @apply flex;
+  @apply flex-row;
+  @apply justify-start;
+  @apply items-start;
+  @apply gap-8;
+  @apply mr-[360px];
+}
+
+.StockTable-container {
+  /* @apply bg-[hsl(41,61%,9%)];  */
+  @apply rounded-2xl; 
+  @apply shadow-md p-8; 
+  @apply text-[#222]; 
+  @apply w-full;
+}
+.StockTable-header-row {
+  @apply flex;
+  @apply bg-[hsl(40,61%,55%)];
+  @apply text-[hsl(40,62%,26%)];
+  @apply rounded-t-xl;
+  @apply font-semibold;
+  @apply text-lg mb-2;
+}
+.StockTable-header {
+  @apply flex-1; 
+  @apply px-4; 
+  @apply py-3; 
+  @apply text-left;
+}
+.StockTable-row {
+  @apply flex; 
+  @apply bg-[hsl(40,61%,55%)];
+  @apply text-[hsl(40,62%,26%)];
+  @apply rounded-lg;
+  @apply mb-2;
+}
+.StockTable-cell {
+  @apply flex-1; 
+  @apply px-4; 
+  @apply py-3; 
+  @apply text-left;
+}
+.text-green-500 {
+  @apply text-green-500;
+}
+.text-red-500 {
+  @apply text-red-500;
+}
+
+/* Sidebar styles */
+
+.sidebar {
+  @apply fixed;
+  @apply top-0;
+  @apply right-0;
+  @apply w-[340px];
+  @apply h-screen;
+  @apply bg-[hsl(40,61%,55%)];
+  @apply text-[hsl(40,62%,26%)];
+  @apply rounded-bl-2xl;
+  @apply shadow-lg;
+  @apply py-24;
+  @apply px-8;
+  @apply pb-8;
+  @apply flex;
+  @apply flex-col;
+  @apply items-start;
+}
+
+.sidebar-nav {
+  @apply flex;
+  @apply flex-col;
+  @apply gap-4;
+  @apply w-full;
+}
+
+.sidebar-links {
+  @apply text-[hsl(40,62%,26%)];
+  @apply no-underline;
+  @apply text-base;
+  @apply py-2;
+  @apply px-4;
+  @apply rounded-lg;
+  @apply transition-colors;
+  @apply duration-200;
+  @apply bg-transparent;
+  @apply hover:bg-[#374151];
+  @apply hover:text-white;
+}
+
+.stock-card {
+  @apply w-[900px];
+  @apply h-[60px];
+  @apply bg-[#BEB7A7];
+  @apply rounded-2xl;
+  @apply shadow-md;
+  /* @apply text-[#302D27]; */
+  @apply p-4;
+  @apply flex;
+}
+
+.add-to-watchlist-button {
+  @apply ml-4;
+  @apply bg-[#657465];
+  @apply text-[#C5D69E];
+  @apply rounded-lg;
+  @apply px-3;
+  @apply py-1;
+  @apply hover:bg-[#7E8D5E];
+  @apply duration-200;
+}
+
+.nav-button {
+  @apply text-[#DCAF56];
+  @apply rounded-lg;
+  @apply w-[100px];
+  @apply h-[60px];
+  @apply px-4;
+  @apply py-2;
+  @apply hover:bg-[#6C5019];
+  @apply duration-200;
+  font-family: "Newsreader", serif;
+}
+
+.newsreader-font {
+  font-family: 'Newsreader', serif;
 }

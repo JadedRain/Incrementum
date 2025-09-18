@@ -4,7 +4,8 @@ GET {{host}}/getStocks/AAPL
 
 ###
 GET {{host}}/getStockInfo/?max=5&offset=0
-
+###
+GET {{host}}/searchStocks/a/1
 ###
 POST {{host}}/watchlist/add/
 Content-Type: application/json
@@ -12,7 +13,8 @@ Content-Type: application/json
 {
 	"symbol": "AAPL"
 }
-
+###
+Get {{host}}/stock/aapl
 ###
 GET {{host}}/watchlist/
 
@@ -40,3 +42,16 @@ GET {{host}}/watchlist/sorted/
 
 ###
 GET {{host}}/watchlist/sorted/?reverse=true
+
+###
+POST {{host}}/stocks/
+Content-Type: application/json
+
+{
+	"symbol": "AAPL",
+	"company_name": "Apple Inc."
+}
+
+###
+GET {{host}}/stocks/
+
