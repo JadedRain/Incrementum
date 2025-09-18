@@ -18,7 +18,7 @@ def setup():
     tickers = pd.read_csv(CSV_PATH, index_col=0)
     return tickers
 
-def search_stocks(query, source=setup):
+def search_stocks(query, page, source=setup):
     tickers = source()
     logging.info(f"Searching for stocks with query: {query}")
     results = []
@@ -27,12 +27,15 @@ def search_stocks(query, source=setup):
         symbol = str(stock['symbol'])
         name = str(stock['companyName'])
         if query.lower() in symbol.lower() or query.lower() in name.lower():
-            logging.info(f"Match found: {symbol} - {name}")
+            # logging.info(f"Match found: {symbol} - {name}")
             results.append({
                 'symbol': symbol,
                 'name': name,
             })
-    return results
+    start = 10 * page
+    end = min(start + 10, len(results))
+    return results[start:end]
+
 def get_stock_by_ticker(ticker, source=setup):
     tickers = source()
     stock_row = tickers[tickers['symbol'].str.lower() == ticker.lower()]
