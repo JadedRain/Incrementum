@@ -13,7 +13,6 @@
   z-index: 1000;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
-
 .WatchlistPage-h1 {
   color: #fff;
   font-Size: 2.5rem;
@@ -22,7 +21,23 @@
   text-Align: center;
   letter-Spacing: 1px;
 }
+.stock-grid
+{
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  grid-template-rows: 100px auto;
+  height: 100vh;
 
+}
+.grid-top
+{
+  grid-row: 1;
+}
+.grid-right
+{
+  grid-row: 2;
+  grid-column: 2;
+}
 .WatchlistPage-Loading {
   color: #fff;
   text-align: center;

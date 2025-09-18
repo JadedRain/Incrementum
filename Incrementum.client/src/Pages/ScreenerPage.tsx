@@ -1,6 +1,6 @@
 import '../App.css'
 import { useNavigate } from 'react-router-dom'
-import SearchBar from '../searchBar';
+import SearchBar from '../Components/SearchBar';
 
 function ScreenerPage() {
     const navigate = useNavigate();

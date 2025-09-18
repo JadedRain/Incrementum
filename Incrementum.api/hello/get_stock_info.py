@@ -4,7 +4,21 @@ import os
 from .stocks_class import Stock
 import json
 import logging
+import io
+import matplotlib.pyplot as plt
 
+def generate_stock_graph(history, ticker: str) -> bytes:
+    """Generate a PNG graph from stock history and return raw image bytes."""
+    fig, ax = plt.subplots()
+    history['Close'].plot(ax=ax, title=f"{ticker} Closing Prices (1Y)")
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Price ($)")
+
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format="png", bbox_inches="tight")
+    buffer.seek(0)
+    plt.close(fig)
+    return buffer.getvalue()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,  # Minimum level to capture (DEBUG, INFO, WARNING, ERROR, CRITICAL)

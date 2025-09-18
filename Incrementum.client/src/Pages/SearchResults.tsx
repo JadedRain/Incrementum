@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import SearchBar from "./searchBar";
-import StockCard from "./StockCard";
+import SearchBar from "../Components/SearchBar";
+import StockCard from "../StockCard";
 
 export default function SearchResults() {
   const { query } = useParams<{ query: string }>();
