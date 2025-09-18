@@ -17,3 +17,4 @@ __pycache__/
 
 Incrementum.api/api_project/.my_pgpass
 .pytest_cache/
+.env
