@@ -1,3 +1,9 @@
+from .models import Stock
+from .serializers import StockSerializer
+# API endpoint to insert and get Stock objects from the database
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 from .get_stock_info import get_stock_info, search_stocks
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -10,10 +16,19 @@ from rest_framework.permissions import AllowAny
 import yfinance as yf
 import logging
 
-# Configure logging
+class StockListCreateView(APIView):
+	def get(self, request):
+		stocks = Stock.objects.all()
+		serializer = StockSerializer(stocks, many=True)
+		return Response(serializer.data)
 
-
-
+	def post(self, request):
+		serializer = StockSerializer(data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data, status=status.HTTP_201_CREATED)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+	
 class SearchStocksView(APIView):
 	def __init__(self):
 		logging.basicConfig(
@@ -21,8 +36,8 @@ class SearchStocksView(APIView):
     	format="%(asctime)s - %(levelname)s - %(message)s")
 
 
-	def get(self, request, query):
-		results = search_stocks(query)
+	def get(self, request, query, page):
+		results = search_stocks(query, page)
 		logging.info(f"results: {results}")
 		return Response(results)
 
