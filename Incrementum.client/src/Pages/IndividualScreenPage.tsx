@@ -55,7 +55,7 @@ function IndividualScreenPage() {
                 const symbol = item.symbol || 'N/A';
                 const percent = typeof item.percentChange === 'number' ? item.percentChange : idx % 2 === 0 ? 1.23 : -0.56; // fallback
                 return (
-                  <div className="StockTable-row" key={idx}>
+                  <div className="StockTable-row cursor-pointer" key={idx} onClick={() => navigate(`/stock/${symbol}`)}>
                     <div className="StockTable-cell">{name}</div>
                     <div className="StockTable-cell">{symbol}</div>
                     <div className="StockTable-cell">{symbol[0] || '?'}</div>
