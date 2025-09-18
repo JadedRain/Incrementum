@@ -178,8 +178,8 @@
   @apply flex;
   @apply flex-row;
   @apply bg-[hsl(39,13%,21%)];
-  @apply justify-start;
-  @apply items-start;
+  @apply justify-end;
+  @apply items-end;
   @apply gap-8;
   @apply mr-[360px];
 }
@@ -197,6 +197,29 @@
   @apply flex;
   @apply flex-col;
   @apply items-center;
+}
+
+.sidebar-dropdown-btn {
+  /* These were: flex items-center justify-between w-full px-4 py-2 focus:outline-none */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  outline: none;
+}
+
+.sidebar-dropdown-menu {
+  @apply absolute left-0 z-10 hidden group-hover:block;
+  @apply bg-[#AF8228] text-[#EBCB92] rounded shadow-lg min-w-[120px] mt-1;
+}
+
+.sidebar-dropdown-item {
+  @apply block px-4 py-2;
+  @apply hover:bg-[#DABB7C];
 }
 
 .ScreenerPage-card-grid {
@@ -265,7 +288,7 @@
 .sidebar {
   @apply fixed;
   @apply top-0;
-  @apply right-0;
+  @apply left-0;
   @apply w-[340px];
   @apply h-screen;
   @apply bg-[hsl(40,61%,55%)];
