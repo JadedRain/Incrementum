@@ -4,7 +4,8 @@ GET {{host}}/getStocks/AAPL
 
 ###
 GET {{host}}/getStockInfo/?max=5&offset=0
-
+###
+GET {{host}}/searchStocks/a/1
 ###
 POST {{host}}/watchlist/add/
 Content-Type: application/json

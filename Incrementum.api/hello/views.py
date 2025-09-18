@@ -36,8 +36,8 @@ class SearchStocksView(APIView):
     	format="%(asctime)s - %(levelname)s - %(message)s")
 
 
-	def get(self, request, query):
-		results = search_stocks(query)
+	def get(self, request, query, page):
+		results = search_stocks(query, page)
 		logging.info(f"results: {results}")
 		return Response(results)
 
