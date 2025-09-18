@@ -1,4 +1,17 @@
 services:
+  db:
+    image: postgres:latest
+    container_name: incrementum_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: Incr_DB
+      POSTGRES_USER: Incr
+      POSTGRES_PASSWORD: Z0mb13!123
+    volumes:
+      - ./db_init:/docker-entrypoint-initdb.d
+      - db_data:/var/lib/postgresql/data
+
   api:
     build:
       context: ./Incrementum.api
@@ -7,7 +20,10 @@ services:
       - "8000:8000"
     environment:
       - DJANGO_ENV=development
+      - POSTGRES_PASSWORD=Z0mb13!123
     restart: unless-stopped
+    depends_on:
+      - db
 
   client:
     build:
@@ -21,19 +37,6 @@ services:
     depends_on:
       - api
     restart: unless-stopped
-    
-  db:
-    image: postgres:latest
-    container_name: incrementum_db
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_DB: Incr_DB
-      POSTGRES_USER: Incr
-      POSTGRES_PASSWORD: Z0mb13!123
-    volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d
-      - db_data:/var/lib/postgresql/data
 
 volumes:
   client_node_modules:

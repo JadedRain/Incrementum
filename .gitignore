@@ -16,3 +16,4 @@ Incrementum.api/.venv
 __pycache__/
 
 Incrementum.api/api_project/.my_pgpass
+.pytest_cache/

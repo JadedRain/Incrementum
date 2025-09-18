@@ -41,3 +41,16 @@ GET {{host}}/watchlist/sorted/
 
 ###
 GET {{host}}/watchlist/sorted/?reverse=true
+
+###
+POST {{host}}/stocks/
+Content-Type: application/json
+
+{
+	"symbol": "AAPL",
+	"company_name": "Apple Inc."
+}
+
+###
+GET {{host}}/stocks/
+
