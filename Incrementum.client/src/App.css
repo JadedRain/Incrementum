@@ -288,7 +288,7 @@
 .sidebar {
   @apply fixed;
   @apply top-0;
-  @apply left-0;
+  @apply right-0;
   @apply w-[340px];
   @apply h-screen;
   @apply bg-[hsl(40,61%,55%)];
@@ -320,7 +320,7 @@
   @apply transition-colors;
   @apply duration-200;
   @apply bg-transparent;
-  @apply hover:bg-[#374151];
+  @apply hover:bg-[#DABB7C];
   @apply hover:text-white;
 }
 
