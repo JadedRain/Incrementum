@@ -1,6 +1,6 @@
 import '../App.css'
 import { useNavigate } from 'react-router-dom'
-import SearchBar from '../searchBar';
+import SearchBar from '../Components/SearchBar';
 
 function ScreenerPage() {
     const navigate = useNavigate();
@@ -10,13 +10,12 @@ function ScreenerPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-600">
+        <div className="min-h-screen bg-[hsl(40,62%,26%)]">
             <div className='StocksPage-header'>
                 <SearchBar />
                 <h1 className="ScreenerPage-h1">
                     Screener Page
                 </h1>
-                <div className="w-20 mr-8 bg-gray-600"></div>
             </div>
             <div className="ScreenerPage-container">
                 <div className="ScreenerPage-card-grid">

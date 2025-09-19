@@ -1,7 +1,7 @@
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from "./App";
-import SearchResults from "./SearchResults";
+import SearchResults from "./Pages/SearchResults";
 import StocksPage from './Pages/StocksPage'
 import WatchlistPage from './Pages/WatchlistPage'
 import Stock from "./Stock";

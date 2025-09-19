@@ -1,6 +1,19 @@
 @import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap");
 @import "tailwindcss";
 
+.SearchBar {
+  @apply p-2;
+  @apply rounded-[6px];
+  @apply border-[1px]; 
+  @apply border-solid border-[hsl(42,15%,70%)];
+  @apply w-full;
+  @apply max-w-[300px];
+  @apply text-[hsl(40,66%,60%)];
+  @apply focus:border-[hsl(42,15%,70%)];
+  @apply focus:outline-none;
+}
+
+
 .WatchlistPage-header {
   position: fixed;
   top: 0;
@@ -13,7 +26,6 @@
   z-index: 1000;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
-
 .WatchlistPage-h1 {
   color: #fff;
   font-Size: 2.5rem;
@@ -22,7 +34,28 @@
   text-Align: center;
   letter-Spacing: 1px;
 }
+.stock-grid
+{
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-rows: 100px auto;
+  height: 100vh;
 
+}
+.grid-top
+{
+  grid-row: 1;
+}
+.grid-middle
+{
+  grid-row: 2;
+  grid-column: 2;
+}
+.grid-right
+{
+  grid-row: 2;
+  grid-column: 3;
+}
 .WatchlistPage-Loading {
   color: #fff;
   text-align: center;
@@ -37,7 +70,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  @apply bg-[#251C09];
+  @apply bg-[hsl(41,61%,9%)];
   display: flex;
   align-items: center;
   padding: 1rem 0;
@@ -46,7 +79,7 @@
 }
 
 .StocksPage-h1 {
-  @apply text-[#DCAF56];
+  @apply text-[hsl(40,66%,60%)];
   font-Size: 2.5rem;
   margin: 0;
   flex: 1;
@@ -117,13 +150,14 @@
     @apply px-4;
     @apply py-2;
     @apply rounded;
-    @apply bg-[hsl(40,61%,55%)];
-    @apply text-[hsl(40,62%,26%)];
+    @apply bg-[hsl(79,26%,36%)];
+    @apply text-[hsl(78,41%,73%)];
     @apply cursor-pointer;
+    @apply hover:shadow-[0_4px_24px_0_hsl(220,9%,46%)];
 }
 
 .ScreenerPage-h1 {
-  @apply text-[hsl(40,61%,55%)];
+  @apply text-[hsl(40,66%,60%)];
   @apply bg-[hsl(41,61%,9%)]; 
   @apply text-4xl; 
   @apply m-0; 
@@ -136,7 +170,7 @@
 .ScreenerPage-card {
   @apply w-[240px];
   @apply h-[160px];
-  @apply bg-white;
+  @apply bg-[hsl(42,15%,70%)];
   @apply rounded-2xl;
   @apply shadow-md;
   @apply p-8;
@@ -146,17 +180,18 @@
   @apply justify-center;
   @apply items-center;
   @apply font-semibold;
-  @apply text-[#222];
+  @apply text-[hsl(41,61%,9%)];
   @apply transition-shadow;
   @apply duration-200;
+  @apply hover:shadow-[0_4px_24px_0_hsl(220,9%,46%)];
   @apply px-10;
 }
 
 .ScreenerPage-card-custom {
   @apply w-[240px];
   @apply h-[160px];
-  @apply bg-[#222];
-  @apply text-white;
+  @apply bg-[hsl(42,15%,70%)];
+  @apply text-[hsl(41,61%,9%)];
   @apply cursor-pointer;
   @apply shadow-lg;
   @apply rounded-2xl;
@@ -169,7 +204,10 @@
   @apply font-semibold;
   @apply transition-shadow;
   @apply duration-200;
-  @apply hover:bg-[#444];
+  @apply hover:shadow-[0_4px_24px_0_hsl(220,9%,46%)];
+  @apply border-2; 
+  @apply border-dotted; 
+  @apply border-[hsl(40,10%,17%)];
 }
 
 .ScreenerPage-main-layout {
@@ -177,9 +215,9 @@
   @apply px-8;
   @apply flex;
   @apply flex-row;
-  @apply bg-[hsl(39,13%,21%)];
-  @apply justify-end;
-  @apply items-end;
+  @apply bg-[hsl(40,62%,26%)];
+  @apply justify-start;
+  @apply items-start;
   @apply gap-8;
   @apply mr-[360px];
 }
@@ -243,7 +281,7 @@
 }
 
 .StockTable-container {
-  @apply bg-[hsl(41,61%,9%)]; 
+  @apply bg-[hsl(42,15%,70%)]; 
   @apply rounded-2xl; 
   @apply shadow-md p-8; 
   @apply text-[#222]; 
@@ -262,6 +300,7 @@
   @apply px-4; 
   @apply py-3; 
   @apply text-left;
+  @apply text-[hsl(40,62%,26%)];
 }
 .StockTable-row {
   @apply flex; 
@@ -291,7 +330,7 @@
   @apply left-0;
   @apply w-[340px];
   @apply h-screen;
-  @apply bg-[hsl(40,61%,55%)];
+  @apply bg-[hsl(42,15%,70%)];
   @apply text-[hsl(40,62%,26%)];
   @apply rounded-bl-2xl;
   @apply shadow-lg;
@@ -319,9 +358,8 @@
   @apply rounded-lg;
   @apply transition-colors;
   @apply duration-200;
-  @apply bg-transparent;
-  @apply hover:bg-[#374151];
-  @apply hover:text-white;
+  @apply bg-[hsl(40,61%,55%)];
+  @apply hover:shadow-[0_4px_24px_0_hsl(220,9%,46%)];
 }
 
 .stock-card {

@@ -1,19 +1,37 @@
+from .models import Stock
+from .serializers import StockSerializer
+# API endpoint to insert and get Stock objects from the database
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 from .get_stock_info import get_stock_info, search_stocks
 from rest_framework import status
 from rest_framework.decorators import api_view
 from .watchlist_service import WatchlistService
 from .get_stock_info import get_stock_info
-from .get_stock_info import get_stock_by_ticker
+from .get_stock_info import get_stock_by_ticker, generate_stock_graph
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 import yfinance as yf
 import logging
-
+from django.http import HttpResponse
 # Configure logging
 
 
+class StockListCreateView(APIView):
+	def get(self, request):
+		stocks = Stock.objects.all()
+		serializer = StockSerializer(stocks, many=True)
+		return Response(serializer.data)
 
+	def post(self, request):
+		serializer = StockSerializer(data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data, status=status.HTTP_201_CREATED)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+	
 class SearchStocksView(APIView):
 	def __init__(self):
 		logging.basicConfig(
@@ -91,13 +109,18 @@ class HelloWorldView(APIView):
 	def get(self, request):
 		return Response({"message": "Hello, world!"})
 	
-class getStocks(APIView):
-	permission_classes = [AllowAny]
+class GetStocks(APIView):
+    permission_classes = [AllowAny]
 
-	def get(self, request, ticker):
-		stock = yf.Ticker(ticker)
-		return Response({"stocks": stock.history(period = '1y')})
+    def get(self, request, ticker):
+        stock = yf.Ticker(ticker)
+        history = stock.history(period='1y')
 
+        if history.empty:
+            return Response("No data found for ticker", status=404)
+
+        png_bytes = generate_stock_graph(history, ticker)
+        return HttpResponse(png_bytes, content_type="image/png")
 class WatchlistList(APIView):
 	permission_classes = [AllowAny]
 

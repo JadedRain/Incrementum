@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import Loading from '../Components/Loading';
+import BackButton from '../Components/BackButton';
 import '../App.css';
 
 interface StockInfo {
@@ -31,13 +32,10 @@ function IndividualScreenPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-600">
+    <div className="min-h-screen bg-[hsl(40,62%,26%)]">
       <div className="ScreenerPage-header">
-        <button className="ScreenerPage-button" onClick={() => navigate(-1)}>
-          Back
-        </button>
+        <BackButton onClick={() => navigate(-1)} />
         <h1 className="ScreenerPage-h1">{screenerName}</h1>
-        <div className="w-20 mr-8 bg-gray-600"></div>
       </div>
       <div className="pt-32 px-8 ScreenerPage-main-layout">
         <div className="w-full">
@@ -55,12 +53,12 @@ function IndividualScreenPage() {
                 const symbol = item.symbol || 'N/A';
                 const percent = typeof item.percentChange === 'number' ? item.percentChange : idx % 2 === 0 ? 1.23 : -0.56; // fallback
                 return (
-                  <div className="StockTable-row" key={idx}>
+                  <div className="StockTable-row cursor-pointer hover:shadow-[0_4px_24px_0_hsl(41,11%,45%)] transition-shadow duration-200" key={idx} onClick={() => navigate(`/stock/${symbol}`)}>
                     <div className="StockTable-cell">{name}</div>
                     <div className="StockTable-cell">{symbol}</div>
                     <div className="StockTable-cell">{symbol[0] || '?'}</div>
                     <div className={`StockTable-cell ${percent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {percent >= 0 ? `+${percent}%` : `${percent}%`}
+                      {percent >= 0 ? `+${percent}%` : `${percent}%`}x
                     </div>
                   </div>
                 );
