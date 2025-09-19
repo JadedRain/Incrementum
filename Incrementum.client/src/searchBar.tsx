@@ -18,13 +18,7 @@ export default function SearchBar() {
       onChange={(e) => setQuery(e.target.value)}
       onKeyDown={handleKeyDown}
       placeholder="Search stocks..."
-      style={{
-        padding: "8px",
-        borderRadius: "6px",
-        border: "1px solid #ccc",
-        width: "100%",
-        maxWidth: "300px",
-      }}
+      className="SearchBar"
     />
   );
 }
