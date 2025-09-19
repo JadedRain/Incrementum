@@ -16,8 +16,6 @@ from rest_framework.permissions import AllowAny
 import yfinance as yf
 import logging
 from django.http import HttpResponse
-# Configure logging
-
 
 class StockListCreateView(APIView):
 	def get(self, request):
