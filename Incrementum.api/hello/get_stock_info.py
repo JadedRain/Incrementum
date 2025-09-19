@@ -33,6 +33,7 @@ def setup():
     return tickers
 
 def search_stocks(query, page, source=setup):
+    # pull based on symbol and name but prioritize symbol matches
     tickers = source()
     logging.info(f"Searching for stocks with query: {query}")
     results = []
