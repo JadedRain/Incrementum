@@ -67,21 +67,58 @@ function IndividualScreenPage() {
         </div>
         <aside className="sidebar">
           <nav className="sidebar-nav">
-            <a href="#" className="sidebar-links">
-              x
-            </a>
-            <a href="#" className="sidebar-links">
-              y
-            </a>
-            <a href="#" className="sidebar-links">
-              z
-            </a>
-            <a href="#" className="sidebar-links">
-              v
-            </a>
-            <a href="#" className="sidebar-links">
-              c
-            </a>
+            <div className="relative group sidebar-dropdown">
+              <button className="sidebar-links sidebar-dropdown-btn">
+                Sector
+                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <div className="sidebar-dropdown-menu">
+                <a href="#" className="sidebar-dropdown-item">Sector 1</a>
+                <a href="#" className="sidebar-dropdown-item">Sector 2</a>
+                <a href="#" className="sidebar-dropdown-item">Sector 3</a>
+              </div>
+            </div>
+            <div className="relative group sidebar-dropdown">
+              <button className="sidebar-links sidebar-dropdown-btn">
+                Industry
+                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <div className="sidebar-dropdown-menu">
+                <a href="#" className="sidebar-dropdown-item">Industry 1</a>
+                <a href="#" className="sidebar-dropdown-item">Industry 2</a>
+                <a href="#" className="sidebar-dropdown-item">Industry 3</a>
+              </div>
+            </div>
+            <div className="relative group sidebar-dropdown">
+              <button className="sidebar-links sidebar-dropdown-btn">
+                Region
+                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <div className="sidebar-dropdown-menu">
+                <a href="#" className="sidebar-dropdown-item">Region 1</a>
+                <a href="#" className="sidebar-dropdown-item">Region 2</a>
+                <a href="#" className="sidebar-dropdown-item">Region 3</a>
+              </div>
+            </div>
+            <div className="relative group sidebar-dropdown">
+              <button className="sidebar-links sidebar-dropdown-btn">
+                Market
+                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <div className="sidebar-dropdown-menu">
+                <a href="#" className="sidebar-dropdown-item">Nasdaq</a>
+                <a href="#" className="sidebar-dropdown-item">NYSE</a>
+                <a href="#" className="sidebar-dropdown-item">AMEX</a>
+              </div>
+            </div>
           </nav>
         </aside>
       </div>
