@@ -1,6 +1,5 @@
 from .models import Stock
 from .serializers import StockSerializer
-# API endpoint to insert and get Stock objects from the database
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -33,7 +32,7 @@ class StockListCreateView(APIView):
 class SearchStocksView(APIView):
 	def __init__(self):
 		logging.basicConfig(
-    	level=logging.INFO,  # Minimum level to capture (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    	level=logging.INFO,
     	format="%(asctime)s - %(levelname)s - %(message)s")
 
 
@@ -42,8 +41,6 @@ class SearchStocksView(APIView):
 		logging.info(f"results: {results}")
 		return Response(results)
 
-
-# Singleton instance for demo (not thread-safe, not persistent)
 watchlist_service = WatchlistService()
 
 @api_view(['POST'])
@@ -123,6 +120,5 @@ class WatchlistList(APIView):
 	permission_classes = [AllowAny]
 
 	def get(self, request):
-		# For now, empty list
 		watchlist = []
 		return Response({"watchlist": watchlist})
