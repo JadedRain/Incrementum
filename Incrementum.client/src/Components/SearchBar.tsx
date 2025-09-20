@@ -13,18 +13,12 @@ export default function SearchBar() {
 
   return (
     <input
+      className="search-bar newsreader-font"
       type="text"
       value={query}
       onChange={(e) => setQuery(e.target.value)}
       onKeyDown={handleKeyDown}
       placeholder="Search stocks..."
-      style={{
-        padding: "8px",
-        borderRadius: "6px",
-        border: "1px solid #ccc",
-        width: "100%",
-        maxWidth: "300px",
-      }}
     />
   );
 }
