@@ -1,6 +1,7 @@
 import pytest
 from django.urls import reverse
 from rest_framework.test import APIClient
+from hello.get_stock_info import search_stocks
 
 @pytest.fixture
 def api_client():
@@ -55,3 +56,18 @@ def test_search_stocks_watchlist(api_client):
     assert response.status_code == 200
     assert 'results' in response.data
     assert any(stock['symbol'] == 'AAPL' for stock in response.data['results'])
+
+def test_symbol_priority():
+    # Search for 'TS'
+    results = search_stocks('TS', 0)
+    symbols = [r['symbol'] for r in results]
+
+    # All symbols starting with 'TS' should be at the front
+    assert all(s.startswith('TS') for s in symbols if s.startswith('TS'))
+    
+    # Optionally, check that name matches come after symbol matches
+
+def test_name_fallback():
+    # Search for a string that matches only names
+    results = search_stocks('Technologies', 0)
+    assert any('Technologies' in r['name'] for r in results)

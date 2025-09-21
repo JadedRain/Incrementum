@@ -41,12 +41,13 @@ def search_stocks(query, page, source=setup):
     for _, stock in tickers.iterrows():
         symbol = str(stock['symbol'])
         name = str(stock['companyName'])
-        if query.lower() in symbol.lower() or query.lower() in name.lower():
-            # logging.info(f"Match found: {symbol} - {name}")
-            results.append({
-                'symbol': symbol,
-                'name': name,
-            })
+        if symbol.lower().startswith(query):
+            results.append({'symbol': symbol, 'name': name})
+    for _, stock in tickers.iterrows():
+        symbol = str(stock['symbol'])
+        name = str(stock['companyName'])
+        if not symbol.lower().startswith(query) and query in name.lower():
+            results.append({'symbol': symbol, 'name': name})
     start = 10 * page
     end = min(start + 10, len(results))
     return results[start:end]
