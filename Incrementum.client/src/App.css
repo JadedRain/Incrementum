@@ -18,6 +18,7 @@
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
   width: 100%;
   background: #535353;
   display: flex;
@@ -69,6 +70,7 @@
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
   width: 100%;
   @apply bg-[hsl(41,61%,9%)];
   display: flex;
@@ -133,9 +135,10 @@
 /* ScreenerPage Styles */
 
 .ScreenerPage-header {
-    @apply fixed; 
+  position: fixed; 
     @apply top-0; 
     @apply left-0;
+  right: 0;
     @apply w-full;
     @apply bg-[hsl(41,61%,9%)]; 
     @apply flex; 
@@ -399,3 +402,50 @@
 .newsreader-font {
   font-family: 'Newsreader', serif;
 }
+
+.search-stock-card {
+  @apply bg-[#BEB7A7];
+  @apply text-[#302D27];
+  @apply p-4 rounded-lg;
+  @apply cursor-pointer; 
+  @apply hover:bg-[#B1A791];
+  @apply transition-colors;
+  font-family: 'Newsreader', serif;
+}
+
+.SearchPage-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  @apply bg-[hsl(41,61%,9%)];
+  display: flex;
+  align-items: center;
+  padding: 1rem 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+.search-bar {
+  @apply p-2;
+  @apply rounded-[6px];
+  @apply text-[#302D27];
+  @apply bg-[#C5BCA5];
+  @apply w-full;
+  @apply max-w-[400px];
+  @apply border-[#302D27];
+}
+.pagination-button {
+  @apply px-4;
+  @apply py-2;
+  @apply bg-[#A0B573];
+  @apply text-[#24281B];
+  @apply rounded;
+  @apply hover:bg-[#7E8D5E];
+  @apply disabled:opacity-50;
+  font-family: 'Newsreader', serif;
+}
+
+/* Ensure content is not hidden behind the fixed header */
+:root { --header-height: 80px; }
+body { padding-top: var(--header-height); }
