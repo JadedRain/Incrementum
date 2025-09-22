@@ -3,8 +3,16 @@ import { useEffect, useState } from "react";
 import SearchBar from "../Components/SearchBar";
 import StockCard from "../StockCard";
 
+
+interface Stock {
+  symbol: string;
+  name: string;
+  // Add other fields if needed
+}
+
 export default function SearchResults() {
   const { query } = useParams<{ query: string }>();
+  const [results, setResults] = useState<Stock[]>([]);
   const navigate = useNavigate();
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -20,8 +28,20 @@ export default function SearchResults() {
         const res = await fetch(`http://localhost:8000/searchStocks/${query}/${page}`);
         const data = await res.json();
 
-        setResults(data);
-        setHasMore(data.length >= 10); // if empty, no more pages
+        // Prioritize symbol matches, then name matches
+        const symbolMatches = data.filter(
+          (stock: Stock) => stock.symbol && stock.symbol.toLowerCase().startsWith(query.toLowerCase())
+        );
+        const nameMatches = data.filter(
+          (stock: Stock) =>
+            (!stock.symbol || !stock.symbol.toLowerCase().startsWith(query.toLowerCase())) &&
+            stock.name && stock.name.toLowerCase().includes(query.toLowerCase())
+        );
+        console.log('Query:', query);
+        console.log('Symbol Matches:', symbolMatches);
+        console.log('Name Matches:', nameMatches);
+        setResults([...symbolMatches, ...nameMatches]);
+        setHasMore([...symbolMatches, ...nameMatches].length === 10); // if empty, no more pages
       } catch (err) {
         console.error("Error fetching search results:", err);
       } finally {
