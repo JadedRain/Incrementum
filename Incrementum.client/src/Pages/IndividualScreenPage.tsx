@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Loading from '../Components/Loading';
+import Sidebar from '../Components/Sidebar';
 import BackButton from '../Components/BackButton';
 import '../App.css';
 
@@ -65,62 +66,7 @@ function IndividualScreenPage() {
               })}
           </div>
         </div>
-        <aside className="sidebar">
-          <nav className="sidebar-nav">
-            <div className="relative group sidebar-dropdown">
-              <button className="sidebar-links sidebar-dropdown-btn">
-                Sector
-                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              <div className="sidebar-dropdown-menu">
-                <a href="#" className="sidebar-dropdown-item">Sector 1</a>
-                <a href="#" className="sidebar-dropdown-item">Sector 2</a>
-                <a href="#" className="sidebar-dropdown-item">Sector 3</a>
-              </div>
-            </div>
-            <div className="relative group sidebar-dropdown">
-              <button className="sidebar-links sidebar-dropdown-btn">
-                Industry
-                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              <div className="sidebar-dropdown-menu">
-                <a href="#" className="sidebar-dropdown-item">Industry 1</a>
-                <a href="#" className="sidebar-dropdown-item">Industry 2</a>
-                <a href="#" className="sidebar-dropdown-item">Industry 3</a>
-              </div>
-            </div>
-            <div className="relative group sidebar-dropdown">
-              <button className="sidebar-links sidebar-dropdown-btn">
-                Region
-                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              <div className="sidebar-dropdown-menu">
-                <a href="#" className="sidebar-dropdown-item">Region 1</a>
-                <a href="#" className="sidebar-dropdown-item">Region 2</a>
-                <a href="#" className="sidebar-dropdown-item">Region 3</a>
-              </div>
-            </div>
-            <div className="relative group sidebar-dropdown">
-              <button className="sidebar-links sidebar-dropdown-btn">
-                Market
-                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              <div className="sidebar-dropdown-menu">
-                <a href="#" className="sidebar-dropdown-item">Nasdaq</a>
-                <a href="#" className="sidebar-dropdown-item">NYSE</a>
-                <a href="#" className="sidebar-dropdown-item">AMEX</a>
-              </div>
-            </div>
-          </nav>
-        </aside>
+        <Sidebar />
       </div>
     </div>
   );
