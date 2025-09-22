@@ -301,6 +301,12 @@
   @apply flex;
   @apply flex-col;
   @apply items-start;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+  padding-right: 18px; /* inset content so scrollbar is separated from content */
+  scrollbar-gutter: stable; /* reserve space for scrollbar so content doesn't shift */
 }
 
 .sidebar-nav {
@@ -308,6 +314,28 @@
   @apply flex-col;
   @apply gap-4;
   @apply w-full;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px; /* extra inset between content and scrollbar */
+}
+
+/* Scrollbar styling to blend with the sidebar */
+.sidebar::-webkit-scrollbar {
+  width: 12px;
+}
+.sidebar::-webkit-scrollbar-track {
+  background: transparent; /* keep track transparent to blend with page edge */
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(218,187,124,0.95); /* lighter thumb */
+  border-radius: 8px;
+  border: 3px solid rgba(175,130,40,0.9);
+}
+
+/* Firefox */
+.sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: #DABB7C #AF8228;
 }
 
 .sidebar-links {
@@ -322,6 +350,21 @@
   @apply bg-transparent;
   @apply hover:bg-[#DABB7C];
   @apply hover:text-white;
+}
+
+.sidebar-input {
+  @apply rounded-md;
+  border: 1px solid rgba(0,0,0,0.12);
+}
+
+.sidebar-dropdown.relative {
+  position: relative;
+}
+
+.sidebar-dropdown .sidebar-dropdown-menu {
+  position: absolute;
+  right: 0;
+  left: 0;
 }
 
 .stock-card {
