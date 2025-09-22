@@ -1,6 +1,6 @@
 // import { useState } from 'react'
 import './App.css'
-import SearchBar from './searchBar'
+import SearchBar from './Components/SearchBar'
 import StockInfoList from './StockInfoList'
 
 function App() {
