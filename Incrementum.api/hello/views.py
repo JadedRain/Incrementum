@@ -111,18 +111,34 @@ class GetStocks(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, ticker):
+        # Query params with defaults
+        period = request.query_params.get("period", "1y")
+        interval = request.query_params.get("interval", "1d")
+
         stock = yf.Ticker(ticker)
-        history = stock.history(period='1y')
+
+        try:
+            history = stock.history(period=period, interval=interval)
+        except Exception as e:
+            return Response(
+                {"error": f"Invalid period '{period}' or interval '{interval}'"},
+                status=400,
+            )
 
         if history.empty:
-            return Response("No data found for ticker", status=404)
+            return Response(
+                {"error": f"No data found for {ticker} with period={period} and interval={interval}"},
+                status=404,
+            )
 
-        png_bytes = generate_stock_graph(history, ticker)
+        png_bytes = generate_stock_graph(history, ticker, f"{period}, {interval}")
         return HttpResponse(png_bytes, content_type="image/png")
+
+
 class WatchlistList(APIView):
 	permission_classes = [AllowAny]
-
+	watchlist_service = WatchlistService()
 	def get(self, request):
 		# For now, empty list
-		watchlist = []
+		watchlist = self.watchlist_service.get()
 		return Response({"watchlist": watchlist})

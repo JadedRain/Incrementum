@@ -1,0 +1,19 @@
+export type StockC = {
+  country: string;
+  currentPrice: number;
+  dayHigh: number;
+  dayLow: number;
+  exchange: string;
+  displayName: string;
+  fiftyDayAverage: number;
+  fullExchangeName: string;
+  industry: string;
+  industryKey: string;
+  longName: string;
+  open: number;
+  previousClose: number;
+  shortName: string;
+  symbol: string;
+  sector: string;
+  sectorKey: string;
+};
