@@ -20,14 +20,42 @@ interface StockData {
   shortName: string;
 }
 
-export default function Stock() {
-  const { token } = useParams<{ token: string }>();
+const periods = [
+  { label: "1 Day", value: "1d" },
+  { label: "5 Days", value: "5d" },
+  { label: "1 Month", value: "1mo" },
+  { label: "6 Months", value: "6mo" },
+  { label: "1 Year", value: "1y" },
+  { label: "2 Years", value: "2y" },
+];
+
+const intervals = [
+  { label: "5 Minutes", value: "5m" },
+  { label: "15 Minutes", value: "15m" },
+  { label: "30 Minutes", value: "30m" },
+  { label: "1 Hour", value: "1h" },
+  { label: "1 Day", value: "1d" },
+  { label: "1 Week", value: "1wk" },
+];
+
+interface StockProps {
+  token?: string;
+}
+
+export default function Stock({ token: propToken }: StockProps) {
+  const params = useParams<{ token: string }>();
+  const token = propToken ?? params.token;
+
   const [results, setResults] = useState<StockData | null>(null);
   const [loading, setLoading] = useState(false);
   const [inWatchlist, setInWatchlist] = useState(false);
   const [pending, setPending] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
-  const imgUrl = `http://localhost:8000/getStocks/${token}/`;
+  const [period, setPeriod] = useState("1y");
+  const [interval, setInterval] = useState("1d");
+
+  const imgUrl = `http://localhost:8000/getStocks/${token}/?period=${period}&interval=${interval}`;
+
   useEffect(() => {
     if (!token) return;
 
@@ -46,6 +74,13 @@ export default function Stock() {
 
     fetchResults();
   }, [token]);
+  const handlePeriodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setPeriod(e.target.value);
+  };
+
+  const handleIntervalChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setInterval(e.target.value);
+  };
 
   useEffect(() => {
     if (!token) return;
@@ -119,6 +154,35 @@ export default function Stock() {
 
   return (
     <div className="bg-[hsl(40,62%,26%)] min-h-screen" style={{ padding: "20px", fontFamily: "serif" }}>
+       <div className="flex gap-4 mt-2">
+            <div>
+              <label htmlFor="period" className="mr-2 font-semibold">Time Frame:</label>
+              <select
+                id="period"
+                value={period}
+                onChange={handlePeriodChange}
+                className="rounded p-1"
+              >
+                {periods.map((p) => (
+                  <option key={p.value} value={p.value}>{p.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="interval" className="mr-2 font-semibold">Interval:</label>
+              <select
+                id="interval"
+                value={interval}
+                onChange={handleIntervalChange}
+                className="rounded p-1"
+              >
+                {intervals.map((i) => (
+                  <option key={i.value} value={i.value}>{i.label}</option>
+                ))}
+              </select>
+            </div>
+      </div>
       {toast && (
         <div
           role="status"
@@ -165,6 +229,11 @@ export default function Stock() {
         <p className="text-[hsl(40,66%,60%)]"><strong>Industry:</strong> {results.industry}</p>
         <p className="text-[hsl(40,66%,60%)]"><strong>Sector:</strong> {results.sector}</p>
         <p className="text-[hsl(40,66%,60%)]"><strong>Country:</strong> {results.country}</p>
+        <img
+          src={imgUrl}
+          alt={`${token} stock chart`}
+          className="rounded-lg shadow-md max-w-full h-auto grid-middle mt-4"
+        />
       </div>
     </div>
   );
