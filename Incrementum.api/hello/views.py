@@ -16,6 +16,7 @@ from rest_framework.permissions import AllowAny
 import yfinance as yf
 import logging
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 
 class StockListCreateView(APIView):
 	def get(self, request):
@@ -33,7 +34,7 @@ class StockListCreateView(APIView):
 class SearchStocksView(APIView):
 	def __init__(self):
 		logging.basicConfig(
-    	level=logging.INFO,  # Minimum level to capture (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    	level=logging.INFO,
     	format="%(asctime)s - %(levelname)s - %(message)s")
 
 
@@ -42,29 +43,35 @@ class SearchStocksView(APIView):
 		logging.info(f"results: {results}")
 		return Response(results)
 
-
-# Singleton instance for demo (not thread-safe, not persistent)
 watchlist_service = WatchlistService()
 
+@csrf_exempt
 @api_view(['POST'])
 def add_to_watchlist(request):
 	symbol = request.data.get('symbol')
 	if not symbol:
 		return Response({'error': 'Symbol is required'}, status=status.HTTP_400_BAD_REQUEST)
+	logging.info(f"[watchlist:add] symbol={symbol}")
 	watchlist = watchlist_service.add(symbol)
+	logging.info(f"[watchlist:add] size={len(watchlist)}")
 	return Response({'watchlist': watchlist})
 
+@csrf_exempt
 @api_view(['DELETE'])
 def remove_from_watchlist(request):
 	symbol = request.data.get('symbol')
 	if not symbol:
 		return Response({'error': 'Symbol is required'}, status=status.HTTP_400_BAD_REQUEST)
+	logging.info(f"[watchlist:remove] symbol={symbol}")
 	watchlist = watchlist_service.remove(symbol)
+	logging.info(f"[watchlist:remove] size={len(watchlist)}")
 	return Response({'watchlist': watchlist})
 
 @api_view(['GET'])
 def get_watchlist(request):
-	return Response({'watchlist': watchlist_service.get()})
+	wl = watchlist_service.get()
+	logging.info(f"[watchlist:get] size={len(wl)}")
+	return Response({'watchlist': wl})
 
 @api_view(['GET'])
 def search_stocks_watchlist(request):
@@ -75,11 +82,6 @@ def search_stocks_watchlist(request):
 	results = watchlist_service.search(query, max_results)
 	return Response({'results': results})
 
-@api_view(['GET'])
-def get_sorted_watchlist(request):
-	reverse = request.GET.get('reverse', 'false').lower() == 'true'
-	sorted_list = watchlist_service.get_sorted(reverse)
-	return Response({'watchlist': sorted_list})
 
 class GetStocksInfo(APIView):
 	permission_classes = [AllowAny]
@@ -111,18 +113,42 @@ class GetStocks(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, ticker):
+        # Query params with defaults
+        period = request.query_params.get("period", "1y")
+        interval = request.query_params.get("interval", "1d")
+
         stock = yf.Ticker(ticker)
-        history = stock.history(period='1y')
+
+        try:
+            history = stock.history(period=period, interval=interval)
+        except Exception as e:
+            return Response(
+                {"error": f"Invalid period '{period}' or interval '{interval}'"},
+                status=400,
+            )
 
         if history.empty:
-            return Response("No data found for ticker", status=404)
+            return Response(
+                {"error": f"No data found for {ticker} with period={period} and interval={interval}"},
+                status=404,
+            )
 
-        png_bytes = generate_stock_graph(history, ticker)
+        png_bytes = generate_stock_graph(history, ticker, f"{period}, {interval}")
         return HttpResponse(png_bytes, content_type="image/png")
+
+
 class WatchlistList(APIView):
 	permission_classes = [AllowAny]
-
+	watchlist_service = WatchlistService()
 	def get(self, request):
 		# For now, empty list
-		watchlist = []
+		watchlist = self.watchlist_service.get()
 		return Response({"watchlist": watchlist})
+	def post(self, request):
+		symbol = request.data.get('symbol')
+		if not symbol:
+			return Response({'error': 'Symbol is required'}, status=status.HTTP_400_BAD_REQUEST)
+		logging.info(f"[watchlist:add] symbol={symbol}")
+		watchlist = self.watchlist_service.add(symbol)
+		logging.info(f"[watchlist:add] size={len(watchlist)}")
+		return Response({'watchlist': watchlist})
