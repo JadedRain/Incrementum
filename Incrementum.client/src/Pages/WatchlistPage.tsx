@@ -9,16 +9,27 @@ import type { StockC } from '../Components/Stock'
 function WatchlistPage() {
   const navigate = useNavigate();
   const [watchlist, setWatchlist] = useState<StockC[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [selectedStock, setSelectedStock] = useState<StockC | null>(null);
   const [period, setPeriod] = useState("1y");
   const [interval, setInterval] = useState("1d");
 
   useEffect(() => {
-    fetch('http://localhost:8000/watchlist/')
-      .then(res => res.json())
+    fetch('/watchlist/', { credentials: 'include' })
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to load watchlist');
+        return res.json();
+      })
       .then(data => {
-        setWatchlist(data.watchlist || []);
+        const items = Array.isArray(data.watchlist) ? data.watchlist : [];
+        setRawWatchlist(items);
+        const labels: string[] = items.map((it: any) =>
+          typeof it === 'string'
+            ? it
+            : (it?.displayName || it?.longName || it?.shortName || it?.symbol || 'Unknown')
+        );
+        setWatchlist(labels);
         setLoading(false);
         // Select the first stock by default if available
         if ((data.watchlist || []).length > 0) {
@@ -27,6 +38,7 @@ function WatchlistPage() {
       })
       .catch(() => {
         setWatchlist([]);
+        setRawWatchlist([]);
         setLoading(false);
       });
   }, []);
@@ -69,6 +81,7 @@ function WatchlistPage() {
         </h1>
         <div style={{ width: '4.5rem', marginRight: '2rem' }}></div>
       </div>
+
       <div className='WatchlistPage-Loading'>
         <Loading loading={loading} watchlist={watchlist} />
       </div>

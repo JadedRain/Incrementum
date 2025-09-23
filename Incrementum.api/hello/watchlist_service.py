@@ -23,8 +23,14 @@ class WatchlistService:
     def get(self):
         stocks = []
         for item in self.watchlist:
-            stock_obj = fetch_stock_data(item)
-            stocks.append(stock_obj.to_dict())
+            try:
+                stock_obj = fetch_stock_data(item['symbol'])
+                stocks.append(stock_obj.to_dict())
+            except Exception:
+                stocks.append({
+                    'symbol': item['symbol'],
+                    'shortName': item.get('companyName')
+                })
         return stocks
 
     def remove(self, symbol):

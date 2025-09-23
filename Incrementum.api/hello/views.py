@@ -16,6 +16,7 @@ from rest_framework.permissions import AllowAny
 import yfinance as yf
 import logging
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 
 class StockListCreateView(APIView):
 	def get(self, request):
@@ -46,25 +47,33 @@ class SearchStocksView(APIView):
 # Singleton instance for demo (not thread-safe, not persistent)
 watchlist_service = WatchlistService()
 
+@csrf_exempt
 @api_view(['POST'])
 def add_to_watchlist(request):
 	symbol = request.data.get('symbol')
 	if not symbol:
 		return Response({'error': 'Symbol is required'}, status=status.HTTP_400_BAD_REQUEST)
+	logging.info(f"[watchlist:add] symbol={symbol}")
 	watchlist = watchlist_service.add(symbol)
+	logging.info(f"[watchlist:add] size={len(watchlist)}")
 	return Response({'watchlist': watchlist})
 
+@csrf_exempt
 @api_view(['DELETE'])
 def remove_from_watchlist(request):
 	symbol = request.data.get('symbol')
 	if not symbol:
 		return Response({'error': 'Symbol is required'}, status=status.HTTP_400_BAD_REQUEST)
+	logging.info(f"[watchlist:remove] symbol={symbol}")
 	watchlist = watchlist_service.remove(symbol)
+	logging.info(f"[watchlist:remove] size={len(watchlist)}")
 	return Response({'watchlist': watchlist})
 
 @api_view(['GET'])
 def get_watchlist(request):
-	return Response({'watchlist': watchlist_service.get()})
+	wl = watchlist_service.get()
+	logging.info(f"[watchlist:get] size={len(wl)}")
+	return Response({'watchlist': wl})
 
 @api_view(['GET'])
 def search_stocks_watchlist(request):
