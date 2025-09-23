@@ -5,7 +5,7 @@ from .stocks_class import Stock
 
 class WatchlistService:
     def __init__(self):
-        self.watchlist = ["AAPL", "TSLA"]  # list of dicts: {symbol, companyName}
+        self.watchlist = ["AAPL", "TSLA"]  
         base_dir = os.path.dirname(os.path.abspath(__file__))
         csv_path = os.path.join(base_dir, 'data', 'ticker_info.csv')
         self.tickers = pd.read_csv(csv_path, index_col=0)
@@ -15,7 +15,6 @@ class WatchlistService:
             return self.watchlist
         row = self.tickers[self.tickers['symbol'] == symbol]
         if not row.empty:
-            company_name = row.iloc[0]['companyName']
             if not any(item == symbol for item in self.watchlist):
                 self.watchlist.append(symbol)
         return self.watchlist
