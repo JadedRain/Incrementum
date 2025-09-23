@@ -7,12 +7,16 @@ import WatchlistPage from './Pages/WatchlistPage'
 import Stock from "./Stock";
 import ScreenerPage from "./Pages/ScreenerPage";
 import IndividualScreenPage from "./Pages/IndividualScreenPage";
+import SignInPage from "./Pages/SignInPage";
+import { AuthProvider } from "./AuthContext";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
+  <AuthProvider>
     <BrowserRouter>
       <Routes>
-        <Route index element={<ScreenerPage />} />
+        <Route path="/screener" element={<ScreenerPage />} />
         <Route path="/" element={<App />} />
+        <Route index element={<SignInPage />} />
         <Route path="/search/:query" element={<SearchResults />} />
         <Route path="/stock/:token" element={<Stock />} />
         <Route path="/stocks" element={<StocksPage />} />
@@ -20,4 +24,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <Route path="/screener/:screenerName" element={<IndividualScreenPage />} />
       </Routes>
     </BrowserRouter>
+  </AuthProvider>
 );
