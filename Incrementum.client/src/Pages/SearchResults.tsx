@@ -1,10 +1,19 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import SearchBar from "../Components/SearchBar";
 import StockCard from "../StockCard";
 
+
+interface Stock {
+  symbol: string;
+  name: string;
+  // Add other fields if needed
+}
+
 export default function SearchResults() {
   const { query } = useParams<{ query: string }>();
+  const [results, setResults] = useState<Stock[]>([]);
+  const navigate = useNavigate();
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0); // current page
@@ -19,8 +28,20 @@ export default function SearchResults() {
         const res = await fetch(`http://localhost:8000/searchStocks/${query}/${page}`);
         const data = await res.json();
 
-        setResults(data);
-        setHasMore(data.length >= 10); // if empty, no more pages
+        // Prioritize symbol matches, then name matches
+        const symbolMatches = data.filter(
+          (stock: Stock) => stock.symbol && stock.symbol.toLowerCase().startsWith(query.toLowerCase())
+        );
+        const nameMatches = data.filter(
+          (stock: Stock) =>
+            (!stock.symbol || !stock.symbol.toLowerCase().startsWith(query.toLowerCase())) &&
+            stock.name && stock.name.toLowerCase().includes(query.toLowerCase())
+        );
+        console.log('Query:', query);
+        console.log('Symbol Matches:', symbolMatches);
+        console.log('Name Matches:', nameMatches);
+        setResults([...symbolMatches, ...nameMatches]);
+        setHasMore([...symbolMatches, ...nameMatches].length === 10); // if empty, no more pages
       } catch (err) {
         console.error("Error fetching search results:", err);
       } finally {
@@ -40,9 +61,20 @@ export default function SearchResults() {
   };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "serif" }}>
+    <div style={{ padding: "20px", fontFamily: "serif" }}
+         className="bg-[#6C5019] min-h-screen">
+      <div className='SearchPage-header'>
+        <button 
+        onClick={() => navigate('/watchlist')}
+        className="nav-button">
+          Watchlist 
+        </button>
+        <h1 className="StocksPage-h1">
+          Search Results
+        </h1>
+      </div>
       <SearchBar />
-      <h2>Results for "{query}"</h2>
+      <h2 className="text-[#DABB7C]">Results for "{query}"</h2>
       {loading && <p>Loading...</p>}
       {!loading && results.length === 0 && <p>No results found.</p>}
 
@@ -58,14 +90,14 @@ export default function SearchResults() {
         <button
           onClick={handlePrev}
           disabled={page === 0}
-          className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50"
+          className="pagination-button"
         >
           Previous
         </button>
         <button
           onClick={handleNext}
           disabled={!hasMore}
-          className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50"
+          className="pagination-button"
         >
           Next
         </button>

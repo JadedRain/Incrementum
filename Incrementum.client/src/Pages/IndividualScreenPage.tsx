@@ -1,6 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Loading from '../Components/Loading';
+import Sidebar from '../Components/Sidebar';
+import BackButton from '../Components/BackButton';
 import '../App.css';
 
 interface StockInfo {
@@ -31,13 +33,10 @@ function IndividualScreenPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-600">
+    <div className="min-h-screen bg-[hsl(40,62%,26%)]">
       <div className="ScreenerPage-header">
-        <button className="ScreenerPage-button" onClick={() => navigate(-1)}>
-          Back
-        </button>
+        <BackButton onClick={() => navigate(-1)} />
         <h1 className="ScreenerPage-h1">{screenerName}</h1>
-        <div className="w-20 mr-8 bg-gray-600"></div>
       </div>
       <div className="pt-32 px-8 ScreenerPage-main-layout">
         <div className="w-full">
@@ -67,25 +66,7 @@ function IndividualScreenPage() {
               })}
           </div>
         </div>
-        <aside className="sidebar">
-          <nav className="sidebar-nav">
-            <a href="#" className="sidebar-links">
-              x
-            </a>
-            <a href="#" className="sidebar-links">
-              y
-            </a>
-            <a href="#" className="sidebar-links">
-              z
-            </a>
-            <a href="#" className="sidebar-links">
-              v
-            </a>
-            <a href="#" className="sidebar-links">
-              c
-            </a>
-          </nav>
-        </aside>
+        <Sidebar />
       </div>
     </div>
   );

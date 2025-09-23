@@ -1,10 +1,24 @@
 @import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap");
 @import "tailwindcss";
 
+.SearchBar {
+  @apply p-2;
+  @apply rounded-[6px];
+  @apply border-[1px]; 
+  @apply border-solid border-[hsl(42,15%,70%)];
+  @apply w-full;
+  @apply max-w-[300px];
+  @apply text-[hsl(40,66%,60%)];
+  @apply focus:border-[hsl(42,15%,70%)];
+  @apply focus:outline-none;
+}
+
+
 .WatchlistPage-header {
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
   width: 100%;
   background: #535353;
   display: flex;
@@ -56,8 +70,9 @@
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
   width: 100%;
-  @apply bg-[#251C09];
+  @apply bg-[hsl(41,61%,9%)];
   display: flex;
   align-items: center;
   padding: 1rem 0;
@@ -66,7 +81,7 @@
 }
 
 .StocksPage-h1 {
-  @apply text-[#DCAF56];
+  @apply text-[hsl(40,66%,60%)];
   font-Size: 2.5rem;
   margin: 0;
   flex: 1;
@@ -120,9 +135,10 @@
 /* ScreenerPage Styles */
 
 .ScreenerPage-header {
-    @apply fixed; 
+  position: fixed; 
     @apply top-0; 
     @apply left-0;
+  right: 0;
     @apply w-full;
     @apply bg-[hsl(41,61%,9%)]; 
     @apply flex; 
@@ -137,13 +153,14 @@
     @apply px-4;
     @apply py-2;
     @apply rounded;
-    @apply bg-[hsl(40,61%,55%)];
-    @apply text-[hsl(40,62%,26%)];
+    @apply bg-[hsl(79,26%,36%)];
+    @apply text-[hsl(78,41%,73%)];
     @apply cursor-pointer;
+    @apply hover:shadow-[0_4px_24px_0_hsl(220,9%,46%)];
 }
 
 .ScreenerPage-h1 {
-  @apply text-[hsl(40,61%,55%)];
+  @apply text-[hsl(40,66%,60%)];
   @apply bg-[hsl(41,61%,9%)]; 
   @apply text-4xl; 
   @apply m-0; 
@@ -156,7 +173,7 @@
 .ScreenerPage-card {
   @apply w-[240px];
   @apply h-[160px];
-  @apply bg-white;
+  @apply bg-[hsl(42,15%,70%)];
   @apply rounded-2xl;
   @apply shadow-md;
   @apply p-8;
@@ -166,17 +183,18 @@
   @apply justify-center;
   @apply items-center;
   @apply font-semibold;
-  @apply text-[#222];
+  @apply text-[hsl(41,61%,9%)];
   @apply transition-shadow;
   @apply duration-200;
+  @apply hover:shadow-[0_4px_24px_0_hsl(220,9%,46%)];
   @apply px-10;
 }
 
 .ScreenerPage-card-custom {
   @apply w-[240px];
   @apply h-[160px];
-  @apply bg-[#222];
-  @apply text-white;
+  @apply bg-[hsl(42,15%,70%)];
+  @apply text-[hsl(41,61%,9%)];
   @apply cursor-pointer;
   @apply shadow-lg;
   @apply rounded-2xl;
@@ -189,7 +207,10 @@
   @apply font-semibold;
   @apply transition-shadow;
   @apply duration-200;
-  @apply hover:bg-[#444];
+  @apply hover:shadow-[0_4px_24px_0_hsl(220,9%,46%)];
+  @apply border-2; 
+  @apply border-dotted; 
+  @apply border-[hsl(40,10%,17%)];
 }
 
 .ScreenerPage-main-layout {
@@ -197,7 +218,7 @@
   @apply px-8;
   @apply flex;
   @apply flex-row;
-  /* @apply bg-[hsl(39,13%,21%)]; */
+  @apply bg-[hsl(40,62%,26%)];
   @apply justify-start;
   @apply items-start;
   @apply gap-8;
@@ -217,6 +238,29 @@
   @apply flex;
   @apply flex-col;
   @apply items-center;
+}
+
+.sidebar-dropdown-btn {
+  /* These were: flex items-center justify-between w-full px-4 py-2 focus:outline-none */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  outline: none;
+}
+
+.sidebar-dropdown-menu {
+  @apply absolute left-0 z-10 hidden group-hover:block;
+  @apply bg-[#AF8228] text-[#EBCB92] rounded shadow-lg min-w-[120px] mt-1;
+}
+
+.sidebar-dropdown-item {
+  @apply block px-4 py-2;
+  @apply hover:bg-[#DABB7C];
 }
 
 .ScreenerPage-card-grid {
@@ -240,7 +284,7 @@
 }
 
 .StockTable-container {
-  /* @apply bg-[hsl(41,61%,9%)];  */
+  @apply bg-[hsl(42,15%,70%)]; 
   @apply rounded-2xl; 
   @apply shadow-md p-8; 
   @apply text-[#222]; 
@@ -259,6 +303,7 @@
   @apply px-4; 
   @apply py-3; 
   @apply text-left;
+  @apply text-[hsl(40,62%,26%)];
 }
 .StockTable-row {
   @apply flex; 
@@ -288,7 +333,7 @@
   @apply right-0;
   @apply w-[340px];
   @apply h-screen;
-  @apply bg-[hsl(40,61%,55%)];
+  @apply bg-[hsl(42,15%,70%)];
   @apply text-[hsl(40,62%,26%)];
   @apply rounded-bl-2xl;
   @apply shadow-lg;
@@ -298,6 +343,12 @@
   @apply flex;
   @apply flex-col;
   @apply items-start;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+  padding-right: 18px; /* inset content so scrollbar is separated from content */
+  scrollbar-gutter: stable; /* reserve space for scrollbar so content doesn't shift */
 }
 
 .sidebar-nav {
@@ -305,6 +356,28 @@
   @apply flex-col;
   @apply gap-4;
   @apply w-full;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px; /* extra inset between content and scrollbar */
+}
+
+/* Scrollbar styling to blend with the sidebar */
+.sidebar::-webkit-scrollbar {
+  width: 12px;
+}
+.sidebar::-webkit-scrollbar-track {
+  background: transparent; /* keep track transparent to blend with page edge */
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(218,187,124,0.95); /* lighter thumb */
+  border-radius: 8px;
+  border: 3px solid rgba(175,130,40,0.9);
+}
+
+/* Firefox */
+.sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: #DABB7C #AF8228;
 }
 
 .sidebar-links {
@@ -316,9 +389,23 @@
   @apply rounded-lg;
   @apply transition-colors;
   @apply duration-200;
-  @apply bg-transparent;
-  @apply hover:bg-[#374151];
-  @apply hover:text-white;
+  @apply bg-[hsl(40,61%,55%)];
+  @apply hover:shadow-[0_4px_24px_0_hsl(220,9%,46%)];
+}
+
+.sidebar-input {
+  @apply rounded-md;
+  border: 1px solid rgba(0,0,0,0.12);
+}
+
+.sidebar-dropdown.relative {
+  position: relative;
+}
+
+.sidebar-dropdown .sidebar-dropdown-menu {
+  position: absolute;
+  right: 0;
+  left: 0;
 }
 
 .stock-card {
@@ -358,3 +445,50 @@
 .newsreader-font {
   font-family: 'Newsreader', serif;
 }
+
+.search-stock-card {
+  @apply bg-[#BEB7A7];
+  @apply text-[#302D27];
+  @apply p-4 rounded-lg;
+  @apply cursor-pointer; 
+  @apply hover:bg-[#B1A791];
+  @apply transition-colors;
+  font-family: 'Newsreader', serif;
+}
+
+.SearchPage-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  @apply bg-[hsl(41,61%,9%)];
+  display: flex;
+  align-items: center;
+  padding: 1rem 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+.search-bar {
+  @apply p-2;
+  @apply rounded-[6px];
+  @apply text-[#302D27];
+  @apply bg-[#C5BCA5];
+  @apply w-full;
+  @apply max-w-[400px];
+  @apply border-[#302D27];
+}
+.pagination-button {
+  @apply px-4;
+  @apply py-2;
+  @apply bg-[#A0B573];
+  @apply text-[#24281B];
+  @apply rounded;
+  @apply hover:bg-[#7E8D5E];
+  @apply disabled:opacity-50;
+  font-family: 'Newsreader', serif;
+}
+
+/* Ensure content is not hidden behind the fixed header */
+:root { --header-height: 80px; }
+body { padding-top: var(--header-height); }

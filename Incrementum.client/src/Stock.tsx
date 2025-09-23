@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import BackButton from "./Components/BackButton";
 
 interface StockData {
   currentPrice: number;
@@ -70,7 +71,6 @@ export default function Stock({ token: propToken }: StockProps) {
 
     fetchResults();
   }, [token]);
-
   const handlePeriodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setPeriod(e.target.value);
   };

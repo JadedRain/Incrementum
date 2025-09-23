@@ -15,7 +15,7 @@ const StockCard: React.FC<StockCardProps> = ({ symbol, name }) => {
 
   return (
     <div
-      className="bg-gray-300 p-4 rounded-lg cursor-pointer hover:bg-gray-400 transition-colors"
+      className="search-stock-card newsreader-font"
       onClick={handleClick}
     >
       <h2 className="text-lg font-semibold">{symbol}</h2>
