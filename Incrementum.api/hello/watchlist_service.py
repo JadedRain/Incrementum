@@ -16,21 +16,15 @@ class WatchlistService:
         row = self.tickers[self.tickers['symbol'] == symbol]
         if not row.empty:
             company_name = row.iloc[0]['companyName']
-            if not any(item['symbol'] == symbol for item in self.watchlist):
+            if not any(item == symbol for item in self.watchlist):
                 self.watchlist.append(symbol)
         return self.watchlist
 
     def get(self):
         stocks = []
         for item in self.watchlist:
-            try:
-                stock_obj = fetch_stock_data(item['symbol'])
-                stocks.append(stock_obj.to_dict())
-            except Exception:
-                stocks.append({
-                    'symbol': item['symbol'],
-                    'shortName': item.get('companyName')
-                })
+            stock_obj = fetch_stock_data(item)
+            stocks.append(stock_obj.to_dict())
         return stocks
 
     def remove(self, symbol):
@@ -41,17 +35,9 @@ class WatchlistService:
         query = query.lower()
         results = []
         for item in self.watchlist:
-            symbol = item['symbol']
-            company_name = item['companyName']
-            if query in symbol.lower() or query in company_name.lower():
+            symbol = item
+            if query in symbol.lower():
                 results.append(fetch_stock_data(symbol).to_dict())
             if len(results) >= max_results:
                 break
         return results
-
-    def get_sorted(self, reverse=False):
-        sorted_list = sorted(self.watchlist, key=lambda x: x['companyName'].lower(), reverse=reverse)
-        result = []
-        for item in sorted_list:
-            result.append(fetch_stock_data(item['symbol']).to_dict())
-        return result

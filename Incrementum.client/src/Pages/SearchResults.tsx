@@ -14,7 +14,6 @@ export default function SearchResults() {
   const { query } = useParams<{ query: string }>();
   const [results, setResults] = useState<Stock[]>([]);
   const navigate = useNavigate();
-  const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0); // current page
   const [hasMore, setHasMore] = useState(true); // flag to disable next button
