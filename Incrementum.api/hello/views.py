@@ -16,6 +16,7 @@ from rest_framework.permissions import AllowAny
 import yfinance as yf
 import logging
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 # Configure logging
 
 
@@ -48,6 +49,7 @@ class SearchStocksView(APIView):
 # Singleton instance for demo (not thread-safe, not persistent)
 watchlist_service = WatchlistService()
 
+@csrf_exempt
 @api_view(['POST'])
 def add_to_watchlist(request):
 	symbol = request.data.get('symbol')
@@ -56,6 +58,7 @@ def add_to_watchlist(request):
 	watchlist = watchlist_service.add(symbol)
 	return Response({'watchlist': watchlist})
 
+@csrf_exempt
 @api_view(['DELETE'])
 def remove_from_watchlist(request):
 	symbol = request.data.get('symbol')

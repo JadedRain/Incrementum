@@ -11,10 +11,19 @@ function WatchlistPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:8000/watchlist/')
-      .then(res => res.json())
+    fetch('/watchlist/', { credentials: 'include' })
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to load watchlist');
+        return res.json();
+      })
       .then(data => {
-        setWatchlist(data.watchlist || []);
+        const items = Array.isArray(data.watchlist) ? data.watchlist : [];
+        const labels: string[] = items.map((it: any) =>
+          typeof it === 'string'
+            ? it
+            : (it?.displayName || it?.longName || it?.shortName || it?.symbol || 'Unknown')
+        );
+        setWatchlist(labels);
         setLoading(false);
       })
       .catch(() => {
@@ -28,7 +37,7 @@ function WatchlistPage() {
       <div className='WatchlistPage-header'>
         <button
           onClick={() => navigate('/')}
-          style={{ marginLeft: 'z2rem', fontSize: '1.5rem', padding: '0.75rem 1.25rem', borderRadius: '8px', cursor: 'pointer' }}
+          style={{ marginLeft: '2rem', fontSize: '1.5rem', padding: '0.75rem 1.25rem', borderRadius: '8px', cursor: 'pointer' }}
         >
           ←
         </button>
