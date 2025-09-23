@@ -1,4 +1,3 @@
-
 import pandas as pd
 import os
 from .get_stock_info import fetch_stock_data
@@ -6,7 +5,7 @@ from .stocks_class import Stock
 
 class WatchlistService:
     def __init__(self):
-        self.watchlist = []  # list of dicts: {symbol, companyName}
+        self.watchlist = ["AAPL", "TSLA"]  # list of dicts: {symbol, companyName}
         base_dir = os.path.dirname(os.path.abspath(__file__))
         csv_path = os.path.join(base_dir, 'data', 'ticker_info.csv')
         self.tickers = pd.read_csv(csv_path, index_col=0)
@@ -18,18 +17,18 @@ class WatchlistService:
         if not row.empty:
             company_name = row.iloc[0]['companyName']
             if not any(item['symbol'] == symbol for item in self.watchlist):
-                self.watchlist.append({'symbol': symbol, 'companyName': company_name})
+                self.watchlist.append(symbol)
         return self.watchlist
 
     def get(self):
         stocks = []
         for item in self.watchlist:
-            stock_obj = fetch_stock_data(item['symbol'])
+            stock_obj = fetch_stock_data(item)
             stocks.append(stock_obj.to_dict())
         return stocks
 
     def remove(self, symbol):
-        self.watchlist = [item for item in self.watchlist if item['symbol'] != symbol]
+        self.watchlist = [item for item in self.watchlist if item != symbol]
         return self.watchlist
 
     def search(self, query, max_results=10):

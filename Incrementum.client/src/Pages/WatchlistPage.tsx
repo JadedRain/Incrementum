@@ -1,14 +1,18 @@
-
 import '../App.css'
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import Loading from '../Components/Loading'
+import type { StockC } from '../Components/Stock'
+
 
 
 function WatchlistPage() {
   const navigate = useNavigate();
-  const [watchlist, setWatchlist] = useState<string[]>([]);
+  const [watchlist, setWatchlist] = useState<StockC[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedStock, setSelectedStock] = useState<StockC | null>(null);
+  const [period, setPeriod] = useState("1y");
+  const [interval, setInterval] = useState("1d");
 
   useEffect(() => {
     fetch('http://localhost:8000/watchlist/')
@@ -16,6 +20,10 @@ function WatchlistPage() {
       .then(data => {
         setWatchlist(data.watchlist || []);
         setLoading(false);
+        // Select the first stock by default if available
+        if ((data.watchlist || []).length > 0) {
+          setSelectedStock(data.watchlist[0]);
+        }
       })
       .catch(() => {
         setWatchlist([]);
@@ -23,12 +31,36 @@ function WatchlistPage() {
       });
   }, []);
 
+  // Update selected stock if watchlist changes and selected is missing
+  useEffect(() => {
+    if (watchlist.length > 0 && (!selectedStock || !watchlist.find(s => s.symbol === selectedStock.symbol))) {
+      setSelectedStock(watchlist[0]);
+    }
+  }, [watchlist]);
+
+  const handleStockClick = (stock: StockC) => {
+    setSelectedStock(stock);
+  };
+
+  const handlePeriodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setPeriod(e.target.value);
+  };
+
+  const handleIntervalChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setInterval(e.target.value);
+  };
+
+  // Chart image URL for selected stock
+  const imgUrl = selectedStock
+    ? `http://localhost:8000/getStocks/${selectedStock.symbol}/?period=${period}&interval=${interval}`
+    : null;
+
   return (
     <div style={{ minHeight: '100vh' }}>
       <div className='WatchlistPage-header'>
         <button
           onClick={() => navigate('/')}
-          style={{ marginLeft: 'z2rem', fontSize: '1.5rem', padding: '0.75rem 1.25rem', borderRadius: '8px', cursor: 'pointer' }}
+          style={{ marginLeft: '2rem', fontSize: '1.5rem', padding: '0.75rem 1.25rem', borderRadius: '8px', cursor: 'pointer' }}
         >
           ←
         </button>
@@ -43,9 +75,25 @@ function WatchlistPage() {
 
       {/* Main grid and sidebar layout */}
       <div style={{ display: 'flex', marginTop: '2rem', padding: '0 2rem' }}>
-
         {/* Main grid area */}
         <div style={{ flex: 1 }}>
+          {/* Stock chart and controls */}
+          {selectedStock && (
+            <div style={{ marginBottom: '2rem', background: '#f9f7f3', borderRadius: '12px', padding: '1.5rem' }}>
+              <h2 style={{ marginBottom: '0.5rem' }}>
+                {selectedStock.shortName || selectedStock.displayName} ({selectedStock.symbol})
+              </h2>
+              {imgUrl && (
+                <img
+                  src={imgUrl}
+                  alt={`${selectedStock.symbol} stock chart`}
+                  style={{ maxWidth: '100%', borderRadius: '8px', boxShadow: '0 2px 8px #ccc' }}
+                />
+              )}
+            </div>
+          )}
+
+          {/* Example grid cards */}
           <div
             style={{
               display: 'grid',
@@ -69,8 +117,40 @@ function WatchlistPage() {
         {/* Sidebar */}
         <div className="WatchlistPage-Sidebar">
           <h3 style={{ marginTop: 0 , color: 'black' }}>Market Screeners</h3>
-          
-          {/* Sidebar content here */}
+          {/* Watchlist stocks */}
+          <div style={{ marginTop: '2rem' }}>
+            <h4 style={{ color: 'black' }}>Your Watchlist</h4>
+            {loading ? (
+              <div>Loading...</div>
+            ) : !watchlist || watchlist.length === 0 ? (
+              <div>No stocks in your watchlist.</div>
+            ) : (
+              <ul style={{ listStyle: 'none', padding: 0 }}>
+                {watchlist.map((stock, idx) => (
+                  <li
+                    key={idx}
+                    style={{
+                      padding: '0.75rem 0',
+                      borderBottom: '1px solid #eee',
+                      color: selectedStock && selectedStock.symbol === stock.symbol ? '#fff' : 'black',
+                      background: selectedStock && selectedStock.symbol === stock.symbol ? '#6C5019' : 'transparent',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontWeight: selectedStock && selectedStock.symbol === stock.symbol ? 'bold' : 'normal'
+                    }}
+                    onClick={() => handleStockClick(stock)}
+                  >
+                    <div style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
+                      {stock.symbol} <span style={{ color: '#888', fontWeight: 'normal' }}>{stock.shortName || stock.displayName}</span>
+                    </div>
+                    <div style={{ fontSize: '0.95rem', color: selectedStock && selectedStock.symbol === stock.symbol ? '#ffe9b3' : '#333' }}>
+                      ${stock.currentPrice?.toFixed(2) ?? 'N/A'}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
     </div>

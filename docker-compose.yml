@@ -24,7 +24,6 @@ services:
     restart: unless-stopped
     depends_on:
       - db
-
   client:
     build:
       context: ./Incrementum.client

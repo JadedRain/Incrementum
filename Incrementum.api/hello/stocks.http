@@ -7,7 +7,7 @@ GET {{host}}/getStockInfo/?max=5&offset=0
 ###
 GET {{host}}/searchStocks/a/1
 ###
-POST {{host}}/watchlist/add/
+GET  {{host}}/watchlist/
 Content-Type: application/json
 
 {
