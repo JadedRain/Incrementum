@@ -8,6 +8,7 @@ import Loading from '../Components/Loading'
 function WatchlistPage() {
   const navigate = useNavigate();
   const [watchlist, setWatchlist] = useState<string[]>([]);
+  const [rawWatchlist, setRawWatchlist] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,6 +19,7 @@ function WatchlistPage() {
       })
       .then(data => {
         const items = Array.isArray(data.watchlist) ? data.watchlist : [];
+        setRawWatchlist(items);
         const labels: string[] = items.map((it: any) =>
           typeof it === 'string'
             ? it
@@ -28,6 +30,7 @@ function WatchlistPage() {
       })
       .catch(() => {
         setWatchlist([]);
+        setRawWatchlist([]);
         setLoading(false);
       });
   }, []);
@@ -46,6 +49,31 @@ function WatchlistPage() {
         </h1>
         <div style={{ width: '4.5rem', marginRight: '2rem' }}></div>
       </div>
+      {/* Top summary: company name + symbol */}
+      <div style={{ padding: '1rem 2rem' }}>
+        {rawWatchlist.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+            {rawWatchlist.map((it: any, idx: number) => {
+              const name = it?.displayName || it?.longName || it?.shortName || '';
+              const symbol = it?.symbol || '';
+              if (!name && !symbol) return null;
+              return (
+                <div key={idx} style={{
+                  background: '#f7f7f7',
+                  border: '1px solid #e5e5e5',
+                  borderRadius: 8,
+                  padding: '6px 10px',
+                  color: '#111',
+                }}>
+                  <strong>{name || symbol}</strong>
+                  {name && symbol ? ` (${symbol})` : ''}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
       <div className='WatchlistPage-Loading'>
         <Loading loading={loading} watchlist={watchlist} />
       </div>
