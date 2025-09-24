@@ -1,13 +1,13 @@
 import React, { createContext, useState, useContext } from "react";
-import type { AuthContextType } from "./AuthContext.types";
+import type { AuthContextType } from "./AuthContexttypes";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }: { children: React.ReactNode }) => {
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
 
-  const signIn = async (email: string, password: string) => {
+  const Login = async (email: string, password: string) => {
     // Try to login
     let res = await fetch("/api/login", {
       method: "POST",
@@ -53,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ apiKey, email, signIn, signOut }}>
+    <AuthContext.Provider value={{ apiKey, email, Login, signOut }}>
       {children}
     </AuthContext.Provider>
   );
