@@ -5,6 +5,10 @@ import Loading from '../Components/Loading'
 import type { StockC } from '../Components/Stock'
 
 
+const sortOptions = [
+  { label: 'Default', value: 'default' },
+  { label: 'Date Added', value: 'date_added' },
+];
 
 function WatchlistPage() {
   const navigate = useNavigate();
@@ -13,9 +17,14 @@ function WatchlistPage() {
   const [selectedStock, setSelectedStock] = useState<StockC | null>(null);
   const [period, setPeriod] = useState("1y");
   const [interval, setInterval] = useState("1d");
+  const [sortBy, setSortBy] = useState('default');
 
   useEffect(() => {
-    fetch('http://localhost:8000/watchlist/')
+    const endpoint =
+      sortBy === 'date_added'
+        ? 'http://localhost:8000/watchlist/sorted/'
+        : 'http://localhost:8000/watchlist/';
+    fetch(endpoint)
       .then(res => res.json())
       .then(data => {
         setWatchlist(data.watchlist || []);
@@ -29,7 +38,7 @@ function WatchlistPage() {
         setWatchlist([]);
         setLoading(false);
       });
-  }, []);
+  }, [sortBy]);
 
   // Update selected stock if watchlist changes and selected is missing
   useEffect(() => {
@@ -40,14 +49,6 @@ function WatchlistPage() {
 
   const handleStockClick = (stock: StockC) => {
     setSelectedStock(stock);
-  };
-
-  const handlePeriodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setPeriod(e.target.value);
-  };
-
-  const handleIntervalChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setInterval(e.target.value);
   };
 
   // Chart image URL for selected stock
@@ -150,6 +151,15 @@ function WatchlistPage() {
                 ))}
               </ul>
             )}
+            <select
+          id="sort-select"
+          value={sortBy}
+          onChange={e => setSortBy(e.target.value)}
+        >
+          {sortOptions.map(option => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
           </div>
         </div>
       </div>

@@ -81,7 +81,11 @@ def search_stocks_watchlist(request):
 	max_results = int(request.GET.get('max', 10))
 	results = watchlist_service.search(query, max_results)
 	return Response({'results': results})
-
+@api_view(['GET'])
+def get_sorted_watchlist(request):
+	sorted_wl = watchlist_service.get_sorted()
+	logging.info(f"[watchlist:get_sorted] size={len(sorted_wl)}")
+	return Response({'watchlist': sorted_wl})
 
 class GetStocksInfo(APIView):
 	permission_classes = [AllowAny]
