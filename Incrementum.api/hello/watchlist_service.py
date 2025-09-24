@@ -1,3 +1,4 @@
+import logging
 import pandas as pd
 import os
 from .get_stock_info import fetch_stock_data
@@ -5,6 +6,8 @@ from .stocks_class import Stock
 import datetime
 
 class WatchlistService:
+    def __init__(self):
+        self.watchlist = ["AAPL", "TSLA"]
     def __init__(self, fetch_stock_data_func=fetch_stock_data):
         self.watchlist = ["AAPL", "TSLA"]  
         base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -19,6 +22,7 @@ class WatchlistService:
         if not row.empty:
             if not any(item == symbol for item in self.watchlist):
                 self.watchlist.append(symbol)
+                logging.info(f"Made it to here {self.watchlist}")
                 self.tickerDateAdded[symbol] = datetime.now()
         return self.watchlist
     def get_sorted(self):

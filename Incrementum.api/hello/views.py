@@ -34,7 +34,7 @@ class StockListCreateView(APIView):
 class SearchStocksView(APIView):
 	def __init__(self):
 		logging.basicConfig(
-    	level=logging.INFO,  # Minimum level to capture (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    	level=logging.INFO,
     	format="%(asctime)s - %(levelname)s - %(message)s")
 
 
@@ -43,8 +43,6 @@ class SearchStocksView(APIView):
 		logging.info(f"results: {results}")
 		return Response(results)
 
-
-# Singleton instance for demo (not thread-safe, not persistent)
 watchlist_service = WatchlistService()
 
 @csrf_exempt
@@ -146,3 +144,11 @@ class WatchlistList(APIView):
 		# For now, empty list
 		watchlist = self.watchlist_service.get()
 		return Response({"watchlist": watchlist})
+	def post(self, request):
+		symbol = request.data.get('symbol')
+		if not symbol:
+			return Response({'error': 'Symbol is required'}, status=status.HTTP_400_BAD_REQUEST)
+		logging.info(f"[watchlist:add] symbol={symbol}")
+		watchlist = self.watchlist_service.add(symbol)
+		logging.info(f"[watchlist:add] size={len(watchlist)}")
+		return Response({'watchlist': watchlist})

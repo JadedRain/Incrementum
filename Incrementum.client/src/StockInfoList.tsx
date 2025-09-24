@@ -32,15 +32,11 @@ const StockInfoList: React.FC = () => {
 
   useEffect(() => {
     const fetchWatchlist = async () => {
-      try {
-        const res = await fetch('/watchlist/', { credentials: 'include' });
-        if (!res.ok) return;
-        const data = await res.json();
-        const symbols = new Set<string>((data.watchlist || []).map((s: any) => s.symbol).filter((s: any) => typeof s === 'string'));
-        setWatchlistSymbols(symbols);
-      } catch (e) {
-        // best-effort; ignore errors for now
-      }
+      const res = await fetch('/watchlist/', { credentials: 'include' });
+      if (!res.ok) return;
+      const data = await res.json();
+      const symbols = new Set<string>((data.watchlist || []).map((s: any) => s.symbol).filter((s: any) => typeof s === 'string'));
+      setWatchlistSymbols(symbols);
     };
     fetchWatchlist();
   }, []);
