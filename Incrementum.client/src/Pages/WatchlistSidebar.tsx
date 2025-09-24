@@ -1,13 +1,21 @@
 import type { StockC } from '../Components/Stock';
 import { WatchlistList } from './WatchlistList';
-
-export function WatchlistSidebar({ sortByPrice, sortAsc, watchlist, selectedStock, handleStockClick, loading }: {
+const sortOptions = [
+  { label: 'Default', value: 'default' },
+  { label: 'Date Added', value: 'date_added' },
+  { label: 'Price', value: 'price' },
+];
+export function WatchlistSidebar({ sortByPrice, sortAsc, watchlist, selectedStock, handleStockClick, loading, sortBy, setSortBy}: {
   sortByPrice: () => void;
   sortAsc: boolean;
   watchlist: StockC[];
   selectedStock: StockC | null;
   handleStockClick: (stock: StockC) => void;
   loading: boolean;
+  sortBy: string;
+  setSortBy: (value: string) => void; 
+  
+  
 }) {
   return (
     <div className="WatchlistPage-Sidebar">
@@ -41,6 +49,15 @@ export function WatchlistSidebar({ sortByPrice, sortAsc, watchlist, selectedStoc
         selectedStock={selectedStock}
         handleStockClick={handleStockClick}
         loading={loading} />
+                    <select
+          id="sort-select"
+          value={sortBy}
+          onChange={e => setSortBy(e.target.value)}
+        >
+          {sortOptions.map(option => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
     </div>
   );
 }
