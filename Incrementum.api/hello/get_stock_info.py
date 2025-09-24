@@ -58,11 +58,31 @@ def get_stock_by_ticker(ticker, source=setup):
         return None
     stock_data = fetch_stock_data(ticker)
     return stock_data
-def get_stock_info(max, offset):
+def get_stock_info(max, offset, sector=None, filters=None):
     tickers = setup()
     stocks = []
     max = int(max)
     offset = int(offset)
+
+    # Build allowed sectors from both `sector` param and filters dict
+    allowed_sectors = None
+    if sector:
+        allowed_sectors = {str(sector).strip().lower()}
+    if isinstance(filters, dict):
+        fs = filters.get('sectors')
+        if fs:
+            fs_set = {str(s).strip().lower() for s in fs if s}
+            if allowed_sectors:
+                allowed_sectors = allowed_sectors.union(fs_set)
+            else:
+                allowed_sectors = fs_set
+
+    # Apply sector filtering if specified
+    if allowed_sectors:
+        # Ensure sectorKey exists and compare lowercase
+        if 'sectorKey' in tickers.columns:
+            tickers = tickers[tickers['sectorKey'].fillna('').str.lower().isin(allowed_sectors)]
+
     for _, stock in tickers.iloc[offset:offset+max].iterrows():
         stocks.append(fetch_stock_data(stock['symbol']))
     return stocks

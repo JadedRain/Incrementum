@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ExpandableSidebarItem from './ExpandableSidebarItem';
 
-const Sidebar: React.FC = () => {
-  const [sectorChecks, setSectorChecks] = useState<{[k:string]:boolean}>({
-    'Sector 1': false,
-    'Sector 2': false,
-    'Sector 3': false,
-  });
+interface SidebarProps {
+  selectedSectors?: string[];
+  onSelectedSectorsChange?: (sectors: string[]) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSectorsChange }) => {
+  const [sectorChecks, setSectorChecks] = useState<{[k:string]:boolean}>({});
   const [industryChecks, setIndustryChecks] = useState<{[k:string]:boolean}>({
     'Industry 1': false,
     'Industry 2': false,
@@ -22,6 +23,51 @@ const Sidebar: React.FC = () => {
     'NYSE': false,
     'AMEX': false,
   });
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchSectors = async () => {
+      try {
+        const res = await fetch('/sectors/');
+        if (!res.ok) return;
+        const data = await res.json();
+        const fetched: string[] = Array.isArray(data.sectors) ? data.sectors : [];
+        if (!mounted) return;
+        // Update checks mapping to include fetched sectors (preserve existing checked state)
+        setSectorChecks(prev => {
+          const next: {[k:string]:boolean} = {};
+          fetched.forEach(s => {
+            // If parent passed selectedSectors, use that; otherwise preserve or default to false
+            const isSelected = selectedSectors.length ? selectedSectors.includes(s) : !!prev[s];
+            next[s] = isSelected;
+          });
+          // Notify parent of initial selection if provided
+          if (onSelectedSectorsChange) {
+            const selected = Object.keys(next).filter(k => next[k]);
+            onSelectedSectorsChange(selected);
+          }
+          return next;
+        });
+      } catch (e) {
+        // swallow errors for now; sidebar will remain empty
+      }
+    };
+    fetchSectors();
+    return () => { mounted = false; };
+  }, []);
+
+  // If parent updates selectedSectors, reflect that in local checks
+  useEffect(() => {
+    if (!selectedSectors || selectedSectors.length === 0) return;
+    setSectorChecks(prev => {
+      const next = { ...prev };
+      // set any known sector to true if present in selectedSectors
+      Object.keys(next).forEach(k => {
+        next[k] = selectedSectors.includes(k);
+      });
+      return next;
+    });
+  }, [selectedSectors]);
 
   const [avgVolumeMin, setAvgVolumeMin] = useState('');
   const [avgVolumeMax, setAvgVolumeMax] = useState('');
@@ -45,7 +91,21 @@ const Sidebar: React.FC = () => {
         <ExpandableSidebarItem title="Sector">
           {Object.keys(sectorChecks).map((key) => (
             <label key={key} style={{display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0'}}>
-              <input type="checkbox" checked={!!sectorChecks[key]} onChange={() => setSectorChecks(prev => ({...prev, [key]: !prev[key]}))} />
+              <input
+                type="checkbox"
+                checked={!!sectorChecks[key]}
+                onChange={() => {
+                  setSectorChecks(prev => {
+                    const next = { ...prev, [key]: !prev[key] };
+                    // Inform parent of new selection
+                    if (onSelectedSectorsChange) {
+                      const selected = Object.keys(next).filter(k => next[k]);
+                      onSelectedSectorsChange(selected);
+                    }
+                    return next;
+                  });
+                }}
+              />
               <span>{key}</span>
             </label>
           ))}

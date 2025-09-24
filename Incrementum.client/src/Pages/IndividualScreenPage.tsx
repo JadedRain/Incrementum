@@ -18,19 +18,49 @@ function IndividualScreenPage() {
   const navigate = useNavigate();
   const [stocks, setStocks] = useState<StockInfo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
 
   useEffect(() => {
-    const fetchStocks = async () => {
+    const fetchStocks = async (sectors?: string[]) => {
+      setLoading(true);
       try {
-        const response = await fetch('/getStockInfo/');
+        const params = new URLSearchParams();
+        params.set('max', '10');
+        params.set('offset', '0');
+        if (sectors && sectors.length) {
+          params.set('sectors', sectors.join(','));
+        }
+        const response = await fetch(`/getStockInfo/?${params.toString()}`);
         const data = await response.json();
-        setStocks(data.stocks.slice(0, 4)); // Only show first 4 stocks
+        setStocks((data.stocks || []).slice(0, 4)); // Only show first 4 stocks
       } finally {
         setLoading(false);
       }
     };
-    fetchStocks();
+
+    // Initial load
+    fetchStocks(selectedSectors);
   }, []);
+
+  // Refetch when selected sectors change
+  useEffect(() => {
+    const fetchWithSectors = async () => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams();
+        params.set('max', '10');
+        params.set('offset', '0');
+        if (selectedSectors && selectedSectors.length) params.set('sectors', selectedSectors.join(','));
+        const response = await fetch(`/getStockInfo/?${params.toString()}`);
+        const data = await response.json();
+        setStocks((data.stocks || []).slice(0, 4));
+      } finally {
+        setLoading(false);
+      }
+    };
+    // Avoid refetch on initial render where initial fetch already ran; simple approach: always fetch when selection changes
+    fetchWithSectors();
+  }, [selectedSectors]);
 
   return (
     <div className="min-h-screen bg-[hsl(40,62%,26%)]">
@@ -66,7 +96,7 @@ function IndividualScreenPage() {
               })}
           </div>
         </div>
-        <Sidebar />
+  <Sidebar selectedSectors={selectedSectors} onSelectedSectorsChange={setSelectedSectors} />
       </div>
     </div>
   );

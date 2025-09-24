@@ -20,6 +20,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      '/sectors/': {
+        target: 'http://api:8000',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 })

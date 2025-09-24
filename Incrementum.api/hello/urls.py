@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import HelloWorldView, get_sorted_watchlist, GetStocks, remove_from_watchlist, search_stocks_watchlist
+from .views import HelloWorldView, get_sorted_watchlist, GetStocks, remove_from_watchlist, search_stocks_watchlist, get_sectors
 from .views import GetStocksInfo
 from .views import SearchStocksView
 
@@ -17,4 +17,5 @@ urlpatterns = [
     path('watchlist/sorted/', get_sorted_watchlist, name='get_sorted_watchlist'),  # New endpoint for getting sorted watchlist
     path('stock/<str:ticker>/', GetStockInfo.as_view(), name='get_stocks_by_ticker'),
     path('stocks/', StockListCreateView.as_view(), name='stock_list_create'),
+    path('sectors/', get_sectors, name='get_sectors'),
 ]

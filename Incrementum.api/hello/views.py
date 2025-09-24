@@ -16,6 +16,8 @@ from rest_framework.permissions import AllowAny
 import yfinance as yf
 import logging
 from django.http import HttpResponse
+from pathlib import Path
+from .utils import get_unique_sectors
 # Configure logging
 
 
@@ -83,6 +85,16 @@ def get_sorted_watchlist(request):
 	sorted_list = watchlist_service.get_sorted(reverse)
 	return Response({'watchlist': sorted_list})
 
+
+@api_view(['GET'])
+def get_sectors(request):
+	csv_path = Path(__file__).resolve().parent / 'data' / 'ticker_info.csv'
+	try:
+		sectors = get_unique_sectors(csv_path)
+	except Exception as e:
+		return Response({'error': str(e)}, status=500)
+	return Response({'sectors': sectors})
+
 class GetStocksInfo(APIView):
 	permission_classes = [AllowAny]
 
@@ -92,7 +104,25 @@ class GetStocksInfo(APIView):
 			offset = int(request.GET.get('offset', 0))
 		except (TypeError, ValueError):
 			return Response({'error': 'Invalid max or offset'}, status=400)
-		stocks = get_stock_info(max_val, offset)
+		# Optional sector filter (matches `sectorKey` in ticker_info.csv)
+		sector = request.GET.get('sector')
+		# Optional filters param: try JSON first, else look for comma-separated 'sectors'
+		filters = None
+		filters_param = request.GET.get('filters')
+		if filters_param:
+			import json as _json
+			try:
+				filters = _json.loads(filters_param)
+			except Exception:
+				# Fallback: treat as comma-separated list of sectors
+				filters = {}
+				filters['sectors'] = [s.strip() for s in filters_param.split(',') if s.strip()]
+		else:
+			# Also support a simple 'sectors' query param (comma-separated)
+			sectors_param = request.GET.get('sectors')
+			if sectors_param:
+				filters = {'sectors': [s.strip() for s in sectors_param.split(',') if s.strip()]}
+		stocks = get_stock_info(max_val, offset, sector=sector, filters=filters)
 
 		return Response({'stocks': [s.to_dict() for s in stocks]})
 class GetStockInfo(APIView):
