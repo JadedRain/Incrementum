@@ -36,6 +36,11 @@ export function WatchlistList({ watchlist, selectedStock, handleStockClick, load
               <div style={{ fontSize: '0.95rem', color: selectedStock && selectedStock.symbol === stock.symbol ? '#ffe9b3' : '#333' }}>
                 ${stock.currentPrice?.toFixed(2) ?? 'N/A'}
               </div>
+              {stock.lastViewed && (
+                <div style={{ fontSize: '0.85rem', color: '#888' }}>
+                  Last viewed: {new Date(stock.lastViewed).toLocaleString()}
+                </div>
+              )}
             </li>
           ))}
         </ul>
