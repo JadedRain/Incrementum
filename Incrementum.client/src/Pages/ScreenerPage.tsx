@@ -1,5 +1,5 @@
 import '../App.css'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import SearchBar from '../Components/SearchBar';
 
 function ScreenerPage() {
@@ -11,7 +11,8 @@ function ScreenerPage() {
 
     return (
         <div className="min-h-screen bg-[hsl(40,62%,26%)]">
-            <div className='StocksPage-header'>
+            <div className='StocksPage-header relative'>
+                <Link to="/account" className="absolute top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition">Account</Link>
                 <SearchBar />
                 <h1 className="ScreenerPage-h1">
                     Screener Page

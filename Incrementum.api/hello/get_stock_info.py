@@ -7,15 +7,31 @@ import logging
 import io
 import matplotlib.pyplot as plt
 
-def generate_stock_graph(history, ticker: str) -> bytes:
-    """Generate a PNG graph from stock history and return raw image bytes."""
-    fig, ax = plt.subplots()
-    history['Close'].plot(ax=ax, title=f"{ticker} Closing Prices (1Y)")
+def generate_stock_graph(history, ticker: str, period) -> bytes:
+    """Generate a PNG graph from stock history with rudimentary styling and return raw image bytes."""
+    # Determine trend
+    first_price = history['Close'].iloc[0]
+    last_price = history['Close'].iloc[-1]
+    color = "green" if last_price >= first_price else "red"
+
+    fig, ax = plt.subplots(figsize=(8, 4))
+
+    # Plot with trend color and some styling
+    history['Close'].plot(
+        ax=ax, 
+        title=f"{ticker} Closing Prices {period}", 
+        color=color, 
+        linewidth=2
+    )
+
     ax.set_xlabel("Date")
     ax.set_ylabel("Price ($)")
+    ax.grid(True, linestyle="--", alpha=0.6)  # light dashed grid
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
 
     buffer = io.BytesIO()
-    plt.savefig(buffer, format="png", bbox_inches="tight")
+    plt.savefig(buffer, format="png", bbox_inches="tight", dpi=120)
     buffer.seek(0)
     plt.close(fig)
     return buffer.getvalue()
@@ -33,6 +49,7 @@ def setup():
     return tickers
 
 def search_stocks(query, page, source=setup):
+    # pull based on symbol and name but prioritize symbol matches
     tickers = source()
     logging.info(f"Searching for stocks with query: {query}")
     results = []
@@ -40,12 +57,13 @@ def search_stocks(query, page, source=setup):
     for _, stock in tickers.iterrows():
         symbol = str(stock['symbol'])
         name = str(stock['companyName'])
-        if query.lower() in symbol.lower() or query.lower() in name.lower():
-            # logging.info(f"Match found: {symbol} - {name}")
-            results.append({
-                'symbol': symbol,
-                'name': name,
-            })
+        if symbol.lower().startswith(query):
+            results.append({'symbol': symbol, 'name': name})
+    for _, stock in tickers.iterrows():
+        symbol = str(stock['symbol'])
+        name = str(stock['companyName'])
+        if not symbol.lower().startswith(query) and query in name.lower():
+            results.append({'symbol': symbol, 'name': name})
     start = 10 * page
     end = min(start + 10, len(results))
     return results[start:end]

@@ -20,6 +20,16 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      '/api': {
+        target: 'http://api:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/watchlist/': {
+        target: 'http://api:8000',
+        changeOrigin: true,
+        secure: false,
+      },
       '/sectors/': {
         target: 'http://api:8000',
         changeOrigin: true,
