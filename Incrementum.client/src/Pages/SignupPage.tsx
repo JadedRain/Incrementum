@@ -53,6 +53,7 @@ const SignupPage: React.FC = () => {
           placeholder="Email"
           value={email}
           onChange={e => setEmail(e.target.value)}
+          required
         />
         <input
           className="signin-input"
@@ -60,6 +61,7 @@ const SignupPage: React.FC = () => {
           placeholder="Password"
           value={password}
           onChange={e => setPassword(e.target.value)}
+          required
         />
         {error && <div className="signin-error">{error}</div>}
         <button className="signin-button" type="submit">Sign Up</button>
