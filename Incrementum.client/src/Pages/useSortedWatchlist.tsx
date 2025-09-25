@@ -25,6 +25,18 @@ export function useSortedWatchlist(sortBy: string) {
         return sorted;
       });
       setLoading(false);
+    } else if (sortBy === 'recently_viewed') {
+      setWatchlist(prev => {
+        const sorted = [...prev].sort((a, b) => {
+          // Stocks with lastViewed come first, most recent at top
+          if (b.lastViewed && a.lastViewed) return b.lastViewed - a.lastViewed;
+          if (b.lastViewed) return 1;
+          if (a.lastViewed) return -1;
+          return 0;
+        });
+        return sorted;
+      });
+      setLoading(false);
     } else {
       const endpoint = sortBy === 'date_added'
         ? 'http://localhost:8000/watchlist/sorted/'

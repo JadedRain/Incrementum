@@ -3,6 +3,7 @@ import { WatchlistList } from './WatchlistList';
 const sortOptions = [
   { label: 'Default', value: 'default' },
   { label: 'Date Added', value: 'date_added' },
+  { label: 'Recently Viewed', value: 'recently_viewed' },
   { label: 'Name', value: 'name' },
   { label: 'Price (asc)', value: 'price_asc' },
   { label: 'Price (desc)', value: 'price_desc' },

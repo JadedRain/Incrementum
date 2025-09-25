@@ -16,4 +16,5 @@ export type StockC = {
   symbol: string;
   sector: string;
   sectorKey: string;
+  lastViewed?: number;
 };

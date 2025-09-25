@@ -23,7 +23,11 @@ function WatchlistPage() {
   }, [watchlist, selectedStock]);
 
   const handleStockClick = (stock: StockC) => {
-    setSelectedStock(stock);
+    // Set lastViewed for the clicked stock
+    setWatchlist(prev => prev.map(s =>
+      s.symbol === stock.symbol ? { ...s, lastViewed: Date.now() } : s
+    ));
+    setSelectedStock({ ...stock, lastViewed: Date.now() });
   };
 
   const imgUrl = selectedStock
