@@ -15,16 +15,22 @@ import '../App.css'
 function WatchlistPage() {
   const navigate = useNavigate();
   const [watchlist, setWatchlist] = useState<StockC[]>([]);
-  const [sortAsc, setSortAsc] = useState(false);
   const [loading, setLoading] = useState(true);
   const [selectedStock, setSelectedStock] = useState<StockC | null>(null);
   const [sortBy, setSortBy] = useState('default');
 
+
   useEffect(() => {
-    if(sortBy === 'price'){
-      sortByPrice();
-    }
-    else{
+    if (sortBy === 'price_asc' || sortBy === 'price_desc') {
+      setWatchlist(prev => {
+        const sorted = [...prev].sort((a, b) => {
+          const priceA = typeof a.currentPrice === 'number' ? a.currentPrice : -Infinity;
+          const priceB = typeof b.currentPrice === 'number' ? b.currentPrice : -Infinity;
+          return sortBy === 'price_asc' ? priceA - priceB : priceB - priceA;
+        });
+        return sorted;
+      });
+    } else {
       const endpoint =
         sortBy === 'date_added'
           ? 'http://localhost:8000/watchlist/sorted/'
@@ -39,25 +45,12 @@ function WatchlistPage() {
             setSelectedStock(data.watchlist[0]);
           }
         })
-
         .catch(() => {
           setWatchlist([]);
           setLoading(false);
         });
-      }
-      }, [sortBy]);
-
-  const sortByPrice = () => {
-    setWatchlist(prev => {
-      const sorted = [...prev].sort((a, b) => {
-        const priceA = typeof a.currentPrice === 'number' ? a.currentPrice : -Infinity;
-        const priceB = typeof b.currentPrice === 'number' ? b.currentPrice : -Infinity;
-        return sortAsc ? priceA - priceB : priceB - priceA;
-      });
-      return sorted;
-    });
-    setSortAsc(s => !s);
-  };
+    }
+  }, [sortBy]);
 
   useEffect(() => {
     if (watchlist.length > 0 && (!selectedStock || !watchlist.find(s => s.symbol === selectedStock.symbol))) {
@@ -69,7 +62,6 @@ function WatchlistPage() {
     setSelectedStock(stock);
   };
 
-  // Chart image URL for selected stock
   const imgUrl = selectedStock
     ? `http://localhost:8000/getStocks/${selectedStock.symbol}`
     : null;
@@ -91,8 +83,6 @@ function WatchlistPage() {
         <WatchlistSidebar
           setSortBy={setSortBy}
           sortBy={sortBy}
-          sortByPrice={sortByPrice}
-          sortAsc={sortAsc}
           watchlist={watchlist}
           selectedStock={selectedStock}
           handleStockClick={handleStockClick}
