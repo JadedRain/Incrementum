@@ -1,8 +1,8 @@
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 import json
 import uuid
 import bcrypt   
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from .models_user import Account
 
 @csrf_exempt
