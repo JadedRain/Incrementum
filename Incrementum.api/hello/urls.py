@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import WatchlistList, HelloWorldView, GetStocks,get_sorted_watchlist, remove_from_watchlist, search_stocks_watchlist
+from .views import WatchlistList, HelloWorldView, GetStocks,get_sorted_watchlist, remove_from_watchlist, search_stocks_watchlist, get_sectors, get_industries
 from .views import GetStocksInfo
 from .views import SearchStocksView
 
@@ -21,4 +21,6 @@ urlpatterns = [
     path('api/signup', signup, name='signup'),
     path('api/login', login, name='login'),
     path('api/account', account_info, name='account_info'),
+    path('sectors/', get_sectors, name='get_sectors'),
+    path('industries/', get_industries, name='get_industries'),
 ]

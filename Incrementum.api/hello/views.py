@@ -16,6 +16,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.http import HttpResponse
+from pathlib import Path
+from .utils import get_unique_sectors
+from .utils import get_unique_industries
 from django.views.decorators.csrf import csrf_exempt
 
 class StockListCreateView(APIView):
@@ -87,6 +90,24 @@ def get_sorted_watchlist(request):
 	logging.info(f"[watchlist:get_sorted] size={len(sorted_wl)}")
 	return Response({'watchlist': sorted_wl})
 
+@api_view(['GET'])
+def get_sectors(request):
+	csv_path = Path(__file__).resolve().parent / 'data' / 'ticker_info.csv'
+	try:
+		sectors = get_unique_sectors(csv_path)
+	except Exception as e:
+		return Response({'error': str(e)}, status=500)
+	return Response({'sectors': sectors})
+
+
+@api_view(['GET'])
+def get_industries(request):
+    csv_path = Path(__file__).resolve().parent / 'data' / 'ticker_info.csv'
+    try:
+        industries = get_unique_industries(csv_path)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+    return Response({'industries': industries})
 class GetStocksInfo(APIView):
 	permission_classes = [AllowAny]
 
@@ -96,9 +117,21 @@ class GetStocksInfo(APIView):
 			offset = int(request.GET.get('offset', 0))
 		except (TypeError, ValueError):
 			return Response({'error': 'Invalid max or offset'}, status=400)
-		stocks = get_stock_info(max_val, offset)
+
+		# Require filters parameter as JSON (e.g. {"sectors": [...], "industries": [...]})
+		filters = None
+		filters_param = request.GET.get('filters')
+		if filters_param:
+			import json as _json
+			try:
+				filters = _json.loads(filters_param)
+			except Exception as e:
+				return Response({'error': 'Invalid filters JSON', 'details': str(e)}, status=400)
+		# No standalone 'sectors' or 'industries' query params supported; filters must contain them
+		stocks = get_stock_info(max_val, offset, filters=filters)
 
 		return Response({'stocks': [s.to_dict() for s in stocks]})
+	
 class GetStockInfo(APIView):
 	permission_classes = [AllowAny]
 
@@ -107,6 +140,7 @@ class GetStockInfo(APIView):
 			return Response(get_stock_by_ticker(ticker).to_dict(), status=200)
 		except AttributeError:
 			return Response({'error': 'Page Not Found'}, status=404)
+		
 class HelloWorldView(APIView):
 	permission_classes = [AllowAny]
 

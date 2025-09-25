@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ExpandableSidebarItem from './ExpandableSidebarItem';
 
-const Sidebar: React.FC = () => {
-  const [sectorChecks, setSectorChecks] = useState<{[k:string]:boolean}>({
-    'Sector 1': false,
-    'Sector 2': false,
-    'Sector 3': false,
-  });
-  const [industryChecks, setIndustryChecks] = useState<{[k:string]:boolean}>({
-    'Industry 1': false,
-    'Industry 2': false,
-    'Industry 3': false,
-  });
+interface SidebarProps {
+  selectedSectors?: string[];
+  onSelectedSectorsChange?: (sectors: string[]) => void;
+  selectedIndustries?: string[];
+  onSelectedIndustriesChange?: (industries: string[]) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSectorsChange, selectedIndustries = [], onSelectedIndustriesChange }) => {
+  const [sectorChecks, setSectorChecks] = useState<{[k:string]:boolean}>({});
+  const [industryChecks, setIndustryChecks] = useState<{[k:string]:boolean}>({});
   const [regionChecks, setRegionChecks] = useState<{[k:string]:boolean}>({
     'Region 1': false,
     'Region 2': false,
@@ -22,6 +21,80 @@ const Sidebar: React.FC = () => {
     'NYSE': false,
     'AMEX': false,
   });
+  
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchSectors = async () => {
+      try {
+        const res = await fetch('/sectors/');
+        if (!res.ok) return;
+        const data = await res.json();
+        const fetched: string[] = Array.isArray(data.sectors) ? data.sectors : [];
+        if (!mounted) return;
+        // Update checks mapping to include fetched sectors (preserve existing checked state)
+        setSectorChecks(prev => {
+          const next: {[k:string]:boolean} = {};
+          fetched.forEach(s => {
+            // If parent passed selectedSectors, use that; otherwise preserve or default to false
+            const isSelected = selectedSectors.length ? selectedSectors.includes(s) : !!prev[s];
+            next[s] = isSelected;
+          });
+          // Notify parent of initial selection if provided
+          if (onSelectedSectorsChange) {
+            const selected = Object.keys(next).filter(k => next[k]);
+            onSelectedSectorsChange(selected);
+          }
+          return next;
+        });
+      } catch (e) {
+        // swallow errors for now; sidebar will remain empty
+      }
+    };
+    fetchSectors();
+    // Also fetch industries
+    const fetchIndustries = async () => {
+        try {
+          const res = await fetch('/industries/');
+          if (!res.ok) return;
+          const data = await res.json();
+          const fetched: string[] = Array.isArray(data.industries) ? data.industries : [];
+          if (!mounted) return;
+          setIndustryChecks(prev => {
+            const next: {[k:string]:boolean} = {};
+            fetched.forEach(s => {
+              // initialize based on parent's selectedIndustries or previous state
+              const isSelected = selectedIndustries.length ? selectedIndustries.includes(s) : !!prev[s];
+              next[s] = isSelected;
+            });
+            // notify parent of initial selection
+            if (onSelectedIndustriesChange) {
+              const selected = Object.keys(next).filter(k => next[k]);
+              onSelectedIndustriesChange(selected);
+            }
+            return next;
+          });
+        } catch (e) {
+          // ignore
+        }
+      };
+      fetchIndustries();
+      return () => { mounted = false; };
+  }, []);
+
+  // If parent updates selectedSectors, reflect that in local checks
+  useEffect(() => {
+    if (!selectedSectors || selectedSectors.length === 0) return;
+    setSectorChecks(prev => {
+      const next = { ...prev };
+      // set any known sector to true if present in selectedSectors
+      Object.keys(next).forEach(k => {
+        next[k] = selectedSectors.includes(k);
+      });
+      return next;
+    });
+  }, [selectedSectors]);
+  // No sort UI — Sidebar only provides filters. Industry checkbox changes notify parent.
 
   const [avgVolumeMin, setAvgVolumeMin] = useState('');
   const [avgVolumeMax, setAvgVolumeMax] = useState('');
@@ -42,10 +115,25 @@ const Sidebar: React.FC = () => {
   return (
     <aside className="sidebar">
       <nav className="sidebar-nav">
+        {/* removed sort UI */}
         <ExpandableSidebarItem title="Sector">
           {Object.keys(sectorChecks).map((key) => (
             <label key={key} style={{display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0'}}>
-              <input type="checkbox" checked={!!sectorChecks[key]} onChange={() => setSectorChecks(prev => ({...prev, [key]: !prev[key]}))} />
+              <input
+                type="checkbox"
+                checked={!!sectorChecks[key]}
+                onChange={() => {
+                  setSectorChecks(prev => {
+                    const next = { ...prev, [key]: !prev[key] };
+                    // Inform parent of new selection
+                    if (onSelectedSectorsChange) {
+                      const selected = Object.keys(next).filter(k => next[k]);
+                      onSelectedSectorsChange(selected);
+                    }
+                    return next;
+                  });
+                }}
+              />
               <span>{key}</span>
             </label>
           ))}
@@ -54,7 +142,20 @@ const Sidebar: React.FC = () => {
         <ExpandableSidebarItem title="Industry">
           {Object.keys(industryChecks).map((key) => (
             <label key={key} style={{display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0'}}>
-              <input type="checkbox" checked={!!industryChecks[key]} onChange={() => setIndustryChecks(prev => ({...prev, [key]: !prev[key]}))} />
+              <input
+                type="checkbox"
+                checked={!!industryChecks[key]}
+                onChange={() => {
+                  setIndustryChecks(prev => {
+                    const next = { ...prev, [key]: !prev[key] };
+                    if (onSelectedIndustriesChange) {
+                      const selected = Object.keys(next).filter(k => next[k]);
+                      onSelectedIndustriesChange(selected);
+                    }
+                    return next;
+                  });
+                }}
+              />
               <span>{key}</span>
             </label>
           ))}

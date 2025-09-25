@@ -18,19 +18,31 @@ function IndividualScreenPage() {
   const navigate = useNavigate();
   const [stocks, setStocks] = useState<StockInfo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
+  const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchStocks = async () => {
+      setLoading(true);
       try {
-        const response = await fetch('/getStockInfo/');
+  const params = new URLSearchParams();
+  params.set('max', '10');
+  params.set('offset', '0');
+  // Send sectors/industries inside a JSON-encoded `filters` param
+  const filters: any = {};
+  if (selectedSectors && selectedSectors.length) filters.sectors = selectedSectors;
+  if (selectedIndustries && selectedIndustries.length) filters.industries = selectedIndustries;
+  if (Object.keys(filters).length) params.set('filters', JSON.stringify(filters));
+  const response = await fetch(`/getStockInfo/?${params.toString()}`);
         const data = await response.json();
-        setStocks(data.stocks.slice(0, 4)); // Only show first 4 stocks
+        setStocks((data.stocks || []).slice(0, 4));
       } finally {
         setLoading(false);
       }
     };
+
     fetchStocks();
-  }, []);
+  }, [selectedSectors, selectedIndustries]);
 
   return (
     <div className="min-h-screen bg-[hsl(40,62%,26%)]">
@@ -66,7 +78,7 @@ function IndividualScreenPage() {
               })}
           </div>
         </div>
-        <Sidebar />
+        <Sidebar selectedSectors={selectedSectors} onSelectedSectorsChange={setSelectedSectors} selectedIndustries={selectedIndustries} onSelectedIndustriesChange={setSelectedIndustries} />
       </div>
     </div>
   );
