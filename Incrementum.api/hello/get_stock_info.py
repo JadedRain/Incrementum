@@ -58,15 +58,13 @@ def get_stock_by_ticker(ticker, source=setup):
         return None
     stock_data = fetch_stock_data(ticker)
     return stock_data
-def get_stock_info(max, offset, sector=None, filters=None, source=setup):
+def get_stock_info(max, offset, filters=None, source=setup):
     tickers = source()
     stocks = []
     max = int(max)
     offset = int(offset)
-    # Build allowed sectors from both `sector` param and filters dict
+
     allowed_sectors = None
-    if sector:
-        allowed_sectors = {str(sector).strip().lower()}
     if isinstance(filters, dict):
         fs = filters.get('sectors')
         if fs:
