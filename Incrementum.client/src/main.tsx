@@ -7,8 +7,10 @@ import WatchlistPage from './Pages/WatchlistPage'
 import Stock from "./Stock";
 import ScreenerPage from "./Pages/ScreenerPage";
 import IndividualScreenPage from "./Pages/IndividualScreenPage";
-import SignInPage from "./Pages/SignInPage";
-import { AuthProvider } from "./AuthContext";
+import SignInPage from "./Pages/LogInPage";
+import SignupPage from "./Pages/SignupPage";
+import { AuthProvider } from "./Context/AuthContext";
+import AccountPage from "./Pages/AccountPage";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <AuthProvider>
@@ -17,11 +19,13 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <Route path="/screener" element={<ScreenerPage />} />
         <Route path="/" element={<App />} />
         <Route index element={<SignInPage />} />
+        <Route path="/signup" element={<SignupPage />} />
         <Route path="/search/:query" element={<SearchResults />} />
         <Route path="/stock/:token" element={<Stock />} />
         <Route path="/stocks" element={<StocksPage />} />
         <Route path="/watchlist" element={<WatchlistPage />} />
         <Route path="/screener/:screenerName" element={<IndividualScreenPage />} />
+        <Route path="/account" element={<AccountPage />} />
       </Routes>
     </BrowserRouter>
   </AuthProvider>
