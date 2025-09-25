@@ -1,3 +1,5 @@
+import yfinance as yf
+import logging
 from .models import Stock
 from .serializers import StockSerializer
 # API endpoint to insert and get Stock objects from the database
@@ -13,8 +15,6 @@ from .get_stock_info import get_stock_by_ticker, generate_stock_graph
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-import yfinance as yf
-import logging
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 

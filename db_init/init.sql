@@ -4,7 +4,8 @@ create table account (
     name varchar(20) not null,
     phone_number varchar(15) not null unique,
     email varchar(50) not null unique,
-    password_hash varchar(255) not null
+    password_hash varchar(255) not null,
+    api_key varchar(64) not null unique
 );
 
 create table watchlist (

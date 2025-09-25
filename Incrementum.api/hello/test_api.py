@@ -31,7 +31,7 @@ def test_add_to_watchlist(api_client):
     response = api_client.post(url, {'symbol': 'AAPL'}, format='json')
     assert response.status_code == 200
     assert 'watchlist' in response.data
-    assert any(item['symbol'] == 'AAPL' for item in response.data['watchlist'])
+    assert 'AAPL' in response.data['watchlist']
 
 def test_remove_from_watchlist(api_client):
     # First, add a stock to the watchlist

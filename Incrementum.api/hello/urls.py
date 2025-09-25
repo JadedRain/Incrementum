@@ -4,6 +4,7 @@ from .views import GetStocksInfo
 from .views import SearchStocksView
 
 from .views import add_to_watchlist, get_watchlist, GetStockInfo, StockListCreateView
+from .views_auth import login, signup, account_info
 
 urlpatterns = [
     path('hello_world/', HelloWorldView.as_view(), name='hello_world'),
@@ -17,4 +18,7 @@ urlpatterns = [
     path('watchlist/search/', search_stocks_watchlist, name='search_stocks_watchlist'),
     path('stock/<str:ticker>/', GetStockInfo.as_view(), name='get_stocks_by_ticker'),
     path('stocks/', StockListCreateView.as_view(), name='stock_list_create'),
+    path('api/signup', signup, name='signup'),
+    path('api/login', login, name='login'),
+    path('api/account', account_info, name='account_info'),
 ]
