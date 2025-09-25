@@ -49,3 +49,32 @@ def test_get_sectors_failure_returns_500(api_client, monkeypatch):
     assert response.status_code == 500
     assert 'error' in response.data
     assert 'CSV missing' in response.data['error']
+
+
+def test_get_industries_success(api_client, monkeypatch):
+    url = reverse('get_industries')
+
+    def fake_get_unique_industries(path):
+        return ['software', 'pharmaceuticals', 'banking']
+
+    monkeypatch.setattr(views, 'get_unique_industries', fake_get_unique_industries)
+
+    response = api_client.get(url)
+    assert response.status_code == 200
+    assert 'industries' in response.data
+    assert response.data['industries'] == ['software', 'pharmaceuticals', 'banking']
+
+
+def test_get_industries_failure_returns_500(api_client, monkeypatch):
+    url = reverse('get_industries')
+
+    def fake_get_unique_industries(path):
+        raise RuntimeError('read error')
+
+    monkeypatch.setattr(views, 'get_unique_industries', fake_get_unique_industries)
+
+    response = api_client.get(url)
+    assert response.status_code == 500
+    assert 'error' in response.data
+    assert 'read error' in response.data['error']
+

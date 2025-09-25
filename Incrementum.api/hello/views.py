@@ -18,6 +18,7 @@ import logging
 from django.http import HttpResponse
 from pathlib import Path
 from .utils import get_unique_sectors
+from .utils import get_unique_industries
 # Configure logging
 
 
@@ -81,9 +82,10 @@ def search_stocks_watchlist(request):
 
 @api_view(['GET'])
 def get_sorted_watchlist(request):
-	reverse = request.GET.get('reverse', 'false').lower() == 'true'
-	sorted_list = watchlist_service.get_sorted(reverse)
-	return Response({'watchlist': sorted_list})
+	# Removed sorting functionality: this endpoint was intentionally deleted.
+	# If you need a watchlist sorting feature in the future, implement it
+	# in the WatchlistService and expose a focused endpoint then.
+	return Response({'error': 'Sorting endpoint removed'}, status=404)
 
 
 @api_view(['GET'])
@@ -95,6 +97,16 @@ def get_sectors(request):
 		return Response({'error': str(e)}, status=500)
 	return Response({'sectors': sectors})
 
+
+@api_view(['GET'])
+def get_industries(request):
+    csv_path = Path(__file__).resolve().parent / 'data' / 'ticker_info.csv'
+    try:
+        industries = get_unique_industries(csv_path)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+    return Response({'industries': industries})
+
 class GetStocksInfo(APIView):
 	permission_classes = [AllowAny]
 
@@ -104,27 +116,21 @@ class GetStocksInfo(APIView):
 			offset = int(request.GET.get('offset', 0))
 		except (TypeError, ValueError):
 			return Response({'error': 'Invalid max or offset'}, status=400)
-		# Optional sector filter (matches `sectorKey` in ticker_info.csv)
-		sector = request.GET.get('sector')
-		# Optional filters param: try JSON first, else look for comma-separated 'sectors'
+
+		# Require filters parameter as JSON (e.g. {"sectors": [...], "industries": [...]})
 		filters = None
 		filters_param = request.GET.get('filters')
 		if filters_param:
 			import json as _json
 			try:
 				filters = _json.loads(filters_param)
-			except Exception:
-				# Fallback: treat as comma-separated list of sectors
-				filters = {}
-				filters['sectors'] = [s.strip() for s in filters_param.split(',') if s.strip()]
-		else:
-			# Also support a simple 'sectors' query param (comma-separated)
-			sectors_param = request.GET.get('sectors')
-			if sectors_param:
-				filters = {'sectors': [s.strip() for s in sectors_param.split(',') if s.strip()]}
-		stocks = get_stock_info(max_val, offset, sector=sector, filters=filters)
+			except Exception as e:
+				return Response({'error': 'Invalid filters JSON', 'details': str(e)}, status=400)
+		# No standalone 'sectors' or 'industries' query params supported; filters must contain them
+		stocks = get_stock_info(max_val, offset, filters=filters)
 
 		return Response({'stocks': [s.to_dict() for s in stocks]})
+	
 class GetStockInfo(APIView):
 	permission_classes = [AllowAny]
 
@@ -133,6 +139,7 @@ class GetStockInfo(APIView):
 			return Response(get_stock_by_ticker(ticker).to_dict(), status=200)
 		except AttributeError:
 			return Response({'error': 'Page Not Found'}, status=404)
+		
 class HelloWorldView(APIView):
 	permission_classes = [AllowAny]
 
