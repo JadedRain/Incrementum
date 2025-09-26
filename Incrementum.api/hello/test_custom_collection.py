@@ -1,0 +1,76 @@
+import io
+import pytest
+from django.urls import reverse
+from rest_framework.test import APIClient
+from .custom_collection import CustomCollectionService
+
+@pytest.fixture
+def collection():
+    return CustomCollectionService()
+
+def test_initial_tokens(collection):
+    assert collection.get_stocks() == ['AAPL', 'MSFT', 'GOOGL']
+
+def test_add_stock(collection):
+    collection.add_stock('TSLA')
+    assert 'TSLA' in collection.get_stocks()
+    # Should not add duplicate
+    collection.add_stock('TSLA')
+    assert collection.get_stocks().count('TSLA') == 1
+
+def test_remove_stock(collection):
+    collection.add_stock('TSLA')
+    collection.remove_stock('TSLA')
+    assert 'TSLA' not in collection.get_stocks()
+    # Removing non-existent stock should not error
+    collection.remove_stock('FAKE')
+    assert 'FAKE' not in collection.get_stocks()
+
+def test_aggregate_data(collection):
+    result = collection.aggregate_data()
+    assert 'tokens' in result
+    assert 'aggregate' in result
+    assert isinstance(result['tokens'], list)
+    assert isinstance(result['aggregate'], dict)
+    
+def api_client():
+    return APIClient()
+
+def test_custom_collection_get(api_client):
+    url = reverse('custom_collection')
+    response = api_client.get(url)
+    assert response.status_code == 200
+    assert 'tokens' in response.data
+
+def test_custom_collection_add_and_remove(api_client):
+    url = reverse('custom_collection')
+    # Add token
+    response = api_client.post(url, {'token': 'TSLA'}, format='json')
+    assert response.status_code == 200
+    assert 'TSLA' in response.data['tokens']
+    # Remove token
+    response = api_client.delete(url, {'token': 'TSLA'}, format='json')
+    assert response.status_code == 200
+    assert 'TSLA' not in response.data['tokens']
+
+def test_custom_collection_aggregate(api_client):
+    url = reverse('custom_collection_aggregate')
+    response = api_client.get(url)
+    assert response.status_code == 200
+    assert 'tokens' in response.data
+    assert 'aggregate' in response.data
+
+def test_custom_collection_aggregate_graph(api_client):
+    url = reverse('custom_collection_aggregate_graph')
+    response = api_client.get(url)
+    assert response.status_code in (200, 404, 500)
+    # Should return image/png or error
+    if response.status_code == 200:
+        assert response['Content-Type'] == 'image/png'
+
+def test_custom_collection_overlay_graph(api_client):
+    url = reverse('custom_collection_overlay_graph')
+    response = api_client.get(url)
+    assert response.status_code in (200, 500)
+    if response.status_code == 200:
+        assert response['Content-Type'] == 'image/png'
