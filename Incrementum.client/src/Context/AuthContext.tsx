@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useMemo, useCallback } from "react";
+import React, { createContext, useState, useContext, useMemo, useCallback, useEffect } from "react";
 import type { AuthContextType } from "./AuthContext.types";
 import { signInApi, signUpApi } from "./authApi";
 import { getAuthFromStorage, setAuthToStorage } from "./authStorage";
@@ -6,7 +6,11 @@ import { getAuthFromStorage, setAuthToStorage } from "./authStorage";
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<{ apiKey: string | null; email: string | null }>(getAuthFromStorage());
+  const [user, setUser] = useState<{ apiKey: string | null; email: string | null }>(() => {
+    const stored = getAuthFromStorage();
+    if (stored.apiKey && stored.email) return stored;
+    return { apiKey: null, email: null };
+  });
 
   const setUserAndPersist = (apiKey: string | null, email: string | null) => {
     setUser({ apiKey, email });

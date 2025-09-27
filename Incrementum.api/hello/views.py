@@ -40,7 +40,6 @@ class SearchStocksView(APIView):
     	level=logging.INFO,
     	format="%(asctime)s - %(levelname)s - %(message)s")
 
-
 	def get(self, request, query, page):
 		results = search_stocks(query, page)
 		logging.info(f"results: {results}")
@@ -52,7 +51,7 @@ watchlist_service = WatchlistService()
 @api_view(['POST'])
 def add_to_watchlist(request):
 	symbol = request.data.get('symbol')
-	user_id = request.data.get('user_id') or request.GET.get('user_id')
+	user_id = request.headers.get('X-User-Id')
 	if not symbol or not user_id:
 		return Response({'error': 'Symbol and user_id are required'}, status=status.HTTP_400_BAD_REQUEST)
 	logging.info(f"[watchlist:add] user_id={user_id} symbol={symbol}")
@@ -64,7 +63,7 @@ def add_to_watchlist(request):
 @api_view(['DELETE'])
 def remove_from_watchlist(request):
 	symbol = request.data.get('symbol')
-	user_id = request.data.get('user_id') or request.GET.get('user_id')
+	user_id = request.headers.get('X-User-Id')
 	if not symbol or not user_id:
 		return Response({'error': 'Symbol and user_id are required'}, status=status.HTTP_400_BAD_REQUEST)
 	logging.info(f"[watchlist:remove] user_id={user_id} symbol={symbol}")
@@ -74,9 +73,9 @@ def remove_from_watchlist(request):
 
 @api_view(['GET'])
 def get_watchlist(request):
-	user_id = request.GET.get('user_id') or request.data.get('user_id')
+	user_id = request.headers.get('X-User-Id')
 	if not user_id:
-		return Response({'error': 'user_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+		return Response({'error': 'user_id is required in headers'}, status=status.HTTP_400_BAD_REQUEST)
 	wl = watchlist_service.get(user_id)
 	logging.info(f"[watchlist:get] user_id={user_id} size={len(wl)}")
 	return Response({'watchlist': wl})
@@ -84,7 +83,7 @@ def get_watchlist(request):
 @api_view(['GET'])
 def search_stocks_watchlist(request):
 	query = request.GET.get('query', '')
-	user_id = request.GET.get('user_id') or request.data.get('user_id')
+	user_id = request.headers.get('X-User-Id')
 	if not query or not user_id:
 		return Response({'error': 'Query and user_id are required'}, status=status.HTTP_400_BAD_REQUEST)
 	max_results = int(request.GET.get('max', 10))
@@ -93,9 +92,9 @@ def search_stocks_watchlist(request):
 
 @api_view(['GET'])
 def get_sorted_watchlist(request):
-	user_id = request.GET.get('user_id') or request.data.get('user_id')
+	user_id = request.headers.get('X-User-Id')
 	if not user_id:
-		return Response({'error': 'user_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+		return Response({'error': 'user_id is required in headers'}, status=status.HTTP_400_BAD_REQUEST)
 	sorted_wl = watchlist_service.get(user_id)
 	logging.info(f"[watchlist:get_sorted] user_id={user_id} size={len(sorted_wl)}")
 	return Response({'watchlist': sorted_wl})

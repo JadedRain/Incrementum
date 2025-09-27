@@ -10,9 +10,9 @@ class WatchlistService:
 
     def add(self, user_id, symbol):
         try:
-            account = Account.objects.get(id=user_id)
+            account = Account.objects.get(api_key=user_id)
         except Account.DoesNotExist:
-            logging.error(f"Account {user_id} does not exist.")
+            logging.error(f"Account with api_key {user_id} does not exist.")
             return []
         watchlist, _ = Watchlist.objects.get_or_create(account=account, defaults={"name": f"{account.name}'s Watchlist"})
         stock, _ = Stock.objects.get_or_create(symbol=symbol, defaults={"company_name": symbol})
@@ -22,7 +22,7 @@ class WatchlistService:
 
     def get(self, user_id):
         try:
-            account = Account.objects.get(id=user_id)
+            account = Account.objects.get(api_key=user_id)
             watchlist = Watchlist.objects.get(account=account)
         except (Account.DoesNotExist, Watchlist.DoesNotExist):
             return []
@@ -31,7 +31,7 @@ class WatchlistService:
 
     def remove(self, user_id, symbol):
         try:
-            account = Account.objects.get(id=user_id)
+            account = Account.objects.get(api_key=user_id)
             watchlist = Watchlist.objects.get(account=account)
             stock = Stock.objects.get(symbol=symbol)
         except (Account.DoesNotExist, Watchlist.DoesNotExist, Stock.DoesNotExist):
