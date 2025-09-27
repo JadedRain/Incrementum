@@ -52,10 +52,11 @@ watchlist_service = WatchlistService()
 @api_view(['POST'])
 def add_to_watchlist(request):
 	symbol = request.data.get('symbol')
-	if not symbol:
-		return Response({'error': 'Symbol is required'}, status=status.HTTP_400_BAD_REQUEST)
-	logging.info(f"[watchlist:add] symbol={symbol}")
-	watchlist = watchlist_service.add(symbol)
+	user_id = request.data.get('user_id') or request.GET.get('user_id')
+	if not symbol or not user_id:
+		return Response({'error': 'Symbol and user_id are required'}, status=status.HTTP_400_BAD_REQUEST)
+	logging.info(f"[watchlist:add] user_id={user_id} symbol={symbol}")
+	watchlist = watchlist_service.add(user_id, symbol)
 	logging.info(f"[watchlist:add] size={len(watchlist)}")
 	return Response({'watchlist': watchlist})
 
@@ -63,31 +64,40 @@ def add_to_watchlist(request):
 @api_view(['DELETE'])
 def remove_from_watchlist(request):
 	symbol = request.data.get('symbol')
-	if not symbol:
-		return Response({'error': 'Symbol is required'}, status=status.HTTP_400_BAD_REQUEST)
-	logging.info(f"[watchlist:remove] symbol={symbol}")
-	watchlist = watchlist_service.remove(symbol)
+	user_id = request.data.get('user_id') or request.GET.get('user_id')
+	if not symbol or not user_id:
+		return Response({'error': 'Symbol and user_id are required'}, status=status.HTTP_400_BAD_REQUEST)
+	logging.info(f"[watchlist:remove] user_id={user_id} symbol={symbol}")
+	watchlist = watchlist_service.remove(user_id, symbol)
 	logging.info(f"[watchlist:remove] size={len(watchlist)}")
 	return Response({'watchlist': watchlist})
 
 @api_view(['GET'])
 def get_watchlist(request):
-	wl = watchlist_service.get()
-	logging.info(f"[watchlist:get] size={len(wl)}")
+	user_id = request.GET.get('user_id') or request.data.get('user_id')
+	if not user_id:
+		return Response({'error': 'user_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+	wl = watchlist_service.get(user_id)
+	logging.info(f"[watchlist:get] user_id={user_id} size={len(wl)}")
 	return Response({'watchlist': wl})
 
 @api_view(['GET'])
 def search_stocks_watchlist(request):
 	query = request.GET.get('query', '')
-	if not query:
-		return Response({'error': 'Query parameter is required'}, status=status.HTTP_400_BAD_REQUEST)
+	user_id = request.GET.get('user_id') or request.data.get('user_id')
+	if not query or not user_id:
+		return Response({'error': 'Query and user_id are required'}, status=status.HTTP_400_BAD_REQUEST)
 	max_results = int(request.GET.get('max', 10))
-	results = watchlist_service.search(query, max_results)
+	results = watchlist_service.search(user_id, query, max_results)
 	return Response({'results': results})
+
 @api_view(['GET'])
 def get_sorted_watchlist(request):
-	sorted_wl = watchlist_service.get_sorted()
-	logging.info(f"[watchlist:get_sorted] size={len(sorted_wl)}")
+	user_id = request.GET.get('user_id') or request.data.get('user_id')
+	if not user_id:
+		return Response({'error': 'user_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+	sorted_wl = watchlist_service.get(user_id)
+	logging.info(f"[watchlist:get_sorted] user_id={user_id} size={len(sorted_wl)}")
 	return Response({'watchlist': sorted_wl})
 
 @api_view(['GET'])
@@ -108,6 +118,7 @@ def get_industries(request):
     except Exception as e:
         return Response({'error': str(e)}, status=500)
     return Response({'industries': industries})
+
 class GetStocksInfo(APIView):
 	permission_classes = [AllowAny]
 
@@ -118,7 +129,6 @@ class GetStocksInfo(APIView):
 		except (TypeError, ValueError):
 			return Response({'error': 'Invalid max or offset'}, status=400)
 
-		# Require filters parameter as JSON (e.g. {"sectors": [...], "industries": [...]})
 		filters = None
 		filters_param = request.GET.get('filters')
 		if filters_param:
@@ -127,7 +137,7 @@ class GetStocksInfo(APIView):
 				filters = _json.loads(filters_param)
 			except Exception as e:
 				return Response({'error': 'Invalid filters JSON', 'details': str(e)}, status=400)
-		# No standalone 'sectors' or 'industries' query params supported; filters must contain them
+
 		stocks = get_stock_info(max_val, offset, filters=filters)
 
 		return Response({'stocks': [s.to_dict() for s in stocks]})
@@ -151,7 +161,6 @@ class GetStocks(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, ticker):
-        # Query params with defaults
         period = request.query_params.get("period", "1y")
         interval = request.query_params.get("interval", "1d")
 
@@ -179,7 +188,6 @@ class WatchlistList(APIView):
 	permission_classes = [AllowAny]
 	watchlist_service = WatchlistService()
 	def get(self, request):
-		# For now, empty list
 		watchlist = self.watchlist_service.get()
 		return Response({"watchlist": watchlist})
 	def post(self, request):
