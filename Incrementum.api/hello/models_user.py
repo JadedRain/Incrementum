@@ -10,4 +10,4 @@ class Account(models.Model):
 
     class Meta:
         db_table = 'account'
-        managed = False  
+        managed = True

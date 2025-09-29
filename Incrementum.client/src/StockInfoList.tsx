@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useAuth } from './Context/AuthContext';
 
 interface StockInfo {
   [key: string]: any;
@@ -10,6 +11,7 @@ interface StockInfo {
 }
 
 const StockInfoList: React.FC = () => {
+  const { apiKey } = useAuth();
   const [stocks, setStocks] = useState<StockInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
@@ -60,7 +62,7 @@ const StockInfoList: React.FC = () => {
           ...(csrf ? { 'X-CSRFToken': csrf } : {}),
         },
         credentials: 'include',
-        body: JSON.stringify({ symbol }),
+        body: JSON.stringify({ symbol, user_id: apiKey }),
       });
       if (!res.ok) {
         const msg = await res.text();
@@ -96,7 +98,7 @@ const StockInfoList: React.FC = () => {
           ...(csrf ? { 'X-CSRFToken': csrf } : {}),
         },
         credentials: 'include',
-        body: JSON.stringify({ symbol }),
+        body: JSON.stringify({ symbol, user_id: apiKey }),
       });
       if (!res.ok) {
         const msg = await res.text();
@@ -164,14 +166,16 @@ const StockInfoList: React.FC = () => {
           return (
             <li className="stock-card" key={idx} style={{ marginBottom: '1rem' }}>
               <span className='p-1 newsreader-font'>{name} </span>
-              <button
-                className='add-to-watchlist-button'
-                onClick={() => handleToggleWatchlist(symbol)}
-                aria-label={`${inWatchlist ? 'Remove' : 'Add'} ${name} ${inWatchlist ? 'from' : 'to'} watchlist`}
-                disabled={pending === symbol}
-              >
-                {inWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist'}
-              </button>
+              {apiKey && (
+                <button
+                  className='add-to-watchlist-button'
+                  onClick={() => handleToggleWatchlist(symbol)}
+                  aria-label={`${inWatchlist ? 'Remove' : 'Add'} ${name} ${inWatchlist ? 'from' : 'to'} watchlist`}
+                  disabled={pending === symbol}
+                >
+                  {inWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist'}
+                </button>
+              )}
             </li>
           );
         })}
