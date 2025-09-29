@@ -19,15 +19,19 @@ export default function SearchResults() {
   const [hasMore, setHasMore] = useState(true); // flag to disable next button
 
   useEffect(() => {
-    if (!query) return;
+    console.log('[SearchResults] useEffect triggered. query:', query, 'page:', page);
+    if (!query) {
+      console.log('[SearchResults] No query provided, skipping fetch.');
+      return;
+    }
 
     const fetchResults = async () => {
       setLoading(true);
       try {
+        console.log(`[SearchResults] Sending request to /searchStocks/${query}/${page}`);
         const res = await fetch(`http://localhost:8000/searchStocks/${query}/${page}`);
         const data = await res.json();
 
-        // Prioritize symbol matches, then name matches
         const symbolMatches = data.filter(
           (stock: Stock) => stock.symbol && stock.symbol.toLowerCase().startsWith(query.toLowerCase())
         );
@@ -36,13 +40,13 @@ export default function SearchResults() {
             (!stock.symbol || !stock.symbol.toLowerCase().startsWith(query.toLowerCase())) &&
             stock.name && stock.name.toLowerCase().includes(query.toLowerCase())
         );
-        console.log('Query:', query);
-        console.log('Symbol Matches:', symbolMatches);
-        console.log('Name Matches:', nameMatches);
+        console.log('[SearchResults] Query:', query);
+        console.log('[SearchResults] Symbol Matches:', symbolMatches);
+        console.log('[SearchResults] Name Matches:', nameMatches);
         setResults([...symbolMatches, ...nameMatches]);
-        setHasMore([...symbolMatches, ...nameMatches].length === 10); // if empty, no more pages
+        setHasMore([...symbolMatches, ...nameMatches].length === 10);
       } catch (err) {
-        console.error("Error fetching search results:", err);
+        console.error('[SearchResults] Error fetching search results:', err);
       } finally {
         setLoading(false);
       }

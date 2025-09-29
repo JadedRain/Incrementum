@@ -1,5 +1,6 @@
 import '../App.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
+import { useAuth } from '../Context/AuthContext';
 import { useEffect, useState } from 'react';
 import Loading from '../Components/Loading';
 import type { StockC } from '../Components/Stock';
@@ -12,23 +13,50 @@ import { useSortedWatchlist } from './useSortedWatchlist';
 
 function WatchlistPage() {
   const navigate = useNavigate();
+  const { apiKey } = useAuth();
+  const user_id = apiKey || undefined;
   const [selectedStock, setSelectedStock] = useState<StockC | null>(null);
   const [sortBy, setSortBy] = useState('default');
-  const { watchlist, setWatchlist, loading } = useSortedWatchlist(sortBy);
-
+  const watchlistState = apiKey ? useSortedWatchlist(sortBy, user_id) : { watchlist: [], setWatchlist: () => { }, loading: false };
+  const { watchlist, setWatchlist, loading } = watchlistState;
+  useEffect(() => {
+    if (!apiKey) {
+      navigate('/');
+    }
+  }, [apiKey]);
   useEffect(() => {
     if (watchlist.length > 0 && (!selectedStock || !watchlist.find(s => s.symbol === selectedStock.symbol))) {
       setSelectedStock(watchlist[0]);
     }
   }, [watchlist, selectedStock]);
 
-  const handleStockClick = (stock: StockC) => {
-    // Set lastViewed for the clicked stock
+  const handleStockClick = async (stock: StockC) => {
     setWatchlist(prev => prev.map(s =>
       s.symbol === stock.symbol ? { ...s, lastViewed: Date.now() } : s
     ));
     setSelectedStock({ ...stock, lastViewed: Date.now() });
+    // Use utility function for removal
+    const { removeFromWatchlist } = await import('../utils/watchlistActions');
+    await removeFromWatchlist(stock.symbol, user_id ?? null, () => {}, () => {}, (inWatchlist) => {
+      if (!inWatchlist) {
+        setWatchlist(prev => prev.filter(s => s.symbol !== stock.symbol));
+      }
+    });
   };
+
+  function addToWatchlist() {
+    return async () => {
+      if (selectedStock) {
+        // Use utility function for addition
+        const { addToWatchlist } = await import('../utils/watchlistActions');
+        await addToWatchlist(selectedStock.symbol, user_id ?? null, () => {}, () => {}, (inWatchlist) => {
+          if (inWatchlist) {
+            setWatchlist(prev => [...prev, selectedStock]);
+          }
+        });
+      }
+    };
+  }
 
   const imgUrl = selectedStock
     ? `http://localhost:8000/getStocks/${selectedStock.symbol}`
@@ -46,6 +74,12 @@ function WatchlistPage() {
           <GridCards />
           <button className="WatchlistPage-Custom-Button">
             + Custom
+          </button>
+          <button
+            className="WatchlistPage-Custom-Button"
+            onClick={addToWatchlist()}
+          >
+            Add to Watchlist
           </button>
         </div>
         <WatchlistSidebar

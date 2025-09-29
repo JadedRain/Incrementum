@@ -6,17 +6,17 @@ import json
 import logging
 import io
 import matplotlib.pyplot as plt
+from django.db import connection
 
 def generate_stock_graph(history, ticker: str, period) -> bytes:
     """Generate a PNG graph from stock history with rudimentary styling and return raw image bytes."""
-    # Determine trend
+    
     first_price = history['Close'].iloc[0]
     last_price = history['Close'].iloc[-1]
     color = "green" if last_price >= first_price else "red"
 
     fig, ax = plt.subplots(figsize=(8, 4))
 
-    # Plot with trend color and some styling
     history['Close'].plot(
         ax=ax, 
         title=f"{ticker} Closing Prices {period}", 
@@ -26,7 +26,7 @@ def generate_stock_graph(history, ticker: str, period) -> bytes:
 
     ax.set_xlabel("Date")
     ax.set_ylabel("Price ($)")
-    ax.grid(True, linestyle="--", alpha=0.6)  # light dashed grid
+    ax.grid(True, linestyle="--", alpha=0.6)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
 
@@ -35,9 +35,9 @@ def generate_stock_graph(history, ticker: str, period) -> bytes:
     buffer.seek(0)
     plt.close(fig)
     return buffer.getvalue()
-# Configure logging
+
 logging.basicConfig(
-    level=logging.INFO,  # Minimum level to capture (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
@@ -49,7 +49,6 @@ def setup():
     return tickers
 
 def search_stocks(query, page, source=setup):
-    # pull based on symbol and name but prioritize symbol matches
     tickers = source()
     logging.info(f"Searching for stocks with query: {query}")
     results = []
@@ -76,6 +75,7 @@ def get_stock_by_ticker(ticker, source=setup):
         return None
     stock_data = fetch_stock_data(ticker)
     return stock_data
+
 def get_stock_info(max, offset, filters=None, source=setup):
     tickers = source()
     stocks = []
@@ -91,30 +91,40 @@ def get_stock_info(max, offset, filters=None, source=setup):
                 allowed_sectors = allowed_sectors.union(fs_set)
             else:
                 allowed_sectors = fs_set
-    # Build allowed industries from filters dict
+
     allowed_industries = None
     if isinstance(filters, dict):
         fi = filters.get('industries')
         if fi:
             allowed_industries = {str(s).strip().lower() for s in fi if s}
 
-    # Apply sector filtering if specified
     if allowed_sectors:
-        # Ensure sectorKey exists and compare lowercase
         if 'sectorKey' in tickers.columns:
             tickers = tickers[tickers['sectorKey'].fillna('').str.lower().isin(allowed_sectors)]
 
-    # Apply industry filtering if specified
     if allowed_industries:
         if 'industryKey' in tickers.columns:
             tickers = tickers[tickers['industryKey'].fillna('').str.lower().isin(allowed_industries)]
-
-    # Apply filters only. Return rows in CSV order after filters are applied.
 
     for _, stock in tickers.iloc[offset:offset+max].iterrows():
         stocks.append(fetch_stock_data(stock['symbol']))
     return stocks
 
+
+def ensure_stock_in_db(symbol, company_name):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT symbol FROM stock WHERE symbol = %s", [symbol])
+        exists = cursor.fetchone()
+        if not exists:
+            cursor.execute(
+                "INSERT INTO stock (symbol, company_name) VALUES (%s, %s)",
+                [symbol, company_name]
+            )
+
 def fetch_stock_data(ticker):
     stock = yf.Ticker(ticker)
-    return Stock(stock.info)
+    info = stock.info
+    symbol = info.get('symbol', ticker)
+    company_name = info.get('longName') or info.get('shortName') or symbol
+    ensure_stock_in_db(symbol, company_name)
+    return Stock(info)
