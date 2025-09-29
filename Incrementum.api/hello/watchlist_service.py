@@ -42,7 +42,7 @@ class WatchlistService:
 
     def search(self, user_id, query, max_results=10):
         try:
-            account = Account.objects.get(id=user_id)
+            account = Account.objects.get(api_key=user_id)
             watchlist = Watchlist.objects.get(account=account)
         except (Account.DoesNotExist, Watchlist.DoesNotExist):
             return []
