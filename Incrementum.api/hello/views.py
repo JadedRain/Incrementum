@@ -13,7 +13,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .custom_collection import CustomCollection as CustomCollectionService
+from .custom_collection_service import CustomCollectionService
 from .get_stock_info import get_stock_info, search_stocks, get_stock_by_ticker, generate_stock_graph
 from .graph_utils import generate_overlay_graph
 from .models import Stock
