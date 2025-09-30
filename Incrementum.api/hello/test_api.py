@@ -10,19 +10,20 @@ from . import views
 def api_client():
     return APIClient()
 
+@pytest.mark.django_db
 def test_get_stock_info(api_client):
     url = reverse('get_stock_info')
     response = api_client.get(url, {'max': 1, 'offset': 0})
     assert response.status_code == 200
     assert 'stocks' in response.data
-
+@pytest.mark.django_db
 def test_default_stock_watchlist(api_client):
     url = reverse('watchlist')
     response = api_client.get(url)
     assert response.status_code == 200
     assert 'watchlist' in response.data
     assert response.data['watchlist'] == []
-
+@pytest.mark.django_db
 def test_add_to_watchlist(api_client):
     url = reverse('watchlist')
     response = api_client.post(url, {'symbol': 'AAPL'}, format='json')
@@ -30,6 +31,7 @@ def test_add_to_watchlist(api_client):
     assert 'watchlist' in response.data
     assert 'AAPL' in response.data['watchlist']
 
+@pytest.mark.django_db
 def test_remove_from_watchlist(api_client):
     # First, add a stock to the watchlist
     url = reverse('watchlist')
@@ -41,6 +43,7 @@ def test_remove_from_watchlist(api_client):
     assert 'watchlist' in response.data
     assert 'AAPL' not in response.data['watchlist']
 
+@pytest.mark.django_db
 def test_search_stocks_watchlist(api_client):
     # Add a stock to the watchlist
     url = reverse('watchlist')
@@ -53,17 +56,20 @@ def test_search_stocks_watchlist(api_client):
     assert 'results' in response.data
     assert any(stock['symbol'] == 'AAPL' for stock in response.data['results'])
 
+@pytest.mark.django_db
 def test_symbol_priority():
     results = search_stocks('TS', 0)
     symbols = [r['symbol'] for r in results]
 
     assert all(s.startswith('TS') for s in symbols if s.startswith('TS'))
-    
+
+@pytest.mark.django_db
 def test_name_fallback():
     results = search_stocks('Technologies', 0)
     assert any('Technologies' in r['name'] for r in results)
 
 
+@pytest.mark.django_db
 def test_get_sectors_success(api_client, monkeypatch):
     url = reverse('sectors')
 
@@ -78,6 +84,7 @@ def test_get_sectors_success(api_client, monkeypatch):
     assert response.data['sectors'] == ['Technology', 'Finance', 'Healthcare']
 
 
+@pytest.mark.django_db
 def test_get_sectors_failure_returns_500(api_client, monkeypatch):
     url = reverse('sectors')
 
@@ -92,6 +99,7 @@ def test_get_sectors_failure_returns_500(api_client, monkeypatch):
     assert 'CSV missing' in response.data['error']
 
 
+@pytest.mark.django_db
 def test_get_industries_success(api_client, monkeypatch):
     url = reverse('industries')
 
@@ -106,6 +114,7 @@ def test_get_industries_success(api_client, monkeypatch):
     assert response.data['industries'] == ['software', 'pharmaceuticals', 'banking']
 
 
+@pytest.mark.django_db
 def test_get_industries_failure_returns_500(api_client, monkeypatch):
     url = reverse('industries')
 
