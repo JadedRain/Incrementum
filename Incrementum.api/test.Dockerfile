@@ -1,4 +1,3 @@
-# Use official Python image
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -11,14 +10,13 @@ RUN apt-get update && apt-get install -y \
 
 # Copy requirements
 COPY requirements.txt .
-# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install --no-cache-dir pytest
-# Copy the rest of your project
+# Copy project
 COPY . .
 
+# Set environment variable for Django test settings
+ENV DJANGO_SETTINGS_MODULE=api_project/settings_test
 
-
-# Default command: run tests with pytest
-CMD ["pytest", "-v"]
+# Apply migrations and run tests
+CMD ["sh", "-c", "python manage.py migrate && pytest -v"]
