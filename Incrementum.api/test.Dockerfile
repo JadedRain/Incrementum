@@ -12,9 +12,9 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir pytest pytest-django
-RUN python manage.py makemigrations hello
 # Copy project
 COPY . .
+RUN python manage.py makemigrations hello
 
 
 # Apply migrations and run tests
