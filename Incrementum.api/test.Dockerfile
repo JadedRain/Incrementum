@@ -16,7 +16,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Set environment variable for Django test settings
-ENV DJANGO_SETTINGS_MODULE=api_project/settings_test
+ENV DJANGO_SETTINGS_MODULE=api_project.settings_test
+
 
 # Apply migrations and run tests
 CMD ["sh", "-c", "python manage.py migrate && pytest -v"]
