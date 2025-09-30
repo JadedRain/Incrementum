@@ -15,8 +15,11 @@ COPY requirements.txt .
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+RUN pip install --no-cache-dir pytest
 # Copy the rest of your project
 COPY . .
+
+
 
 # Default command: run tests with pytest
 CMD ["pytest", "-v"]
