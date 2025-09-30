@@ -9,6 +9,10 @@ const CustomCollectionPage: React.FC = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searching, setSearching] = useState(false);
   const [graphKey, setGraphKey] = useState<number>(Date.now());
+  const [collectionName, setCollectionName] = useState<string>("My Custom Collection");
+  const [editMode, setEditMode] = useState<boolean>(false);
+  const [editNameMode, setEditNameMode] = useState<boolean>(false);
+  const [pendingName, setPendingName] = useState<string>(collectionName);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -102,28 +106,65 @@ const CustomCollectionPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center p-8">
       <button className="mb-4 px-4 py-2 bg-blue-600 text-white rounded" onClick={() => navigate("/screener")}>Back to Screener</button>
-      <h1 className="text-2xl font-bold mb-6">Custom Collection</h1>
+      <div className="flex items-center mb-6">
+        {editNameMode ? (
+          <>
+            <input
+              className="border px-2 py-1 rounded mr-2 text-2xl font-bold"
+              value={pendingName}
+              onChange={e => setPendingName(e.target.value)}
+              autoFocus
+            />
+            <button
+              className="px-3 py-1 bg-green-500 text-white rounded mr-2"
+              onClick={() => { setCollectionName(pendingName); setEditNameMode(false); }}
+            >Save</button>
+            <button
+              className="px-3 py-1 bg-gray-400 text-white rounded"
+              onClick={() => { setPendingName(collectionName); setEditNameMode(false); }}
+            >Cancel</button>
+          </>
+        ) : (
+          <>
+            <h1 className="text-2xl font-bold mr-4">{collectionName}</h1>
+            <button
+              className="px-3 py-1 bg-yellow-400 text-white rounded"
+              onClick={() => setEditMode(e => !e)}
+            >{editMode ? 'Done' : 'Edit'}</button>
+            {editMode && (
+              <button
+                className="px-3 py-1 bg-blue-500 text-white rounded ml-2"
+                onClick={() => setEditNameMode(true)}
+              >Edit Name</button>
+            )}
+          </>
+        )}
+      </div>
       <div className="mb-6 w-full max-w-md">
-        <div className="flex mb-2">
-          <input
-            className="border px-2 py-1 w-2/3 rounded mr-2"
-            type="text"
-            placeholder="Search by symbol or name"
-            value={newToken}
-            onChange={e => setNewToken(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') searchStocks(); }}
-          />
-          <button className="px-4 py-1 bg-blue-500 text-white rounded mr-2" onClick={searchStocks} disabled={searching}>Search</button>
-        </div>
-        {searchResults.length > 0 && (
-          <ul className="bg-white rounded shadow p-2 mb-2 max-h-40 overflow-y-auto">
-            {searchResults.map((stock, idx) => (
-              <li key={stock.symbol || idx} className="flex justify-between items-center py-1 border-b last:border-b-0">
-                <span>{stock.symbol} - {stock.name || stock.longName || ''}</span>
-                <button className="px-2 py-1 bg-green-500 text-white rounded" onClick={() => addToken(stock.symbol)}>Add</button>
-              </li>
-            ))}
-          </ul>
+        {editMode && (
+          <>
+            <div className="flex mb-2">
+              <input
+                className="border px-2 py-1 w-2/3 rounded mr-2"
+                type="text"
+                placeholder="Search by symbol or name"
+                value={newToken}
+                onChange={e => setNewToken(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') searchStocks(); }}
+              />
+              <button className="px-4 py-1 bg-blue-500 text-white rounded mr-2" onClick={searchStocks} disabled={searching}>Search</button>
+            </div>
+            {searchResults.length > 0 && (
+              <ul className="bg-white rounded shadow p-2 mb-2 max-h-40 overflow-y-auto">
+                {searchResults.map((stock, idx) => (
+                  <li key={stock.symbol || idx} className="flex justify-between items-center py-1 border-b last:border-b-0">
+                    <span>{stock.symbol} - {stock.name || stock.longName || ''}</span>
+                    <button className="px-2 py-1 bg-green-500 text-white rounded" onClick={() => addToken(stock.symbol)}>Add</button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
         )}
       </div>
       <div className="w-full max-w-md mb-8">
@@ -132,7 +173,9 @@ const CustomCollectionPage: React.FC = () => {
           {tokens.map(token => (
             <li key={token} className="flex justify-between items-center py-2 border-b last:border-b-0">
               <span>{token}</span>
-              <button className="px-2 py-1 bg-red-500 text-white rounded" onClick={() => removeToken(token)}>Remove</button>
+              {editMode && (
+                <button className="px-2 py-1 bg-red-500 text-white rounded" onClick={() => removeToken(token)}>Remove</button>
+              )}
             </li>
           ))}
           {tokens.length === 0 && <li className="text-gray-500">No stocks in collection.</li>}
