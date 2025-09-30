@@ -1,18 +1,17 @@
 # Use official Python image
 FROM python:3.11-slim
 
-# Set work directory inside container
 WORKDIR /app
 
-# Install system dependencies if needed (optional)
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
+    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first (for caching)
+# Copy requirements
 COPY requirements.txt .
-
-# Install dependencies
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 RUN pip install --no-cache-dir pytest
