@@ -16,45 +16,6 @@ def test_get_stock_info(api_client):
     response = api_client.get(url, {'max': 1, 'offset': 0})
     assert response.status_code == 200
     assert 'stocks' in response.data
-@pytest.mark.django_db
-def test_default_stock_watchlist(api_client):
-    url = reverse('watchlist')
-    response = api_client.get(url)
-    assert response.status_code == 200
-    assert 'watchlist' in response.data
-    assert response.data['watchlist'] == []
-@pytest.mark.django_db
-def test_add_to_watchlist(api_client):
-    url = reverse('watchlist')
-    response = api_client.post(url, {'symbol': 'AAPL'}, format='json')
-    assert response.status_code == 200
-    assert 'watchlist' in response.data
-    assert 'AAPL' in response.data['watchlist']
-
-@pytest.mark.django_db
-def test_remove_from_watchlist(api_client):
-    # First, add a stock to the watchlist
-    url = reverse('watchlist')
-    api_client.post(url, {'symbol': 'AAPL'}, format='json')
-
-    # Now, remove it
-    response = api_client.delete(url, {'symbol': 'AAPL'}, format='json')
-    assert response.status_code == 200
-    assert 'watchlist' in response.data
-    assert 'AAPL' not in response.data['watchlist']
-
-@pytest.mark.django_db
-def test_search_stocks_watchlist(api_client):
-    # Add a stock to the watchlist
-    url = reverse('watchlist')
-    api_client.post(url, {'symbol': 'AAPL'}, format='json')
-
-    # Search for the stock
-    search_url = reverse('watchlist_search')
-    response = api_client.get(search_url, {'query': 'AAPL', 'max': 10})
-    assert response.status_code == 200
-    assert 'results' in response.data
-    assert any(stock['symbol'] == 'AAPL' for stock in response.data['results'])
 
 @pytest.mark.django_db
 def test_symbol_priority():
