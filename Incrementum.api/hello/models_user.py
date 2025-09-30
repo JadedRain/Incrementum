@@ -9,4 +9,6 @@ class Account(models.Model):
     api_key = models.CharField(max_length=64, unique=True)
 
     class Meta:
-        db_table = 'account'  
+        db_table = 'account'
+        managed = True
+

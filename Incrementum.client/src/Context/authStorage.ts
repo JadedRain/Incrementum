@@ -1,6 +1,6 @@
 export const getAuthFromStorage = () => ({
-  apiKey: localStorage.getItem("apiKey"),
-  email: localStorage.getItem("email"),
+  apiKey: localStorage.getItem("apiKey") ?? null,
+  email: localStorage.getItem("email") ?? null,
 });
 
 export const setAuthToStorage = (apiKey: string | null, email: string | null) => {
