@@ -1,7 +1,7 @@
 import pytest
 pytestmark = pytest.mark.django_db
 from django.test import TestCase
-from hello.models import Stock, Watchlist, WatchlistStock
+from hello.models import Screener
 from .models_user import Account
 from hello.watchlist_service import WatchlistService
 
@@ -54,3 +54,56 @@ class WatchlistServiceTest(TestCase):
         assert not any(stock['symbol'] == "TSLA" for stock in wl1)
         assert any(stock['symbol'] == "TSLA" for stock in wl2)
         assert not any(stock['symbol'] == "AAPL" for stock in wl2)
+
+    def test_add_prebuilt_screener_to_watchlist(self):
+        screener = Screener.objects.create(
+            name="Tech Giants",
+            description="Large technology companies with high market cap"
+        )
+        
+        self.service.add(self.account.api_key, "AAPL")
+        
+        result = self.service.add_screener(self.account.api_key, screener.id)
+        assert result == True
+        
+        screeners = self.service.get_screeners(self.account.api_key)
+        assert len(screeners) == 1
+        assert screeners[0]['name'] == "Tech Giants"
+        assert screeners[0]['description'] == "Large technology companies with high market cap"
+        assert screeners[0]['id'] == screener.id
+
+    def test_remove_prebuilt_screener_from_watchlist(self):
+        screener = Screener.objects.create(
+            name="Value Stocks",
+            description="Undervalued stocks with low P/E ratios"
+        )
+        
+        self.service.add(self.account.api_key, "AAPL")
+        
+        self.service.add_screener(self.account.api_key, screener.id)
+        
+        screeners = self.service.get_screeners(self.account.api_key)
+        assert len(screeners) == 1
+        
+        result = self.service.remove_screener(self.account.api_key, screener.id)
+        assert result == True
+        
+        screeners = self.service.get_screeners(self.account.api_key)
+        assert len(screeners) == 0
+
+    def test_add_duplicate_screener_to_watchlist(self):
+        screener = Screener.objects.create(
+            name="Dividend Stocks",
+            description="Stocks with high dividend yield"
+        )
+        
+        self.service.add(self.account.api_key, "AAPL")
+        
+        result1 = self.service.add_screener(self.account.api_key, screener.id)
+        result2 = self.service.add_screener(self.account.api_key, screener.id)
+        
+        assert result1 == True
+        assert result2 == True
+        
+        screeners = self.service.get_screeners(self.account.api_key)
+        assert len(screeners) == 1
