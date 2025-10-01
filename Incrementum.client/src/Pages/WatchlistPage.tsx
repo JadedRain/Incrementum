@@ -72,7 +72,7 @@ function WatchlistPage() {
         <div style={{ flex: 1 }}>
           <ChartArea selectedStock={selectedStock} imgUrl={imgUrl} />
           <GridCards />
-          <button className="WatchlistPage-Custom-Button">
+          <button className="WatchlistPage-Custom-Button border-2 border-dotted border-[hsl(40,10%,17%)]">
             + Custom
           </button>
           <button
