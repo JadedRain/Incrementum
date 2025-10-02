@@ -1,11 +1,23 @@
-FROM node:20-alpine
+# Use full Node image instead of alpine
+FROM node:20
 
+# Install pnpm globally
 RUN npm install -g pnpm
+
+# Set working directory
 WORKDIR /app
 
+# Copy package files first (better caching)
 COPY package.json pnpm-lock.yaml* ./
+
+# Install all dependencies (dev + prod)
 RUN pnpm install --frozen-lockfile
 
+# Copy the rest of the project
 COPY . .
 
+# Set CI environment variable
+ENV CI=true
+
+# Run tests by default
 CMD ["pnpm", "test"]
