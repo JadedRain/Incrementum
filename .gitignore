@@ -23,3 +23,4 @@ Incrementum.api/hello/__pycache__/__init__.cpython-310.pyc
 Incrementum.api/hello/__pycache__/get_stock_info.cpython-310.pyc
 Incrementum.api/hello/__pycache__/searchtests.cpython-310-pytest-8.4.1.pyc
 node_modules/
+Incrementum.client/node_modules/
