@@ -264,6 +264,7 @@ class CustomCollectionAggregateGraphView(APIView):
 		logger = logging.getLogger("django")
 		try:
 			if not tokens:
+				logger.error("No stocks in collection")
 				return HttpResponse("No stocks in collection", status=404)
 			ticker = tokens[0]
 			stock = yf.Ticker(ticker)
