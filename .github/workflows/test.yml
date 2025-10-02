@@ -34,4 +34,4 @@ jobs:
         run: docker build -f Incrementum.client/Dockerfile.test -t incrementum-client-test ./Incrementum.client
 
       - name: Run React tests
-        run: docker run --rm incrementum-client-test
+        run: docker run --rm -e CI=true incrementum-client-test

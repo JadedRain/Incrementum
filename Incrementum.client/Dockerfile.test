@@ -1,22 +1,11 @@
 FROM node:20-alpine
 
-# Install pnpm globally
 RUN npm install -g pnpm
-
-# Set working directory
 WORKDIR /app
 
-# Copy package files first
 COPY package.json pnpm-lock.yaml* ./
-
-# Install dependencies
 RUN pnpm install --frozen-lockfile
 
-# Copy source code
 COPY . .
 
-# Set CI environment variable
-ENV CI=true
-
-# Default command to run tests
 CMD ["pnpm", "test"]
