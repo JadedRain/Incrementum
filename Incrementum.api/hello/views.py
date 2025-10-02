@@ -203,7 +203,10 @@ class GetStocksInfo(APIView):
 			except Exception as e:
 				return Response({'error': 'Invalid filters JSON', 'details': str(e)}, status=400)
 
-		stocks = get_stock_info(max_val, offset, filters=filters)
+		try:
+			stocks = get_stock_info(max_val, offset, filters=filters)
+		except Exception as e:
+			return Response({'error': str(e)}, status=500)
 
 		return Response({'stocks': [s.to_dict() for s in stocks]})
 	
