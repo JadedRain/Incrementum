@@ -1,0 +1,37 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  python-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Python test image
+        run: docker build -f Incrementum.api/test.Dockerfile -t incrementum-api-test ./Incrementum.api
+
+      - name: Run Python tests
+        run: docker run --rm incrementum-api-test
+
+  react-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build React test image
+        run: docker build -f Incrementum.client/Dockerfile.test -t incrementum-client-test ./Incrementum.client
+
+      - name: Run React tests
+        run: docker run --rm -e CI=true incrementum-client-test
