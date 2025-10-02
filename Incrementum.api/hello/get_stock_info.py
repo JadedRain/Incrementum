@@ -7,6 +7,7 @@ import logging
 import io
 import matplotlib.pyplot as plt
 from django.db import connection
+from yfinance.screener.query import EquityQuery
 
 def generate_stock_graph(history, ticker: str, period) -> bytes:
     """Generate a PNG graph from stock history with rudimentary styling and return raw image bytes."""
@@ -77,10 +78,29 @@ def get_stock_by_ticker(ticker, source=setup):
     return stock_data
 
 def get_stock_info(max, offset, filters=None, source=setup):
-    tickers = source()
-    stocks = []
     max = int(max)
     offset = int(offset)
+    
+    # Check if percent change filtering is requested
+    if isinstance(filters, dict) and filters.get('percent_change_filter') and filters.get('percent_change_value') is not None:
+        percent_change_filter = filters.get('percent_change_filter')
+        percent_change_value = float(filters.get('percent_change_value'))
+        
+        # Use yfinance screening for percent change
+        all_screened_stocks = screen_stocks_by_percent_change(
+            percent_change_filter, 
+            percent_change_value, 
+            max_results=250  # Get more results to allow for pagination
+        )
+        
+        # Apply pagination to screened results
+        start = offset
+        end = min(start + max, len(all_screened_stocks))
+        return all_screened_stocks[start:end]
+    
+    # Original logic for CSV-based filtering
+    tickers = source()
+    stocks = []
 
     allowed_sectors = None
     if isinstance(filters, dict):
@@ -128,3 +148,33 @@ def fetch_stock_data(ticker):
     company_name = info.get('longName') or info.get('shortName') or symbol
     ensure_stock_in_db(symbol, company_name)
     return Stock(info)
+
+def screen_stocks_by_percent_change(percent_change_filter, percent_change_value, max_results=100):
+    valid_filters = ['gt', 'gte', 'lt', 'lte', 'eq']
+    if percent_change_filter not in valid_filters:
+        raise ValueError(f"Invalid percent_change_filter. Must be one of: {valid_filters}")
+    
+    # Ensure max_results doesn't exceed Yahoo's limit
+    max_results = min(max_results, 250)
+    
+    query = EquityQuery('and', [
+        EquityQuery(percent_change_filter, ['percentchange', percent_change_value]),
+        EquityQuery('eq', ['region', 'us'])  # Limit to US stocks for consistency
+    ])
+    
+    screen_results = yf.screen(query, size=max_results)
+    
+    quotes = screen_results.get('quotes', [])
+    
+    stocks = []
+    for quote in quotes:
+        try:
+            symbol = quote.get('symbol')
+            if symbol:
+                stock_data = fetch_stock_data(symbol)
+                stocks.append(stock_data)
+        except Exception as e:
+            logging.warning(f"Failed to fetch data for symbol {quote.get('symbol', 'unknown')}: {e}")
+            continue
+            
+    return stocks

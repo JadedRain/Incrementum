@@ -7,6 +7,14 @@ import yfinance as yf
 
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+import logging
+import json as _json
+from .models import Stock
+from .serializers import StockSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .get_stock_info import get_stock_info, search_stocks
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny
@@ -23,6 +31,7 @@ from .watchlist_service import WatchlistService
 
 custom_collection = CustomCollectionService()
 watchlist_service = WatchlistService()
+
 
 class StockListCreateView(APIView):
 	def get(self, request):
@@ -62,14 +71,6 @@ def add_to_watchlist(request):
 	watchlist = watchlist_service.add(user_id, symbol)
 	logging.info(f"[watchlist:add] size={len(watchlist)}")
 	return Response({'watchlist': watchlist})
-	def post(self, request):
-		symbol = request.data.get('symbol')
-		if not symbol:
-			return Response({'error': 'Symbol is required'}, status=status.HTTP_400_BAD_REQUEST)
-		logging.info(f"[watchlist:add] symbol={symbol}")
-		watchlist = watchlist_service.add(symbol)
-		logging.info(f"[watchlist:add] size={len(watchlist)}")
-		return Response({'watchlist': watchlist})
 
 @csrf_exempt
 @api_view(['DELETE'])
@@ -82,14 +83,6 @@ def remove_from_watchlist(request):
 	watchlist = watchlist_service.remove(user_id, symbol)
 	logging.info(f"[watchlist:remove] size={len(watchlist)}")
 	return Response({'watchlist': watchlist})
-	def delete(self, request):
-		symbol = request.data.get('symbol')
-		if not symbol:
-			return Response({'error': 'Symbol is required'}, status=status.HTTP_400_BAD_REQUEST)
-		logging.info(f"[watchlist:remove] symbol={symbol}")
-		watchlist = watchlist_service.remove(symbol)
-		logging.info(f"[watchlist:remove] size={len(watchlist)}")
-		return Response({'watchlist': watchlist})
 
 @api_view(['GET'])
 def get_watchlist(request):
@@ -99,10 +92,6 @@ def get_watchlist(request):
 	wl = watchlist_service.get(user_id)
 	logging.info(f"[watchlist:get] user_id={user_id} size={len(wl)}")
 	return Response({'watchlist': wl})
-	def get(self, request):
-		wl = watchlist_service.get()
-		logging.info(f"[watchlist:get] size={len(wl)}")
-		return Response({'watchlist': wl})
 
 @api_view(['GET'])
 def search_stocks_watchlist(request):
@@ -175,6 +164,7 @@ class IndustriesView(APIView):
 			return Response({'error': str(e)}, status=500)
 		return Response({'industries': industries})
 
+
 class GetStocksInfo(APIView):
 	permission_classes = [AllowAny]
 
@@ -188,13 +178,15 @@ class GetStocksInfo(APIView):
 		filters = None
 		filters_param = request.GET.get('filters')
 		if filters_param:
-			import json as _json
 			try:
 				filters = _json.loads(filters_param)
 			except Exception as e:
 				return Response({'error': 'Invalid filters JSON', 'details': str(e)}, status=400)
 
-		stocks = get_stock_info(max_val, offset, filters=filters)
+		try:
+			stocks = get_stock_info(max_val, offset, filters=filters)
+		except Exception as e:
+			return Response({'error': str(e)}, status=500)
 
 		return Response({'stocks': [s.to_dict() for s in stocks]})
 	
@@ -284,6 +276,7 @@ class CustomCollectionAggregateGraphView(APIView):
 		logger = logging.getLogger("django")
 		try:
 			if not tokens:
+				logger.error("No stocks in collection")
 				return HttpResponse("No stocks in collection", status=404)
 			ticker = tokens[0]
 			stock = yf.Ticker(ticker)

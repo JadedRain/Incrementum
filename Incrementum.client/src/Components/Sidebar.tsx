@@ -6,95 +6,88 @@ interface SidebarProps {
   onSelectedSectorsChange?: (sectors: string[]) => void;
   selectedIndustries?: string[];
   onSelectedIndustriesChange?: (industries: string[]) => void;
+  showCustomScreenerSection?: boolean;
+  apiKey?: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSectorsChange, selectedIndustries = [], onSelectedIndustriesChange }) => {
-  const [sectorChecks, setSectorChecks] = useState<{[k:string]:boolean}>({});
-  const [industryChecks, setIndustryChecks] = useState<{[k:string]:boolean}>({});
-  const [regionChecks, setRegionChecks] = useState<{[k:string]:boolean}>({
+const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSectorsChange, selectedIndustries = [], onSelectedIndustriesChange, showCustomScreenerSection = false, apiKey }) => {
+  const [sectorChecks, setSectorChecks] = useState<{ [k: string]: boolean }>({});
+  const [industryChecks, setIndustryChecks] = useState<{ [k: string]: boolean }>({});
+  const [regionChecks, setRegionChecks] = useState<{ [k: string]: boolean }>({
     'Region 1': false,
     'Region 2': false,
     'Region 3': false,
   });
-  const [marketChecks, setMarketChecks] = useState<{[k:string]:boolean}>({
+  const [marketChecks, setMarketChecks] = useState<{ [k: string]: boolean }>({
     'Nasdaq': false,
     'NYSE': false,
     'AMEX': false,
   });
-  
+
+  // Custom screener creation state
+  const [screenerNameInput, setScreenerNameInput] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
 
   useEffect(() => {
     let mounted = true;
     const fetchSectors = async () => {
-      try {
-        const res = await fetch('/sectors/');
-        if (!res.ok) return;
-        const data = await res.json();
-        const fetched: string[] = Array.isArray(data.sectors) ? data.sectors : [];
-        if (!mounted) return;
-        // Update checks mapping to include fetched sectors (preserve existing checked state)
-        setSectorChecks(prev => {
-          const next: {[k:string]:boolean} = {};
-          fetched.forEach(s => {
-            // If parent passed selectedSectors, use that; otherwise preserve or default to false
-            const isSelected = selectedSectors.length ? selectedSectors.includes(s) : !!prev[s];
-            next[s] = isSelected;
-          });
-          // Notify parent of initial selection if provided
-          if (onSelectedSectorsChange) {
-            const selected = Object.keys(next).filter(k => next[k]);
-            onSelectedSectorsChange(selected);
-          }
-          return next;
+      const res = await fetch('/sectors/');
+      if (!res.ok) return;
+      const data = await res.json();
+      const fetched: string[] = Array.isArray(data.sectors) ? data.sectors : [];
+      if (!mounted) return;
+      setSectorChecks(prev => {
+        const next: { [k: string]: boolean } = {};
+        fetched.forEach(s => {
+          const isSelected = selectedSectors.length ? selectedSectors.includes(s) : !!prev[s];
+          next[s] = isSelected;
         });
-      } catch (e) {
-        // swallow errors for now; sidebar will remain empty
-      }
+
+        if (onSelectedSectorsChange) {
+          const selected = Object.keys(next).filter(k => next[k]);
+          onSelectedSectorsChange(selected);
+        }
+        return next;
+      });
     };
     fetchSectors();
-    // Also fetch industries
     const fetchIndustries = async () => {
-        try {
-          const res = await fetch('/industries/');
-          if (!res.ok) return;
-          const data = await res.json();
-          const fetched: string[] = Array.isArray(data.industries) ? data.industries : [];
-          if (!mounted) return;
-          setIndustryChecks(prev => {
-            const next: {[k:string]:boolean} = {};
-            fetched.forEach(s => {
-              // initialize based on parent's selectedIndustries or previous state
-              const isSelected = selectedIndustries.length ? selectedIndustries.includes(s) : !!prev[s];
-              next[s] = isSelected;
-            });
-            // notify parent of initial selection
-            if (onSelectedIndustriesChange) {
-              const selected = Object.keys(next).filter(k => next[k]);
-              onSelectedIndustriesChange(selected);
-            }
-            return next;
-          });
-        } catch (e) {
-          // ignore
+      const res = await fetch('/industries/');
+      if (!res.ok) return;
+      const data = await res.json();
+      const fetched: string[] = Array.isArray(data.industries) ? data.industries : [];
+      if (!mounted) return;
+      setIndustryChecks(prev => {
+        const next: { [k: string]: boolean } = {};
+        fetched.forEach(s => {
+          const isSelected = selectedIndustries.length ? selectedIndustries.includes(s) : !!prev[s];
+          next[s] = isSelected;
+        });
+
+        if (onSelectedIndustriesChange) {
+          const selected = Object.keys(next).filter(k => next[k]);
+          onSelectedIndustriesChange(selected);
         }
-      };
-      fetchIndustries();
-      return () => { mounted = false; };
+        return next;
+      });
+    };
+    fetchIndustries();
+    return () => { mounted = false; };
   }, []);
 
-  // If parent updates selectedSectors, reflect that in local checks
   useEffect(() => {
     if (!selectedSectors || selectedSectors.length === 0) return;
     setSectorChecks(prev => {
       const next = { ...prev };
-      // set any known sector to true if present in selectedSectors
       Object.keys(next).forEach(k => {
         next[k] = selectedSectors.includes(k);
       });
       return next;
     });
   }, [selectedSectors]);
-  // No sort UI — Sidebar only provides filters. Industry checkbox changes notify parent.
 
   const [avgVolumeMin, setAvgVolumeMin] = useState('');
   const [avgVolumeMax, setAvgVolumeMax] = useState('');
@@ -107,25 +100,143 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSecto
   const [low52Max, setLow52Max] = useState('');
   const [priceMin, setPriceMin] = useState('');
   const [priceMax, setPriceMax] = useState('');
-  const [changePeriod, setChangePeriod] = useState<'daily'|'weekly'|'monthly'>('daily');
+  const [changePeriod, setChangePeriod] = useState<'daily' | 'weekly' | 'monthly'>('daily');
   const [changePercent, setChangePercent] = useState('');
   const [marketCapMin, setMarketCapMin] = useState('');
   const [marketCapMax, setMarketCapMax] = useState('');
 
+  const saveCustomScreener = async () => {
+    if (!screenerNameInput.trim()) {
+      setError('Please enter a screener name');
+      return;
+    }
+
+    if (!apiKey) {
+      setError('You must be logged in to save a screener');
+      return;
+    }
+
+    setSaving(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await fetch('http://localhost:8000/custom-screeners/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': apiKey,
+        },
+        body: JSON.stringify({
+          screener_name: screenerNameInput.trim(),
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSuccess('Custom screener saved successfully!');
+        setScreenerNameInput('');
+        console.log('Screener saved:', data);
+
+        setTimeout(() => {
+          setSuccess('');
+        }, 3000);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'Failed to save screener');
+      }
+    } catch (error) {
+      console.error('Error saving screener:', error);
+      setError('Failed to save screener. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <aside className="sidebar">
       <nav className="sidebar-nav">
-        {/* removed sort UI */}
+        {showCustomScreenerSection && (
+          <ExpandableSidebarItem title="Save Custom Screener">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div>
+                <input
+                  type="text"
+                  value={screenerNameInput}
+                  onChange={(e) => setScreenerNameInput(e.target.value)}
+                  placeholder="Enter screener name"
+                  className="sidebar-input"
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    fontSize: '0.875rem'
+                  }}
+                  disabled={saving}
+                />
+              </div>
+
+              {error && (
+                <div style={{
+                  padding: '0.5rem',
+                  backgroundColor: '#fee',
+                  border: '1px solid #fcc',
+                  color: '#c33',
+                  borderRadius: '4px',
+                  fontSize: '0.875rem'
+                }}>
+                  {error}
+                </div>
+              )}
+
+              {success && (
+                <div style={{
+                  padding: '0.5rem',
+                  backgroundColor: '#efe',
+                  border: '1px solid #cfc',
+                  color: '#363',
+                  borderRadius: '4px',
+                  fontSize: '0.875rem'
+                }}>
+                  {success}
+                </div>
+              )}
+
+              <button
+                onClick={saveCustomScreener}
+                disabled={saving || !screenerNameInput.trim()}
+                style={{
+                  padding: '0.6rem 1rem',
+                  backgroundColor: saving || !screenerNameInput.trim() ? '#ccc' : '#0066cc',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  cursor: saving || !screenerNameInput.trim() ? 'not-allowed' : 'pointer',
+                  transition: 'background-color 0.2s'
+                }}
+              >
+                {saving ? 'Saving...' : 'Save Screener'}
+              </button>
+
+              <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.25rem' }}>
+                Save the current filters as a custom screener. Filters will be added in future updates.
+              </div>
+            </div>
+          </ExpandableSidebarItem>
+        )}
+
         <ExpandableSidebarItem title="Sector">
           {Object.keys(sectorChecks).map((key) => (
-            <label key={key} style={{display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0'}}>
+            <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0' }}>
               <input
                 type="checkbox"
                 checked={!!sectorChecks[key]}
                 onChange={() => {
                   setSectorChecks(prev => {
                     const next = { ...prev, [key]: !prev[key] };
-                    // Inform parent of new selection
                     if (onSelectedSectorsChange) {
                       const selected = Object.keys(next).filter(k => next[k]);
                       onSelectedSectorsChange(selected);
@@ -141,7 +252,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSecto
 
         <ExpandableSidebarItem title="Industry">
           {Object.keys(industryChecks).map((key) => (
-            <label key={key} style={{display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0'}}>
+            <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0' }}>
               <input
                 type="checkbox"
                 checked={!!industryChecks[key]}
@@ -163,8 +274,8 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSecto
 
         <ExpandableSidebarItem title="Region">
           {Object.keys(regionChecks).map((key) => (
-            <label key={key} style={{display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0'}}>
-              <input type="checkbox" checked={!!regionChecks[key]} onChange={() => setRegionChecks(prev => ({...prev, [key]: !prev[key]}))} />
+            <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0' }}>
+              <input type="checkbox" checked={!!regionChecks[key]} onChange={() => setRegionChecks(prev => ({ ...prev, [key]: !prev[key] }))} />
               <span>{key}</span>
             </label>
           ))}
@@ -172,24 +283,24 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSecto
 
         <ExpandableSidebarItem title="Market">
           {Object.keys(marketChecks).map((key) => (
-            <label key={key} style={{display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0'}}>
-              <input type="checkbox" checked={!!marketChecks[key]} onChange={() => setMarketChecks(prev => ({...prev, [key]: !prev[key]}))} />
+            <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0' }}>
+              <input type="checkbox" checked={!!marketChecks[key]} onChange={() => setMarketChecks(prev => ({ ...prev, [key]: !prev[key] }))} />
               <span>{key}</span>
             </label>
           ))}
         </ExpandableSidebarItem>
 
         <ExpandableSidebarItem title="Stocks Traded Volume">
-          <div style={{marginBottom: '0.5rem'}}>
-            <div style={{fontWeight: 600}}>Average Volume</div>
-            <div style={{display: 'flex', gap: '0.5rem', marginTop: '0.5rem'}}>
+          <div style={{ marginBottom: '0.5rem' }}>
+            <div style={{ fontWeight: 600 }}>Average Volume</div>
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
               <input
                 type="text"
                 placeholder="Min"
                 value={avgVolumeMin}
                 onChange={e => setAvgVolumeMin(e.target.value)}
                 className="sidebar-input"
-                style={{flex: 1, padding: '0.4rem'}}
+                style={{ flex: 1, padding: '0.4rem' }}
               />
               <input
                 type="text"
@@ -197,20 +308,20 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSecto
                 value={avgVolumeMax}
                 onChange={e => setAvgVolumeMax(e.target.value)}
                 className="sidebar-input"
-                style={{flex: 1, padding: '0.4rem'}}
+                style={{ flex: 1, padding: '0.4rem' }}
               />
             </div>
           </div>
           <div>
-            <div style={{fontWeight: 600}}>Today's Volume</div>
-            <div style={{display: 'flex', gap: '0.5rem', marginTop: '0.5rem'}}>
+            <div style={{ fontWeight: 600 }}>Today's Volume</div>
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
               <input
                 type="text"
                 placeholder="Min"
                 value={todayVolumeMin}
                 onChange={e => setTodayVolumeMin(e.target.value)}
                 className="sidebar-input"
-                style={{flex: 1, padding: '0.4rem'}}
+                style={{ flex: 1, padding: '0.4rem' }}
               />
               <input
                 type="text"
@@ -218,26 +329,26 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSecto
                 value={todayVolumeMax}
                 onChange={e => setTodayVolumeMax(e.target.value)}
                 className="sidebar-input"
-                style={{flex: 1, padding: '0.4rem'}}
+                style={{ flex: 1, padding: '0.4rem' }}
               />
             </div>
           </div>
-          <div style={{marginTop: '0.5rem', fontSize: '0.85rem', color: '#2b2b2b'}}>
+          <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#2b2b2b' }}>
             (No filtering functionality implemented; inputs are for UI only.)
           </div>
         </ExpandableSidebarItem>
 
         <ExpandableSidebarItem title="52-Week Range">
-          <div style={{marginBottom: '0.5rem'}}>
-            <div style={{fontWeight: 600}}>52-Week High</div>
-            <div style={{display: 'flex', gap: '0.5rem', marginTop: '0.5rem'}}>
+          <div style={{ marginBottom: '0.5rem' }}>
+            <div style={{ fontWeight: 600 }}>52-Week High</div>
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
               <input
                 type="text"
                 placeholder="Min"
                 value={high52Min}
                 onChange={e => setHigh52Min(e.target.value)}
                 className="sidebar-input"
-                style={{flex: 1, padding: '0.4rem'}}
+                style={{ flex: 1, padding: '0.4rem' }}
               />
               <input
                 type="text"
@@ -245,20 +356,20 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSecto
                 value={high52Max}
                 onChange={e => setHigh52Max(e.target.value)}
                 className="sidebar-input"
-                style={{flex: 1, padding: '0.4rem'}}
+                style={{ flex: 1, padding: '0.4rem' }}
               />
             </div>
           </div>
           <div>
-            <div style={{fontWeight: 600}}>52-Week Low</div>
-            <div style={{display: 'flex', gap: '0.5rem', marginTop: '0.5rem'}}>
+            <div style={{ fontWeight: 600 }}>52-Week Low</div>
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
               <input
                 type="text"
                 placeholder="Min"
                 value={low52Min}
                 onChange={e => setLow52Min(e.target.value)}
                 className="sidebar-input"
-                style={{flex: 1, padding: '0.4rem'}}
+                style={{ flex: 1, padding: '0.4rem' }}
               />
               <input
                 type="text"
@@ -266,26 +377,26 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSecto
                 value={low52Max}
                 onChange={e => setLow52Max(e.target.value)}
                 className="sidebar-input"
-                style={{flex: 1, padding: '0.4rem'}}
+                style={{ flex: 1, padding: '0.4rem' }}
               />
             </div>
           </div>
-          <div style={{marginTop: '0.5rem', fontSize: '0.85rem', color: '#2b2b2b'}}>
+          <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#2b2b2b' }}>
             (No filtering functionality implemented; inputs are for UI only.)
           </div>
         </ExpandableSidebarItem>
 
         <ExpandableSidebarItem title="Share Price">
-          <div style={{marginBottom: '0.5rem'}}>
-            <div style={{fontWeight: 600}}>Share Price</div>
-            <div style={{display: 'flex', gap: '0.5rem', marginTop: '0.5rem'}}>
+          <div style={{ marginBottom: '0.5rem' }}>
+            <div style={{ fontWeight: 600 }}>Share Price</div>
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
               <input
                 type="text"
                 placeholder="Min"
                 value={priceMin}
                 onChange={e => setPriceMin(e.target.value)}
                 className="sidebar-input"
-                style={{flex: 1, padding: '0.4rem'}}
+                style={{ flex: 1, padding: '0.4rem' }}
               />
               <input
                 type="text"
@@ -293,26 +404,26 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSecto
                 value={priceMax}
                 onChange={e => setPriceMax(e.target.value)}
                 className="sidebar-input"
-                style={{flex: 1, padding: '0.4rem'}}
+                style={{ flex: 1, padding: '0.4rem' }}
               />
             </div>
           </div>
-          <div style={{marginTop: '0.5rem', fontSize: '0.85rem', color: '#2b2b2b'}}>
+          <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#2b2b2b' }}>
             (No filtering functionality implemented; inputs are for UI only.)
           </div>
         </ExpandableSidebarItem>
 
         <ExpandableSidebarItem title="Market Cap">
-          <div style={{marginBottom: '0.5rem'}}>
-            <div style={{fontWeight: 600}}>Market Cap</div>
-            <div style={{display: 'flex', gap: '0.5rem', marginTop: '0.5rem'}}>
+          <div style={{ marginBottom: '0.5rem' }}>
+            <div style={{ fontWeight: 600 }}>Market Cap</div>
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
               <input
                 type="text"
                 placeholder="Min"
                 value={marketCapMin}
                 onChange={e => setMarketCapMin(e.target.value)}
                 className="sidebar-input"
-                style={{flex: 1, padding: '0.4rem'}}
+                style={{ flex: 1, padding: '0.4rem' }}
               />
               <input
                 type="text"
@@ -320,19 +431,19 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSecto
                 value={marketCapMax}
                 onChange={e => setMarketCapMax(e.target.value)}
                 className="sidebar-input"
-                style={{flex: 1, padding: '0.4rem'}}
+                style={{ flex: 1, padding: '0.4rem' }}
               />
             </div>
           </div>
-          <div style={{marginTop: '0.5rem', fontSize: '0.85rem', color: '#2b2b2b'}}>
+          <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#2b2b2b' }}>
             (No filtering functionality implemented; inputs are for UI only.)
           </div>
         </ExpandableSidebarItem>
 
         <ExpandableSidebarItem title="% Change">
-          <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <div>
-              <label style={{marginRight: '0.5rem'}}>Period:</label>
+              <label style={{ marginRight: '0.5rem' }}>Period:</label>
               <select value={changePeriod} onChange={e => setChangePeriod(e.target.value as any)}>
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
@@ -340,14 +451,14 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSecto
               </select>
             </div>
             <div>
-              <label style={{display: 'block', fontWeight: 600}}>Percent Threshold</label>
+              <label style={{ display: 'block', fontWeight: 600 }}>Percent Threshold</label>
               <input
                 type="number"
                 placeholder="e.g. 2.5"
                 value={changePercent}
                 onChange={e => setChangePercent(e.target.value)}
                 className="sidebar-input"
-                style={{width: '100%', padding: '0.4rem', marginTop: '0.25rem'}}
+                style={{ width: '100%', padding: '0.4rem', marginTop: '0.25rem' }}
               />
             </div>
           </div>
