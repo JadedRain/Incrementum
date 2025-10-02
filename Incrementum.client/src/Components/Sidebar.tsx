@@ -138,7 +138,6 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSecto
         setScreenerNameInput('');
         console.log('Screener saved:', data);
 
-        // Clear success message after 3 seconds
         setTimeout(() => {
           setSuccess('');
         }, 3000);
