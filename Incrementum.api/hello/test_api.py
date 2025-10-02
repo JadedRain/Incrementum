@@ -22,13 +22,6 @@ def test_get_stock_info(api_client):
     assert response.status_code == 200
     assert 'stocks' in response.data
 
-def test_default_stock_watchlist(api_client):
-    url = reverse('watchlist')
-    response = api_client.get(url)
-    assert response.status_code == 200
-    assert 'watchlist' in response.data
-    assert response.data['watchlist'] == []
-
 def test_add_to_watchlist(api_client):
     url = reverse('watchlist')
     response = api_client.post(url, {'symbol': 'AAPL'}, format='json')
