@@ -1,8 +1,8 @@
 import yfinance as yf
 import logging
+import json as _json
 from .models import Stock
 from .serializers import StockSerializer
-# API endpoint to insert and get Stock objects from the database
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -20,6 +20,7 @@ from pathlib import Path
 from .utils import get_unique_sectors
 from .utils import get_unique_industries
 from django.views.decorators.csrf import csrf_exempt
+
 
 class StockListCreateView(APIView):
 	def get(self, request):
@@ -108,6 +109,7 @@ def get_industries(request):
     except Exception as e:
         return Response({'error': str(e)}, status=500)
     return Response({'industries': industries})
+
 class GetStocksInfo(APIView):
 	permission_classes = [AllowAny]
 
@@ -122,15 +124,15 @@ class GetStocksInfo(APIView):
 		filters = None
 		filters_param = request.GET.get('filters')
 		if filters_param:
-			import json as _json
 			try:
 				filters = _json.loads(filters_param)
 			except Exception as e:
 				return Response({'error': 'Invalid filters JSON', 'details': str(e)}, status=400)
-		# No standalone 'sectors' or 'industries' query params supported; filters must contain them
-		stocks = get_stock_info(max_val, offset, filters=filters)
-
-		return Response({'stocks': [s.to_dict() for s in stocks]})
+		try:
+			stocks = get_stock_info(max_val, offset, filters=filters)
+			return Response({'stocks': [s.to_dict() for s in stocks]})
+		except Exception as e:
+			return Response({'error': 'Internal server error', 'details': str(e)}, status=500)
 	
 class GetStockInfo(APIView):
 	permission_classes = [AllowAny]
