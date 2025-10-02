@@ -1,17 +1,14 @@
-// import { useState } from 'react'
 import './App.css'
-import SearchBar from './Components/SearchBar'
+import NavigationBar from './Components/NavigationBar'
 import StockInfoList from './StockInfoList'
 
 function App() {
   return (
     <>
-      <div>
-        <SearchBar />
+      <NavigationBar />
+      <div className="main-content">
+        <StockInfoList />
       </div>
-    <div>
-      <StockInfoList />
-    </div>
     </>
   )
 }

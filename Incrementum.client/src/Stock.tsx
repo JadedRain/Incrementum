@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import BackButton from "./Components/BackButton";
+import NavigationBar from "./Components/NavigationBar";
 
 interface StockData {
   currentPrice: number;
@@ -153,8 +153,10 @@ export default function Stock({ token: propToken }: StockProps) {
   if (!results) return <div className="bg-[hsl(40,62%,26%)] min-h-screen flex items-center justify-center" style={{ fontFamily: "serif" }}><p className="text-[hsl(40,66%,60%)]">No stock data found.</p></div>;
 
   return (
-    <div className="bg-[hsl(40,62%,26%)] min-h-screen" style={{ padding: "20px", fontFamily: "serif" }}>
-       <div className="flex gap-4 mt-2">
+    <div className="bg-[hsl(40,62%,26%)] min-h-screen" style={{ fontFamily: "serif" }}>
+      <NavigationBar />
+      <div className="main-content" style={{ padding: "20px" }}>
+        <div className="flex gap-4 mt-2">
             <div>
               <label htmlFor="period" className="mr-2 font-semibold">Time Frame:</label>
               <select
@@ -202,7 +204,12 @@ export default function Stock({ token: propToken }: StockProps) {
           {toast}
         </div>
       )}
-      <BackButton onClick={() => window.history.back()} />
+      <button 
+        onClick={() => window.history.back()}
+        className="nav-button mb-4"
+      >
+        ← Back
+      </button>
       <div className="mt-8">
         <h2 className="text-[hsl(40,66%,60%)]">{results.displayName} ({results.symbol})</h2>
         <div style={{ marginTop: '0.75rem' }}>
@@ -234,6 +241,7 @@ export default function Stock({ token: propToken }: StockProps) {
           alt={`${token} stock chart`}
           className="rounded-lg shadow-md max-w-full h-auto grid-middle mt-4"
         />
+        </div>
       </div>
     </div>
   );

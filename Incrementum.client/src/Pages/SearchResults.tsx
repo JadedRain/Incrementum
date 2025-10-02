@@ -1,6 +1,6 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import SearchBar from "../Components/SearchBar";
+import NavigationBar from "../Components/NavigationBar";
 import StockCard from "../StockCard";
 
 
@@ -13,7 +13,6 @@ interface Stock {
 export default function SearchResults() {
   const { query } = useParams<{ query: string }>();
   const [results, setResults] = useState<Stock[]>([]);
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0); // current page
   const [hasMore, setHasMore] = useState(true); // flag to disable next button
@@ -62,18 +61,12 @@ export default function SearchResults() {
   return (
     <div style={{ padding: "20px", fontFamily: "serif" }}
          className="bg-[#6C5019] min-h-screen">
-      <div className='SearchPage-header'>
-        <button 
-        onClick={() => navigate('/watchlist')}
-        className="nav-button">
-          Watchlist 
-        </button>
+      <NavigationBar />
+      <div className="main-content">
         <h1 className="StocksPage-h1">
           Search Results
         </h1>
-      </div>
-      <SearchBar />
-      <h2 className="text-[#DABB7C]">Results for "{query}"</h2>
+        <h2 className="text-[#DABB7C]">Results for "{query}"</h2>
       {loading && <p>Loading...</p>}
       {!loading && results.length === 0 && <p>No results found.</p>}
 
@@ -85,21 +78,22 @@ export default function SearchResults() {
         ))}
       </ul>
 
-      <div className="mt-4 flex gap-2">
-        <button
-          onClick={handlePrev}
-          disabled={page === 0}
-          className="pagination-button"
-        >
-          Previous
-        </button>
-        <button
-          onClick={handleNext}
-          disabled={!hasMore}
-          className="pagination-button"
-        >
-          Next
-        </button>
+        <div className="mt-4 flex gap-2">
+          <button
+            onClick={handlePrev}
+            disabled={page === 0}
+            className="pagination-button"
+          >
+            Previous
+          </button>
+          <button
+            onClick={handleNext}
+            disabled={!hasMore}
+            className="pagination-button"
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );

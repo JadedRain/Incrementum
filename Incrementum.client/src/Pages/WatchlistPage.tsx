@@ -1,17 +1,14 @@
 import '../App.css';
-import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Loading from '../Components/Loading';
 import type { StockC } from '../Components/Stock';
 import { WatchlistSidebar } from './WatchlistSidebar';
 import { GridCards } from './GridCards';
 import { ChartArea } from './ChartArea';
-import { WatchlistHeader } from './WatchlistHeader';
-import '../App.css'
+import NavigationBar from '../Components/NavigationBar';
 import { useSortedWatchlist } from './useSortedWatchlist';
 
 function WatchlistPage() {
-  const navigate = useNavigate();
   const [selectedStock, setSelectedStock] = useState<StockC | null>(null);
   const [sortBy, setSortBy] = useState('default');
   const { watchlist, setWatchlist, loading } = useSortedWatchlist(sortBy);
@@ -36,26 +33,28 @@ function WatchlistPage() {
 
   return (
     <div style={{ minHeight: '100vh' }}>
-      <WatchlistHeader navigate={navigate} />
-      <div className='WatchlistPage-Loading'>
-        <Loading loading={loading} watchlist={watchlist} />
-      </div>
-      <div style={{ display: 'flex', marginTop: '2rem', padding: '0 2rem' }}>
-        <div style={{ flex: 1 }}>
-          <ChartArea selectedStock={selectedStock} imgUrl={imgUrl} />
-          <GridCards />
-          <button className="WatchlistPage-Custom-Button">
-            + Custom
-          </button>
+      <NavigationBar />
+      <div className="main-content">
+        <div className='WatchlistPage-Loading'>
+          <Loading loading={loading} watchlist={watchlist} />
         </div>
-        <WatchlistSidebar
-          setSortBy={setSortBy}
-          sortBy={sortBy}
-          watchlist={watchlist}
-          selectedStock={selectedStock}
-          handleStockClick={handleStockClick}
-          loading={loading}
-        />
+        <div style={{ display: 'flex', marginTop: '2rem', padding: '0 2rem' }}>
+          <div style={{ flex: 1 }}>
+            <ChartArea selectedStock={selectedStock} imgUrl={imgUrl} />
+            <GridCards />
+            <button className="WatchlistPage-Custom-Button">
+              + Custom
+            </button>
+          </div>
+          <WatchlistSidebar
+            setSortBy={setSortBy}
+            sortBy={sortBy}
+            watchlist={watchlist}
+            selectedStock={selectedStock}
+            handleStockClick={handleStockClick}
+            loading={loading}
+          />
+        </div>
       </div>
     </div>
   );
