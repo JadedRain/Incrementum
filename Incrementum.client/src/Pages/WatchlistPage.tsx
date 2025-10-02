@@ -63,6 +63,18 @@ function WatchlistPage() {
 
   return (
     <div style={{ minHeight: '100vh' }}>
+      <WatchlistHeader navigate={navigate} />
+      <div className='WatchlistPage-Loading'>
+        <Loading loading={loading} watchlist={watchlist} />
+      </div>
+      <div style={{ display: 'flex', marginTop: '2rem', padding: '0 2rem' }}>
+        <div style={{ flex: 1 }}>
+          <ChartArea selectedStock={selectedStock} imgUrl={imgUrl} />
+          <GridCards />
+          <button className="WatchlistPage-Custom-Button border-2 border-dotted border-[hsl(40,10%,17%)]">
+            + Custom
+          </button>
+          <button
       <NavigationBar />
             <WatchlistSidebar
               setSortBy={setSortBy}
