@@ -2,7 +2,7 @@ import '../App.css'
 import { useNavigate, Link } from 'react-router-dom'
 import { useEffect, useState } from 'react';
 import { useAuth } from '../Context/AuthContext';
-import SearchBar from '../Components/SearchBar';
+import NavigationBar from '../Components/NavigationBar';
 
 interface CustomScreener {
     id: number;
@@ -54,53 +54,49 @@ function ScreenerPage() {
 
     return (
         <div className="min-h-screen bg-[hsl(40,62%,26%)]">
-            <div className='StocksPage-header relative'>
-                <Link to="/account" className="absolute top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition">Account</Link>
-                <SearchBar />
-                <h1 className="ScreenerPage-h1">
-                    Screener Page
-                </h1>
-            </div>
-            <div className="ScreenerPage-container">
-                <div className="ScreenerPage-card-grid">
-                    {/* Custom Collection Card */}
-                    <div className="ScreenerPage-card-custom cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-lg flex items-center justify-center" style={{height: '120px'}} onClick={() => navigate('/custom-collection')}>
-                        Custom Collection
-                    </div>
-                    <div className="ScreenerPage-card cursor-pointer" onClick={() => handleCardClick('Temp Card 2')}>Create Custom</div>
-                    
-                    {loading && (
-                        <div className="ScreenerPage-card flex items-center justify-center" style={{height: '120px'}}>
-                            <div className="text-gray-500">Loading screeners...</div>
+            <NavigationBar />
+            <div className="main-content">
+
+                <div className="ScreenerPage-container">
+                    <div className="ScreenerPage-card-grid">
+                        {/* Custom Collection Card */}
+                        <div className="ScreenerPage-card-custom cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-lg flex items-center justify-center" style={{ height: '120px' }} onClick={() => navigate('/custom-collection')}>
+                            Custom Collection
                         </div>
-                    )}
-                    
-                    {!loading && customScreeners.map((screener) => (
-                        <div 
-                            key={screener.id}
-                            className="ScreenerPage-card cursor-pointer bg-gradient-to-r from-blue-500 to-blue-600 text-white flex flex-col justify-center items-center p-4" 
-                            style={{height: '120px'}}
-                            onClick={() => handleCustomScreenerClick(screener)}
-                        >
-                            <div className="font-bold text-lg text-center mb-1">
-                                {screener.screener_name}
+                        <div className="ScreenerPage-card cursor-pointer" onClick={() => handleCardClick('Temp Card 2')}>Create Custom</div>
+
+                        {loading && (
+                            <div className="ScreenerPage-card flex items-center justify-center" style={{ height: '120px' }}>
+                                <div className="text-gray-500">Loading screeners...</div>
                             </div>
-                            <div className="text-sm opacity-80">
-                                Custom Screener
+                        )}
+
+                        {!loading && customScreeners.map((screener) => (
+                            <div
+                                key={screener.id}
+                                className="ScreenerPage-card cursor-pointer bg-gradient-to-r from-blue-500 to-blue-600 text-white flex flex-col justify-center items-center p-4"
+                                style={{ height: '120px' }}
+                                onClick={() => handleCustomScreenerClick(screener)}
+                            >
+                                <div className="font-bold text-lg text-center mb-1">
+                                    {screener.screener_name}
+                                </div>
+                                <div className="text-sm opacity-80">
+                                    Custom Screener
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                    
-                    {!loading && customScreeners.length === 0 && apiKey && (
-                        <div className="ScreenerPage-card flex flex-col items-center justify-center text-gray-500" style={{height: '120px'}}>
-                            <div className="text-sm text-center">
-                                No custom screeners yet
+                        ))}
+
+                        {!loading && customScreeners.length === 0 && apiKey && (
+                            <div className="ScreenerPage-card flex flex-col items-center justify-center text-gray-500" style={{ height: '120px' }}>
+                                <div className="text-sm text-center">
+                                    No custom screeners yet
+                                </div>
+                                <div className="text-xs text-center mt-1">
+                                    Create your first one!
+                                </div>
                             </div>
-                            <div className="text-xs text-center mt-1">
-                                Create your first one!
-                            </div>
-                        </div>
-                    )}
+                        )}
                 </div>
                 <aside className="sidebar">
                     <nav className="sidebar-nav">
@@ -113,6 +109,7 @@ function ScreenerPage() {
                 </aside>
             </div>
         </div>
+    </div >
     );
 }
 

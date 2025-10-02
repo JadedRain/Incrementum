@@ -7,6 +7,14 @@ import yfinance as yf
 
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+import logging
+import json as _json
+from .models import Stock
+from .serializers import StockSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .get_stock_info import get_stock_info, search_stocks
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny
@@ -23,6 +31,7 @@ from .watchlist_service import WatchlistService
 
 custom_collection = CustomCollectionService()
 watchlist_service = WatchlistService()
+
 
 class StockListCreateView(APIView):
 	def get(self, request):
@@ -155,6 +164,7 @@ class IndustriesView(APIView):
 			return Response({'error': str(e)}, status=500)
 		return Response({'industries': industries})
 
+
 class GetStocksInfo(APIView):
 	permission_classes = [AllowAny]
 
@@ -168,13 +178,15 @@ class GetStocksInfo(APIView):
 		filters = None
 		filters_param = request.GET.get('filters')
 		if filters_param:
-			import json as _json
 			try:
 				filters = _json.loads(filters_param)
 			except Exception as e:
 				return Response({'error': 'Invalid filters JSON', 'details': str(e)}, status=400)
 
-		stocks = get_stock_info(max_val, offset, filters=filters)
+		try:
+			stocks = get_stock_info(max_val, offset, filters=filters)
+		except Exception as e:
+			return Response({'error': str(e)}, status=500)
 
 		return Response({'stocks': [s.to_dict() for s in stocks]})
 	
