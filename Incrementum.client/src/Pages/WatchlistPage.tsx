@@ -63,6 +63,27 @@ function WatchlistPage() {
 
   return (
     <div style={{ minHeight: '100vh' }}>
+      <NavigationBar />
+            <WatchlistSidebar
+              setSortBy={setSortBy}
+              sortBy={sortBy}
+              watchlist={watchlist}
+              selectedStock={selectedStock}
+              handleStockClick={handleStockClick}
+              loading={loading}
+            />
+      <div className="main-content">
+        <div className='WatchlistPage-Loading'>
+          <Loading loading={loading} watchlist={watchlist} />
+        </div>
+        <div style={{ display: 'flex', marginTop: '2rem', padding: '0 2rem' }}>
+          <div style={{ flex: 1 }}>
+            <ChartArea selectedStock={selectedStock} imgUrl={imgUrl} />
+            <GridCards />
+            <button className="WatchlistPage-Custom-Button">
+              + Custom
+            </button>
+            <button
       <WatchlistHeader navigate={navigate} />
       <div className='WatchlistPage-Loading'>
         <Loading loading={loading} watchlist={watchlist} />
@@ -101,6 +122,7 @@ function WatchlistPage() {
           >
             Add to Watchlist
           </button>
+        </div>
         </div>
         </div>
       </div>
