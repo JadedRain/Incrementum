@@ -23,8 +23,6 @@ jobs:
 
   react-test:
     runs-on: ubuntu-latest
-    needs: python-test  # optional, only run React tests if Python tests pass
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
