@@ -16,7 +16,9 @@ function ScreenerPage() {
 
                 <div className="ScreenerPage-container">
                     <div className="ScreenerPage-card-grid">
-                        <div className="ScreenerPage-card cursor-pointer" onClick={() => handleCardClick('Temp Card 1')}>Temp Card 1</div>
+                        <div className="ScreenerPage-card-custom cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-lg flex items-center justify-center" style={{height: '120px'}} onClick={() => navigate('/custom-collection')}>
+                        Custom
+                    </div>
                         <div className="ScreenerPage-card cursor-pointer" onClick={() => handleCardClick('Temp Card 2')}>Temp Card 2</div>
                         <div className="ScreenerPage-card cursor-pointer" onClick={() => handleCardClick('Temp Card 3')}>Temp Card 3</div>
                         <div className="ScreenerPage-card-custom cursor-pointer" onClick={() => handleCardClick('Create Custom')}>Create Custom</div>

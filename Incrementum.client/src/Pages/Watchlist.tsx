@@ -29,7 +29,7 @@ const Watchlist: React.FC<WatchlistProps> = ({ onSelect }) => {
     fetch(endpoint)
       .then(res => res.json())
       .then(data => {
-        setStocks(data);
+        setStocks(data.watchlist || []);
         setLoading(false);
       })
       .catch(() => setLoading(false));

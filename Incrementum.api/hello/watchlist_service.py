@@ -1,61 +1,56 @@
 import logging
-import pandas as pd
-import os
-import datetime
 from .get_stock_info import fetch_stock_data
-from .stocks_class import Stock
+from .models import Watchlist, Stock, WatchlistStock
+from django.db import transaction
+from .models_user import Account
 
 class WatchlistService:
     def __init__(self, fetch_stock_data_func=fetch_stock_data):
         self.fetch_stock_data_func = fetch_stock_data_func
-        self.watchlist = ["AAPL", "TSLA"]
 
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        csv_path = os.path.join(base_dir, 'data', 'ticker_info.csv')
-        self.tickers = pd.read_csv(csv_path, index_col=0)
+    def add(self, user_id, symbol):
+        try:
+            account = Account.objects.get(api_key=user_id)
+        except Account.DoesNotExist:
+            logging.error(f"Account with api_key {user_id} does not exist.")
+            return []
+        watchlist, _ = Watchlist.objects.get_or_create(account=account, defaults={"name": f"{account.name}'s Watchlist"})
+        stock, _ = Stock.objects.get_or_create(symbol=symbol, defaults={"company_name": symbol})
+        WatchlistStock.objects.get_or_create(watchlist=watchlist, stock=stock)
+        logging.info(f"Added {symbol} to user {user_id} watchlist.")
+        return self.get(user_id)
 
-        self.tickerDateAdded = {
-            "AAPL": datetime.datetime(2023, 1, 2),
-            "TSLA": datetime.datetime(2023, 1, 3)
-        }
+    def get(self, user_id):
+        try:
+            account = Account.objects.get(api_key=user_id)
+            watchlist = Watchlist.objects.get(account=account)
+        except (Account.DoesNotExist, Watchlist.DoesNotExist):
+            return []
+        symbols = watchlist.stocks.values_list('symbol', flat=True)
+        return [self.fetch_stock_data_func(symbol).to_dict() for symbol in symbols]
 
-    def add(self, symbol):
-        if not symbol:
-            return self.watchlist
-        row = self.tickers[self.tickers['symbol'] == symbol]
-        if not row.empty and symbol not in self.watchlist:
-            self.watchlist.append(symbol)
-            self.tickerDateAdded[symbol] = datetime.datetime.now()
-            logging.info(f"Added {symbol}, watchlist: {self.watchlist}")
-        return self.watchlist
+    def remove(self, user_id, symbol):
+        try:
+            account = Account.objects.get(api_key=user_id)
+            watchlist = Watchlist.objects.get(account=account)
+            stock = Stock.objects.get(symbol=symbol)
+        except (Account.DoesNotExist, Watchlist.DoesNotExist, Stock.DoesNotExist):
+            return self.get(user_id)
+        WatchlistStock.objects.filter(watchlist=watchlist, stock=stock).delete()
+        logging.info(f"Removed {symbol} from user {user_id} watchlist.")
+        return self.get(user_id)
 
-    def get_sorted(self):
-        stocks = [
-            self.fetch_stock_data_func(symbol) for symbol in self.watchlist
-        ]
-        stocks.sort(
-            key=lambda x: self.tickerDateAdded.get(x.symbol, datetime.datetime.min),
-            reverse=True
-        )
-        return [stock.to_dict() for stock in stocks]
-
-    def get(self):
-        return [
-            self.fetch_stock_data_func(symbol).to_dict()
-            for symbol in self.watchlist
-        ]
-
-    def remove(self, symbol):
-        self.watchlist = [item for item in self.watchlist if item != symbol]
-        self.tickerDateAdded.pop(symbol, None)
-        return self.watchlist
-
-    def search(self, query, max_results=10):
+    def search(self, user_id, query, max_results=10):
+        try:
+            account = Account.objects.get(api_key=user_id)
+            watchlist = Watchlist.objects.get(account=account)
+        except (Account.DoesNotExist, Watchlist.DoesNotExist):
+            return []
         query = query.lower()
         results = []
-        for symbol in self.watchlist:
-            if query in symbol.lower():
-                results.append(self.fetch_stock_data_func(symbol).to_dict())
+        for stock in watchlist.stocks.all():
+            if query in stock.symbol.lower():
+                results.append(self.fetch_stock_data_func(stock.symbol).to_dict())
             if len(results) >= max_results:
                 break
         return results

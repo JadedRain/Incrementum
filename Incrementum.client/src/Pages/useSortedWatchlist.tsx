@@ -35,7 +35,7 @@ function sortByRecentlyViewed(list: StockC[]) {
   });
 }
 
-export function useSortedWatchlist(sortBy: string) {
+export function useSortedWatchlist(sortBy: string, user_id?: string) {
   const [watchlist, setWatchlist] = useState<StockC[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -54,9 +54,15 @@ export function useSortedWatchlist(sortBy: string) {
       setLoading(false);
     } else {
       const endpoint = sortBy === 'date_added'
-        ? 'http://localhost:8000/watchlist/sorted/'
-        : 'http://localhost:8000/watchlist/';
-      fetch(endpoint)
+        ? '/watchlist/sorted/'
+        : '/watchlist/';
+      fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(user_id ? { 'X-User-Id': user_id } : {}),
+        },
+      })
         .then(res => res.json())
         .then(data => {
           setWatchlist(data.watchlist || []);
@@ -67,6 +73,6 @@ export function useSortedWatchlist(sortBy: string) {
           setLoading(false);
         });
     }
-  }, [sortBy]);
+  }, [sortBy, user_id]);
   return { watchlist, setWatchlist, loading };
 }

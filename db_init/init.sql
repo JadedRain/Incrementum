@@ -20,6 +20,7 @@ create table stock (
 );
 
 create table watchlist_stock (
+    id int primary key generated always as identity,
     watchlist_id int not null references watchlist(id),
     stock_symbol varchar(5) not null references stock(symbol)
 );
