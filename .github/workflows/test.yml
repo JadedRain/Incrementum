@@ -36,4 +36,4 @@ jobs:
         run: docker build -f Incrementum.client/Dockerfile.test -t incrementum-client-test ./Incrementum.client
 
       - name: Run React tests
-        run: docker run --rm incrementum-client-test
+        run: docker run --rm incrementum-client-test /bin/sh -c "pnpm test -- --ci --reporters=default"
