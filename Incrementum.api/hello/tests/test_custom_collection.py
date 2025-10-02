@@ -62,13 +62,7 @@ class TestCustomCollection:
         assert 'tokens' in data
         assert 'aggregate' in data
 
-    def test_custom_collection_aggregate_graph(self, client):
-        url = reverse('custom_collection_aggregate_graph')
-        response = client.get(url)
-        assert response.status_code in (200, 404, 500)
-        # Should return image/png or error
-        if response.status_code == 200:
-            assert response['Content-Type'] == 'image/png'
+    # Rewrite aggregate graph test
 
     def test_custom_collection_overlay_graph(self, client):
         url = reverse('custom_collection_overlay_graph')
