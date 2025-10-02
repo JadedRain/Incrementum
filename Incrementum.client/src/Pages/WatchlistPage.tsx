@@ -7,8 +7,7 @@ import type { StockC } from '../Components/Stock';
 import { WatchlistSidebar } from './WatchlistSidebar';
 import { GridCards } from './GridCards';
 import { ChartArea } from './ChartArea';
-import { WatchlistHeader } from './WatchlistHeader';
-import '../App.css'
+import NavigationBar from '../Components/NavigationBar';
 import { useSortedWatchlist } from './useSortedWatchlist';
 
 function WatchlistPage() {
@@ -64,32 +63,34 @@ function WatchlistPage() {
 
   return (
     <div style={{ minHeight: '100vh' }}>
-      <WatchlistHeader navigate={navigate} />
-      <div className='WatchlistPage-Loading'>
-        <Loading loading={loading} watchlist={watchlist} />
-      </div>
-      <div style={{ display: 'flex', marginTop: '2rem', padding: '0 2rem' }}>
-        <div style={{ flex: 1 }}>
-          <ChartArea selectedStock={selectedStock} imgUrl={imgUrl} />
-          <GridCards />
-          <button className="WatchlistPage-Custom-Button">
-            + Custom
-          </button>
-          <button
+      <NavigationBar />
+            <WatchlistSidebar
+              setSortBy={setSortBy}
+              sortBy={sortBy}
+              watchlist={watchlist}
+              selectedStock={selectedStock}
+              handleStockClick={handleStockClick}
+              loading={loading}
+            />
+      <div className="main-content">
+        <div className='WatchlistPage-Loading'>
+          <Loading loading={loading} watchlist={watchlist} />
+        </div>
+        <div style={{ display: 'flex', marginTop: '2rem', padding: '0 2rem' }}>
+          <div style={{ flex: 1 }}>
+            <ChartArea selectedStock={selectedStock} imgUrl={imgUrl} />
+            <GridCards />
+            <button className="WatchlistPage-Custom-Button">
+              + Custom
+            </button>
+            <button
             className="WatchlistPage-Custom-Button"
             onClick={addToWatchlist()}
           >
             Add to Watchlist
           </button>
         </div>
-        <WatchlistSidebar
-          setSortBy={setSortBy}
-          sortBy={sortBy}
-          watchlist={watchlist}
-          selectedStock={selectedStock}
-          handleStockClick={handleStockClick}
-          loading={loading}
-        />
+        </div>
       </div>
     </div>
   );

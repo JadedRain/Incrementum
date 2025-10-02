@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Loading from '../Components/Loading';
 import Sidebar from '../Components/Sidebar';
-import BackButton from '../Components/BackButton';
+import NavigationBar from '../Components/NavigationBar';
 import '../App.css';
 
 interface StockInfo {
@@ -46,10 +46,8 @@ function IndividualScreenPage() {
 
   return (
     <div className="min-h-screen bg-[hsl(40,62%,26%)]">
-      <div className="ScreenerPage-header">
-        <BackButton onClick={() => navigate(-1)} />
-        <h1 className="ScreenerPage-h1">{screenerName}</h1>
-      </div>
+      <NavigationBar />
+      <div className="main-content">
       <div className="pt-32 px-8 ScreenerPage-main-layout">
         <div className="w-full">
           <div className="StockTable-container">
@@ -78,6 +76,7 @@ function IndividualScreenPage() {
               })}
           </div>
         </div>
+       </div>
         <Sidebar selectedSectors={selectedSectors} onSelectedSectorsChange={setSelectedSectors} selectedIndustries={selectedIndustries} onSelectedIndustriesChange={setSelectedIndustries} />
       </div>
     </div>

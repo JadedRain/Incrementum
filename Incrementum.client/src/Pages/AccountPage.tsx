@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../Context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import NavigationBar from "../Components/NavigationBar";
 import "../App.css";
 
 const AccountPage: React.FC = () => {
@@ -31,20 +32,16 @@ const AccountPage: React.FC = () => {
   }
 
   return (
-    <div className="account-container flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <div className="account-card bg-white shadow-lg rounded-lg p-8 w-full max-w-md mt-10 relative">
-        <button
-          className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
-          onClick={() => { signOut(); navigate('/'); }}
-        >
-          Log Out
-        </button>
-        <button
-          className="absolute top-4 left-4 bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition"
-          onClick={() => navigate('/screener')}
-        >
-          &larr; Back
-        </button>
+    <div className="min-h-screen bg-gray-100">
+      <NavigationBar />
+      <div className="main-content flex flex-col items-center justify-center">
+        <div className="account-card bg-white shadow-lg rounded-lg p-8 w-full max-w-md mt-10 relative">
+          <button
+            className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+            onClick={() => { signOut(); navigate('/'); }}
+          >
+            Log Out
+          </button>
         <h2 className="text-2xl font-bold mb-6 text-center text-blue-600">Account Info</h2>
         {account ? (
           <>
@@ -61,6 +58,7 @@ const AccountPage: React.FC = () => {
         ) : (
           <div className="text-red-500 text-center">{error || "Loading..."}</div>
         )}
+        </div>
       </div>
     </div>
   );
