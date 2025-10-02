@@ -143,4 +143,38 @@ def ensure_stock_in_db(symbol, company_name):
 
 def fetch_stock_data(ticker):
     stock = yf.Ticker(ticker)
-    return Stock(stock.info)
+    info = stock.info
+    symbol = info.get('symbol', ticker)
+    company_name = info.get('longName') or info.get('shortName') or symbol
+    ensure_stock_in_db(symbol, company_name)
+    return Stock(info)
+
+def screen_stocks_by_percent_change(percent_change_filter, percent_change_value, max_results=100):
+    valid_filters = ['gt', 'gte', 'lt', 'lte', 'eq']
+    if percent_change_filter not in valid_filters:
+        raise ValueError(f"Invalid percent_change_filter. Must be one of: {valid_filters}")
+    
+    # Ensure max_results doesn't exceed Yahoo's limit
+    max_results = min(max_results, 250)
+    
+    query = EquityQuery('and', [
+        EquityQuery(percent_change_filter, ['percentchange', percent_change_value]),
+        EquityQuery('eq', ['region', 'us'])  # Limit to US stocks for consistency
+    ])
+    
+    screen_results = yf.screen(query, size=max_results)
+    
+    quotes = screen_results.get('quotes', [])
+    
+    stocks = []
+    for quote in quotes:
+        try:
+            symbol = quote.get('symbol')
+            if symbol:
+                stock_data = fetch_stock_data(symbol)
+                stocks.append(stock_data)
+        except Exception as e:
+            logging.warning(f"Failed to fetch data for symbol {quote.get('symbol', 'unknown')}: {e}")
+            continue
+            
+    return stocks

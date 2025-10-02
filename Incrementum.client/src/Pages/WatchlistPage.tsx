@@ -11,6 +11,7 @@ import NavigationBar from '../Components/NavigationBar';
 import { useSortedWatchlist } from './useSortedWatchlist';
 
 function WatchlistPage() {
+  const navigate = useNavigate();
   const { apiKey } = useAuth();
   const user_id = apiKey || undefined;
   const [selectedStock, setSelectedStock] = useState<StockC | null>(null);
