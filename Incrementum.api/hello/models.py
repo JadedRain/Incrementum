@@ -57,6 +57,7 @@ class WatchlistScreener(models.Model):
 class CustomScreener(models.Model):
     id = models.AutoField(primary_key=True)
     account = models.ForeignKey(Account, on_delete=models.CASCADE, db_column='account_id')
+    screener_name = models.CharField(max_length=100, default='Untitled Screener')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

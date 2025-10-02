@@ -27,7 +27,7 @@ create table watchlist_stock (
     
 create table screener (
     id int primary key generated always as identity,
-    name varchar(20) not null,
+    screener_name varchar(20) not null,
     description varchar(300)
 );
 
@@ -39,12 +39,13 @@ create table watchlist_screener (
 create table custom_screener (
     id int primary key generated always as identity,
     account_id int not null references account(id),
+    screener_name varchar(100) not null,
     created_at timestamp not null default current_timestamp
 );
 
 create table numeric_filter (
     id int primary key generated always as identity,
-    name varchar(20) not null
+    name varchar(50) not null
 );
 
 create table custom_screener_numeric (
@@ -56,7 +57,7 @@ create table custom_screener_numeric (
 
 create table categorical_filter (
     id int primary key generated always as identity,
-    name varchar(20) not null
+    name varchar(50) not null
 );
 
 create table custom_screener_categorical (

@@ -62,14 +62,6 @@ def add_to_watchlist(request):
 	watchlist = watchlist_service.add(user_id, symbol)
 	logging.info(f"[watchlist:add] size={len(watchlist)}")
 	return Response({'watchlist': watchlist})
-	def post(self, request):
-		symbol = request.data.get('symbol')
-		if not symbol:
-			return Response({'error': 'Symbol is required'}, status=status.HTTP_400_BAD_REQUEST)
-		logging.info(f"[watchlist:add] symbol={symbol}")
-		watchlist = watchlist_service.add(symbol)
-		logging.info(f"[watchlist:add] size={len(watchlist)}")
-		return Response({'watchlist': watchlist})
 
 @csrf_exempt
 @api_view(['DELETE'])
@@ -82,14 +74,6 @@ def remove_from_watchlist(request):
 	watchlist = watchlist_service.remove(user_id, symbol)
 	logging.info(f"[watchlist:remove] size={len(watchlist)}")
 	return Response({'watchlist': watchlist})
-	def delete(self, request):
-		symbol = request.data.get('symbol')
-		if not symbol:
-			return Response({'error': 'Symbol is required'}, status=status.HTTP_400_BAD_REQUEST)
-		logging.info(f"[watchlist:remove] symbol={symbol}")
-		watchlist = watchlist_service.remove(symbol)
-		logging.info(f"[watchlist:remove] size={len(watchlist)}")
-		return Response({'watchlist': watchlist})
 
 @api_view(['GET'])
 def get_watchlist(request):
@@ -99,10 +83,6 @@ def get_watchlist(request):
 	wl = watchlist_service.get(user_id)
 	logging.info(f"[watchlist:get] user_id={user_id} size={len(wl)}")
 	return Response({'watchlist': wl})
-	def get(self, request):
-		wl = watchlist_service.get()
-		logging.info(f"[watchlist:get] size={len(wl)}")
-		return Response({'watchlist': wl})
 
 @api_view(['GET'])
 def search_stocks_watchlist(request):

@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { useAuth } from '../Context/AuthContext';
 import Loading from '../Components/Loading';
 import Sidebar from '../Components/Sidebar';
 import BackButton from '../Components/BackButton';
@@ -16,6 +17,7 @@ interface StockInfo {
 function IndividualScreenPage() {
   const { screenerName } = useParams();
   const navigate = useNavigate();
+  const { apiKey } = useAuth();
   const [stocks, setStocks] = useState<StockInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
@@ -28,7 +30,7 @@ function IndividualScreenPage() {
   const params = new URLSearchParams();
   params.set('max', '10');
   params.set('offset', '0');
-  // Send sectors/industries inside a JSON-encoded `filters` param
+
   const filters: any = {};
   if (selectedSectors && selectedSectors.length) filters.sectors = selectedSectors;
   if (selectedIndustries && selectedIndustries.length) filters.industries = selectedIndustries;
@@ -78,7 +80,14 @@ function IndividualScreenPage() {
               })}
           </div>
         </div>
-        <Sidebar selectedSectors={selectedSectors} onSelectedSectorsChange={setSelectedSectors} selectedIndustries={selectedIndustries} onSelectedIndustriesChange={setSelectedIndustries} />
+        <Sidebar 
+          selectedSectors={selectedSectors} 
+          onSelectedSectorsChange={setSelectedSectors} 
+          selectedIndustries={selectedIndustries} 
+          onSelectedIndustriesChange={setSelectedIndustries}
+          showCustomScreenerSection={true}
+          apiKey={apiKey || undefined}
+        />
       </div>
     </div>
   );

@@ -10,6 +10,19 @@ def get_user_from_request(request):
     return request.headers.get('X-User-Id')
 
 @csrf_exempt
+@require_http_methods(["GET", "POST"])
+def custom_screener_list_create(request):
+    """
+    Unified endpoint for custom screeners:
+    GET: List user's custom screeners
+    POST: Create a new custom screener
+    """
+    if request.method == "GET":
+        return list_custom_screeners(request)
+    elif request.method == "POST":
+        return create_custom_screener(request)
+
+@csrf_exempt
 @require_http_methods(["POST"])
 def create_custom_screener(request):
     try:
@@ -18,11 +31,15 @@ def create_custom_screener(request):
             return JsonResponse({"error": "X-User-Id header required"}, status=400)
         
         data = json.loads(request.body)
+        name = data.get('screener_name') or data.get('name', 'Untitled Screener')
+        print(f"DEBUG: Received data: {data}")
+        print(f"DEBUG: Extracted name: {name}")
         numeric_filters = data.get('numeric_filters', [])
         categorical_filters = data.get('categorical_filters', [])
         
         screener = screener_service.create_custom_screener(
             api_key,
+            name=name,
             numeric_filters=numeric_filters,
             categorical_filters=categorical_filters
         )

@@ -8,7 +8,7 @@ class ScreenerService:
     def __init__(self):
         pass
 
-    def create_custom_screener(self, user_id, numeric_filters=None, categorical_filters=None):
+    def create_custom_screener(self, user_id, name=None, numeric_filters=None, categorical_filters=None):
         try:
             account = Account.objects.get(api_key=user_id)
         except Account.DoesNotExist:
@@ -17,7 +17,12 @@ class ScreenerService:
 
         try:
             with transaction.atomic():
-                custom_screener = CustomScreener.objects.create(account=account)
+                final_name = name or 'Untitled Screener'
+                print(f"DEBUG SERVICE: Creating screener with name: {final_name}")
+                custom_screener = CustomScreener.objects.create(
+                    account=account,
+                    screener_name=final_name
+                )
                 
                 if numeric_filters:
                     for filter_data in numeric_filters:
@@ -78,8 +83,11 @@ class ScreenerService:
         }
 
     def get_user_custom_screeners(self, user_id):
-
-        account = Account.objects.get(api_key=user_id)
+        try:
+            account = Account.objects.get(api_key=user_id)
+        except Account.DoesNotExist:
+            logging.error(f"Account with api_key {user_id} does not exist.")
+            return []
 
         screeners = []
         for custom_screener in CustomScreener.objects.filter(account=account):
@@ -88,7 +96,8 @@ class ScreenerService:
             
             screeners.append({
                 'id': custom_screener.id,
-                'created_at': custom_screener.created_at,
+                'screener_name': custom_screener.screener_name,
+                'created_at': custom_screener.created_at.isoformat(),
                 'filter_count': numeric_count + categorical_count
             })
         
