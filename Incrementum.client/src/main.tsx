@@ -7,6 +7,7 @@ import WatchlistPage from './Pages/WatchlistPage'
 import Stock from "./Stock";
 import ScreenerPage from "./Pages/ScreenerPage";
 import IndividualScreenPage from "./Pages/IndividualScreenPage";
+import CustomScreenerPage from "./Pages/CustomScreenerPage";
 import SignInPage from "./Pages/LogInPage";
 import SignupPage from "./Pages/SignupPage";
 import CustomCollectionPage from "./Pages/CustomCollectionPage";
@@ -26,6 +27,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <Route path="/stocks" element={<StocksPage />} />
         <Route path="/watchlist" element={<WatchlistPage />} />
         <Route path="/screener/:screenerName" element={<IndividualScreenPage />} />
+        <Route path="/create-custom-screener" element={<CustomScreenerPage />} />
         <Route path="/account" element={<AccountPage />} />
         <Route path="/custom-collection" element={<CustomCollectionPage />} />
       </Routes>
