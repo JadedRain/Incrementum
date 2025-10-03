@@ -1,8 +1,9 @@
-import '../App.css';
-import { useNavigate, Link } from 'react-router-dom';
+import '../App.css'
+import { useNavigate, Link } from 'react-router-dom'
 import { useEffect, useState } from 'react';
 import { useAuth } from '../Context/AuthContext';
 import NavigationBar from '../Components/NavigationBar';
+import SearchBar from '../Components/SearchBar';
 
 interface CustomScreener {
     id: number;
@@ -51,10 +52,29 @@ function ScreenerPage() {
         <div className="min-h-screen bg-[hsl(40,62%,26%)]">
             <NavigationBar />
             <div className="main-content">
+                <div className='StocksPage-header relative'>
+                    <Link to="/account" className="absolute top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition">Account</Link>
+                    <SearchBar />
+                    <h1 className="ScreenerPage-h1">
+                        Screener Page
+                    </h1>
+                </div>
+
                 <div className="ScreenerPage-container">
                     <div className="ScreenerPage-card-grid">
-                        {/* Custom Collection Card removed */}
-                        <div className="ScreenerPage-card cursor-pointer" onClick={() => handleCardClick('Temp Card 2')}>Create Custom</div>
+
+                        {/* Create Custom Screener Card */}
+                        <div className="ScreenerPage-card cursor-pointer" onClick={() => handleCardClick('Create Custom')}>
+                            Create Custom
+                        </div>
+
+                        {/* Predefined Screener Cards */}
+                        <div className="ScreenerPage-card cursor-pointer" onClick={() => handleCardClick('Temp Card 2')}>
+                            Temp Card 2
+                        </div>
+                        <div className="ScreenerPage-card cursor-pointer" onClick={() => handleCardClick('Temp Card 3')}>
+                            Temp Card 3
+                        </div>
 
                         {loading && (
                             <div className="ScreenerPage-card flex items-center justify-center" style={{ height: '120px' }}>
@@ -62,6 +82,7 @@ function ScreenerPage() {
                             </div>
                         )}
 
+                        {/* Custom Screeners */}
                         {!loading && customScreeners.map((screener) => (
                             <div
                                 key={screener.id}
@@ -78,6 +99,7 @@ function ScreenerPage() {
                             </div>
                         ))}
 
+                        {/* Empty State for Custom Screeners */}
                         {!loading && customScreeners.length === 0 && apiKey && (
                             <div className="ScreenerPage-card flex flex-col items-center justify-center text-gray-500" style={{ height: '120px' }}>
                                 <div className="text-sm text-center">
@@ -89,10 +111,22 @@ function ScreenerPage() {
                             </div>
                         )}
                     </div>
+
+                    {/* Sidebar */}
+                    <aside className="sidebar">
+                        <nav className="sidebar-nav">
+                            <a href="#" className="sidebar-links">Filter 1</a>
+                            <a href="#" className="sidebar-links">Filter 2</a>
+                            <a href="#" className="sidebar-links">Filter 3</a>
+                            <a href="#" className="sidebar-links">Filter 4</a>
+                            <a href="#" className="sidebar-links">Filter 5</a>
+                        </nav>
+                    </aside>
+                </div>
+                    </div>
                 </div>
             </div>
         </div>
     );
 }
-
-export default ScreenerPage
+export default ScreenerPage;

@@ -59,6 +59,34 @@ class SearchStocksView(APIView):
 
 class WatchlistView(APIView):
 	permission_classes = [AllowAny]
+	
+	def get(self, request):
+		user_id = request.headers.get('X-User-Id')
+		if not user_id:
+			return Response({'error': 'user_id is required in headers'}, status=status.HTTP_400_BAD_REQUEST)
+		wl = watchlist_service.get(user_id)
+		logging.info(f"[watchlist:get] user_id={user_id} size={len(wl)}")
+		return Response({'watchlist': wl})
+	
+	def post(self, request):
+		symbol = request.data.get('symbol')
+		user_id = request.headers.get('X-User-Id')
+		if not symbol or not user_id:
+			return Response({'error': 'Symbol and user_id are required'}, status=status.HTTP_400_BAD_REQUEST)
+		logging.info(f"[watchlist:add] user_id={user_id} symbol={symbol}")
+		watchlist = watchlist_service.add(user_id, symbol)
+		logging.info(f"[watchlist:add] size={len(watchlist)}")
+		return Response({'watchlist': watchlist})
+	
+	def delete(self, request):
+		symbol = request.data.get('symbol')
+		user_id = request.headers.get('X-User-Id')
+		if not symbol or not user_id:
+			return Response({'error': 'Symbol and user_id are required'}, status=status.HTTP_400_BAD_REQUEST)
+		logging.info(f"[watchlist:remove] user_id={user_id} symbol={symbol}")
+		watchlist = watchlist_service.remove(user_id, symbol)
+		logging.info(f"[watchlist:remove] size={len(watchlist)}")
+		return Response({'watchlist': watchlist})
 
 @csrf_exempt
 @api_view(['POST'])
