@@ -757,6 +757,7 @@
   min-height: calc(100vh - 90px);
 }
 
+
 /* Ensure content is not hidden behind the fixed header */
 :root { --header-height: 90px; }
 :root { --header-height: 80px; }
