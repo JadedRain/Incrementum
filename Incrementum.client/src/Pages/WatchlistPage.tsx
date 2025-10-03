@@ -20,11 +20,13 @@ function WatchlistPage() {
   const [toast, setToast] = useState<string | null>(null);
   const watchlistState = apiKey ? useSortedWatchlist(sortBy, user_id) : { watchlist: [], setWatchlist: () => { }, loading: false };
   const { watchlist, setWatchlist, loading } = watchlistState;
+
   useEffect(() => {
     if (!apiKey) {
       navigate('/');
     }
   }, [apiKey]);
+
   useEffect(() => {
     if (watchlist.length > 0 && (!selectedStock || !watchlist.find(s => s.symbol === selectedStock.symbol))) {
       setSelectedStock(watchlist[0]);
@@ -38,43 +40,51 @@ function WatchlistPage() {
     setSelectedStock({ ...stock, lastViewed: Date.now() });
   };
 
-  const removeFromWatchlist = async (stock: StockC) => {
-    if (user_id) {
-      try {
-        const { removeFromWatchlist } = await import('../utils/watchlistActions');
-        await removeFromWatchlist(stock.symbol, user_id, setPending, setToast, (inWatchlist) => {
-          if (!inWatchlist) {
-            setWatchlist(prev => prev.filter(s => s.symbol !== stock.symbol));
-            // If removing selected stock, select another one
-            if (selectedStock?.symbol === stock.symbol && watchlist.length > 1) {
-              const otherStock = watchlist.find(s => s.symbol !== stock.symbol);
-              if (otherStock) setSelectedStock(otherStock);
-            }
-          }
-        });
-      } catch (error) {
-        console.error('Error removing from watchlist:', error);
-      }
-    }
-  };
-
-  // Removed broken handleAddToWatchlist function. Use addToWatchlist instead.
-
   function addToWatchlist() {
-    return async () => {
+  return async () => {
+    try {
       if (selectedStock) {
         // Use utility function for addition
         const { addToWatchlist } = await import('../utils/watchlistActions');
-        await addToWatchlist(selectedStock.symbol, user_id ?? null, () => { }, () => { }, (inWatchlist) => {
-          if (inWatchlist) {
-            setWatchlist(prev => [...prev, selectedStock]);
+        await addToWatchlist(
+          selectedStock.symbol,
+          user_id ?? null,
+          () => {},
+          () => {},
+          (inWatchlist) => {
+            if (inWatchlist) {
+              setWatchlist(prev => [...prev, selectedStock]);
+            }
           }
-        });
-      } catch (error) {
-        console.error('Error adding to watchlist:', error);
+        );
       }
+    } catch (error) {
+      console.error('Error adding to watchlist:', error);
     }
   };
+}function addToWatchlist() {
+  return async () => {
+    try {
+      if (selectedStock) {
+        // Use utility function for addition
+        const { addToWatchlist } = await import('../utils/watchlistActions');
+        await addToWatchlist(
+          selectedStock.symbol,
+          user_id ?? null,
+          () => {},
+          () => {},
+          (inWatchlist) => {
+            if (inWatchlist) {
+              setWatchlist(prev => [...prev, selectedStock]);
+            }
+          }
+        );
+      }
+    } catch (error) {
+      console.error('Error adding to watchlist:', error);
+    }
+  };
+}
 
   const imgUrl = selectedStock
     ? `http://localhost:8000/getStocks/${selectedStock.symbol}`
@@ -104,34 +114,18 @@ function WatchlistPage() {
           <ChartArea selectedStock={selectedStock} imgUrl={imgUrl} />
           <GridCards />
           <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
-            <button className="WatchlistPage-Custom-Button border-2 border-dotted border-[hsl(40,10%,17%)]">
-      <NavigationBar />
-      <WatchlistSidebar
-        setSortBy={setSortBy}
-        sortBy={sortBy}
-        watchlist={watchlist}
-        selectedStock={selectedStock}
-        handleStockClick={handleStockClick}
-        loading={loading}
-      />
-      <div className="main-content">
-        <div className='WatchlistPage-Loading'>
-          <Loading loading={loading} watchlist={watchlist} />
-        </div>
-        <div style={{ display: 'flex', marginTop: '2rem', padding: '0 2rem' }}>
-          <div style={{ flex: 1 }}>
-            <ChartArea selectedStock={selectedStock} imgUrl={imgUrl} />
-            <GridCards />
-            <button className="WatchlistPage-Custom-Button">
-              + Custom
-            </button>
-            <button
-              className="WatchlistPage-Custom-Button"
-              onClick={handleAddToWatchlist}
-            >
-              Add to Watchlist
-            </button>
-        </div>
+            <div style={{ flex: 1 }}>
+              <button className="WatchlistPage-Custom-Button">
+                + Custom
+              </button>
+              <button
+                className="WatchlistPage-Custom-Button"
+                onClick={addToWatchlist()}
+              >
+                Add to Watchlist
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

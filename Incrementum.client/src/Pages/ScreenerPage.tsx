@@ -52,14 +52,7 @@ function ScreenerPage() {
         <div className="min-h-screen bg-[hsl(40,62%,26%)]">
             <NavigationBar />
             <div className="main-content">
-                <div className='StocksPage-header relative'>
                     <Link to="/account" className="absolute top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition">Account</Link>
-                    <SearchBar />
-                    <h1 className="ScreenerPage-h1">
-                        Screener Page
-                    </h1>
-                </div>
-
                 <div className="ScreenerPage-container">
                     <div className="ScreenerPage-card-grid">
 
@@ -125,8 +118,6 @@ function ScreenerPage() {
                 </div>
                     </div>
                 </div>
-            </div>
-        </div>
     );
 }
 export default ScreenerPage;
