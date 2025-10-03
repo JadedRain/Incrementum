@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Loading from "../Components/Loading";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import BackButton from "../Components/BackButton";
 
 const IndividualCustomCollectionPage: React.FC = () => {
@@ -11,33 +11,43 @@ const IndividualCustomCollectionPage: React.FC = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searching, setSearching] = useState(false);
   const [graphKey, setGraphKey] = useState<number>(Date.now());
-  const [collectionName, setCollectionName] = useState<string>(() => {
-    return localStorage.getItem('customCollectionName') || "My Custom Collection";
-  });
+  const [collectionName, setCollectionName] = useState<string>("My Custom Collection");
   const [graphLoading, setGraphLoading] = useState<boolean>(true);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [editNameMode, setEditNameMode] = useState<boolean>(false);
-  const [pendingName, setPendingName] = useState<string>(collectionName);
+  const [pendingName, setPendingName] = useState<string>("My Custom Collection");
   const navigate = useNavigate();
+  const { id } = useParams();
 
+  // Get collection id from route param or fallback to latest
   useEffect(() => {
-    setError("");
-    fetch("http://localhost:8000/custom-collection/")
-      .then(res => {
-        if (!res.ok) throw new Error("Failed to fetch stocks");
-        return res.json();
-      })
-      .then(data => setTokens(data.tokens || []))
-      .catch(err => setError("Stocks: " + err.message));
-    // Aggregate fetch (if needed)
-    fetch("http://localhost:8000/custom-collection/aggregate/")
-      .then(res => {
-        if (!res.ok) throw new Error("Failed to fetch aggregate");
-        return res.json();
-      })
-      .then(data => setAggregate(data.aggregate))
-      .catch(err => setError(prev => prev + "\nAggregate: " + err.message));
-  }, []);
+    let collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
+    let collection;
+    if (id) {
+      collection = collections.find((c: any) => String(c.id) === String(id));
+    } else {
+      // fallback to last created
+      collection = collections[collections.length - 1];
+    }
+    if (collection) {
+      setTokens(collection.stocks || []);
+      setCollectionName(collection.name || "My Custom Collection");
+      setPendingName(collection.name || "My Custom Collection");
+    }
+  }, [id]);
+
+
+  // No backend fetches; handled by localStorage effect below
+
+  // For demo: compute a fake aggregate from tokens
+  useEffect(() => {
+    if (tokens.length > 0) {
+      // Example: just count the tokens, or make a fake data structure
+      setAggregate({ count: tokens.length, tokens });
+    } else {
+      setAggregate(null);
+    }
+  }, [tokens]);
 
 
   // Helper to refresh tokens and aggregate
@@ -127,7 +137,15 @@ const IndividualCustomCollectionPage: React.FC = () => {
               className="ScreenerPage-button"
               onClick={() => {
                 setCollectionName(pendingName);
-                localStorage.setItem('customCollectionName', pendingName);
+                // Update the collection name in localStorage
+                const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
+                if (id) {
+                  const idx = collections.findIndex((c: any) => String(c.id) === String(id));
+                  if (idx !== -1) {
+                    collections[idx].name = pendingName;
+                    localStorage.setItem('customCollections', JSON.stringify(collections));
+                  }
+                }
                 setEditNameMode(false);
               }}
             >Save</button>

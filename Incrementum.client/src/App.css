@@ -28,6 +28,7 @@
   padding: 1rem 0;
   z-index: 1000;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  border-bottom: 2px solid hsl(42, 15%, 70%);
 }
 .WatchlistPage-h1 {
   @apply text-[hsl(40,66%,60%)];
@@ -148,6 +149,7 @@
   padding: 1rem 0;
   z-index: 1000;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  border-bottom: 2px solid hsl(42, 15%, 70%);
 }
 
 .StocksPage-h1 {
