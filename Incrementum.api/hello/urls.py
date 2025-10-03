@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     HelloWorldView, GetStocks, GetStocksInfo, SearchStocksView, GetStockInfo, StockListCreateView,
-    WatchlistView, WatchlistSearchView, WatchlistSortedView,
+    add_to_watchlist, remove_from_watchlist, get_watchlist, search_stocks_watchlist, get_sorted_watchlist,
     SectorsView, IndustriesView,
     CustomCollectionView, CustomCollectionAggregateView, CustomCollectionOverlayGraphView
 )
@@ -34,10 +34,12 @@ urlpatterns = [
     path('custom-collection/overlay-graph/', CustomCollectionOverlayGraphView.as_view(), name='custom_collection_overlay_graph'),
 
     # Watchlist API endpoints
-    path('watchlist/', WatchlistView.as_view(), name='watchlist'),
-    path('watchlist/search/', WatchlistSearchView.as_view(), name='watchlist_search'),
-    path('watchlist/sorted/', WatchlistSortedView.as_view(), name='watchlist_sorted'),
-    
+    path('watchlist/', get_watchlist, name='watchlist'),
+    path('watchlist/add/', add_to_watchlist, name='add_to_watchlist'),
+    path('watchlist/remove/', remove_from_watchlist, name='remove_from_watchlist'),
+    path('watchlist/search/', search_stocks_watchlist, name='watchlist_search'),
+    path('watchlist/sorted/', get_sorted_watchlist, name='watchlist_sorted'),
+
     # Custom Screener API endpoints
     path('custom-screeners/', custom_screener_list_create, name='custom_screener_list_create'),
     path('screeners/custom/', create_custom_screener, name='create_custom_screener'),

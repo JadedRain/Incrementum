@@ -1,5 +1,5 @@
 import '../App.css';
-import { useNavigate, Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Context/AuthContext';
 import { useEffect, useState } from 'react';
 import Loading from '../Components/Loading';
@@ -16,6 +16,8 @@ function WatchlistPage() {
   const user_id = apiKey || undefined;
   const [selectedStock, setSelectedStock] = useState<StockC | null>(null);
   const [sortBy, setSortBy] = useState('default');
+  const [pending, setPending] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
   const watchlistState = apiKey ? useSortedWatchlist(sortBy, user_id) : { watchlist: [], setWatchlist: () => { }, loading: false };
   const { watchlist, setWatchlist, loading } = watchlistState;
   useEffect(() => {
@@ -29,33 +31,47 @@ function WatchlistPage() {
     }
   }, [watchlist, selectedStock]);
 
-  const handleStockClick = async (stock: StockC) => {
+  const handleStockClick = (stock: StockC) => {
     setWatchlist(prev => prev.map(s =>
       s.symbol === stock.symbol ? { ...s, lastViewed: Date.now() } : s
     ));
     setSelectedStock({ ...stock, lastViewed: Date.now() });
-    // Use utility function for removal
-    const { removeFromWatchlist } = await import('../utils/watchlistActions');
-    await removeFromWatchlist(stock.symbol, user_id ?? null, () => {}, () => {}, (inWatchlist) => {
-      if (!inWatchlist) {
-        setWatchlist(prev => prev.filter(s => s.symbol !== stock.symbol));
-      }
-    });
   };
 
-  function addToWatchlist() {
-    return async () => {
-      if (selectedStock) {
-        // Use utility function for addition
+  const removeFromWatchlist = async (stock: StockC) => {
+    if (user_id) {
+      try {
+        const { removeFromWatchlist } = await import('../utils/watchlistActions');
+        await removeFromWatchlist(stock.symbol, user_id, setPending, setToast, (inWatchlist) => {
+          if (!inWatchlist) {
+            setWatchlist(prev => prev.filter(s => s.symbol !== stock.symbol));
+            // If removing selected stock, select another one
+            if (selectedStock?.symbol === stock.symbol && watchlist.length > 1) {
+              const otherStock = watchlist.find(s => s.symbol !== stock.symbol);
+              if (otherStock) setSelectedStock(otherStock);
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error removing from watchlist:', error);
+      }
+    }
+  };
+
+  const handleAddToWatchlist = async () => {
+    if (selectedStock && user_id) {
+      try {
         const { addToWatchlist } = await import('../utils/watchlistActions');
-        await addToWatchlist(selectedStock.symbol, user_id ?? null, () => {}, () => {}, (inWatchlist) => {
+        await addToWatchlist(selectedStock.symbol, user_id, setPending, setToast, (inWatchlist) => {
           if (inWatchlist) {
             setWatchlist(prev => [...prev, selectedStock]);
           }
         });
+      } catch (error) {
+        console.error('Error adding to watchlist:', error);
       }
-    };
-  }
+    }
+  };
 
   const imgUrl = selectedStock
     ? `http://localhost:8000/getStocks/${selectedStock.symbol}`
@@ -64,66 +80,47 @@ function WatchlistPage() {
   return (
     <div style={{ minHeight: '100vh' }}>
       <NavigationBar />
-            <WatchlistSidebar
-              setSortBy={setSortBy}
-              sortBy={sortBy}
-              watchlist={watchlist}
-              selectedStock={selectedStock}
-              handleStockClick={handleStockClick}
-              loading={loading}
-            />
-      <div className="main-content">
-        <div className='WatchlistPage-Loading'>
-          <Loading loading={loading} watchlist={watchlist} />
+      {toast && (
+        <div className="fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded shadow-lg z-50">
+          {toast}
         </div>
-        <div style={{ display: 'flex', marginTop: '2rem', padding: '0 2rem' }}>
-          <div style={{ flex: 1 }}>
-            <ChartArea selectedStock={selectedStock} imgUrl={imgUrl} />
-            <GridCards />
-            <button className="WatchlistPage-Custom-Button">
-              + Custom
-            </button>
-            <button
-      <WatchlistHeader navigate={navigate} />
+      )}
       <div className='WatchlistPage-Loading'>
         <Loading loading={loading} watchlist={watchlist} />
       </div>
       <div style={{ display: 'flex', marginTop: '2rem', padding: '0 2rem' }}>
-        <div style={{ flex: 1 }}>
+        <WatchlistSidebar
+          setSortBy={setSortBy}
+          sortBy={sortBy}
+          watchlist={watchlist}
+          selectedStock={selectedStock}
+          handleStockClick={handleStockClick}
+          loading={loading}
+        />
+        <div className="main-content" style={{ flex: 1 }}>
           <ChartArea selectedStock={selectedStock} imgUrl={imgUrl} />
           <GridCards />
-          <button className="WatchlistPage-Custom-Button border-2 border-dotted border-[hsl(40,10%,17%)]">
-            + Custom
-          </button>
-          <button
-      <NavigationBar />
-            <WatchlistSidebar
-              setSortBy={setSortBy}
-              sortBy={sortBy}
-              watchlist={watchlist}
-              selectedStock={selectedStock}
-              handleStockClick={handleStockClick}
-              loading={loading}
-            />
-      <div className="main-content">
-        <div className='WatchlistPage-Loading'>
-          <Loading loading={loading} watchlist={watchlist} />
-        </div>
-        <div style={{ display: 'flex', marginTop: '2rem', padding: '0 2rem' }}>
-          <div style={{ flex: 1 }}>
-            <ChartArea selectedStock={selectedStock} imgUrl={imgUrl} />
-            <GridCards />
-            <button className="WatchlistPage-Custom-Button">
+          <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
+            <button className="WatchlistPage-Custom-Button border-2 border-dotted border-[hsl(40,10%,17%)]">
               + Custom
             </button>
             <button
-            className="WatchlistPage-Custom-Button"
-            onClick={addToWatchlist()}
-          >
-            Add to Watchlist
-          </button>
-        </div>
-        </div>
+              className="WatchlistPage-Custom-Button"
+              onClick={handleAddToWatchlist}
+              disabled={pending}
+            >
+              Add to Watchlist
+            </button>
+            {selectedStock && (
+              <button
+                className="WatchlistPage-Custom-Button bg-red-500 text-white hover:bg-red-600"
+                onClick={() => removeFromWatchlist(selectedStock)}
+                disabled={pending}
+              >
+                Remove from Watchlist
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -19,14 +19,14 @@ class WatchlistService:
 
     def get(self, user_id):
         account = Account.objects.get(api_key=user_id)
-        watchlist = Watchlist.objects.get(account=account)
+        watchlist, created = Watchlist.objects.get_or_create(account=account)
 
         symbols = watchlist.stocks.values_list('symbol', flat=True)
         return [self.fetch_stock_data_func(symbol).to_dict() for symbol in symbols]
 
     def remove(self, user_id, symbol):
         account = Account.objects.get(api_key=user_id)
-        watchlist = Watchlist.objects.get(account=account)
+        watchlist, created = Watchlist.objects.get_or_create(account=account)
         stock = Stock.objects.get(symbol=symbol)
 
         WatchlistStock.objects.filter(watchlist=watchlist, stock=stock).delete()
