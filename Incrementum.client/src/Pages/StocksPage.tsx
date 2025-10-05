@@ -1,6 +1,6 @@
 import '../App.css'
 import { useNavigate } from 'react-router-dom'
-import StockInfoList from '../StockInfoList';
+import StockInfoPage from '../StockInfoList';
 
 function StocksPage() {
   const navigate = useNavigate()
@@ -18,7 +18,7 @@ function StocksPage() {
         </h1>
       </div>
       <div style={{ alignItems: 'center', display: 'flex', flexDirection: 'column' }}>
-        <StockInfoList />
+        <StockInfoPage />
       </div>
     </div>
   );
