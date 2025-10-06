@@ -1,5 +1,5 @@
 import React from 'react';
-
+import { useState } from 'react';
 import NavigationBar from '../Components/NavigationBar';
 import { CreateCollectionButton } from '../Components/CreateCollectionButton';
 import { useCustomCollections } from '../hooks/useCustomCollections';
@@ -38,7 +38,7 @@ const CustomCollectionsPage: React.FC = () => {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
                 <CreateCollectionButton />
                     {displayCollections.map(collection => (
-                      <CollectionCard key={collection.id} collection={collection} onRemove={handleRemove} />
+                        <CollectionCard key={collection.id} collection={collection} onRemove={handleRemove} />
                     ))}
             </div>
 
@@ -60,7 +60,3 @@ const CustomCollectionsPage: React.FC = () => {
 };
 
 export default CustomCollectionsPage;
-function useState<T>(arg0: { id: null; visible: boolean; }): [any, any] {
-    throw new Error('Function not implemented.');
-}
-
