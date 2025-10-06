@@ -3,7 +3,6 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useEffect, useState } from 'react';
 import { useAuth } from '../Context/AuthContext';
 import NavigationBar from '../Components/NavigationBar';
-import SearchBar from '../Components/SearchBar';
 
 interface CustomScreener {
     id: number;
