@@ -4,11 +4,11 @@ import { useAuth } from '../Context/AuthContext';
 import { useEffect, useState } from 'react';
 import Loading from '../Components/Loading';
 import type { StockC } from '../Components/Stock';
-import { WatchlistSidebar } from './WatchlistSidebar';
-import { GridCards } from './GridCards';
-import { ChartArea } from './ChartArea';
+import { WatchlistSidebar } from '../Components/WatchlistSidebar';
+import { GridCards } from '../Components/GridCards';
+import { ChartArea } from '../Components/ChartArea';
 import NavigationBar from '../Components/NavigationBar';
-import { useSortedWatchlist } from './useSortedWatchlist';
+import { useSortedWatchlist } from '../hooks/useSortedWatchlist';
 
 function WatchlistPage() {
   const navigate = useNavigate();

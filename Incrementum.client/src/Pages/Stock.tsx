@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { addToWatchlist, removeFromWatchlist } from "./utils/watchlistActions";
-import { useAuth } from "./Context/AuthContext";
-import NavigationBar from "./Components/NavigationBar";
-import { useWatchlistStatus } from "./useWatchlistStatus";
-import { useFetchStockData } from "./useFetchStockData";
+import { addToWatchlist, removeFromWatchlist } from "../utils/watchlistActions";
+import { useAuth } from "../Context/AuthContext";
+import NavigationBar from "../Components/NavigationBar";
+import { useWatchlistStatus } from "../hooks/useWatchlistStatus";
+import { useFetchStockData } from "../hooks/useFetchStockData";
 
 export interface StockData {
   currentPrice: number;

@@ -4,7 +4,7 @@ import App from "./App";
 import SearchResults from "./Pages/SearchResults";
 import StocksPage from './Pages/StocksPage'
 import WatchlistPage from './Pages/WatchlistPage'
-import Stock from "./Stock";
+import Stock from "./Pages/Stock";
 import ScreenerPage from "./Pages/ScreenerPage";
 import IndividualScreenPage from "./Pages/IndividualScreenPage";
 import CustomScreenerPage from "./Pages/CustomScreenerPage";

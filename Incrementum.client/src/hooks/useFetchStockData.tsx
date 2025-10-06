@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { StockData } from "./Stock";
+import type { StockData } from "./Types/Stock";
 
 export function useFetchStockData(token: string | undefined) {
   const [results, setResults] = useState<StockData | null>(null);

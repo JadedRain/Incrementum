@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from './Context/AuthContext';
+import { useAuth } from '../Context/AuthContext';
 
 interface StockInfo {
   [key: string]: any;
