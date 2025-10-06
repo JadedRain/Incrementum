@@ -13,7 +13,6 @@ export default function Stock({ token: propToken }: { token?: string; }) {
   const { apiKey } = useAuth();
   const params = useParams<{ token: string }>();
   const token = propToken ?? params.token;
-
   const { results, loading } = useFetchStockData(token);
   const { inWatchlist, setInWatchlist } = useWatchlistStatus(token);
   const [pending, setPending] = useState(false);
