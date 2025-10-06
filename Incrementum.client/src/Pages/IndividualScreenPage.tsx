@@ -10,7 +10,8 @@ interface StockInfo {
   longName?: string;
   shortName?: string;
   symbol?: string;
-  percentChange?: number;
+  regularMarketChangePercent?: number;
+  currentPrice?: number;
 }
 
 function IndividualScreenPage() {
@@ -52,24 +53,32 @@ function IndividualScreenPage() {
         <div className="w-full">
           <div className="StockTable-container">
             <div className="StockTable-header-row">
-              <div className="StockTable-header">Stock Name</div>
+              <div className="StockTable-header">Company</div>
               <div className="StockTable-header">Symbol</div>
-              <div className="StockTable-header">Graph</div>
-              <div className="StockTable-header">% Change</div>
+              <div className="StockTable-header">Chart</div>
+              <div className="StockTable-header">Change</div>
             </div>
             <Loading loading={loading} watchlist={[]} showEmpty={false} />
             {!loading &&
               stocks.map((item, idx) => {
                 const name = item.displayName || item.longName || item.shortName || 'Unnamed Stock';
                 const symbol = item.symbol || 'N/A';
-                const percent = typeof item.percentChange === 'number' ? item.percentChange : idx % 2 === 0 ? 1.23 : -0.56; // fallback
+                // yfinance returns percentage directly (e.g., 2.11 = 2.11%)
+                const percent = item.regularMarketChangePercent;
                 return (
-                  <div className="StockTable-row cursor-pointer hover:shadow-[0_4px_24px_0_hsl(41,11%,45%)] transition-shadow duration-200" key={idx} onClick={() => navigate(`/stock/${symbol}`)}>
-                    <div className="StockTable-cell">{name}</div>
-                    <div className="StockTable-cell">{symbol}</div>
-                    <div className="StockTable-cell">{symbol[0] || '?'}</div>
-                    <div className={`StockTable-cell ${percent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {percent >= 0 ? `+${percent}%` : `${percent}%`}x
+                  <div className="StockTable-row cursor-pointer" key={idx} onClick={() => navigate(`/stock/${symbol}`)}>
+                    <div className="StockTable-cell font-medium">{name}</div>
+                    <div className="StockTable-cell font-mono text-sm uppercase tracking-wider">{symbol}</div>
+                    <div className="StockTable-cell">
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                        {symbol[0] || '?'}
+                      </div>
+                    </div>
+                    <div className={`StockTable-cell ${percent != null && percent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {percent != null ? 
+                        (percent >= 0 ? `+${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`) : 
+                        'N/A'
+                      }
                     </div>
                   </div>
                 );
