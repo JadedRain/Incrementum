@@ -7,11 +7,14 @@ import WatchlistPage from './Pages/WatchlistPage'
 import Stock from "./Stock";
 import ScreenerPage from "./Pages/ScreenerPage";
 import IndividualScreenPage from "./Pages/IndividualScreenPage";
+import CustomScreenerPage from "./Pages/CustomScreenerPage";
 import SignInPage from "./Pages/LogInPage";
 import SignupPage from "./Pages/SignupPage";
-import CustomCollectionPage from "./Pages/CustomCollectionPage";
+import IndividualCustomCollectionPage from "./Pages/IndividualCustomCollectionPage";
+import CustomCollectionsPage from "./Pages/CustomCollectionsPage";
 import { AuthProvider } from "./Context/AuthContext";
 import AccountPage from "./Pages/AccountPage";
+import CreateCustomCollectionPage from "./Pages/CreateCustomCollectionPage";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <AuthProvider>
@@ -26,8 +29,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <Route path="/stocks" element={<StocksPage />} />
         <Route path="/watchlist" element={<WatchlistPage />} />
         <Route path="/screener/:screenerName" element={<IndividualScreenPage />} />
+        <Route path="/create-custom-screener" element={<CustomScreenerPage />} />
         <Route path="/account" element={<AccountPage />} />
-        <Route path="/custom-collection" element={<CustomCollectionPage />} />
+        <Route path="/custom-collection/:id" element={<IndividualCustomCollectionPage />} />
+        <Route path="/custom-collections" element={<CustomCollectionsPage />} />
+        <Route path="/create-custom-collection" element={<CreateCustomCollectionPage />} />
       </Routes>
     </BrowserRouter>
   </AuthProvider>

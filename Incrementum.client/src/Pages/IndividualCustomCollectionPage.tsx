@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import Loading from "../Components/Loading";
+import { useNavigate, useParams } from "react-router-dom";
+import BackButton from "../Components/BackButton";
 
-const CustomCollectionPage: React.FC = () => {
+const IndividualCustomCollectionPage: React.FC = () => {
   const [tokens, setTokens] = useState<string[]>([]);
   const [aggregate, setAggregate] = useState<any>(null);
   const [error, setError] = useState<string>("");
@@ -10,29 +12,42 @@ const CustomCollectionPage: React.FC = () => {
   const [searching, setSearching] = useState(false);
   const [graphKey, setGraphKey] = useState<number>(Date.now());
   const [collectionName, setCollectionName] = useState<string>("My Custom Collection");
+  const [graphLoading, setGraphLoading] = useState<boolean>(true);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [editNameMode, setEditNameMode] = useState<boolean>(false);
-  const [pendingName, setPendingName] = useState<string>(collectionName);
+  const [pendingName, setPendingName] = useState<string>("My Custom Collection");
   const navigate = useNavigate();
+  const { id } = useParams();
 
+  // Get collection id from route param or fallback to latest
   useEffect(() => {
-    setError("");
-    fetch("http://localhost:8000/custom-collection/")
-      .then(res => {
-        if (!res.ok) throw new Error("Failed to fetch stocks");
-        return res.json();
-      })
-      .then(data => setTokens(data.tokens || []))
-      .catch(err => setError("Stocks: " + err.message));
-    // Aggregate fetch (if needed)
-    fetch("http://localhost:8000/custom-collection/aggregate/")
-      .then(res => {
-        if (!res.ok) throw new Error("Failed to fetch aggregate");
-        return res.json();
-      })
-      .then(data => setAggregate(data.aggregate))
-      .catch(err => setError(prev => prev + "\nAggregate: " + err.message));
-  }, []);
+    let collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
+    let collection;
+    if (id) {
+      collection = collections.find((c: any) => String(c.id) === String(id));
+    } else {
+      // fallback to last created
+      collection = collections[collections.length - 1];
+    }
+    if (collection) {
+      setTokens(collection.stocks || []);
+      setCollectionName(collection.name || "My Custom Collection");
+      setPendingName(collection.name || "My Custom Collection");
+    }
+  }, [id]);
+
+
+  // No backend fetches; handled by localStorage effect below
+
+  // For demo: compute a fake aggregate from tokens
+  useEffect(() => {
+    if (tokens.length > 0) {
+      // Example: just count the tokens, or make a fake data structure
+      setAggregate({ count: tokens.length, tokens });
+    } else {
+      setAggregate(null);
+    }
+  }, [tokens]);
 
 
   // Helper to refresh tokens and aggregate
@@ -104,36 +119,50 @@ const CustomCollectionPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center p-8">
-      <button className="mb-4 px-4 py-2 bg-blue-600 text-white rounded" onClick={() => navigate("/screener")}>Back to Screener</button>
+    <div className="min-h-screen bg-[hsl(40,62%,26%)] flex flex-col items-center p-8">
+      <div className="StocksPage-header relative">
+        <BackButton onClick={() => navigate(-1)}></BackButton>
+        <h1 className="ScreenerPage-h1">{collectionName}</h1>
+      </div>
       <div className="flex items-center mb-6">
         {editNameMode ? (
           <>
             <input
-              className="border px-2 py-1 rounded mr-2 text-2xl font-bold"
+              className="search-bar newsreader-font"
               value={pendingName}
               onChange={e => setPendingName(e.target.value)}
               autoFocus
             />
             <button
-              className="px-3 py-1 bg-green-500 text-white rounded mr-2"
-              onClick={() => { setCollectionName(pendingName); setEditNameMode(false); }}
+              className="ScreenerPage-button"
+              onClick={() => {
+                setCollectionName(pendingName);
+                // Update the collection name in localStorage
+                const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
+                if (id) {
+                  const idx = collections.findIndex((c: any) => String(c.id) === String(id));
+                  if (idx !== -1) {
+                    collections[idx].name = pendingName;
+                    localStorage.setItem('customCollections', JSON.stringify(collections));
+                  }
+                }
+                setEditNameMode(false);
+              }}
             >Save</button>
             <button
-              className="px-3 py-1 bg-gray-400 text-white rounded"
+              className="ScreenerPage-button"
               onClick={() => { setPendingName(collectionName); setEditNameMode(false); }}
             >Cancel</button>
           </>
         ) : (
           <>
-            <h1 className="text-2xl font-bold mr-4">{collectionName}</h1>
             <button
-              className="px-3 py-1 bg-yellow-400 text-white rounded"
+              className="ScreenerPage-button"
               onClick={() => setEditMode(e => !e)}
             >{editMode ? 'Done' : 'Edit'}</button>
             {editMode && (
               <button
-                className="px-3 py-1 bg-blue-500 text-white rounded ml-2"
+                className="ScreenerPage-button"
                 onClick={() => setEditNameMode(true)}
               >Edit Name</button>
             )}
@@ -145,14 +174,14 @@ const CustomCollectionPage: React.FC = () => {
           <>
             <div className="flex mb-2">
               <input
-                className="border px-2 py-1 w-2/3 rounded mr-2"
+                className="search-bar newsreader-font"
                 type="text"
                 placeholder="Search by symbol or name"
                 value={newToken}
                 onChange={e => setNewToken(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') searchStocks(); }}
               />
-              <button className="px-4 py-1 bg-blue-500 text-white rounded mr-2" onClick={searchStocks} disabled={searching}>Search</button>
+              <button className="ScreenerPage-button" onClick={searchStocks} disabled={searching}>Search</button>
             </div>
             {searchResults.length > 0 && (
               <ul className="bg-white rounded shadow p-2 mb-2 max-h-40 overflow-y-auto">
@@ -167,29 +196,39 @@ const CustomCollectionPage: React.FC = () => {
           </>
         )}
       </div>
-      <div className="w-full max-w-md mb-8">
-        <h2 className="text-lg font-semibold mb-2">Stocks in Collection:</h2>
-        <ul className="bg-white rounded shadow p-4">
+      <div className="w-full max-w-2xl mb-8">
+        <div className="StockTable-container">
+          {tokens.length === 0 && (
+            <div className="StockTable-row">
+              <div className="StockTable-cell text-gray-500">No stocks in collection.</div>
+              <div className="StockTable-cell"></div>
+            </div>
+          )}
           {tokens.map(token => (
-            <li key={token} className="flex justify-between items-center py-2 border-b last:border-b-0">
-              <span>{token}</span>
-              {editMode && (
-                <button className="px-2 py-1 bg-red-500 text-white rounded" onClick={() => removeToken(token)}>Remove</button>
-              )}
-            </li>
+            <div key={token} className="StockTable-row">
+              <div className="StockTable-cell">{token}</div>
+              <div className="StockTable-cell">
+                {editMode && (
+                  <button className="px-2 py-1 bg-red-500 text-white rounded" onClick={() => removeToken(token)}>Remove</button>
+                )}
+              </div>
+            </div>
           ))}
-          {tokens.length === 0 && <li className="text-gray-500">No stocks in collection.</li>}
-        </ul>
+        </div>
       </div>
       <div className="w-full max-w-2xl">
-        <h2 className="text-lg font-semibold mb-2">Aggregate Graph (Overlay):</h2>
-        <div className="bg-white rounded shadow p-4 min-h-[200px] flex items-center justify-center">
+        <h2 className="text-[hsl(40,66%,60%)] text-lg font-semibold mb-2">Aggregate Graph (Overlay):</h2>
+        <div className="bg-[hsl(40,62%,26%)] rounded shadow p-4 min-h-[200px] flex items-center justify-center">
+          {graphLoading && (
+            <Loading loading={true} watchlist={[]} showEmpty={false} />
+          )}
           <img
             src={`http://localhost:8000/custom-collection/overlay-graph/?_=${graphKey}`}
             alt="Overlay aggregate graph"
             className="rounded-lg shadow-md max-w-full h-auto"
-            style={{ minHeight: '200px', minWidth: '300px' }}
-            onError={e => { e.currentTarget.style.display = 'none'; }}
+            style={{ minHeight: '200px', minWidth: '300px', display: graphLoading ? 'none' : 'block' }}
+            onLoad={() => setGraphLoading(false)}
+            onError={e => { setGraphLoading(false); e.currentTarget.style.display = 'none'; }}
           />
         </div>
         {error && <div className="text-red-500 mt-2 whitespace-pre-line">{error}</div>}
@@ -198,4 +237,4 @@ const CustomCollectionPage: React.FC = () => {
   );
 };
 
-export default CustomCollectionPage;
+export default IndividualCustomCollectionPage;

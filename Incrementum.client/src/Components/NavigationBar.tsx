@@ -23,17 +23,23 @@ export default function NavigationBar({ showAccountButton = true }: NavigationBa
 
         {/* Navigation Links */}
         <nav className="navbar-nav">
-          <Link 
-            to="/screener" 
-            className={`nav-button ${location.pathname.includes('/screener') ? 'nav-button-active' : ''}`}
+          <Link
+            to="/screener"
+            className={`nav-button ${location.pathname.startsWith('/screener') ? 'nav-button-active' : ''}`}
           >
             Screener
           </Link>
-          <Link 
-            to="/watchlist" 
+          <Link
+            to="/watchlist"
             className={`nav-button ${location.pathname === '/watchlist' ? 'nav-button-active' : ''}`}
           >
             Watchlist
+          </Link>
+          <Link
+            to="/custom-collections"
+            className={`nav-button ${location.pathname.startsWith('/custom-collections') ? 'nav-button-active' : ''}`}
+          >
+            Collections
           </Link>
           {showAccountButton && (
             <Link 

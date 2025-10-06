@@ -32,7 +32,7 @@ const AccountPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-[hsl(40,62%,26%)]">
       <NavigationBar />
       <div className="main-content flex flex-col items-center justify-center">
         <div className="account-card bg-white shadow-lg rounded-lg p-8 w-full max-w-md mt-10 relative">
