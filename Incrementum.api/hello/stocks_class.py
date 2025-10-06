@@ -17,6 +17,7 @@ class Stock:
         self.symbol = json.get('symbol')
         self.sector = json.get('sector')
         self.sectorKey = json.get('sectorKey')
+        self.regularMarketChangePercent = json.get('regularMarketChangePercent')
 
     def to_dict(self):
         return self.__dict__
