@@ -8,6 +8,7 @@ import { WatchlistSidebar } from '../Components/WatchlistSidebar';
 import { GridCards } from '../Components/GridCards';
 import { ChartArea } from '../Components/ChartArea';
 import NavigationBar from '../Components/NavigationBar';
+import Toast from '../Components/Toast';
 import { useSortedWatchlist } from '../hooks/useSortedWatchlist';
 
 function WatchlistPage() {
@@ -41,50 +42,28 @@ function WatchlistPage() {
   };
 
   function addToWatchlist() {
-  return async () => {
-    try {
-      if (selectedStock) {
-        // Use utility function for addition
-        const { addToWatchlist } = await import('../utils/watchlistActions');
-        await addToWatchlist(
-          selectedStock.symbol,
-          user_id ?? null,
-          () => {},
-          () => {},
-          (inWatchlist) => {
-            if (inWatchlist) {
-              setWatchlist(prev => [...prev, selectedStock]);
+    return async () => {
+      try {
+        if (selectedStock) {
+          // Use utility function for addition
+          const { addToWatchlist } = await import('../utils/watchlistActions');
+          await addToWatchlist(
+            selectedStock.symbol,
+            user_id ?? null,
+            () => { },
+            () => { },
+            (inWatchlist) => {
+              if (inWatchlist) {
+                setWatchlist(prev => [...prev, selectedStock]);
+              }
             }
-          }
-        );
+          );
+        }
+      } catch (error) {
+        console.error('Error adding to watchlist:', error);
       }
-    } catch (error) {
-      console.error('Error adding to watchlist:', error);
-    }
-  };
-}function addToWatchlist() {
-  return async () => {
-    try {
-      if (selectedStock) {
-        // Use utility function for addition
-        const { addToWatchlist } = await import('../utils/watchlistActions');
-        await addToWatchlist(
-          selectedStock.symbol,
-          user_id ?? null,
-          () => {},
-          () => {},
-          (inWatchlist) => {
-            if (inWatchlist) {
-              setWatchlist(prev => [...prev, selectedStock]);
-            }
-          }
-        );
-      }
-    } catch (error) {
-      console.error('Error adding to watchlist:', error);
-    }
-  };
-}
+    };
+  }
 
   const imgUrl = selectedStock
     ? `http://localhost:8000/getStocks/${selectedStock.symbol}`
@@ -93,11 +72,7 @@ function WatchlistPage() {
   return (
     <div style={{ minHeight: '100vh' }}>
       <NavigationBar />
-      {toast && (
-        <div className="fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded shadow-lg z-50">
-          {toast}
-        </div>
-      )}
+      <Toast message={toast} />
       <div className='WatchlistPage-Loading'>
         <Loading loading={loading} watchlist={watchlist} />
       </div>
