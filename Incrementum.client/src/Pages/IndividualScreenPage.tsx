@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../Context/AuthContext';
 import Loading from '../Components/Loading';
@@ -16,7 +16,6 @@ interface StockInfo {
 }
 
 function IndividualScreenPage() {
-  const { screenerName } = useParams();
   const navigate = useNavigate();
   const { apiKey } = useAuth();
   const [stocks, setStocks] = useState<StockInfo[]>([]);
@@ -81,8 +80,9 @@ function IndividualScreenPage() {
                           : 'N/A'}
                       </div>
                     </div>
-                  );
-                })}
+                  </div>
+                );
+              })}
             </div>
             <Sidebar
               selectedSectors={selectedSectors}
@@ -94,6 +94,14 @@ function IndividualScreenPage() {
             />
           </div>
         </div>
+        <Sidebar
+          selectedSectors={selectedSectors}
+          onSelectedSectorsChange={setSelectedSectors}
+          selectedIndustries={selectedIndustries}
+          onSelectedIndustriesChange={setSelectedIndustries}
+          showCustomScreenerSection={true}
+          apiKey={apiKey || undefined}
+        />
       </div>
     </div>
   );
