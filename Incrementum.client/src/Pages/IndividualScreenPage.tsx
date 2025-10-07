@@ -60,12 +60,12 @@ function IndividualScreenPage() {
 
     fetchStocks();
   }, [selectedSectors, selectedIndustries]);
-  useEffect(()=>{
-    const fetchparams = async () => {
+  // useEffect(()=>{
+  //   const fetchparams = async () => {
       
-    }
-    fetchparams()
-  }, [])
+  //   }
+  //   fetchparams()
+  // }, [])
 
   useEffect(() => {
     if (data) {
@@ -104,7 +104,6 @@ useEffect(()=> {
                 <div className="StockTable-header">% Change</div>
               </div>
               <Loading loading={loading} watchlist={[]} showEmpty={false} />
-              <Loading loading={isLoading} watchlist={[]}/>
               {!loading &&
                 stocks.map((item, idx) => {
                   const name = item.displayName || item.longName || item.shortName || 'Unnamed Stock';

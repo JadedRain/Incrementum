@@ -10,7 +10,7 @@ interface SidebarProps {
   apiKey?: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSectorsChange, selectedIndustries = [], onSelectedIndustriesChange, showCustomScreenerSection = false, apiKey }) => {
+const Sidebar: React.FC<SidebarProps> = ({ selectedSectors, onSelectedSectorsChange, selectedIndustries, onSelectedIndustriesChange, showCustomScreenerSection = false, apiKey }) => {
   const [sectorChecks, setSectorChecks] = useState<{ [k: string]: boolean }>({});
   const [industryChecks, setIndustryChecks] = useState<{ [k: string]: boolean }>({});
   const [regionChecks, setRegionChecks] = useState<{ [k: string]: boolean }>({
@@ -63,84 +63,89 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSecto
             const [marketCapMin, setMarketCapMin] = useState('');
             const [marketCapMax, setMarketCapMax] = useState('');
             useEffect(() => {
-              let mounted = true;
-              const fetchSectors = async () => {
-                const res = await fetch('/sectors/');
-                if (!res.ok) return;
-                const data = await res.json();
-                const fetched: string[] = Array.isArray(data.sectors) ? data.sectors : [];
-                if (!mounted) return;
-                setSectorChecks(prev => {
-                  const next: { [k: string]: boolean } = {};
-                  fetched.forEach(s => {
-                    const isSelected = selectedSectors.length ? selectedSectors.includes(s) : !!prev[s];
-                    next[s] = isSelected;
-                  });
-          
-                  if (onSelectedSectorsChange) {
-                    const selected = Object.keys(next).filter(k => next[k]);
-          
-                    
-                    onSelectedSectorsChange(selected);
-                  }
-                  return next;
-                });
-              };
-              fetchSectors();
-              const fetchIndustries = async () => {
-                const res = await fetch('/industries/');
-                if (!res.ok) return;
-                const data = await res.json();
-                const fetched: string[] = Array.isArray(data.industries) ? data.industries : [];
-                if (!mounted) return;
-                setIndustryChecks(prev => {
-                  const next: { [k: string]: boolean } = {};
-                  fetched.forEach(s => {
-                    const isSelected = selectedIndustries.length ? selectedIndustries.includes(s) : !!prev[s];
-                    next[s] = isSelected;
-                  });
-          
-                  if (onSelectedIndustriesChange) {
-                    const selected = Object.keys(next).filter(k => next[k]);
-                    onSelectedIndustriesChange(selected);
-                  }
-                  return next;
-                });
-              };
-              fetchIndustries();
-              return () => { mounted = false; };
-            }, []);
-          
-            useEffect(() => {
-              if (!selectedSectors || selectedSectors.length === 0) return;
-              setSectorChecks(prev => {
-                const next = { ...prev };
-                Object.keys(next).forEach(k => {
-                  next[k] = selectedSectors.includes(k);
-                });
-                return next;
-              });
-            }, [selectedSectors]);
-            useEffect(() => {
-              let mounted = true;
-              console.log(selectedSectors)
-              const fetchSectors = async () => {
-                const res = await fetch('/sectors/');
-                if (!res.ok) return;
-                const data = await res.json();
-                const fetched: string[] = Array.isArray(data.sectors) ? data.sectors : [];
-                if (!mounted) return;
+  let mounted = true;
 
-                const next: { [k: string]: boolean } = {};
-                fetched.forEach(s => {
-                  next[s] = selectedSectors.includes(s);
-                });
-                setSectorChecks(next);
-              };
+  const fetchSectors = async () => {
+    const res = await fetch('/sectors/');
+    if (!res.ok) return;
+    const data = await res.json();
+    const fetched: string[] = Array.isArray(data.sectors) ? data.sectors : [];
+    if (!mounted) return;
 
-              fetchSectors();
-              return () => { mounted = false; };
-            }, [selectedSectors]);
+    setSectorChecks(prev => {
+      const next: { [k: string]: boolean } = {};
+      fetched.forEach(s => {
+        const isSelected = selectedSectors.includes(s);
+        next[s] = isSelected;
+      });
+      return next;
+    });
+  };
+
+  const fetchIndustries = async () => {
+    const res = await fetch('/industries/');
+    if (!res.ok) return;
+    const data = await res.json();
+    const fetched: string[] = Array.isArray(data.industries) ? data.industries : [];
+    if (!mounted) return;
+
+    setIndustryChecks(prev => {
+      const next: { [k: string]: boolean } = {};
+      fetched.forEach(s => {
+        const isSelected = selectedIndustries.includes(s);
+        next[s] = isSelected;
+      });
+      return next;
+    });
+  };
+
+  fetchSectors();
+  fetchIndustries();
+
+  return () => { mounted = false; };
+}, []); // ✅ no dependencies, runs once
+
+          
+useEffect(() => {
+  // Only run this sync once the parent actually sends data
+  if (!selectedSectors || selectedSectors.length === 0) return;
+
+  setSectorChecks(prev => {
+    const next = { ...prev };
+    Object.keys(next).forEach(k => {
+      next[k] = selectedSectors.includes(k);
+    });
+    return next;
+  });
+}, [selectedSectors]);
+
+useEffect(() => {
+  let mounted = true;
+  const fetchSectors = async () => {
+    const res = await fetch('/sectors/');
+    if (!res.ok) return;
+    const data = await res.json();
+    const fetched: string[] = Array.isArray(data.sectors) ? data.sectors : [];
+
+    if (!mounted) return;
+
+    // Only set once on mount
+    setSectorChecks(prev => {
+      // if we already have data (like from selectedSectors), don't overwrite
+      if (Object.keys(prev).length > 0) return prev;
+
+      const next: { [k: string]: boolean } = {};
+      fetched.forEach(s => {
+        next[s] = selectedSectors.includes(s);
+      });
+      return next;
+    });
+  };
+
+  fetchSectors();
+  return () => { mounted = false; };
+}, []); // ✅ remove [selectedSectors] dependency
+
 
   const saveCustomScreener = async () => {
     if (!screenerNameInput.trim()) {
