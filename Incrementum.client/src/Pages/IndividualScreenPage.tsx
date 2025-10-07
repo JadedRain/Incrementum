@@ -5,7 +5,9 @@ import Loading from '../Components/Loading';
 import Sidebar from '../Components/Sidebar';
 import NavigationBar from '../Components/NavigationBar';
 import '../App.css';
-
+import type { CustomScreener, CategoricalFilter, NumericFilter } from '../Types/ScreenerTypes';
+import { fetchCustomScreener } from "../Query/apiScreener"
+import { useQuery } from "@tanstack/react-query"
 interface StockInfo {
   displayName?: string;
   longName?: string;
@@ -16,12 +18,28 @@ interface StockInfo {
 }
 
 function IndividualScreenPage() {
+
+  const { id } = useParams<{ id: string }>();
+
+  if (!id) {
+    return <div>Loading screener...</div>; // or redirect
+}
   const navigate = useNavigate();
   const { apiKey } = useAuth();
   const [stocks, setStocks] = useState<StockInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
+
+  const { data, error, isLoading } = useQuery<CustomScreener>({
+    queryKey: ["customScreener", id],
+    queryFn: () => fetchCustomScreener(id!, apiKey),
+  });
+  const idlooker = useEffect(()=>{
+    console.log(data)
+  }, [data]);
+  
+
   const [percentThreshold, setPercentThreshold] = useState('');
   const [changePeriod, setChangePeriod] = useState<'daily' | 'weekly' | 'monthly'>('daily');
   const [percentChangeFilter, setPercentChangeFilter] = useState<string>('gt');
@@ -57,8 +75,39 @@ function IndividualScreenPage() {
     };
 
     fetchStocks();
-  }, [selectedSectors, selectedIndustries, percentThreshold, percentChangeFilter, changePeriod]);
 
+  }, [selectedSectors, selectedIndustries, percentThreshold, percentChangeFilter, changePeriod]);
+  // useEffect(()=>{
+  //   const fetchparams = async () => {
+      
+  //   }
+  //   fetchparams()
+  // }, [])
+
+  useEffect(() => {
+    if (data) {
+      const filterMap: Record<string, string[]> = {};
+
+      data.categorical_filters.forEach(f => {
+        const key = f.filter_name.toLowerCase();
+        const values = Array.isArray(f.value) ? f.value : f.value ? [f.value] : [];
+
+        if (!filterMap[key]) {
+          filterMap[key] = [];
+        }
+        filterMap[key].push(...values); // append instead of overwrite
+      });
+
+      console.log(filterMap["sector"]);
+      setSelectedSectors(filterMap["sector"] ?? []);
+      setSelectedIndustries(filterMap["industry"] ?? []);
+    }
+  }, [data]);
+
+
+useEffect(()=> {
+  console.log(error?.message)
+}, [error])
   return (
     <div className="min-h-screen bg-[hsl(40,62%,26%)]">
       <NavigationBar />

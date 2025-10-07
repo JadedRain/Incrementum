@@ -55,3 +55,6 @@ Content-Type: application/json
 ###
 GET {{host}}/stocks/
 
+### 
+GET {{host}}/screeners/custom/1
+"X-User-Id": 

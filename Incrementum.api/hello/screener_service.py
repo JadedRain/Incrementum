@@ -27,28 +27,28 @@ class ScreenerService:
                 if numeric_filters:
                     for filter_data in numeric_filters:
                         filter_name = filter_data.get('filter_name')
-                        value = filter_data.get('value')
+                        value = filter_data.get('numeric_value')
                         
                         numeric_filter, _ = NumericFilter.objects.get_or_create(name=filter_name)
                         
                         CustomScreenerNumeric.objects.create(
                             custom_screener=custom_screener,
                             numeric_filter=numeric_filter,
-                            value=value
+                            numeric_value=value
                         )
                 
                 if categorical_filters:
                     for filter_data in categorical_filters:
                         filter_name = filter_data.get('filter_name')
-                        value = filter_data.get('value')
+                        value = filter_data.get('category_value')
                         
                         categorical_filter, _ = CategoricalFilter.objects.get_or_create(name=filter_name)
-                        
+                        logging.info("adding this {value}, {filter_name}")
                         CustomScreenerCategorical.objects.create(
                             custom_screener=custom_screener,
                             categorical_filter=categorical_filter,
-                            value=value
-                        )
+                            category_value = value
+                            )
                 
                 logging.info(f"Created custom screener {custom_screener.id} for user {user_id}")
                 return custom_screener
@@ -56,6 +56,62 @@ class ScreenerService:
         except Exception as e:
             logging.error(f"Failed to create custom screener for user {user_id}: {str(e)}")
             return None
+        # def get_custom_screener(self, screener_id, api_key: str):
+        #     try:
+        #         # Fetch the account for the given API key
+        #         account = Account.objects.get(api_key=api_key)
+        #     except Account.DoesNotExist:
+        #         raise ValueError(f"Invalid API key: {api_key}")
+
+        #     try:
+        #         # Fetch the custom screener and ensure it belongs to this account
+        #         custom_screener = CustomScreener.objects.get(id=screener_id, account=account)
+        #     except CustomScreener.DoesNotExist:
+        #         raise ValueError(f"Screener not found or access denied for API key: {api_key}")
+
+        #     # Fetch numeric filters
+        #     numeric_filters = CustomScreenerNumeric.objects.filter(
+        #         custom_screener=custom_screener
+        #     ).select_related('numeric_filter')
+
+        #     numeric_data = [
+        #         {
+        #             "filter_name": nf.numeric_filter.name,
+        #             "value": nf.value
+        #         }
+        #         for nf in numeric_filters
+        #     ]
+
+        #     # Fetch categorical filters
+        #     categorical_filters = CustomScreenerCategorical.objects.filter(
+        #         custom_screener=custom_screener
+        #     ).select_related('categorical_filter')
+
+        #     categorical_data = [
+        #         {
+        #             "filter_name": cf.categorical_filter.name,
+        #             "value": cf.categorical_value  # your field name
+        #         }
+        #         for cf in categorical_filters
+        #     ]
+
+        #     # Build final JSON
+        #     result = {
+        #         "id": custom_screener.id,
+        #         "name": custom_screener.screener_name,
+        #         "numeric_filters": numeric_data,
+        #         "categorical_filters": categorical_data
+        #     }
+
+        #     return result
+
+        # except CustomScreener.DoesNotExist:
+        #     logging.error(f"Custom screener {screener_id} does not exist.")
+        #     return None
+
+        # except Exception as e:
+        #     logging.error(f"Failed to retrieve custom screener {screener_id}: {str(e)}")
+        #     return None
 
     def get_custom_screener(self, user_id, screener_id):
         account = Account.objects.get(api_key=user_id)
@@ -65,14 +121,14 @@ class ScreenerService:
         for csn in CustomScreenerNumeric.objects.filter(custom_screener=custom_screener):
             numeric_filters.append({
                 'filter_name': csn.numeric_filter.name,
-                'value': csn.value
+                'value': csn.numeric_value
             })
         
         categorical_filters = []
         for csc in CustomScreenerCategorical.objects.filter(custom_screener=custom_screener):
             categorical_filters.append({
                 'filter_name': csc.categorical_filter.name,
-                'value': csc.value
+                'value': csc.category_value
             })
         
         return {
@@ -128,25 +184,25 @@ class ScreenerService:
             if numeric_filters:
                 for filter_data in numeric_filters:
                     filter_name = filter_data.get('filter_name')
-                    value = filter_data.get('value')
+                    value = filter_data.get('numeric_value')
                     
                     numeric_filter, _ = NumericFilter.objects.get_or_create(name=filter_name)
                     CustomScreenerNumeric.objects.create(
                         custom_screener=custom_screener,
                         numeric_filter=numeric_filter,
-                        value=value
+                        numeric_value=value
                     )
             
             if categorical_filters:
                 for filter_data in categorical_filters:
                     filter_name = filter_data.get('filter_name')
-                    value = filter_data.get('value')
+                    value = filter_data.get('category_value')
                     
                     categorical_filter, _ = CategoricalFilter.objects.get_or_create(name=filter_name)
                     CustomScreenerCategorical.objects.create(
                         custom_screener=custom_screener,
                         categorical_filter=categorical_filter,
-                        value=value
+                        category_value=value
                     )
             
             logging.info(f"Updated custom screener {screener_id} for user {user_id}")

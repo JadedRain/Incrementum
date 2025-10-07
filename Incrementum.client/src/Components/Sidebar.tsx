@@ -16,10 +16,11 @@ interface SidebarProps {
   apiKey?: string;
 }
 
+
 const Sidebar: React.FC<SidebarProps> = ({
-  selectedSectors = [],
+  selectedSectors,
   onSelectedSectorsChange,
-  selectedIndustries = [],
+  selectedIndustries,
   onSelectedIndustriesChange,
   percentThreshold,
   onPercentThresholdChange,
@@ -42,70 +43,124 @@ const Sidebar: React.FC<SidebarProps> = ({
     'NYSE': false,
     'AMEX': false,
   });
+  const [filters, setFilters] = useState<{filter_name: string, value: string}[]>([])
 
   // Custom screener creation state
   const [screenerNameInput, setScreenerNameInput] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const helpSetFilters = (selected: string[], sname: string) => {            
+    setFilters(prevFilters => {
+            const newFilters = [...prevFilters];
+            const filtersValues = prevFilters.map(p=>p.value)
+            for (const p of selected) {
+              if (!filtersValues.includes(p)) {
+                newFilters.push({filter_name: sname, value: p});
+                }
+              }
+              return newFilters
+            });}
+            useEffect(() =>{
+              setFilters([]);
+              helpSetFilters(selectedSectors, 'sector');
+              helpSetFilters(selectedIndustries, 'industry');              
+            }, [selectedIndustries, selectedSectors])
+            
+            const [avgVolumeMin, setAvgVolumeMin] = useState('');
+            const [avgVolumeMax, setAvgVolumeMax] = useState('');
+            const [todayVolumeMin, setTodayVolumeMin] = useState('');
+            const [todayVolumeMax, setTodayVolumeMax] = useState('');
+            
+            const [high52Min, setHigh52Min] = useState('');
+            const [high52Max, setHigh52Max] = useState('');
+            const [low52Min, setLow52Min] = useState('');
+            const [low52Max, setLow52Max] = useState('');
+            const [priceMin, setPriceMin] = useState('');
+            const [priceMax, setPriceMax] = useState('');
+            const [changePeriod, setChangePeriod] = useState<'daily' | 'weekly' | 'monthly'>('daily');
+            const [changePercent, setChangePercent] = useState('');
+            const [marketCapMin, setMarketCapMin] = useState('');
+            const [marketCapMax, setMarketCapMax] = useState('');
+            useEffect(() => {
+  let mounted = true;
 
+  const fetchSectors = async () => {
+    const res = await fetch('/sectors/');
+    if (!res.ok) return;
+    const data = await res.json();
+    const fetched: string[] = Array.isArray(data.sectors) ? data.sectors : [];
+    if (!mounted) return;
 
-  useEffect(() => {
-    let mounted = true;
-    const fetchSectors = async () => {
-      const res = await fetch('/sectors/');
-      if (!res.ok) return;
-      const data = await res.json();
-      const fetched: string[] = Array.isArray(data.sectors) ? data.sectors : [];
-      if (!mounted) return;
-      setSectorChecks(prev => {
-        const next: { [k: string]: boolean } = {};
-        fetched.forEach(s => {
-          const isSelected = selectedSectors.length ? selectedSectors.includes(s) : !!prev[s];
-          next[s] = isSelected;
-        });
-
-        if (onSelectedSectorsChange) {
-          const selected = Object.keys(next).filter(k => next[k]);
-          onSelectedSectorsChange(selected);
-        }
-        return next;
-      });
-    };
-    fetchSectors();
-    const fetchIndustries = async () => {
-      const res = await fetch('/industries/');
-      if (!res.ok) return;
-      const data = await res.json();
-      const fetched: string[] = Array.isArray(data.industries) ? data.industries : [];
-      if (!mounted) return;
-      setIndustryChecks(prev => {
-        const next: { [k: string]: boolean } = {};
-        fetched.forEach(s => {
-          const isSelected = selectedIndustries.length ? selectedIndustries.includes(s) : !!prev[s];
-          next[s] = isSelected;
-        });
-
-        if (onSelectedIndustriesChange) {
-          const selected = Object.keys(next).filter(k => next[k]);
-          onSelectedIndustriesChange(selected);
-        }
-        return next;
-      });
-    };
-    fetchIndustries();
-    return () => { mounted = false; };
-  }, []);
-
-  useEffect(() => {
-    if (!selectedSectors || selectedSectors.length === 0) return;
     setSectorChecks(prev => {
-      const next = { ...prev };
-      Object.keys(next).forEach(k => {
-        next[k] = selectedSectors.includes(k);
+      const next: { [k: string]: boolean } = {};
+      fetched.forEach(s => {
+        const isSelected = selectedSectors.includes(s);
+        next[s] = isSelected;
       });
       return next;
     });
+  };
+
+  const fetchIndustries = async () => {
+    const res = await fetch('/industries/');
+    if (!res.ok) return;
+    const data = await res.json();
+    const fetched: string[] = Array.isArray(data.industries) ? data.industries : [];
+    if (!mounted) return;
+
+    setIndustryChecks(prev => {
+      const next: { [k: string]: boolean } = {};
+      fetched.forEach(s => {
+        const isSelected = selectedIndustries.includes(s);
+        next[s] = isSelected;
+      });
+      return next;
+    });
+  };
+
+  fetchSectors();
+  fetchIndustries();
+
+  return () => { mounted = false; };
+}, []); // ✅ no dependencies, runs once
+
+          
+useEffect(() => {
+  // Only run this sync once the parent actually sends data
+  if (!selectedSectors || selectedSectors.length === 0) return;
+
+  setSectorChecks(prev => {
+    const next = { ...prev };
+    Object.keys(next).forEach(k => {
+      next[k] = selectedSectors.includes(k);
+    });
+    return next;
+  });
+}, [selectedSectors]);
+
+useEffect(() => {
+  let mounted = true;
+  const fetchSectors = async () => {
+    const res = await fetch('/sectors/');
+    if (!res.ok) return;
+    const data = await res.json();
+    const fetched: string[] = Array.isArray(data.sectors) ? data.sectors : [];
+
+    if (!mounted) return;
+
+    // Only set once on mount
+    setSectorChecks(prev => {
+      // if we already have data (like from selectedSectors), don't overwrite
+      if (Object.keys(prev).length > 0) return prev;
+
+      const next: { [k: string]: boolean } = {};
+      fetched.forEach(s => {
+        next[s] = selectedSectors.includes(s);
+      });
+      return next;
+    });
+
   }, [selectedSectors]);
 
   const [avgVolumeMin, setAvgVolumeMin] = useState('');
@@ -152,6 +207,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     setSuccess('');
 
     try {
+      console.log(apiKey)
       const response = await fetch('http://localhost:8000/custom-screeners/', {
         method: 'POST',
         headers: {
@@ -160,6 +216,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         },
         body: JSON.stringify({
           screener_name: screenerNameInput.trim(),
+          categorical_filters: filters,
         }),
       });
 

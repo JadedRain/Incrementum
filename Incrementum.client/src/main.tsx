@@ -15,26 +15,32 @@ import CustomCollectionsPage from "./Pages/CustomCollectionsPage";
 import { AuthProvider } from "./Context/AuthContext";
 import AccountPage from "./Pages/AccountPage";
 import CreateCustomCollectionPage from "./Pages/CreateCustomCollectionPage";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+
+const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <AuthProvider>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/screener" element={<ScreenerPage />} />
-        <Route path="/" element={<App />} />
-        <Route index element={<SignInPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/search/:query" element={<SearchResults />} />
-        <Route path="/stock/:token" element={<Stock />} />
-        <Route path="/stocks" element={<StocksPage />} />
-        <Route path="/watchlist" element={<WatchlistPage />} />
-        <Route path="/screener/:screenerName" element={<IndividualScreenPage />} />
-        <Route path="/create-custom-screener" element={<CustomScreenerPage />} />
-        <Route path="/account" element={<AccountPage />} />
-        <Route path="/custom-collection/:id" element={<IndividualCustomCollectionPage />} />
-        <Route path="/custom-collections" element={<CustomCollectionsPage />} />
-        <Route path="/create-custom-collection" element={<CreateCustomCollectionPage />} />
-      </Routes>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/screener" element={<ScreenerPage />} />
+          <Route path="/" element={<App />} />
+          <Route index element={<SignInPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/search/:query" element={<SearchResults />} />
+          <Route path="/stock/:token" element={<Stock />} />
+          <Route path="/stocks" element={<StocksPage />} />
+          <Route path="/watchlist" element={<WatchlistPage />} />
+          <Route path="/screener/:id" element={<IndividualScreenPage />} />
+          <Route path="/create-custom-screener" element={<CustomScreenerPage />} />
+          <Route path="/account" element={<AccountPage />} />
+          <Route path="/custom-collection/:id" element={<IndividualCustomCollectionPage />} />
+          <Route path="/custom-collections" element={<CustomCollectionsPage />} />
+          <Route path="/create-custom-collection" element={<CreateCustomCollectionPage />} />
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
   </AuthProvider>
 );

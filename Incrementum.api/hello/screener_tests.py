@@ -19,8 +19,8 @@ class ScreenerServiceTest(TestCase):
 
     def test_create_custom_screener_with_numeric_filters(self):
         numeric_filters = [
-            {'filter_name': 'market_cap', 'value': 1000000000},
-            {'filter_name': 'pe_ratio', 'value': 15}
+            {'filter_name': 'market_cap', 'numeric_value': 1000000000},
+            {'filter_name': 'pe_ratio', 'numeric_value': 15}
         ]
         
         screener = self.service.create_custom_screener(
@@ -35,15 +35,15 @@ class ScreenerServiceTest(TestCase):
         assert len(numeric_filter_relations) == 2
         
         market_cap_relation = numeric_filter_relations.get(numeric_filter__name='market_cap')
-        assert market_cap_relation.value == 1000000000
+        assert market_cap_relation.numeric_value == 1000000000
         
         pe_ratio_relation = numeric_filter_relations.get(numeric_filter__name='pe_ratio')
-        assert pe_ratio_relation.value == 15
+        assert pe_ratio_relation.numeric_value == 15
 
     def test_create_custom_screener_with_categorical_filters(self):
         categorical_filters = [
-            {'filter_name': 'sector', 'value': 'Technology'},
-            {'filter_name': 'country', 'value': 'USA'}
+            {'filter_name': 'sector', 'category_value': 'Technology'},
+            {'filter_name': 'country', 'category_value': 'USA'}
         ]
         
         screener = self.service.create_custom_screener(
@@ -57,17 +57,17 @@ class ScreenerServiceTest(TestCase):
         assert len(categorical_filter_relations) == 2
         
         sector_relation = categorical_filter_relations.get(categorical_filter__name='sector')
-        assert sector_relation.value == 'Technology'
+        assert sector_relation.category_value == 'Technology'
         
         country_relation = categorical_filter_relations.get(categorical_filter__name='country')
-        assert country_relation.value == 'USA'
+        assert country_relation.category_value == 'USA'
 
     def test_create_custom_screener_with_mixed_filters(self):
         numeric_filters = [
-            {'filter_name': 'market_cap', 'value': 5000000000}
+            {'filter_name': 'market_cap', 'numeric_value': 5000000000}
         ]
         categorical_filters = [
-            {'filter_name': 'sector', 'value': 'Healthcare'}
+            {'filter_name': 'sector', 'category_value': 'Healthcare'}
         ]
         
         screener = self.service.create_custom_screener(
@@ -82,8 +82,8 @@ class ScreenerServiceTest(TestCase):
         assert CustomScreenerCategorical.objects.filter(custom_screener=screener).count() == 1
 
     def test_get_custom_screener(self):
-        numeric_filters = [{'filter_name': 'revenue', 'value': 100000000}]
-        categorical_filters = [{'filter_name': 'exchange', 'value': 'NASDAQ'}]
+        numeric_filters = [{'filter_name': 'revenue', 'numeric_value': 100000000}]
+        categorical_filters = [{'filter_name': 'exchange', 'category_value': 'NASDAQ'}]
         
         created_screener = self.service.create_custom_screener(
             self.account.api_key,
@@ -108,11 +108,11 @@ class ScreenerServiceTest(TestCase):
     def test_get_user_custom_screeners(self):
         self.service.create_custom_screener(
             self.account.api_key,
-            numeric_filters=[{'filter_name': 'market_cap', 'value': 1000000}]
+            numeric_filters=[{'filter_name': 'market_cap', 'numeric_value': 1000000}]
         )
         self.service.create_custom_screener(
             self.account.api_key,
-            categorical_filters=[{'filter_name': 'sector', 'value': 'Finance'}]
+            categorical_filters=[{'filter_name': 'sector', 'category_numeric_value': 'Finance'}]
         )
         
         screeners = self.service.get_user_custom_screeners(self.account.api_key)
@@ -125,7 +125,7 @@ class ScreenerServiceTest(TestCase):
     def test_delete_custom_screener(self):
         screener = self.service.create_custom_screener(
             self.account.api_key,
-            numeric_filters=[{'filter_name': 'debt_ratio', 'value': 30}]
+            numeric_filters=[{'filter_name': 'debt_ratio', 'numeric_value': 30}]
         )
         
         assert CustomScreener.objects.filter(id=screener.id).exists()
@@ -136,14 +136,14 @@ class ScreenerServiceTest(TestCase):
         assert not CustomScreener.objects.filter(id=screener.id).exists()
 
     def test_update_custom_screener(self):
-        original_filters = [{'filter_name': 'old_filter', 'value': 100}]
+        original_filters = [{'filter_name': 'old_filter', 'numeric_value': 100}]
         screener = self.service.create_custom_screener(
             self.account.api_key,
             numeric_filters=original_filters
         )
         
-        new_numeric_filters = [{'filter_name': 'new_numeric', 'value': 200}]
-        new_categorical_filters = [{'filter_name': 'new_categorical', 'value': 'NewValue'}]
+        new_numeric_filters = [{'filter_name': 'new_numeric', 'numeric_value': 200}]
+        new_categorical_filters = [{'filter_name': 'new_categorical', 'category_value': 'NewValue'}]
         
         updated_screener = self.service.update_custom_screener(
             self.account.api_key,
@@ -162,19 +162,19 @@ class ScreenerServiceTest(TestCase):
         assert CustomScreenerNumeric.objects.filter(
             custom_screener=screener,
             numeric_filter__name='new_numeric',
-            value=200
+            numeric_value=200
         ).exists()
         
         assert CustomScreenerCategorical.objects.filter(
             custom_screener=screener,
             categorical_filter__name='new_categorical',
-            value='NewValue'
+            category_value='NewValue'
         ).exists()
 
     def test_create_screener_nonexistent_user(self):
         screener = self.service.create_custom_screener(
             "nonexistent_api_key",
-            numeric_filters=[{'filter_name': 'test', 'value': 1}]
+            numeric_filters=[{'filter_name': 'test', 'numeric_value': 1}]
         )
         
         assert screener is None

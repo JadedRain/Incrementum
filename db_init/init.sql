@@ -49,6 +49,7 @@ create table numeric_filter (
 );
 
 create table custom_screener_numeric (
+    id int primary key generated always as identity,
     custom_screener_id int not null references custom_screener(id),
     numeric_filter_id int not null references numeric_filter(id),
     numeric_value int not null,
@@ -61,9 +62,10 @@ create table categorical_filter (
 );
 
 create table custom_screener_categorical (
+    id serial PRIMARY KEY,
     custom_screener_id int not null references custom_screener(id),
     categorical_filter_id int not null references categorical_filter(id),
-    category_value varchar(20) not null
+    category_value varchar(255) not null
 );
 
 create table watchlist_custom_screener (

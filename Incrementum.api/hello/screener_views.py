@@ -3,6 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 import json
 from hello.screener_service import ScreenerService
+import logging
 
 screener_service = ScreenerService()
 
@@ -36,7 +37,9 @@ def create_custom_screener(request):
         print(f"DEBUG: Extracted name: {name}")
         numeric_filters = data.get('numeric_filters', [])
         categorical_filters = data.get('categorical_filters', [])
-        
+        if len(categorical_filters) == 0:
+            logging.error("insufficient filters applied")
+            return JsonResponse({"error": "you need at least one categorical filter"}, status = 400)
         screener = screener_service.create_custom_screener(
             api_key,
             name=name,
@@ -76,7 +79,6 @@ def get_custom_screener(request, screener_id):
         
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
-
 
 @csrf_exempt
 @require_http_methods(["GET"])

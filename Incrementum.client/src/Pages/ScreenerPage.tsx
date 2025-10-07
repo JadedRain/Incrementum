@@ -16,12 +16,12 @@ function ScreenerPage() {
     const [customScreeners, setCustomScreeners] = useState<CustomScreener[]>([]);
     const [loading, setLoading] = useState(false);
 
-    const handleCardClick = (name: string) => {
-        navigate(`/screener/${encodeURIComponent(name)}`);
+    const handleCardClick = (id: number | string) => {
+        navigate(`/screener/${encodeURIComponent(id)}`);
     };
 
     const handleCustomScreenerClick = (screener: CustomScreener) => {
-        navigate(`/screener/${encodeURIComponent(screener.screener_name)}`);
+        navigate(`/screener/${encodeURIComponent(screener.id)}`);
     };
 
     useEffect(() => {

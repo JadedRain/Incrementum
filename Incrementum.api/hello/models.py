@@ -81,7 +81,7 @@ class NumericFilter(models.Model):
 class CustomScreenerNumeric(models.Model):
     custom_screener = models.ForeignKey(CustomScreener, on_delete=models.CASCADE, db_column='custom_screener_id')
     numeric_filter = models.ForeignKey(NumericFilter, on_delete=models.CASCADE, db_column='numeric_filter_id')
-    value = models.IntegerField(null=True, blank=True)
+    numeric_value = models.IntegerField(null=True, blank=True)
 
     class Meta:
         db_table = 'custom_screener_numeric'
@@ -102,7 +102,7 @@ class CategoricalFilter(models.Model):
 class CustomScreenerCategorical(models.Model):
     custom_screener = models.ForeignKey(CustomScreener, on_delete=models.CASCADE, db_column='custom_screener_id')
     categorical_filter = models.ForeignKey(CategoricalFilter, on_delete=models.CASCADE, db_column='categorical_filter_id')
-    value = models.CharField(max_length=20, blank=True, null=True)
+    category_value = models.CharField(max_length=20, blank=True, null=True)
 
     class Meta:
         db_table = 'custom_screener_categorical'
