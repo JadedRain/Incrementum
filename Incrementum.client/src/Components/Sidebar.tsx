@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ExpandableSidebarItem from './ExpandableSidebarItem';
+import { helpSetFilters } from '../utils/filterUtils';
+import { useSectorsAndIndustries } from '../hooks/useSectorsAndIndustries';
 
 interface SidebarProps {
   selectedSectors?: string[];
@@ -31,8 +33,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   showCustomScreenerSection = false,
   apiKey
 }) => {
-  const [sectorChecks, setSectorChecks] = useState<{ [k: string]: boolean }>({});
-  const [industryChecks, setIndustryChecks] = useState<{ [k: string]: boolean }>({});
+  // Categoric FIlters
+  const { sectorChecks, setSectorChecks, industryChecks, setIndustryChecks } = useSectorsAndIndustries({
+    selectedSectors,
+    selectedIndustries,
+  });
   const [regionChecks, setRegionChecks] = useState<{ [k: string]: boolean }>({
     'Region 1': false,
     'Region 2': false,
@@ -43,6 +48,23 @@ const Sidebar: React.FC<SidebarProps> = ({
     'NYSE': false,
     'AMEX': false,
   });
+  
+  // Numeric Filters
+  const [avgVolumeMin, setAvgVolumeMin] = useState('');
+  const [avgVolumeMax, setAvgVolumeMax] = useState('');
+  const [todayVolumeMin, setTodayVolumeMin] = useState('');
+  const [todayVolumeMax, setTodayVolumeMax] = useState('');
+  const [high52Min, setHigh52Min] = useState('');
+  const [high52Max, setHigh52Max] = useState('');
+  const [low52Min, setLow52Min] = useState('');
+  const [low52Max, setLow52Max] = useState('');
+  const [priceMin, setPriceMin] = useState('');
+  const [priceMax, setPriceMax] = useState('');
+  const [localPercentChangeFilter, setLocalPercentChangeFilter] = useState<string>(percentChangeFilter);
+  const [changePercent, setChangePercent] = useState('');
+  const [marketCapMin, setMarketCapMin] = useState('');
+  const [marketCapMax, setMarketCapMax] = useState('');
+
   const [filters, setFilters] = useState<{filter_name: string, value: string}[]>([])
 
   // Custom screener creation state
@@ -50,99 +72,21 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const helpSetFilters = (selected: string[], sname: string) => {            
-    setFilters(prevFilters => {
-            const newFilters = [...prevFilters];
-            const filtersValues = prevFilters.map(p=>p.value)
-            for (const p of selected) {
-              if (!filtersValues.includes(p)) {
-                newFilters.push({filter_name: sname, value: p});
-                }
-              }
-              return newFilters
-            });}
-            useEffect(() =>{
-              setFilters([]);
-              helpSetFilters(selectedSectors, 'sector');
-              helpSetFilters(selectedIndustries, 'industry');              
-            }, [selectedIndustries, selectedSectors])
-            
-            const [avgVolumeMin, setAvgVolumeMin] = useState('');
-            const [avgVolumeMax, setAvgVolumeMax] = useState('');
-            const [todayVolumeMin, setTodayVolumeMin] = useState('');
-            const [todayVolumeMax, setTodayVolumeMax] = useState('');
-            
-            const [high52Min, setHigh52Min] = useState('');
-            const [high52Max, setHigh52Max] = useState('');
-            const [low52Min, setLow52Min] = useState('');
-            const [low52Max, setLow52Max] = useState('');
-            const [priceMin, setPriceMin] = useState('');
-            const [priceMax, setPriceMax] = useState('');
-            const [marketCapMin, setMarketCapMin] = useState('');
-            const [marketCapMax, setMarketCapMax] = useState('');
-            useEffect(() => {
-  let mounted = true;
 
-  const fetchSectors = async () => {
-    const res = await fetch('/sectors/');
-    if (!res.ok) return;
-    const data = await res.json();
-    const fetched: string[] = Array.isArray(data.sectors) ? data.sectors : [];
-    if (!mounted) return;
+useEffect(() =>{
+  setFilters([]);
+  if (selectedSectors) {
+    helpSetFilters(selectedSectors, 'sector', setFilters);
+  }
+  if (selectedIndustries) {
+    helpSetFilters(selectedIndustries, 'industry', setFilters);
+  }              
+}, [selectedIndustries, selectedSectors])
 
-    setSectorChecks(prev => {
-      const next: { [k: string]: boolean } = {};
-      fetched.forEach(s => {
-        const isSelected = selectedSectors.includes(s);
-        next[s] = isSelected;
-      });
-      return next;
-    });
-  };
-
-  const fetchIndustries = async () => {
-    const res = await fetch('/industries/');
-    if (!res.ok) return;
-    const data = await res.json();
-    const fetched: string[] = Array.isArray(data.industries) ? data.industries : [];
-    if (!mounted) return;
-
-    setIndustryChecks(prev => {
-      const next: { [k: string]: boolean } = {};
-      fetched.forEach(s => {
-        const isSelected = selectedIndustries.includes(s);
-        next[s] = isSelected;
-      });
-      return next;
-    });
-  };
-
-  fetchSectors();
-  fetchIndustries();
-
-  return () => { mounted = false; };
-}, []); // ✅ no dependencies, runs once
-
-          
-useEffect(() => {
-  // Only run this sync once the parent actually sends data
-  if (!selectedSectors || selectedSectors.length === 0) return;
-
-  setSectorChecks(prev => {
-    const next = { ...prev };
-    Object.keys(next).forEach(k => {
-      next[k] = selectedSectors.includes(k);
-    });
-    return next;
-  });
-}, [selectedSectors]);
-
-  const [localPercentChangeFilter, setLocalPercentChangeFilter] = useState<string>(percentChangeFilter);
 
   useEffect(() => {
     setLocalPercentChangeFilter(percentChangeFilter);
   }, [percentChangeFilter]);
-  const [changePercent, setChangePercent] = useState('');
 
   // Sync changePercent with percentThreshold prop
   useEffect(() => {
