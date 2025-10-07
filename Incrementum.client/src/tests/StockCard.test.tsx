@@ -1,6 +1,6 @@
 // StockCard.test.tsx
 import { render, screen, fireEvent } from "@testing-library/react";
-import StockCard from "../StockCard";
+import StockCard from "../Components/StockCard";
 import { useNavigate } from "react-router-dom";
 
 

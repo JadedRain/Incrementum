@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import NavigationBar from "../Components/NavigationBar";
-import StockCard from "../StockCard";
+import StockCard from "../Components/StockCard";
 
 
 interface Stock {

@@ -1,6 +1,6 @@
 import './App.css'
 import NavigationBar from './Components/NavigationBar'
-import StockInfoList from './StockInfoList'
+import StockInfoList from './Pages/StockInfoList'
 
 function App() {
   return (
