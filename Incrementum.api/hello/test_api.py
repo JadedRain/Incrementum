@@ -9,6 +9,9 @@ from hello import get_stock_info
 from hello.stocks_class import Stock
 from hello.get_stock_info import screen_stocks_by_average_volume
 from . import views
+from hello.get_stock_info import screen_stocks_by_average_volume
+import unittest.mock
+    
 
 @pytest.fixture
 def api_client():
@@ -407,9 +410,6 @@ def test_screen_stocks_by_average_volume_valid_filters():
             pytest.fail(f"Valid filter '{filter_type}' raised ValueError")
 
 def test_screen_stocks_by_average_volume_max_results_limit():
-    from hello.get_stock_info import screen_stocks_by_average_volume
-    import unittest.mock
-    
     with unittest.mock.patch('yfinance.screen') as mock_screen:
         mock_screen.return_value = {'quotes': []}
         
