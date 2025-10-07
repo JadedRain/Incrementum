@@ -101,9 +101,9 @@ class ScreenerServiceTest(TestCase):
         assert len(retrieved_screener['numeric_filters']) == 1
         assert len(retrieved_screener['categorical_filters']) == 1
         assert retrieved_screener['numeric_filters'][0]['filter_name'] == 'revenue'
-        assert retrieved_screener['numeric_filters'][0]['numeric_value'] == 100000000
+        assert retrieved_screener['numeric_filters'][0]['value'] == 100000000
         assert retrieved_screener['categorical_filters'][0]['filter_name'] == 'exchange'
-        assert retrieved_screener['categorical_filters'][0]['category_value'] == 'NASDAQ'
+        assert retrieved_screener['categorical_filters'][0]['value'] == 'NASDAQ'
 
     def test_get_user_custom_screeners(self):
         self.service.create_custom_screener(
