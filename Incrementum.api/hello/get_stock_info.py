@@ -10,8 +10,6 @@ from django.db import connection
 from yfinance.screener.query import EquityQuery
 
 def generate_stock_graph(history, ticker: str, period) -> bytes:
-    """Generate a PNG graph from stock history with rudimentary styling and return raw image bytes."""
-    
     first_price = history['Close'].iloc[0]
     last_price = history['Close'].iloc[-1]
     color = "green" if last_price >= first_price else "red"
@@ -81,24 +79,34 @@ def get_stock_info(max, offset, filters=None, source=setup):
     max = int(max)
     offset = int(offset)
     
-    # Check if percent change filtering is requested
     if isinstance(filters, dict) and filters.get('percent_change_filter') and filters.get('percent_change_value') is not None:
         percent_change_filter = filters.get('percent_change_filter')
         percent_change_value = float(filters.get('percent_change_value'))
         
-        # Use yfinance screening for percent change
         all_screened_stocks = screen_stocks_by_percent_change(
             percent_change_filter, 
             percent_change_value, 
-            max_results=250  # Get more results to allow for pagination
+            max_results=250
         )
         
-        # Apply pagination to screened results
         start = offset
         end = min(start + max, len(all_screened_stocks))
         return all_screened_stocks[start:end]
     
-    # Original logic for CSV-based filtering
+    if isinstance(filters, dict) and filters.get('average_volume_filter') and filters.get('average_volume_value') is not None:
+        average_volume_filter = filters.get('average_volume_filter')
+        average_volume_value = float(filters.get('average_volume_value'))
+        
+        all_screened_stocks = screen_stocks_by_average_volume(
+            average_volume_filter, 
+            average_volume_value, 
+            max_results=250
+        )
+        
+        start = offset
+        end = min(start + max, len(all_screened_stocks))
+        return all_screened_stocks[start:end]
+    
     tickers = source()
     stocks = []
 
@@ -178,3 +186,35 @@ def screen_stocks_by_percent_change(percent_change_filter, percent_change_value,
             continue
             
     return stocks
+
+def screen_stocks_by_average_volume(average_volume_filter, average_volume_value, max_results=100):
+    valid_filters = ['gt', 'gte', 'lt', 'lte', 'eq']
+    if average_volume_filter not in valid_filters:
+        raise ValueError(f"Invalid average_volume_filter. Must be one of: {valid_filters}")
+    
+    max_results = min(max_results, 250)
+    
+    try:
+        # No 30 day average volume filter available in yfinance? Using 3 month average volume instead for now.
+        query = EquityQuery(average_volume_filter, ['avgdailyvol3m', average_volume_value])
+        
+        screen_results = yf.screen(query, size=max_results)
+        
+        quotes = screen_results.get('quotes', [])
+        
+        stocks = []
+        for quote in quotes:
+            try:
+                symbol = quote.get('symbol')
+                if symbol:
+                    stock_data = fetch_stock_data(symbol)
+                    stocks.append(stock_data)
+            except Exception as e:
+                logging.warning(f"Failed to fetch data for symbol {quote.get('symbol', 'unknown')}: {e}")
+                continue
+                
+        return stocks
+    
+    except Exception as e:
+        logging.error(f"Error screening stocks by average volume: {e}")
+        return []
