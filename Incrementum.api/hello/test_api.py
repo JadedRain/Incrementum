@@ -11,6 +11,8 @@ from hello.get_stock_info import screen_stocks_by_average_volume
 from . import views
 from hello.get_stock_info import screen_stocks_by_average_volume
 import unittest.mock
+from hello.get_stock_info import screen_stocks_by_average_volume
+    
     
 
 @pytest.fixture
@@ -399,8 +401,6 @@ def test_screen_stocks_by_average_volume_invalid_filter():
     assert "Must be one of: ['gt', 'gte', 'lt', 'lte', 'eq']" in str(excinfo.value)
 
 def test_screen_stocks_by_average_volume_valid_filters():
-    from hello.get_stock_info import screen_stocks_by_average_volume
-    
     valid_filters = ['gt', 'gte', 'lt', 'lte', 'eq']
     
     for filter_type in valid_filters:
