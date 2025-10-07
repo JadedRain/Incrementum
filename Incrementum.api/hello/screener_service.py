@@ -27,20 +27,20 @@ class ScreenerService:
                 if numeric_filters:
                     for filter_data in numeric_filters:
                         filter_name = filter_data.get('filter_name')
-                        value = filter_data.get('value')
+                        value = filter_data.get('numeric_value')
                         
                         numeric_filter, _ = NumericFilter.objects.get_or_create(name=filter_name)
                         
                         CustomScreenerNumeric.objects.create(
                             custom_screener=custom_screener,
                             numeric_filter=numeric_filter,
-                            value=value
+                            numeric_value=value
                         )
                 
                 if categorical_filters:
                     for filter_data in categorical_filters:
                         filter_name = filter_data.get('filter_name')
-                        value = filter_data.get('value')
+                        value = filter_data.get('category_value')
                         
                         categorical_filter, _ = CategoricalFilter.objects.get_or_create(name=filter_name)
                         logging.info("adding this {value}, {filter_name}")
