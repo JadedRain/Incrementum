@@ -78,8 +78,6 @@ const Sidebar: React.FC<SidebarProps> = ({
             const [low52Max, setLow52Max] = useState('');
             const [priceMin, setPriceMin] = useState('');
             const [priceMax, setPriceMax] = useState('');
-            const [changePeriod, setChangePeriod] = useState<'daily' | 'weekly' | 'monthly'>('daily');
-            const [changePercent, setChangePercent] = useState('');
             const [marketCapMin, setMarketCapMin] = useState('');
             const [marketCapMax, setMarketCapMax] = useState('');
             useEffect(() => {
@@ -139,50 +137,12 @@ useEffect(() => {
   });
 }, [selectedSectors]);
 
-useEffect(() => {
-  let mounted = true;
-  const fetchSectors = async () => {
-    const res = await fetch('/sectors/');
-    if (!res.ok) return;
-    const data = await res.json();
-    const fetched: string[] = Array.isArray(data.sectors) ? data.sectors : [];
-
-    if (!mounted) return;
-
-    // Only set once on mount
-    setSectorChecks(prev => {
-      // if we already have data (like from selectedSectors), don't overwrite
-      if (Object.keys(prev).length > 0) return prev;
-
-      const next: { [k: string]: boolean } = {};
-      fetched.forEach(s => {
-        next[s] = selectedSectors.includes(s);
-      });
-      return next;
-    });
-
-  }, [selectedSectors]);
-
-  const [avgVolumeMin, setAvgVolumeMin] = useState('');
-  const [avgVolumeMax, setAvgVolumeMax] = useState('');
-  const [todayVolumeMin, setTodayVolumeMin] = useState('');
-  const [todayVolumeMax, setTodayVolumeMax] = useState('');
-
-  const [high52Min, setHigh52Min] = useState('');
-  const [high52Max, setHigh52Max] = useState('');
-  const [low52Min, setLow52Min] = useState('');
-  const [low52Max, setLow52Max] = useState('');
-  const [priceMin, setPriceMin] = useState('');
-  const [priceMax, setPriceMax] = useState('');
-  // Remove local changePeriod state, use prop
   const [localPercentChangeFilter, setLocalPercentChangeFilter] = useState<string>(percentChangeFilter);
 
   useEffect(() => {
     setLocalPercentChangeFilter(percentChangeFilter);
   }, [percentChangeFilter]);
   const [changePercent, setChangePercent] = useState('');
-  const [marketCapMin, setMarketCapMin] = useState('');
-  const [marketCapMax, setMarketCapMax] = useState('');
 
   // Sync changePercent with percentThreshold prop
   useEffect(() => {

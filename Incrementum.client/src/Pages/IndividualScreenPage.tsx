@@ -8,6 +8,7 @@ import '../App.css';
 import type { CustomScreener, CategoricalFilter, NumericFilter } from '../Types/ScreenerTypes';
 import { fetchCustomScreener } from "../Query/apiScreener"
 import { useQuery } from "@tanstack/react-query"
+import { useParams } from 'react-router-dom';
 interface StockInfo {
   displayName?: string;
   longName?: string;
