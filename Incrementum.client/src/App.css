@@ -751,7 +751,6 @@
   padding: 1rem 2rem;
   z-index: 1000;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-  border-bottom: 2px solid hsl(42, 15%, 70%);
 }
 
 .navbar-container {
@@ -790,6 +789,18 @@
   align-items: center;
 }
 
+.navbar-link {
+  @apply absolute;
+  @apply top-4;
+  @apply right-4;
+  @apply text-white;
+  @apply px-4;
+  @apply py-2;
+  @apply rounded;
+  @apply shadow;
+  @apply transition;
+}
+
 .nav-button-active {
   text-decoration: underline !important;
   text-decoration-color: hsl(40, 66%, 70%) !important;
@@ -804,8 +815,5 @@
 
 
 /* Ensure content is not hidden behind the fixed header */
-:root { --header-height: 90px; }
 :root { --header-height: 80px; }
 body { padding-top: var(--header-height); background-color: hsl(40,62%,26%);}
-:root { --header-height: 90px; }
-body { padding-top: var(--header-height); }
