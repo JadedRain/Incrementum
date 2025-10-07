@@ -1,5 +1,5 @@
 import '../App.css';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../Context/AuthContext';
 import NavigationBar from '../Components/NavigationBar';
@@ -53,7 +53,6 @@ function ScreenerPage() {
             <div className="main-content">
                 <div className="ScreenerPage-container">
                     <div className="ScreenerPage-card-grid">
-                        {/* Custom Collection Card removed */}
                         <div className="ScreenerPage-card cursor-pointer" onClick={() => handleCardClick('Temp Card 2')}>Create Custom</div>
 
                         {loading && (
