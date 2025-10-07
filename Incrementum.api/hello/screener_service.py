@@ -196,13 +196,13 @@ class ScreenerService:
             if categorical_filters:
                 for filter_data in categorical_filters:
                     filter_name = filter_data.get('filter_name')
-                    value = filter_data.get('categorical_value')
+                    value = filter_data.get('category_value')
                     
                     categorical_filter, _ = CategoricalFilter.objects.get_or_create(name=filter_name)
                     CustomScreenerCategorical.objects.create(
                         custom_screener=custom_screener,
                         categorical_filter=categorical_filter,
-                        categorical_value=value
+                        category_value=value
                     )
             
             logging.info(f"Updated custom screener {screener_id} for user {user_id}")
