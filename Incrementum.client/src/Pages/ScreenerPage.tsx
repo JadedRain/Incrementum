@@ -5,6 +5,7 @@ import type { CustomScreener } from '../hooks/useCustomScreeners';
 import { useAuth } from '../Context/AuthContext';
 import NavigationBar from '../Components/NavigationBar';
 import AppCard from '../Components/AppCard';
+import Loading from '../Components/Loading';
 
 function ScreenerPage() {
     const navigate = useNavigate();
@@ -26,10 +27,10 @@ function ScreenerPage() {
                 <Link to="/account" className="navbar-link">Account</Link>
                 <div className="ScreenerPage-container">
                     <div className="ScreenerPage-card-grid">
-                        
+
                         {loading && (
-                            <div className="ScreenerPage-card flex items-center justify-center" style={{ height: '120px' }}>
-                                <div className="text-gray-500">Loading screeners...</div>
+                            <div className="w-full flex items-center justify-center" style={{ height: '120px' }}>
+                                <Loading loading={true} loadingText="Loading screeners..." />
                             </div>
                         )}
 
@@ -38,9 +39,9 @@ function ScreenerPage() {
                                 title="No custom screeners yet"
                                 subtitle="Click to create your first one!"
                                 onClick={handleCustomScreenerClick}
-                                />
+                            />
                         )}
-                        
+
                         {!loading && customScreeners.length >= 1 && apiKey && (
                             <>
                                 <AppCard
