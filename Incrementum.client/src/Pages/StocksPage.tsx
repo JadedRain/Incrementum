@@ -1,6 +1,6 @@
 import '../App.css'
 import { useNavigate } from 'react-router-dom'
-import StockInfoPage from '../StockInfoList';
+import StockInfoPage from './StockInfoList';
 
 function StocksPage() {
   const navigate = useNavigate()

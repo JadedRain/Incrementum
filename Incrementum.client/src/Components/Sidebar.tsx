@@ -6,11 +6,30 @@ interface SidebarProps {
   onSelectedSectorsChange?: (sectors: string[]) => void;
   selectedIndustries?: string[];
   onSelectedIndustriesChange?: (industries: string[]) => void;
+  percentThreshold?: string;
+  onPercentThresholdChange?: (value: string) => void;
+  changePeriod?: 'daily' | 'weekly' | 'monthly';
+  onChangePeriod?: (period: 'daily' | 'weekly' | 'monthly') => void;
+  percentChangeFilter?: string;
+  onPercentChangeFilter?: (filter: string) => void;
   showCustomScreenerSection?: boolean;
   apiKey?: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSectorsChange, selectedIndustries = [], onSelectedIndustriesChange, showCustomScreenerSection = false, apiKey }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  selectedSectors = [],
+  onSelectedSectorsChange,
+  selectedIndustries = [],
+  onSelectedIndustriesChange,
+  percentThreshold,
+  onPercentThresholdChange,
+  changePeriod = 'daily',
+  onChangePeriod,
+  percentChangeFilter = 'gt',
+  onPercentChangeFilter,
+  showCustomScreenerSection = false,
+  apiKey
+}) => {
   const [sectorChecks, setSectorChecks] = useState<{ [k: string]: boolean }>({});
   const [industryChecks, setIndustryChecks] = useState<{ [k: string]: boolean }>({});
   const [regionChecks, setRegionChecks] = useState<{ [k: string]: boolean }>({
@@ -100,10 +119,22 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSecto
   const [low52Max, setLow52Max] = useState('');
   const [priceMin, setPriceMin] = useState('');
   const [priceMax, setPriceMax] = useState('');
-  const [changePeriod, setChangePeriod] = useState<'daily' | 'weekly' | 'monthly'>('daily');
+  // Remove local changePeriod state, use prop
+  const [localPercentChangeFilter, setLocalPercentChangeFilter] = useState<string>(percentChangeFilter);
+
+  useEffect(() => {
+    setLocalPercentChangeFilter(percentChangeFilter);
+  }, [percentChangeFilter]);
   const [changePercent, setChangePercent] = useState('');
   const [marketCapMin, setMarketCapMin] = useState('');
   const [marketCapMax, setMarketCapMax] = useState('');
+
+  // Sync changePercent with percentThreshold prop
+  useEffect(() => {
+    if (typeof percentThreshold === 'string') {
+      setChangePercent(percentThreshold);
+    }
+  }, [percentThreshold]);
 
   const saveCustomScreener = async () => {
     if (!screenerNameInput.trim()) {
@@ -444,10 +475,23 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSecto
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <div>
               <label style={{ marginRight: '0.5rem' }}>Period:</label>
-              <select value={changePeriod} onChange={e => setChangePeriod(e.target.value as any)}>
+              <select value={changePeriod} onChange={e => {
+                if (onChangePeriod) onChangePeriod(e.target.value as 'daily' | 'weekly' | 'monthly');
+              }}>
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ marginRight: '0.5rem' }}>Comparison:</label>
+              <select value={localPercentChangeFilter} onChange={e => {
+                setLocalPercentChangeFilter(e.target.value);
+                if (onPercentChangeFilter) onPercentChangeFilter(e.target.value);
+              }}>
+                <option value="gt">Greater Than</option>
+                <option value="lt">Less Than</option>
+                <option value="eq">Equal To</option>
               </select>
             </div>
             <div>
@@ -455,8 +499,11 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedSectors = [], onSelectedSecto
               <input
                 type="number"
                 placeholder="e.g. 2.5"
-                value={changePercent}
-                onChange={e => setChangePercent(e.target.value)}
+                value={percentThreshold ?? changePercent}
+                onChange={e => {
+                  setChangePercent(e.target.value);
+                  if (onPercentThresholdChange) onPercentThresholdChange(e.target.value);
+                }}
                 className="sidebar-input"
                 style={{ width: '100%', padding: '0.4rem', marginTop: '0.25rem' }}
               />
