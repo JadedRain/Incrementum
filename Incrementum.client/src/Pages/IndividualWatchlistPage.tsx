@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import Watchlist from './Watchlist';
-import Stock from '../Stock';
+import Watchlist from '../Components/Watchlist';
+import Stock from './Stock';
 
 const WatchlistPage: React.FC = () => {
   const [selectedToken, setSelectedToken] = useState<string | null>(null);

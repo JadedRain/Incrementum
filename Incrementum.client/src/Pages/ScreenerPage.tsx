@@ -1,9 +1,8 @@
-import '../App.css'
+import '../App.css';
 import { useNavigate, Link } from 'react-router-dom'
 import { useEffect, useState } from 'react';
 import { useAuth } from '../Context/AuthContext';
 import NavigationBar from '../Components/NavigationBar';
-import SearchBar from '../Components/SearchBar';
 
 interface CustomScreener {
     id: number;
@@ -55,19 +54,7 @@ function ScreenerPage() {
                     <Link to="/account" className="absolute top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition">Account</Link>
                 <div className="ScreenerPage-container">
                     <div className="ScreenerPage-card-grid">
-
-                        {/* Create Custom Screener Card */}
-                        <div className="ScreenerPage-card cursor-pointer" onClick={() => handleCardClick('Create Custom')}>
-                            Create Custom
-                        </div>
-
-                        {/* Predefined Screener Cards */}
-                        <div className="ScreenerPage-card cursor-pointer" onClick={() => handleCardClick('Temp Card 2')}>
-                            Temp Card 2
-                        </div>
-                        <div className="ScreenerPage-card cursor-pointer" onClick={() => handleCardClick('Temp Card 3')}>
-                            Temp Card 3
-                        </div>
+                        <div className="ScreenerPage-card cursor-pointer" onClick={() => handleCardClick('Temp Card 2')}>Create Custom</div>
 
                         {loading && (
                             <div className="ScreenerPage-card flex items-center justify-center" style={{ height: '120px' }}>

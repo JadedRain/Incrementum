@@ -4,26 +4,15 @@ from django.views.decorators.http import require_http_methods
 import json
 from hello.watchlist_service import WatchlistService
 
-
 watchlist_service = WatchlistService()
 
-
 def get_user_from_request(request):
-    """Extract user API key from request headers"""
     return request.headers.get('X-User-Id')
 
 
 @csrf_exempt
 @require_http_methods(["POST"])
 def add_custom_screener_to_watchlist(request):
-    """
-    Add a custom screener to the user's watchlist
-    
-    Expected JSON payload:
-    {
-        "custom_screener_id": 123
-    }
-    """
     try:
         api_key = get_user_from_request(request)
         if not api_key:
@@ -56,14 +45,6 @@ def add_custom_screener_to_watchlist(request):
 @csrf_exempt
 @require_http_methods(["DELETE"])
 def remove_custom_screener_from_watchlist(request):
-    """
-    Remove a custom screener from the user's watchlist
-    
-    Expected JSON payload:
-    {
-        "custom_screener_id": 123
-    }
-    """
     try:
         api_key = get_user_from_request(request)
         if not api_key:

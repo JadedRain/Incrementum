@@ -1,30 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import NavigationBar from '../Components/NavigationBar';
-
-interface CustomCollection {
-    id: number;
-    name: string;
-    description?: string;
-}
+import { CreateCollectionButton } from '../Components/CreateCollectionButton';
+import { useCustomCollections } from '../hooks/useCustomCollections';
+import { CollectionCard } from '../Components/CollectionCard';
 
 
 const CustomCollectionsPage: React.FC = () => {
-    const [collections, setCollections] = useState<CustomCollection[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { collections, setCollections, loading } = useCustomCollections();
     const [showConfirm, setShowConfirm] = useState<{ id: number | null, visible: boolean }>({ id: null, visible: false });
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        // Read from localStorage (simulate API)
-        const stored = localStorage.getItem('customCollections');
-        if (stored) {
-            setCollections(JSON.parse(stored));
-        } else {
-            setCollections([]);
-        }
-        setLoading(false);
-    }, []);
 
     if (loading) return <div style={{ textAlign: 'center', margin: '2rem' }}>Loading...</div>;
 
@@ -38,12 +21,10 @@ const CustomCollectionsPage: React.FC = () => {
         setShowConfirm({ id, visible: true });
     };
     const confirmRemove = () => {
-    // Remove from state
-    const updatedCollections = collections.filter((c: CustomCollection) => c.id !== showConfirm.id);
-    setCollections(updatedCollections);
-    // Remove from localStorage
-    localStorage.setItem('customCollections', JSON.stringify(updatedCollections));
-    setShowConfirm({ id: null, visible: false });
+        // Remove from state and localStorage using hook
+        const updatedCollections = collections.filter((c) => c.id !== showConfirm.id);
+        setCollections(updatedCollections);
+        setShowConfirm({ id: null, visible: false });
     };
     const cancelRemove = () => setShowConfirm({ id: null, visible: false });
 
@@ -54,37 +35,10 @@ const CustomCollectionsPage: React.FC = () => {
                 <NavigationBar />
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
-                <div
-                    className="ScreenerPage-card-custom cursor-pointer"
-                    onClick={() => navigate('/create-custom-collection')}
-                    tabIndex={0}
-                    role="button"
-                >
-                    <span style={{ fontSize: 32, marginBottom: 8 }}>＋</span>
-                    <span>Create New Collection</span>
-                </div>
-                {displayCollections.map((collection: CustomCollection) => (
-                    <div
-                        key={collection.id}
-                        className="ScreenerPage-card cursor-pointer h-48 flex flex-col justify-center items-center text-center space-y-2 group relative"
-                        onClick={() => navigate(`/custom-collection/${collection.id}`)}
-                        onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/custom-collection/${collection.id}`); }}
-                        tabIndex={0}
-                        role="button"
-                    >
-                        <button
-                            className="xbutton"
-                            style={{ pointerEvents: 'auto' }}
-                            onClick={(e: React.MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); handleRemove(collection.id); }}
-                            tabIndex={-1}
-                            aria-label="Remove collection"
-                        >
-                            &times;
-                        </button>
-                        <h2 className="text-lg font-bold leading-relaxed m-0">{collection.name}</h2>
-                        <p className="text-gray-700 leading-relaxed mb-2">{collection.description || 'No description.'}</p>
-                    </div>
-                ))}
+                <CreateCollectionButton />
+                    {displayCollections.map(collection => (
+                      <CollectionCard key={collection.id} collection={collection} onRemove={handleRemove} />
+                    ))}
             </div>
 
             {showConfirm.visible && (
@@ -105,3 +59,4 @@ const CustomCollectionsPage: React.FC = () => {
 };
 
 export default CustomCollectionsPage;
+
