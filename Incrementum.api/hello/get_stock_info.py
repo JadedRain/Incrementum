@@ -8,8 +8,7 @@ import io
 import matplotlib.pyplot as plt
 from django.db import connection
 from yfinance.screener.query import EquityQuery
-from Screeners.stock import Stock as Stock1
-from Screeners.moving_average_52 import MovingAverage52Weeks
+from Screeners.moving_average_52 import fifty_two_high
 from Screeners.numeric_screeners import NumericScreeners
 def generate_stock_graph(history, ticker: str, period) -> bytes:
     first_price = history['Close'].iloc[0]
@@ -202,7 +201,7 @@ def get_stock_info(max, offset, filters=None, source=setup):
     screeners_list = []
     if filters and filters.get('price_52w_high') and filters.get('price_52w_high_value') is not None:
         # You can optionally use the value as threshold, for now we filter by MA
-        ma_screener = MovingAverage52Weeks()
+        ma_screener = fifty_two_high(filters.get('price_52w_high_value'))
         screeners_list.append(ma_screener)
 
     if screeners_list:

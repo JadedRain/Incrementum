@@ -1,16 +1,16 @@
 from typing import List
-from .stock import Stock
+from hello.stocks_class import Stock
 from .screener_interface import IScreener
-class MovingAverage52Weeks(IScreener):
-    def __init__(self, period: int = 52):
-        self.period = period
+class fifty_two_high(IScreener):
+    def __init__(self, value):
+        self.value = value
 
     def screen(self, stocks: List[Stock]) -> List[Stock]:
         result = []
         for stock in stocks:
-            if len(stock.close_prices) < self.period:
+            if stock.price_52w_high is None:
+                continue  # skip incomplete data
+            if stock.price_52w_high < self.value:
                 continue
-            ma = sum(stock.close_prices[-self.period:]) / self.period
-            if stock.close_prices[-1] > ma:
-                result.append(stock)
+            result.append(stock)
         return result

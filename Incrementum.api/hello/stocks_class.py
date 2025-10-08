@@ -18,6 +18,8 @@ class Stock:
         self.sector = json.get('sector')
         self.sectorKey = json.get('sectorKey')
         self.regularMarketChangePercent = json.get('regularMarketChangePercent')
+        self.price_52w_high = json.get('price_52w_high')
+        
 
     def to_dict(self):
         return self.__dict__
