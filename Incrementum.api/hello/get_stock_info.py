@@ -8,7 +8,9 @@ import io
 import matplotlib.pyplot as plt
 from django.db import connection
 from yfinance.screener.query import EquityQuery
-
+from Screeners.stock import Stock as Stock1
+from Screeners.moving_average_52 import MovingAverage52Weeks
+from Screeners.numeric_screeners import NumericScreeners
 def generate_stock_graph(history, ticker: str, period) -> bytes:
     """Generate a PNG graph from stock history with rudimentary styling and return raw image bytes."""
     
@@ -77,57 +79,123 @@ def get_stock_by_ticker(ticker, source=setup):
     stock_data = fetch_stock_data(ticker)
     return stock_data
 
+def fetch_stock_with_ma(symbol, ma_period=50):
+    ticker = yf.Ticker(symbol)
+    hist = ticker.history(period="1y")['Close']  # last 1 year daily prices
+    ma = hist.rolling(window=ma_period).mean()
+    return {
+        "symbol": symbol,
+        "latest_price": hist.iloc[-1],
+        f"MA_{ma_period}": ma.iloc[-1]
+    }
+# def get_stock_info(max, offset, filters=None, source=setup):
+#     max = int(max)
+#     offset = int(offset)
+    
+#     # Check if percent change filtering is requested
+#     if isinstance(filters, dict) and filters.get('percent_change_filter') and filters.get('percent_change_value') is not None:
+#         percent_change_filter = filters.get('percent_change_filter')
+#         percent_change_value = float(filters.get('percent_change_value'))
+        
+#         # Use yfinance screening for percent change
+#         all_screened_stocks = screen_stocks_by_percent_change(
+#             percent_change_filter, 
+#             percent_change_value, 
+#             max_results=250  # Get more results to allow for pagination
+#         )
+        
+#         # Apply pagination to screened results
+#         start = offset
+#         end = min(start + max, len(all_screened_stocks))
+#         return all_screened_stocks[start:end]
+#     # Original logic for CSV-based filtering
+#     tickers = source()
+#     stocks = []
+
+#     allowed_sectors = None
+#     if isinstance(filters, dict):
+#         fs = filters.get('sectors')
+#         if fs:
+#             fs_set = {str(s).strip().lower() for s in fs if s}
+#             if allowed_sectors:
+#                 allowed_sectors = allowed_sectors.union(fs_set)
+#             else:
+#                 allowed_sectors = fs_set
+#     if isinstance(filters, dict):
+#         moving_av_filter = filters.get('price_52w_high')
+#         mooving_av_value = float(filters.get("price_52w_high_value"))
+
+#     allowed_industries = None
+#     if isinstance(filters, dict):
+#         fi = filters.get('industries')
+#         if fi:
+#             allowed_industries = {str(s).strip().lower() for s in fi if s}
+
+#     if allowed_sectors:
+#         if 'sectorKey' in tickers.columns:
+#             tickers = tickers[tickers['sectorKey'].fillna('').str.lower().isin(allowed_sectors)]
+
+#     if allowed_industries:
+#         if 'industryKey' in tickers.columns:
+#             tickers = tickers[tickers['industryKey'].fillna('').str.lower().isin(allowed_industries)]
+
+#     for _, stock in tickers.iloc[offset:offset+max].iterrows():
+#         stocks.append(fetch_stock_data(stock['symbol']))
+#     return stocks
 def get_stock_info(max, offset, filters=None, source=setup):
     max = int(max)
     offset = int(offset)
     
-    # Check if percent change filtering is requested
+    # Handle percent change filtering first
     if isinstance(filters, dict) and filters.get('percent_change_filter') and filters.get('percent_change_value') is not None:
         percent_change_filter = filters.get('percent_change_filter')
         percent_change_value = float(filters.get('percent_change_value'))
         
-        # Use yfinance screening for percent change
         all_screened_stocks = screen_stocks_by_percent_change(
             percent_change_filter, 
             percent_change_value, 
-            max_results=250  # Get more results to allow for pagination
+            max_results=250
         )
-        
-        # Apply pagination to screened results
         start = offset
         end = min(start + max, len(all_screened_stocks))
         return all_screened_stocks[start:end]
-    
-    # Original logic for CSV-based filtering
+
+    # Original CSV-based filtering
     tickers = source()
     stocks = []
 
+    # Sector filtering
     allowed_sectors = None
-    if isinstance(filters, dict):
-        fs = filters.get('sectors')
-        if fs:
-            fs_set = {str(s).strip().lower() for s in fs if s}
-            if allowed_sectors:
-                allowed_sectors = allowed_sectors.union(fs_set)
-            else:
-                allowed_sectors = fs_set
-
-    allowed_industries = None
-    if isinstance(filters, dict):
-        fi = filters.get('industries')
-        if fi:
-            allowed_industries = {str(s).strip().lower() for s in fi if s}
-
-    if allowed_sectors:
+    if filters and filters.get('sectors'):
+        fs_set = {str(s).strip().lower() for s in filters.get('sectors') if s}
+        allowed_sectors = fs_set
         if 'sectorKey' in tickers.columns:
             tickers = tickers[tickers['sectorKey'].fillna('').str.lower().isin(allowed_sectors)]
 
-    if allowed_industries:
+    # Industry filtering
+    allowed_industries = None
+    if filters and filters.get('industries'):
+        fi_set = {str(s).strip().lower() for s in filters.get('industries') if s}
+        allowed_industries = fi_set
         if 'industryKey' in tickers.columns:
             tickers = tickers[tickers['industryKey'].fillna('').str.lower().isin(allowed_industries)]
 
-    for _, stock in tickers.iloc[offset:offset+max].iterrows():
-        stocks.append(fetch_stock_data(stock['symbol']))
+    # Build Stock objects with historical prices
+    for _, row in tickers.iloc[offset:offset+max].iterrows():
+        stock_data = fetch_stock_data(row['symbol'])  # must return a Stock object with historical prices
+        stocks.append(stock_data)
+
+    # Moving average filtering
+    screeners_list = []
+    if filters and filters.get('price_52w_high') and filters.get('price_52w_high_value') is not None:
+        # You can optionally use the value as threshold, for now we filter by MA
+        ma_screener = MovingAverage52Weeks()
+        screeners_list.append(ma_screener)
+
+    if screeners_list:
+        numeric_screeners = NumericScreeners(screeners_list)
+        stocks = numeric_screeners.apply_screenings(stocks)
+
     return stocks
 
 

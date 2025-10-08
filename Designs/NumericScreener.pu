@@ -1,0 +1,28 @@
+@startuml
+
+interface IScreener {
+    +screen(stocks: List<Stock>) : List<Stock>
+}
+
+class Stock {
+    -symbol: String
+    -pe: float
+    -marketCap: float
+    -closePrices: List<float>
+}
+
+class NumericScreeners {
+    +applyScreenings(stocks: List<Stock>, screenings: List<String>, types: List<String>) : List<Stock>
+}
+
+class MovingAverage52Weeks {
+    -period: int = 52
+    +screen(stocks: List<Stock>) : List<Stock>
+}
+
+MovingAverage52Weeks ..|> IScreener
+NumericScreeners o-- IScreener : uses
+NumericScreeners o-- Stock
+
+@enduml
+
