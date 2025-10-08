@@ -144,7 +144,7 @@ def get_stock_info(max, offset, filters=None, source=setup):
     max = int(max)
     offset = int(offset)
     
-    # Check if percent change filtering is requested
+    # Handle percent change filtering first
     if isinstance(filters, dict) and filters.get('percent_change_filter') and filters.get('percent_change_value') is not None:
         percent_change_filter = filters.get('percent_change_filter')
         percent_change_value = float(filters.get('percent_change_value'))
@@ -172,8 +172,8 @@ def get_stock_info(max, offset, filters=None, source=setup):
         start = offset
         end = min(start + max, len(all_screened_stocks))
         return all_screened_stocks[start:end]
-    
-    # Original logic for CSV-based filtering
+
+    # Original CSV-based filtering
     tickers = source()
     stocks = []
 
