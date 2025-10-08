@@ -5,7 +5,7 @@ import { useStockSearch } from "../hooks/useStockSearch";
 import Loading from "../Components/Loading";
 import PaginationControls from "../Components/PaginationControls";
 
-export default function SearchResults() {
+function SearchResults() {
   const { query } = useParams<{ query: string }>();
   const { results, loading, page, hasMore, handleNext, handlePrev } = useStockSearch(query ?? "");
 
@@ -49,3 +49,5 @@ export default function SearchResults() {
     </div>
   );
 }
+
+export default SearchResults;

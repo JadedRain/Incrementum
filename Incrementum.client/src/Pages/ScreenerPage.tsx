@@ -42,7 +42,7 @@ function ScreenerPage() {
                             />
                         )}
 
-                        {!loading && customScreeners.length >= 1 && apiKey && (
+                        {!loading && customScreeners.length >= 0 && apiKey && (
                             <>
                                 <AppCard
                                     title="Temp Card 1"
