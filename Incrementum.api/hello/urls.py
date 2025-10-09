@@ -1,9 +1,7 @@
 from django.urls import path
-from .views import (
-    HelloWorldView, GetStocks, GetStocksInfo, SearchStocksView, GetStockInfo, StockListCreateView
-)
 from .filters_controller import FiltersController
 from .custom_collection_controller import CustomCollectionController
+from .stocks_controller import StocksController
 from .watchlist_controller import WatchlistController
 from .views_auth import login, signup, account_info
 from .screener_views import (
@@ -16,12 +14,12 @@ from .filter_views import (
 
 watchlist_controller = WatchlistController()
 urlpatterns = [
-    path('hello_world/', HelloWorldView.as_view(), name='hello_world'),
-    path('getStocks/<str:ticker>/', GetStocks.as_view(), name='get_stocks'),
-    path('getStockInfo/', GetStocksInfo.as_view(), name='get_stock_info'),
-    path('searchStocks/<str:query>/<int:page>/', SearchStocksView.as_view(), name='search_stocks'),
-    path('stock/<str:ticker>/', GetStockInfo.as_view(), name='get_stocks_by_ticker'),
-    path('stocks/', StockListCreateView.as_view(), name='stock_list_create'),
+    path('hello_world/', StocksController.hello_world, name='hello_world'),
+    path('getStocks/<str:ticker>/', StocksController.get_stock_graph, name='get_stocks'),
+    path('getStockInfo/', StocksController.get_stocks_info, name='get_stock_info'),
+    path('searchStocks/<str:query>/<int:page>/', StocksController.search_stocks, name='search_stocks'),
+    path('stock/<str:ticker>/', StocksController.get_stock_info, name='get_stocks_by_ticker'),
+    path('stocks/', StocksController.stock_list_create, name='stock_list_create'),
     path('api/signup', signup, name='signup'),
     path('api/login', login, name='login'),
     path('api/account', account_info, name='account_info'),

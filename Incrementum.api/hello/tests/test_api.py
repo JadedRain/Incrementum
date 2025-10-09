@@ -16,7 +16,8 @@ def test_get_stock_info(api_client):
     url = reverse('get_stock_info')
     response = api_client.get(url, {'max': 1, 'offset': 0})
     assert response.status_code == 200
-    assert 'stocks' in response.data
+    response_data = response.json()
+    assert 'stocks' in response_data
 
 @pytest.mark.django_db
 def test_symbol_priority():
