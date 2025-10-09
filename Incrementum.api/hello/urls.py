@@ -1,9 +1,9 @@
 from django.urls import path
 from .views import (
-    HelloWorldView, GetStocks, GetStocksInfo, SearchStocksView, GetStockInfo, StockListCreateView,
-    CustomCollectionView, CustomCollectionAggregateView, CustomCollectionOverlayGraphView
+    HelloWorldView, GetStocks, GetStocksInfo, SearchStocksView, GetStockInfo, StockListCreateView
 )
 from .filters_controller import FiltersController
+from .custom_collection_controller import CustomCollectionController
 from .watchlist_controller import WatchlistController
 from .views_auth import login, signup, account_info
 from .screener_views import (
@@ -25,10 +25,10 @@ urlpatterns = [
     path('api/signup', signup, name='signup'),
     path('api/login', login, name='login'),
     path('api/account', account_info, name='account_info'),
-    path('custom-collection/', CustomCollectionView.as_view(), name='custom_collection'),
-    path('custom-collection/aggregate/', CustomCollectionAggregateView.as_view(), name='custom_collection_aggregate'),
-    path('custom-collection/aggregate-graph/', CustomCollectionAggregateView.as_view(), name='custom_collection_aggregate_graph'),
-    path('custom-collection/overlay-graph/', CustomCollectionOverlayGraphView.as_view(), name='custom_collection_overlay_graph'),
+    path('custom-collection/', CustomCollectionController.custom_collection, name='custom_collection'),
+    path('custom-collection/aggregate/', CustomCollectionController.custom_collection_aggregate, name='custom_collection_aggregate'),
+    path('custom-collection/aggregate-graph/', CustomCollectionController.custom_collection_aggregate_graph, name='custom_collection_aggregate_graph'),
+    path('custom-collection/overlay-graph/', CustomCollectionController.custom_collection_overlay_graph, name='custom_collection_overlay_graph'),
 
     # Watchlist API endpoints
     path('watchlist/', watchlist_controller.get_watchlist, name='watchlist'),

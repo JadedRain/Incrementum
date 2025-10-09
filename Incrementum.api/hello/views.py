@@ -21,14 +21,10 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .custom_collection_service import CustomCollectionService
 from .get_stock_info import get_stock_info, search_stocks, get_stock_by_ticker, generate_stock_graph
-from .graph_utils import generate_overlay_graph
 from .models import Stock
 from .serializers import StockSerializer
 from .utils import get_unique_sectors, get_unique_industries
-
-custom_collection = CustomCollectionService()
 
 class StockListCreateView(APIView):
 	def get(self, request):
@@ -53,8 +49,6 @@ class SearchStocksView(APIView):
 		results = search_stocks(query, page)
 		logging.info(f"results: {results}")
 		return Response(results)
-
-
 
 class GetStocksInfo(APIView):
 	permission_classes = [AllowAny]
@@ -90,12 +84,6 @@ class GetStockInfo(APIView):
 		except AttributeError:
 			return Response({'error': 'Page Not Found'}, status=404)
 		
-class HelloWorldView(APIView):
-	permission_classes = [AllowAny]
-
-	def get(self, request):
-		return Response({"message": "Hello, world!"})
-	
 class GetStocks(APIView):
     permission_classes = [AllowAny]
 
@@ -122,53 +110,10 @@ class GetStocks(APIView):
         png_bytes = generate_stock_graph(history, ticker, f"{period}, {interval}")
         return HttpResponse(png_bytes, content_type="image/png")
 
-class CustomCollectionView(APIView):
+
+class HelloWorldView(APIView):
+	permission_classes = [AllowAny]
+
 	def get(self, request):
-		return Response({'tokens': custom_collection.get_stocks()})
-
-	def post(self, request):
-		token = request.data.get('token')
-		if not token:
-			return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
-		custom_collection.add_stock(token)
-		return Response({'tokens': custom_collection.get_stocks()})
-
-	def delete(self, request):
-		token = request.data.get('token')
-		if not token:
-			return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
-		custom_collection.remove_stock(token)
-		return Response({'tokens': custom_collection.get_stocks()})
-
-class CustomCollectionAggregateView(APIView):
-	def get(self, request):
-		data = custom_collection.aggregate_data()
-		return Response(data)
-
-class CustomCollectionAggregateGraphView(APIView):
-	def get(self, request):
-		tokens = custom_collection.get_stocks()
-		logger = logging.getLogger("django")
-		try:
-			if not tokens:
-				logger.error("No stocks in collection")
-				return HttpResponse("No stocks in collection", status=404)
-			ticker = tokens[0]
-			stock = yf.Ticker(ticker)
-			history = stock.history(period="1y")
-			if history is None or history.empty:
-				logger.error(f"No history for ticker {ticker}")
-				return HttpResponse(f"No history for ticker {ticker}", status=500)
-			img_bytes = generate_stock_graph(history, ticker, "1y")
-			return HttpResponse(img_bytes, content_type="image/png")
-		except Exception as e:
-			logger.exception("Error generating aggregate graph")
-			return HttpResponse(f"Error generating graph: {str(e)}", status=500)
-
-class CustomCollectionOverlayGraphView(APIView):
-	def get(self, request):
-		tokens = custom_collection.get_stocks()
-		img_bytes, error = generate_overlay_graph(tokens)
-		if error:
-			return HttpResponse(error, status=500)
-		return HttpResponse(img_bytes, content_type="image/png")
+		return Response({"message": "Hello, world!"})
+	
