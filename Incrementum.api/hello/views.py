@@ -54,37 +54,6 @@ class SearchStocksView(APIView):
 		logging.info(f"results: {results}")
 		return Response(results)
 
-class SectorsView(APIView):
-	permission_classes = [AllowAny]
-
-	def get(self, request):
-		csv_path = Path(__file__).resolve().parent / 'data' / 'ticker_info.csv'
-		try:
-			sectors = get_unique_sectors(csv_path)
-		except Exception as e:
-			return Response({'error': str(e)}, status=500)
-		return Response({'sectors': sectors})
-
-
-@api_view(['GET'])
-def get_industries(request):
-    csv_path = Path(__file__).resolve().parent / 'data' / 'ticker_info.csv'
-    try:
-        industries = get_unique_industries(csv_path)
-    except Exception as e:
-        return Response({'error': str(e)}, status=500)
-    return Response({'industries': industries})
-
-class IndustriesView(APIView):
-	permission_classes = [AllowAny]
-
-	def get(self, request):
-		csv_path = Path(__file__).resolve().parent / 'data' / 'ticker_info.csv'
-		try:
-			industries = get_unique_industries(csv_path)
-		except Exception as e:
-			return Response({'error': str(e)}, status=500)
-		return Response({'industries': industries})
 
 
 class GetStocksInfo(APIView):

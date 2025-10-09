@@ -1,9 +1,9 @@
 from django.urls import path
 from .views import (
     HelloWorldView, GetStocks, GetStocksInfo, SearchStocksView, GetStockInfo, StockListCreateView,
-    SectorsView, IndustriesView,
     CustomCollectionView, CustomCollectionAggregateView, CustomCollectionOverlayGraphView
 )
+from .filters_controller import FiltersController
 from .watchlist_controller import WatchlistController
 from .views_auth import login, signup, account_info
 from .screener_views import (
@@ -53,6 +53,6 @@ urlpatterns = [
     # Filter Options API endpoints
     path('filters/categorical/', get_categorical_filter_types, name='get_categorical_filter_types'),
     path('filters/numeric/', get_numeric_filter_types, name='get_numeric_filter_types'),
-    path('sectors/', SectorsView.as_view(), name='sectors'),
-    path('industries/', IndustriesView.as_view(), name='industries'),
+    path('sectors/', FiltersController.get_sectors, name='sectors'),
+    path('industries/', FiltersController.get_industries, name='industries'),
 ]

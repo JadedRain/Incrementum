@@ -8,13 +8,11 @@ from hello.get_stock_info import search_stocks
 from hello import get_stock_info
 from hello.stocks_class import Stock
 from hello.get_stock_info import screen_stocks_by_average_volume
-from . import views
+from . import filters_controller
 from hello.get_stock_info import screen_stocks_by_average_volume
 import unittest.mock
 from hello.get_stock_info import screen_stocks_by_average_volume
     
-    
-
 @pytest.fixture
 def api_client():
     return APIClient()
@@ -44,12 +42,13 @@ def test_get_sectors_success(api_client, monkeypatch):
     def fake_get_unique_sectors(path):
         return ['Technology', 'Finance', 'Healthcare']
 
-    monkeypatch.setattr(views, 'get_unique_sectors', fake_get_unique_sectors)
+    monkeypatch.setattr(filters_controller, 'get_unique_sectors', fake_get_unique_sectors)
 
     response = api_client.get(url)
     assert response.status_code == 200
-    assert 'sectors' in response.data
-    assert response.data['sectors'] == ['Technology', 'Finance', 'Healthcare']
+    response_data = response.json()
+    assert 'sectors' in response_data
+    assert response_data['sectors'] == ['Technology', 'Finance', 'Healthcare']
 
 
 @pytest.mark.django_db
@@ -59,12 +58,13 @@ def test_get_sectors_failure_returns_500(api_client, monkeypatch):
     def fake_get_unique_sectors(path):
         raise ValueError('CSV missing')
 
-    monkeypatch.setattr(views, 'get_unique_sectors', fake_get_unique_sectors)
+    monkeypatch.setattr(filters_controller, 'get_unique_sectors', fake_get_unique_sectors)
 
     response = api_client.get(url)
     assert response.status_code == 500
-    assert 'error' in response.data
-    assert 'CSV missing' in response.data['error']
+    response_data = response.json()
+    assert 'error' in response_data
+    assert 'CSV missing' in response_data['error']
 
 @pytest.mark.django_db
 def test_get_industries_success(api_client, monkeypatch):
@@ -73,12 +73,13 @@ def test_get_industries_success(api_client, monkeypatch):
     def fake_get_unique_industries(path):
         return ['software', 'pharmaceuticals', 'banking']
 
-    monkeypatch.setattr(views, 'get_unique_industries', fake_get_unique_industries)
+    monkeypatch.setattr(filters_controller, 'get_unique_industries', fake_get_unique_industries)
 
     response = api_client.get(url)
     assert response.status_code == 200
-    assert 'industries' in response.data
-    assert response.data['industries'] == ['software', 'pharmaceuticals', 'banking']
+    response_data = response.json()
+    assert 'industries' in response_data
+    assert response_data['industries'] == ['software', 'pharmaceuticals', 'banking']
 
 @pytest.mark.django_db
 def test_get_industries_failure_returns_500(api_client, monkeypatch):
@@ -87,12 +88,13 @@ def test_get_industries_failure_returns_500(api_client, monkeypatch):
     def fake_get_unique_industries(path):
         raise RuntimeError('read error')
 
-    monkeypatch.setattr(views, 'get_unique_industries', fake_get_unique_industries)
+    monkeypatch.setattr(filters_controller, 'get_unique_industries', fake_get_unique_industries)
 
     response = api_client.get(url)
     assert response.status_code == 500
-    assert 'error' in response.data
-    assert 'read error' in response.data['error']
+    response_data = response.json()
+    assert 'error' in response_data
+    assert 'read error' in response_data['error']
 
 def test_get_stock_info_with_percent_change_greater_than(api_client, monkeypatch):
     url = reverse('get_stock_info')
