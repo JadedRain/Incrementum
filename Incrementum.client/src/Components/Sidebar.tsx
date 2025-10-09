@@ -25,6 +25,10 @@ interface SidebarProps {
   onPercentChangeFilter?: (filter: string) => void;
   showCustomScreenerSection?: boolean;
   apiKey?: string;
+  avgVolumeMin?: string;
+  setAvgVolumeMin?: React.Dispatch<React.SetStateAction<string>>;
+  avgVolumeMax?: string;
+  setAvgVolumeMax?: React.Dispatch<React.SetStateAction<string>>;
 }
 
 
@@ -40,7 +44,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   percentChangeFilter = 'gt',
   onPercentChangeFilter,
   showCustomScreenerSection = false,
-  apiKey
+  apiKey,
+  avgVolumeMin: propAvgVolumeMin,
+  setAvgVolumeMin: propSetAvgVolumeMin,
+  avgVolumeMax: propAvgVolumeMax,
+  setAvgVolumeMax: propSetAvgVolumeMax,
 }) => {
   // Categoric FIlters
   const { sectorChecks, setSectorChecks, industryChecks, setIndustryChecks } = useSectorsAndIndustries({
@@ -59,8 +67,10 @@ const Sidebar: React.FC<SidebarProps> = ({
   });
   
   // Numeric Filters
-  const [avgVolumeMin, setAvgVolumeMin] = useState('');
-  const [avgVolumeMax, setAvgVolumeMax] = useState('');
+  // Keep local numeric filter state, but accept parent-controlled avgVolume props when provided
+  // local copies of numeric filters; if parent provides props we keep in sync
+  const [localAvgVolumeMin, setLocalAvgVolumeMin] = useState('');
+  const [localAvgVolumeMax, setLocalAvgVolumeMax] = useState('');
   const [todayVolumeMin, setTodayVolumeMin] = useState('');
   const [todayVolumeMax, setTodayVolumeMax] = useState('');
   const [high52Min, setHigh52Min] = useState('');
@@ -90,6 +100,14 @@ useEffect(() =>{
   useEffect(() => {
     setLocalPercentChangeFilter(percentChangeFilter);
   }, [percentChangeFilter]);
+
+  // sync local avgVolume when parent props change
+  useEffect(() => {
+    if (typeof propAvgVolumeMin === 'string') setLocalAvgVolumeMin(propAvgVolumeMin);
+  }, [propAvgVolumeMin]);
+  useEffect(() => {
+    if (typeof propAvgVolumeMax === 'string') setLocalAvgVolumeMax(propAvgVolumeMax);
+  }, [propAvgVolumeMax]);
 
   // Sync changePercent with percentThreshold prop
   useEffect(() => {
@@ -133,10 +151,16 @@ useEffect(() =>{
         />
 
         <VolumeFilter
-          avgVolumeMin={avgVolumeMin}
-          setAvgVolumeMin={setAvgVolumeMin}
-          avgVolumeMax={avgVolumeMax}
-          setAvgVolumeMax={setAvgVolumeMax}
+          avgVolumeMin={localAvgVolumeMin}
+          setAvgVolumeMin={(v: string) => {
+            setLocalAvgVolumeMin(v);
+            if (typeof propSetAvgVolumeMin === 'function') propSetAvgVolumeMin(v);
+          }}
+          avgVolumeMax={localAvgVolumeMax}
+          setAvgVolumeMax={(v: string) => {
+            setLocalAvgVolumeMax(v);
+            if (typeof propSetAvgVolumeMax === 'function') propSetAvgVolumeMax(v);
+          }}
           todayVolumeMin={todayVolumeMin}
           setTodayVolumeMin={setTodayVolumeMin}
           todayVolumeMax={todayVolumeMax}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
 
 interface VolumeFilterProps {
@@ -22,6 +22,17 @@ const VolumeFilter: React.FC<VolumeFilterProps> = ({
   todayVolumeMax,
   setTodayVolumeMax
 }) => {
+  // Local inputs so we only update parent on blur (user requested update-on-blur behavior)
+  const [localMin, setLocalMin] = useState<string>(avgVolumeMin || '');
+  const [localMax, setLocalMax] = useState<string>(avgVolumeMax || '');
+
+  useEffect(() => {
+    setLocalMin(avgVolumeMin || '');
+  }, [avgVolumeMin]);
+
+  useEffect(() => {
+    setLocalMax(avgVolumeMax || '');
+  }, [avgVolumeMax]);
   return (
     <ExpandableSidebarItem title="Stocks Traded Volume">
       <div style={{ marginBottom: '0.5rem' }}>
@@ -30,16 +41,18 @@ const VolumeFilter: React.FC<VolumeFilterProps> = ({
           <input
             type="text"
             placeholder="Min"
-            value={avgVolumeMin}
-            onChange={e => setAvgVolumeMin(e.target.value)}
+            value={localMin}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocalMin(e.target.value)}
+            onBlur={() => setAvgVolumeMin(localMin)}
             className="sidebar-input"
             style={{ flex: 1, padding: '0.4rem' }}
           />
           <input
             type="text"
             placeholder="Max"
-            value={avgVolumeMax}
-            onChange={e => setAvgVolumeMax(e.target.value)}
+            value={localMax}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocalMax(e.target.value)}
+            onBlur={() => setAvgVolumeMax(localMax)}
             className="sidebar-input"
             style={{ flex: 1, padding: '0.4rem' }}
           />
@@ -52,7 +65,7 @@ const VolumeFilter: React.FC<VolumeFilterProps> = ({
             type="text"
             placeholder="Min"
             value={todayVolumeMin}
-            onChange={e => setTodayVolumeMin(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTodayVolumeMin(e.target.value)}
             className="sidebar-input"
             style={{ flex: 1, padding: '0.4rem' }}
           />
@@ -60,7 +73,7 @@ const VolumeFilter: React.FC<VolumeFilterProps> = ({
             type="text"
             placeholder="Max"
             value={todayVolumeMax}
-            onChange={e => setTodayVolumeMax(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTodayVolumeMax(e.target.value)}
             className="sidebar-input"
             style={{ flex: 1, padding: '0.4rem' }}
           />
