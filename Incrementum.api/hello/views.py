@@ -27,11 +27,8 @@ from .graph_utils import generate_overlay_graph
 from .models import Stock
 from .serializers import StockSerializer
 from .utils import get_unique_sectors, get_unique_industries
-from .watchlist_service import WatchlistService
 
 custom_collection = CustomCollectionService()
-watchlist_service = WatchlistService()
-
 
 class StockListCreateView(APIView):
 	def get(self, request):
@@ -56,109 +53,6 @@ class SearchStocksView(APIView):
 		results = search_stocks(query, page)
 		logging.info(f"results: {results}")
 		return Response(results)
-
-class WatchlistView(APIView):
-	permission_classes = [AllowAny]
-	
-	def get(self, request):
-		user_id = request.headers.get('X-User-Id')
-		if not user_id:
-			return Response({'error': 'user_id is required in headers'}, status=status.HTTP_400_BAD_REQUEST)
-		wl = watchlist_service.get(user_id)
-		logging.info(f"[watchlist:get] user_id={user_id} size={len(wl)}")
-		return Response({'watchlist': wl})
-	
-	def post(self, request):
-		symbol = request.data.get('symbol')
-		user_id = request.headers.get('X-User-Id')
-		if not symbol or not user_id:
-			return Response({'error': 'Symbol and user_id are required'}, status=status.HTTP_400_BAD_REQUEST)
-		logging.info(f"[watchlist:add] user_id={user_id} symbol={symbol}")
-		watchlist = watchlist_service.add(user_id, symbol)
-		logging.info(f"[watchlist:add] size={len(watchlist)}")
-		return Response({'watchlist': watchlist})
-	
-	def delete(self, request):
-		symbol = request.data.get('symbol')
-		user_id = request.headers.get('X-User-Id')
-		if not symbol or not user_id:
-			return Response({'error': 'Symbol and user_id are required'}, status=status.HTTP_400_BAD_REQUEST)
-		logging.info(f"[watchlist:remove] user_id={user_id} symbol={symbol}")
-		watchlist = watchlist_service.remove(user_id, symbol)
-		logging.info(f"[watchlist:remove] size={len(watchlist)}")
-		return Response({'watchlist': watchlist})
-
-@csrf_exempt
-@api_view(['POST'])
-def add_to_watchlist(request):
-	symbol = request.data.get('symbol')
-	user_id = request.headers.get('X-User-Id')
-	if not symbol or not user_id:
-		return Response({'error': 'Symbol and user_id are required'}, status=status.HTTP_400_BAD_REQUEST)
-	logging.info(f"[watchlist:add] user_id={user_id} symbol={symbol}")
-	watchlist = watchlist_service.add(user_id, symbol)
-	logging.info(f"[watchlist:add] size={len(watchlist)}")
-	return Response({'watchlist': watchlist})
-
-@csrf_exempt
-@api_view(['DELETE'])
-def remove_from_watchlist(request):
-	symbol = request.data.get('symbol')
-	user_id = request.headers.get('X-User-Id')
-	if not symbol or not user_id:
-		return Response({'error': 'Symbol and user_id are required'}, status=status.HTTP_400_BAD_REQUEST)
-	logging.info(f"[watchlist:remove] user_id={user_id} symbol={symbol}")
-	watchlist = watchlist_service.remove(user_id, symbol)
-	logging.info(f"[watchlist:remove] size={len(watchlist)}")
-	return Response({'watchlist': watchlist})
-
-@api_view(['GET'])
-def get_watchlist(request):
-	user_id = request.headers.get('X-User-Id')
-	if not user_id:
-		return Response({'error': 'user_id is required in headers'}, status=status.HTTP_400_BAD_REQUEST)
-	wl = watchlist_service.get(user_id)
-	logging.info(f"[watchlist:get] user_id={user_id} size={len(wl)}")
-	return Response({'watchlist': wl})
-
-@api_view(['GET'])
-def search_stocks_watchlist(request):
-	query = request.GET.get('query', '')
-	user_id = request.headers.get('X-User-Id')
-	if not query or not user_id:
-		return Response({'error': 'Query and user_id are required'}, status=status.HTTP_400_BAD_REQUEST)
-	max_results = int(request.GET.get('max', 10))
-	results = watchlist_service.search(user_id, query, max_results)
-	return Response({'results': results})
-
-@api_view(['GET'])
-def get_sorted_watchlist(request):
-	user_id = request.headers.get('X-User-Id')
-	if not user_id:
-		return Response({'error': 'user_id is required in headers'}, status=status.HTTP_400_BAD_REQUEST)
-	sorted_wl = watchlist_service.get(user_id)
-	logging.info(f"[watchlist:get_sorted] user_id={user_id} size={len(sorted_wl)}")
-	return Response({'watchlist': sorted_wl})
-
-class WatchlistSearchView(APIView):
-	permission_classes = [AllowAny]
-
-	def get(self, request):
-		query = request.GET.get('query', '')
-		if not query:
-			return Response({'error': 'Query parameter is required'}, status=status.HTTP_400_BAD_REQUEST)
-		max_results = int(request.GET.get('max', 10))
-		results = watchlist_service.search(query, max_results)
-		return Response({'results': results})
-
-
-class WatchlistSortedView(APIView):
-	permission_classes = [AllowAny]
-
-	def get(self, request):
-		sorted_wl = watchlist_service.get_sorted()
-		logging.info(f"[watchlist:get_sorted] size={len(sorted_wl)}")
-		return Response({'watchlist': sorted_wl})
 
 class SectorsView(APIView):
 	permission_classes = [AllowAny]
@@ -258,22 +152,6 @@ class GetStocks(APIView):
 
         png_bytes = generate_stock_graph(history, ticker, f"{period}, {interval}")
         return HttpResponse(png_bytes, content_type="image/png")
-
-
-class WatchlistList(APIView):
-	permission_classes = [AllowAny]
- 
-	def get(self, request):
-		watchlist = self.watchlist_service.get()
-		return Response({"watchlist": watchlist})
-	def post(self, request):
-		symbol = request.data.get('symbol')
-		if not symbol:
-			return Response({'error': 'Symbol is required'}, status=status.HTTP_400_BAD_REQUEST)
-		logging.info(f"[watchlist:add] symbol={symbol}")
-		watchlist = self.watchlist_service.add(symbol)
-		logging.info(f"[watchlist:add] size={len(watchlist)}")
-		return Response({'watchlist': watchlist})
 
 class CustomCollectionView(APIView):
 	def get(self, request):
