@@ -1,38 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import ExpandableSidebarItem from './ExpandableSidebarItem';
-
-interface SidebarProps {
-  selectedSectors?: string[];
-  onSelectedSectorsChange?: (sectors: string[]) => void;
-  selectedIndustries?: string[];
-  onSelectedIndustriesChange?: (industries: string[]) => void;
-  percentThreshold?: string;
-  onPercentThresholdChange?: (value: string) => void;
-  changePeriod?: 'daily' | 'weekly' | 'monthly';
-  onChangePeriod?: (period: 'daily' | 'weekly' | 'monthly') => void;
-  percentChangeFilter?: string;
-  onPercentChangeFilter?: (filter: string) => void;
-  showCustomScreenerSection?: boolean;
-  apiKey?: string;
-}
+import { helpSetFilters } from '../utils/filterUtils';
+import { useSectorsAndIndustries } from '../hooks/useSectorsAndIndustries';
+import SectorFilter from './FilterComponents/SectorFilter';
+import IndustryFilter from './FilterComponents/IndustryFilter';
+import RegionFilter from './FilterComponents/RegionFilter';
+import MarketFilter from './FilterComponents/MarketFilter';
+import VolumeFilter from './FilterComponents/VolumeFilter';
+import WeekRangeFilter from './FilterComponents/WeekRangeFilter';
+import SharePriceFilter from './FilterComponents/SharePriceFilter';
+import MarketCapFilter from './FilterComponents/MarketCapFilter';
+import PercentChangeFilter from './FilterComponents/PercentChangeFilter';
+import SaveCustomScreener from './FilterComponents/SaveCustomScreener';
+import { useScreener } from "../Context/ScreenerContext";
 
 
-const Sidebar: React.FC<SidebarProps> = ({
-  selectedSectors,
-  onSelectedSectorsChange,
-  selectedIndustries,
-  onSelectedIndustriesChange,
-  percentThreshold,
-  onPercentThresholdChange,
-  changePeriod = 'daily',
-  onChangePeriod,
-  percentChangeFilter = 'gt',
-  onPercentChangeFilter,
-  showCustomScreenerSection = false,
-  apiKey
-}) => {
-  const [sectorChecks, setSectorChecks] = useState<{ [k: string]: boolean }>({});
-  const [industryChecks, setIndustryChecks] = useState<{ [k: string]: boolean }>({});
+
+const Sidebar: React.FC = () => {
+  const {
+    selectedSectors,
+    onSelectedSectorsChange,
+    selectedIndustries,
+    onSelectedIndustriesChange,
+    percentThreshold,
+    onPercentThresholdChange,
+    changePeriod,
+    onChangePeriod,
+    percentChangeFilter,
+    onPercentChangeFilter,
+    showCustomScreenerSection,
+    setShowCustomScreenerSection,
+    apiKey,
+    setApiKey,
+  } = useScreener();
+
+  const { sectorChecks, setSectorChecks, industryChecks, setIndustryChecks } = useSectorsAndIndustries({
+    selectedSectors,
+    selectedIndustries,
+  });
   const [regionChecks, setRegionChecks] = useState<{ [k: string]: boolean }>({
     'Region 1': false,
     'Region 2': false,
@@ -474,99 +478,31 @@ useEffect(() => {
           </div>
         </ExpandableSidebarItem>
 
-        <ExpandableSidebarItem title="Share Price">
-          <div style={{ marginBottom: '0.5rem' }}>
-            <div style={{ fontWeight: 600 }}>Share Price</div>
-            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-              <input
-                type="text"
-                placeholder="Min"
-                value={priceMin}
-                onChange={e => setPriceMin(e.target.value)}
-                className="sidebar-input"
-                style={{ flex: 1, padding: '0.4rem' }}
-              />
-              <input
-                type="text"
-                placeholder="Max"
-                value={priceMax}
-                onChange={e => setPriceMax(e.target.value)}
-                className="sidebar-input"
-                style={{ flex: 1, padding: '0.4rem' }}
-              />
-            </div>
-          </div>
-          <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#2b2b2b' }}>
-            (No filtering functionality implemented; inputs are for UI only.)
-          </div>
-        </ExpandableSidebarItem>
+        <SharePriceFilter
+          priceMin={priceMin}
+          setPriceMin={setPriceMin}
+          priceMax={priceMax}
+          setPriceMax={setPriceMax}
+        />
 
-        <ExpandableSidebarItem title="Market Cap">
-          <div style={{ marginBottom: '0.5rem' }}>
-            <div style={{ fontWeight: 600 }}>Market Cap</div>
-            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-              <input
-                type="text"
-                placeholder="Min"
-                value={marketCapMin}
-                onChange={e => setMarketCapMin(e.target.value)}
-                className="sidebar-input"
-                style={{ flex: 1, padding: '0.4rem' }}
-              />
-              <input
-                type="text"
-                placeholder="Max"
-                value={marketCapMax}
-                onChange={e => setMarketCapMax(e.target.value)}
-                className="sidebar-input"
-                style={{ flex: 1, padding: '0.4rem' }}
-              />
-            </div>
-          </div>
-          <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#2b2b2b' }}>
-            (No filtering functionality implemented; inputs are for UI only.)
-          </div>
-        </ExpandableSidebarItem>
+        <MarketCapFilter
+          marketCapMin={marketCapMin}
+          setMarketCapMin={setMarketCapMin}
+          marketCapMax={marketCapMax}
+          setMarketCapMax={setMarketCapMax}
+        />
 
-        <ExpandableSidebarItem title="% Change">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <div>
-              <label style={{ marginRight: '0.5rem' }}>Period:</label>
-              <select value={changePeriod} onChange={e => {
-                if (onChangePeriod) onChangePeriod(e.target.value as 'daily' | 'weekly' | 'monthly');
-              }}>
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
-              </select>
-            </div>
-            <div>
-              <label style={{ marginRight: '0.5rem' }}>Comparison:</label>
-              <select value={localPercentChangeFilter} onChange={e => {
-                setLocalPercentChangeFilter(e.target.value);
-                if (onPercentChangeFilter) onPercentChangeFilter(e.target.value);
-              }}>
-                <option value="gt">Greater Than</option>
-                <option value="lt">Less Than</option>
-                <option value="eq">Equal To</option>
-              </select>
-            </div>
-            <div>
-              <label style={{ display: 'block', fontWeight: 600 }}>Percent Threshold</label>
-              <input
-                type="number"
-                placeholder="e.g. 2.5"
-                value={percentThreshold ?? changePercent}
-                onChange={e => {
-                  setChangePercent(e.target.value);
-                  if (onPercentThresholdChange) onPercentThresholdChange(e.target.value);
-                }}
-                className="sidebar-input"
-                style={{ width: '100%', padding: '0.4rem', marginTop: '0.25rem' }}
-              />
-            </div>
-          </div>
-        </ExpandableSidebarItem>
+        <PercentChangeFilter
+          changePeriod={changePeriod}
+          onChangePeriod={changePeriod}
+          localPercentChangeFilter={localPercentChangeFilter}
+          setLocalPercentChangeFilter={setLocalPercentChangeFilter}
+          onPercentChangeFilter={onPercentChangeFilter}
+          percentThreshold={percentThreshold}
+          changePercent={changePercent}
+          setChangePercent={setChangePercent}
+          onPercentThresholdChange={onPercentThresholdChange}
+        />
       </nav>
     </aside>
   );

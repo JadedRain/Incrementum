@@ -16,7 +16,7 @@ import { AuthProvider } from "./Context/AuthContext";
 import AccountPage from "./Pages/AccountPage";
 import CreateCustomCollectionPage from "./Pages/CreateCustomCollectionPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
+import { ScreenerProvider } from "./Context/ScreenerContext";
 
 const queryClient = new QueryClient();
 
@@ -33,7 +33,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <Route path="/stock/:token" element={<Stock />} />
           <Route path="/stocks" element={<StocksPage />} />
           <Route path="/watchlist" element={<WatchlistPage />} />
-          <Route path="/screener/:id" element={<IndividualScreenPage />} />
+          <Route path="/screener/:id" element={<ScreenerProvider> <IndividualScreenPage />  </ScreenerProvider>} />
           <Route path="/create-custom-screener" element={<CustomScreenerPage />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/custom-collection/:id" element={<IndividualCustomCollectionPage />} />

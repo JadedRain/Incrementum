@@ -8,6 +8,8 @@ import '../App.css';
 import type { CustomScreener, CategoricalFilter, NumericFilter } from '../Types/ScreenerTypes';
 import { fetchCustomScreener } from "../Query/apiScreener"
 import { useQuery } from "@tanstack/react-query"
+import { useParams } from 'react-router-dom';
+import { useScreener } from '../Context/ScreenerContext';
 interface StockInfo {
   displayName?: string;
   longName?: string;
@@ -28,9 +30,7 @@ function IndividualScreenPage() {
   const { apiKey } = useAuth();
   const [stocks, setStocks] = useState<StockInfo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
-  const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
-
+  
   const { data, error, isLoading } = useQuery<CustomScreener>({
     queryKey: ["customScreener", id],
     queryFn: () => fetchCustomScreener(id!, apiKey),
@@ -39,11 +39,15 @@ function IndividualScreenPage() {
     console.log(data)
   }, [data]);
   
-
-  const [percentThreshold, setPercentThreshold] = useState('');
-  const [changePeriod, setChangePeriod] = useState<'daily' | 'weekly' | 'monthly'>('daily');
-  const [percentChangeFilter, setPercentChangeFilter] = useState<string>('gt');
-
+  const {
+    selectedSectors,
+    setSelectedSectors,
+    selectedIndustries,
+    setSelectedIndustries,
+    percentThreshold,
+    changePeriod,
+    percentChangeFilter,
+  } = useScreener();
   useEffect(() => {
     const fetchStocks = async () => {
       setLoading(true);
@@ -54,7 +58,6 @@ function IndividualScreenPage() {
         const filters: any = {};
         if (selectedSectors && selectedSectors.length) filters.sectors = selectedSectors;
         if (selectedIndustries && selectedIndustries.length) filters.industries = selectedIndustries;
-        // Send percent change filter and period in backend-compatible format
         if (percentThreshold) {
           filters.percent_change_filter = percentChangeFilter;
           filters.percent_change_value = percentThreshold;
@@ -67,7 +70,6 @@ function IndividualScreenPage() {
 
         const newStocks = (data.stocks || []).slice(0, 4);
 
-        // Logging: the stocks that will be set into state
         console.log('[IndividualScreenPage] setting stocks (after slice):', newStocks);
 
         setStocks(newStocks);
@@ -77,12 +79,7 @@ function IndividualScreenPage() {
     fetchStocks();
 
   }, [selectedSectors, selectedIndustries, percentThreshold, percentChangeFilter, changePeriod]);
-  // useEffect(()=>{
-  //   const fetchparams = async () => {
-      
-  //   }
-  //   fetchparams()
-  // }, [])
+
 
   useEffect(() => {
     if (data) {
@@ -121,7 +118,6 @@ useEffect(()=> {
               <div className="StockTable-header">Chart</div>
               <div className="StockTable-header">Change</div>
             </div>
-            <Loading loading={loading} watchlist={[]} showEmpty={false} />
             {!loading &&
               stocks.map((item, idx) => {
                 const name = item.displayName || item.longName || item.shortName || 'Unnamed Stock';
@@ -147,18 +143,6 @@ useEffect(()=> {
             </div>
           </div>
           <Sidebar
-            selectedSectors={selectedSectors}
-            onSelectedSectorsChange={setSelectedSectors}
-            selectedIndustries={selectedIndustries}
-            onSelectedIndustriesChange={setSelectedIndustries}
-            percentThreshold={percentThreshold}
-            onPercentThresholdChange={setPercentThreshold}
-            changePeriod={changePeriod}
-            onChangePeriod={setChangePeriod}
-            percentChangeFilter={percentChangeFilter}
-            onPercentChangeFilter={setPercentChangeFilter}
-            showCustomScreenerSection={true}
-            apiKey={apiKey || undefined}
           />
         </div>
       </div>

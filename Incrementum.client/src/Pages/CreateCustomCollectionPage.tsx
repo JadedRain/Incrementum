@@ -36,7 +36,6 @@ const CreateCustomCollectionPage = () => {
     setSearching(true);
     setSearchResults([]);
     try {
-      // Use your backend search endpoint, adjust as needed
       const res = await fetch(`http://localhost:8000/searchStocks/${encodeURIComponent(newToken)}/0/`);
       if (!res.ok) throw new Error("Failed to search stocks");
       const data = await res.json();
@@ -47,7 +46,6 @@ const CreateCustomCollectionPage = () => {
     setSearching(false);
   };
 
-  // Add selected stock symbol to collection
   const addToken = (symbol: string) => {
     if (!selectedStocks.includes(symbol)) {
       setSelectedStocks([...selectedStocks, symbol]);
