@@ -192,7 +192,6 @@ class IndustriesView(APIView):
 			return Response({'error': str(e)}, status=500)
 		return Response({'industries': industries})
 
-
 class GetStocksInfo(APIView):
 	permission_classes = [AllowAny]
 
@@ -258,7 +257,6 @@ class GetStocks(APIView):
 
         png_bytes = generate_stock_graph(history, ticker, f"{period}, {interval}")
         return HttpResponse(png_bytes, content_type="image/png")
-
 
 class WatchlistList(APIView):
 	permission_classes = [AllowAny]
