@@ -8,13 +8,11 @@ from hello.get_stock_info import search_stocks
 from hello import get_stock_info
 from hello.stocks_class import Stock
 from hello.get_stock_info import screen_stocks_by_average_volume
-from . import views
+from . import filters_controller
 from hello.get_stock_info import screen_stocks_by_average_volume
 import unittest.mock
 from hello.get_stock_info import screen_stocks_by_average_volume
     
-    
-
 @pytest.fixture
 def api_client():
     return APIClient()
@@ -24,7 +22,8 @@ def test_get_stock_info(api_client):
     url = reverse('get_stock_info')
     response = api_client.get(url, {'max': 1, 'offset': 0})
     assert response.status_code == 200
-    assert 'stocks' in response.data
+    response_data = response.json()
+    assert 'stocks' in response_data
     
 def test_symbol_priority():
     results = search_stocks('TS', 0)
@@ -44,12 +43,13 @@ def test_get_sectors_success(api_client, monkeypatch):
     def fake_get_unique_sectors(path):
         return ['Technology', 'Finance', 'Healthcare']
 
-    monkeypatch.setattr(views, 'get_unique_sectors', fake_get_unique_sectors)
+    monkeypatch.setattr(filters_controller, 'get_unique_sectors', fake_get_unique_sectors)
 
     response = api_client.get(url)
     assert response.status_code == 200
-    assert 'sectors' in response.data
-    assert response.data['sectors'] == ['Technology', 'Finance', 'Healthcare']
+    response_data = response.json()
+    assert 'sectors' in response_data
+    assert response_data['sectors'] == ['Technology', 'Finance', 'Healthcare']
 
 
 @pytest.mark.django_db
@@ -59,12 +59,13 @@ def test_get_sectors_failure_returns_500(api_client, monkeypatch):
     def fake_get_unique_sectors(path):
         raise ValueError('CSV missing')
 
-    monkeypatch.setattr(views, 'get_unique_sectors', fake_get_unique_sectors)
+    monkeypatch.setattr(filters_controller, 'get_unique_sectors', fake_get_unique_sectors)
 
     response = api_client.get(url)
     assert response.status_code == 500
-    assert 'error' in response.data
-    assert 'CSV missing' in response.data['error']
+    response_data = response.json()
+    assert 'error' in response_data
+    assert 'CSV missing' in response_data['error']
 
 @pytest.mark.django_db
 def test_get_industries_success(api_client, monkeypatch):
@@ -73,12 +74,13 @@ def test_get_industries_success(api_client, monkeypatch):
     def fake_get_unique_industries(path):
         return ['software', 'pharmaceuticals', 'banking']
 
-    monkeypatch.setattr(views, 'get_unique_industries', fake_get_unique_industries)
+    monkeypatch.setattr(filters_controller, 'get_unique_industries', fake_get_unique_industries)
 
     response = api_client.get(url)
     assert response.status_code == 200
-    assert 'industries' in response.data
-    assert response.data['industries'] == ['software', 'pharmaceuticals', 'banking']
+    response_data = response.json()
+    assert 'industries' in response_data
+    assert response_data['industries'] == ['software', 'pharmaceuticals', 'banking']
 
 @pytest.mark.django_db
 def test_get_industries_failure_returns_500(api_client, monkeypatch):
@@ -87,12 +89,13 @@ def test_get_industries_failure_returns_500(api_client, monkeypatch):
     def fake_get_unique_industries(path):
         raise RuntimeError('read error')
 
-    monkeypatch.setattr(views, 'get_unique_industries', fake_get_unique_industries)
+    monkeypatch.setattr(filters_controller, 'get_unique_industries', fake_get_unique_industries)
 
     response = api_client.get(url)
     assert response.status_code == 500
-    assert 'error' in response.data
-    assert 'read error' in response.data['error']
+    response_data = response.json()
+    assert 'error' in response_data
+    assert 'read error' in response_data['error']
 
 def test_get_stock_info_with_percent_change_greater_than(api_client, monkeypatch):
     url = reverse('get_stock_info')
@@ -128,10 +131,11 @@ def test_get_stock_info_with_percent_change_greater_than(api_client, monkeypatch
     })
     
     assert response.status_code == 200
-    assert 'stocks' in response.data
-    assert len(response.data['stocks']) == 2
+    response_data = response.json()
+    assert 'stocks' in response_data
+    assert len(response_data['stocks']) == 2
     
-    symbols = [stock['symbol'] for stock in response.data['stocks']]
+    symbols = [stock['symbol'] for stock in response_data['stocks']]
     assert 'MOCK1' in symbols
     assert 'MOCK2' in symbols
 
@@ -163,9 +167,10 @@ def test_get_stock_info_with_percent_change_less_than(api_client, monkeypatch):
     })
     
     assert response.status_code == 200
-    assert 'stocks' in response.data
-    assert len(response.data['stocks']) == 1
-    assert response.data['stocks'][0]['symbol'] == 'LOSER1'
+    response_data = response.json()
+    assert 'stocks' in response_data
+    assert len(response_data['stocks']) == 1
+    assert response_data['stocks'][0]['symbol'] == 'LOSER1'
 
 def test_get_stock_info_percent_change_pagination(api_client, monkeypatch):
     url = reverse('get_stock_info')
@@ -196,8 +201,9 @@ def test_get_stock_info_percent_change_pagination(api_client, monkeypatch):
     })
     
     assert response.status_code == 200
-    assert len(response.data['stocks']) == 2
-    first_page_symbols = [stock['symbol'] for stock in response.data['stocks']]
+    response_data = response.json()
+    assert len(response_data['stocks']) == 2
+    first_page_symbols = [stock['symbol'] for stock in response_data['stocks']]
     assert 'PAGE0' in first_page_symbols
     assert 'PAGE1' in first_page_symbols
     
@@ -208,8 +214,9 @@ def test_get_stock_info_percent_change_pagination(api_client, monkeypatch):
     })
     
     assert response.status_code == 200
-    assert len(response.data['stocks']) == 2
-    second_page_symbols = [stock['symbol'] for stock in response.data['stocks']]
+    response_data = response.json()
+    assert len(response_data['stocks']) == 2
+    second_page_symbols = [stock['symbol'] for stock in response_data['stocks']]
     assert 'PAGE2' in second_page_symbols
     assert 'PAGE3' in second_page_symbols
 
@@ -228,7 +235,8 @@ def test_get_stock_info_invalid_percent_change_filter(api_client):
     })
     
     assert response.status_code == 500
-    assert 'error' in response.data
+    response_data = response.json()
+    assert 'error' in response_data
 
 def test_get_stock_info_percent_change_without_value(api_client):
     url = reverse('get_stock_info')
@@ -244,7 +252,8 @@ def test_get_stock_info_percent_change_without_value(api_client):
     })
     
     assert response.status_code == 200
-    assert 'stocks' in response.data
+    response_data = response.json()
+    assert 'stocks' in response_data
 
 @pytest.mark.django_db
 def test_get_stock_info_with_average_volume_greater_than(api_client, monkeypatch):
@@ -281,10 +290,11 @@ def test_get_stock_info_with_average_volume_greater_than(api_client, monkeypatch
     })
     
     assert response.status_code == 200
-    assert 'stocks' in response.data
-    assert len(response.data['stocks']) == 2
+    response_data = response.json()
+    assert 'stocks' in response_data
+    assert len(response_data['stocks']) == 2
     
-    symbols = [stock['symbol'] for stock in response.data['stocks']]
+    symbols = [stock['symbol'] for stock in response_data['stocks']]
     assert 'HIGH_VOL1' in symbols
     assert 'HIGH_VOL2' in symbols
 
@@ -323,10 +333,11 @@ def test_get_stock_info_with_average_volume_less_than(api_client, monkeypatch):
     })
     
     assert response.status_code == 200
-    assert 'stocks' in response.data
-    assert len(response.data['stocks']) == 2
+    response_data = response.json()
+    assert 'stocks' in response_data
+    assert len(response_data['stocks']) == 2
     
-    symbols = [stock['symbol'] for stock in response.data['stocks']]
+    symbols = [stock['symbol'] for stock in response_data['stocks']]
     assert 'LOW_VOL1' in symbols
     assert 'LOW_VOL2' in symbols
 
@@ -361,8 +372,9 @@ def test_get_stock_info_average_volume_pagination(api_client, monkeypatch):
     })
     
     assert response.status_code == 200
-    assert 'stocks' in response.data
-    assert len(response.data['stocks']) == 5
+    response_data = response.json()
+    assert 'stocks' in response_data
+    assert len(response_data['stocks']) == 5
     
     # Test second page
     response = api_client.get(url, {
@@ -372,8 +384,9 @@ def test_get_stock_info_average_volume_pagination(api_client, monkeypatch):
     })
     
     assert response.status_code == 200
-    assert 'stocks' in response.data
-    assert len(response.data['stocks']) == 5
+    response_data = response.json()
+    assert 'stocks' in response_data
+    assert len(response_data['stocks']) == 5
 
 @pytest.mark.django_db
 def test_get_stock_info_invalid_average_volume_filter(api_client):
@@ -391,7 +404,8 @@ def test_get_stock_info_invalid_average_volume_filter(api_client):
     })
     
     assert response.status_code == 500
-    assert 'error' in response.data
+    response_data = response.json()
+    assert 'error' in response_data
 
 def test_screen_stocks_by_average_volume_invalid_filter():
     with pytest.raises(ValueError) as excinfo:
@@ -448,9 +462,10 @@ def test_get_stock_info_with_average_volume_equal_to(api_client, monkeypatch):
     })
     
     assert response.status_code == 200
-    assert 'stocks' in response.data
-    assert len(response.data['stocks']) == 1
-    assert response.data['stocks'][0]['symbol'] == 'EXACT_VOL'
+    response_data = response.json()
+    assert 'stocks' in response_data
+    assert len(response_data['stocks']) == 1
+    assert response_data['stocks'][0]['symbol'] == 'EXACT_VOL'
 
 @pytest.mark.django_db  
 def test_get_stock_info_with_average_volume_greater_than_or_equal(api_client, monkeypatch):
@@ -487,8 +502,9 @@ def test_get_stock_info_with_average_volume_greater_than_or_equal(api_client, mo
     })
     
     assert response.status_code == 200
-    assert 'stocks' in response.data
-    assert len(response.data['stocks']) == 2
+    response_data = response.json()
+    assert 'stocks' in response_data
+    assert len(response_data['stocks']) == 2
 
 @pytest.mark.django_db
 def test_get_stock_info_missing_average_volume_value(api_client):
@@ -505,4 +521,5 @@ def test_get_stock_info_missing_average_volume_value(api_client):
     })
     
     assert response.status_code == 200
-    assert 'stocks' in response.data
+    response_data = response.json()
+    assert 'stocks' in response_data
