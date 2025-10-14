@@ -8,19 +8,19 @@
 
 /* ScreenerPage Styles */
 .ScreenerPage-card-custom {
-  @apply w-[240px];
-  @apply h-[160px];
-  @apply bg-[hsl(42,15%,70%)];
+  @apply w-[325px];
+  @apply h-[357px];
+  @apply bg-[hsl(40,63%,63%)];
   @apply text-[hsl(41,61%,9%)];
   @apply cursor-pointer;
   @apply shadow-lg;
-  @apply rounded-2xl;
-  @apply p-8;
-  @apply text-center;
+  @apply rounded-sm;
+  @apply p-0;
+  @apply text-left;
   @apply flex;
   @apply flex-col;
-  @apply justify-center;
-  @apply items-center;
+  @apply justify-start;
+  @apply items-start;
   @apply font-semibold;
   @apply transition-shadow;
   @apply duration-200;
@@ -28,6 +28,7 @@
   @apply border-2; 
   @apply border-dotted; 
   @apply border-[hsl(40,10%,17%)];
+  @apply overflow-hidden;
 }
 
 .ScreenerPage-header {
@@ -67,39 +68,57 @@
 }
 
 .ScreenerPage-card {
-  @apply w-[240px];
-  @apply h-[160px];
-  @apply bg-[hsl(42,15%,70%)];
-  @apply rounded-2xl;
-  @apply shadow-md;
-  @apply p-8;
-  @apply text-center;
+  @apply w-[325px];
+  @apply bg-[hsl(40,63%,63%)];
+  @apply rounded-sm;
+  @apply p-0;
+  @apply text-left;
   @apply flex;
   @apply flex-col;
-  @apply justify-center;
-  @apply items-center;
   @apply font-semibold;
   @apply text-[hsl(41,61%,9%)];
   @apply transition-shadow;
   @apply duration-200;
   @apply hover:shadow-[0_4px_24px_0_hsl(220,9%,46%)];
-  @apply px-10;
+  @apply overflow-hidden;
+  box-shadow: 4px 8px 6px rgba(0, 0, 0, 0.5);
+  height: 357px !important;
+}
+
+.ScreenerPage-card-image {
+  width: 100%;
+  height: 66%; /* 66% of card height for image */
+  object-fit: cover;
+  display: block;
+}
+
+.ScreenerPage-card-image-placeholder {
+  width: 100%;
+  height: 66%; /* 66% of card height for image placeholder */
+  background-color: hsl(0, 0%, 25%);
+  display: block;
+}
+
+.ScreenerPage-card-content {
+  height: 34%; /* Remaining 34% for text content */
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 .ScreenerPage-card-custom {
-  @apply w-[240px];
-  @apply h-[160px];
-  @apply bg-[hsl(42,15%,70%)];
+  @apply w-[325px];
+  @apply h-[357px];
+  @apply bg-[hsl(40,63%,63%)];
   @apply text-[hsl(41,61%,9%)];
   @apply cursor-pointer;
   @apply shadow-lg;
-  @apply rounded-2xl;
-  @apply p-8;
-  @apply text-center;
+  @apply rounded-sm;
+  @apply p-0;
+  @apply text-left;
   @apply flex;
   @apply flex-col;
-  @apply justify-center;
-  @apply items-center;
   @apply font-semibold;
   @apply transition-shadow;
   @apply duration-200;
@@ -107,6 +126,21 @@
   @apply border-2; 
   @apply border-dotted; 
   @apply border-[hsl(40,10%,17%)];
+  @apply overflow-hidden;
+}
+
+.ScreenerPage-card-title {
+  color: hsl(40,62%,26%) !important;
+  font-size: 24px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  width: 100% !important;
+}
+
+.ScreenerPage-card-description {
+  color: hsl(40,63%,42%) !important;
+  font-size: 16px !important;
 }
 
 .ScreenerPage-main-layout {
@@ -137,23 +171,36 @@
 }
 
 .ScreenerPage-card-grid {
-  @apply grid;
-  @apply flex-row;
-  @apply grid-cols-5;
-  @apply gap-50;
-  @apply gap-y-10;
-  @apply justify-end;
+  display: grid;
+  grid-template-columns: repeat(3, 325px);
+  gap: 2.5rem;
+  row-gap: 2.5rem;
+  justify-content: start;
+  flex: 1;
 }
 
 .ScreenerPage-container {
   @apply pt-32;
   @apply px-8;
+  @apply ml-24;
   @apply flex;
   @apply flex-row;
   @apply justify-start;
   @apply items-start;
-  @apply gap-8;
-  @apply mr-[360px];
+  @apply gap-2;
+}
+
+.ScreenerPage-right-sidebar {
+  width: 325px;
+  height: calc(100vh - var(--header-height) - 80px);
+  background-color: hsl(40,63%,63%);
+  border-radius: 0.125rem;
+  box-shadow: 4px 8px 6px rgba(0, 0, 0, 0.5);
+  padding: 1.5rem;
+  position: fixed;
+  top: calc(var(--header-height) + 40px);
+  right: 50px;
+  z-index: 100;
 }
 
 .newsreader-font {

@@ -3,8 +3,7 @@ from .models import Stock
 
 class CustomCollectionService:
     def __init__(self):
-        # Demo: initialize with 3 default stocks
-        self.tokens: List[str] = ['AAPL', 'MSFT', 'GOOGL']
+        self.tokens: List[str] = []
     def get_stocks(self) -> List[str]:
         return self.tokens
     def add_stock(self, token: str) -> None:
