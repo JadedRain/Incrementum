@@ -44,5 +44,22 @@ def test_screener_construction(filters, expected_count):
     assert_queries_equal_list(constructor.filters, expected)
 
 
+def test_screener_construction_with_mock(screener_constructor_with_mock):
+    # Using the fixture that monkeypatches EquityQuery to MockEquityQuery
+    build = screener_constructor_with_mock
+    filters = [
+        FilterData('eq', 'sector', 'categorical', 'Energy'),
+        FilterData('gt', 'avgdailyvol3m', 'numeric', 5000000),
+    ]
+    constructor = build(filters)
+    # Ensure ordering: categoricals first, numerics second
+    ops = [q.operator.lower() for q in constructor.filters]
+    assert ops == ['eq', 'gt']
+    # Basic operand/value shape assertions
+    payloads = [getattr(q, 'operand', None) or getattr(q, 'args', None) for q in constructor.filters]
+    assert payloads[0][0] == 'sector' and payloads[0][1] == 'Energy'
+    assert payloads[1][0] == 'avgdailyvol3m' and payloads[1][1] == 5000000
+
+
 
 
