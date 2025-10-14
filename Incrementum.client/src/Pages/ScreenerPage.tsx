@@ -21,11 +21,14 @@ function ScreenerPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[hsl(40,62%,26%)]">
+        <div className="min-h-screen bg-[hsl(40,13%,53%)]">
             <NavigationBar />
             <div className="main-content">
                 <Link to="/account" className="navbar-link">Account</Link>
-                <div className="ScreenerPage-container">
+                <h1 className="text-[hsl(42,15%,70%)] text-4xl text-left ml-8 mb-0 mt-8 newsreader-font">
+                    Select Screener
+                </h1>
+                <div className="ScreenerPage-container pt-4">
                     <div className="ScreenerPage-card-grid">
 
                         {loading && (
@@ -57,6 +60,11 @@ function ScreenerPage() {
                             </>
                         )}
                     </div>
+                </div>
+                
+                {/* Independent sidebar positioned outside container */}
+                <div className="ScreenerPage-right-sidebar">
+                    {/* Empty sidebar - content can be added later */}
                 </div>
             </div>
         </div>

@@ -3,6 +3,7 @@ import React from 'react';
 interface AppCardProps {
   title?: string;
   subtitle?: string;
+  imageUrl?: string;
   children?: React.ReactNode;
   onClick?: () => void;
   className?: string;
@@ -12,6 +13,7 @@ interface AppCardProps {
 const AppCard: React.FC<AppCardProps> = ({
   title,
   subtitle,
+  imageUrl,
   children,
   onClick,
   className = '',
@@ -20,12 +22,23 @@ const AppCard: React.FC<AppCardProps> = ({
   return (
     <div
       className={`ScreenerPage-card cursor-pointer ${className}`}
-      style={{ height: '120px', ...style }}
+      style={{ height: '357px', ...style }}
       onClick={onClick}
     >
-      {title && <div className="text-sm text-center">{title}</div>}
-      {subtitle && <div className="text-xs text-center mt-1">{subtitle}</div>}
-      {children}
+      {imageUrl ? (
+        <img 
+          src={imageUrl} 
+          alt={title || 'Card image'} 
+          className="ScreenerPage-card-image"
+        />
+      ) : (
+        <div className="ScreenerPage-card-image-placeholder" />
+      )}
+      <div className="ScreenerPage-card-content">
+        {title && <div className="text-sm ScreenerPage-card-title">{title}</div>}
+        {subtitle && <div className="text-xs mt-1 ScreenerPage-card-description">{subtitle}</div>}
+        {children}
+      </div>
     </div>
   );
 };
