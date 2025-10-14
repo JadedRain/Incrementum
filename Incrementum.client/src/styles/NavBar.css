@@ -1,0 +1,93 @@
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap");
+@import "tailwindcss";
+
+.navbar-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: hsl(41, 61%, 9%);
+  display: flex;
+  align-items: center;
+  padding: 1rem 2rem;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  border-bottom: 2px solid hsl(42, 15%, 70%);
+}
+
+.navbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.navbar-logo {
+  color: hsl(40, 66%, 60%);
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-decoration: none;
+  font-family: 'Newsreader', serif;
+  letter-spacing: 1px;
+}
+
+.navbar-logo:hover {
+  color: hsl(40, 66%, 70%);
+}
+
+.navbar-search {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  max-width: 400px;
+  margin: 0 2rem;
+}
+
+.navbar-nav {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.nav-button-active {
+  text-decoration: underline !important;
+  text-decoration-color: hsl(40, 66%, 70%) !important;
+  text-underline-offset: 4px !important;
+}
+
+.navbar-link {
+  @apply absolute;
+  @apply top-4;
+  @apply right-4;
+  @apply text-white;
+  @apply px-4;
+  @apply py-2;
+  @apply rounded;
+  @apply shadow;
+  @apply transition;
+}
+
+.nav-button {
+  @apply text-[#DCAF56];
+  @apply rounded-lg;
+  @apply w-[100px];
+  @apply h-[40px];
+  @apply h-[40px];
+  @apply px-4;
+  padding-bottom: 4px;
+  padding-bottom: 4px;
+  @apply hover:bg-[#6C5019];
+  @apply duration-200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  text-decoration: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  text-decoration: none;
+  font-family: "Newsreader", serif;
+}

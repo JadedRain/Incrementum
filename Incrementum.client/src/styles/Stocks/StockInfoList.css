@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+.stock-card {
+  @apply w-[900px];
+  @apply min-h-[70px];
+  @apply bg-[hsl(42,15%,80%)];
+  @apply rounded-2xl;
+  @apply shadow-lg;
+  @apply text-[hsl(40,62%,15%)];
+  @apply p-6;
+  @apply flex;
+  @apply items-center;
+  @apply justify-between;
+  @apply border;
+  @apply border-[hsl(40,61%,65%)];
+  @apply transition-all;
+  @apply duration-200;
+  @apply hover:bg-[hsl(40,61%,50%)];
+  @apply hover:text-[hsl(42,15%,95%)];
+  @apply hover:shadow-xl;
+  @apply font-medium;
+}
+
+.add-to-watchlist-button {
+  @apply ml-4;
+  @apply bg-[hsl(79,26%,36%)];
+  @apply text-[hsl(78,41%,73%)];
+  @apply rounded-lg;
+  @apply px-4;
+  @apply py-2;
+  @apply font-medium;
+  @apply hover:bg-[hsl(79,26%,30%)];
+  @apply hover:text-[hsl(78,41%,80%)];
+  @apply hover:shadow-md;
+  @apply duration-200;
+  @apply transition-all;
+}

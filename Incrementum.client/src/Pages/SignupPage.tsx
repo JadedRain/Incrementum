@@ -1,7 +1,7 @@
+import '../styles/SignIn.css';
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
-import '../App.css';
 
 const SignupPage: React.FC = () => {
   const [name, setName] = useState("");

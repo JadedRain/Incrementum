@@ -1,4 +1,5 @@
 import React from "react";
+import '../styles/SignIn.css'
 
 const AuthInput: React.FC<{
   label: string;

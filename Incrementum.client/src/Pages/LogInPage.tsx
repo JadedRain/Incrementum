@@ -1,7 +1,7 @@
+import '../styles/SignIn.css';
 import React, { useState, useCallback } from "react";
 import { useAuth } from "../Context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import '../App.css';
 import AuthInput from "../Components/AuthInput";
 
 const LogInPage: React.FC = () => {

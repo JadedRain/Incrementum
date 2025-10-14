@@ -1,10 +1,10 @@
+import '../styles/Sidebar.css'
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../Context/AuthContext';
 import Loading from '../Components/Loading';
 import Sidebar from '../Components/Sidebar';
 import NavigationBar from '../Components/NavigationBar';
-import '../App.css';
 import type { CustomScreener, CategoricalFilter, NumericFilter } from '../Types/ScreenerTypes';
 import { fetchCustomScreener } from "../Query/apiScreener"
 import { useQuery } from "@tanstack/react-query"

@@ -1,3 +1,5 @@
+import '../styles/PaginationControls.css'
+
 type PaginationControlsProps = {
   page: number;
   hasMore: boolean;

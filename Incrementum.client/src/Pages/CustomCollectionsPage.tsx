@@ -1,3 +1,4 @@
+import '../styles/Collections/CustomCollectionsPage.css';
 import React, { useState } from 'react';
 import NavigationBar from '../Components/NavigationBar';
 import { CreateCollectionButton } from '../Components/CreateCollectionButton';
@@ -30,8 +31,8 @@ const CustomCollectionsPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-[hsl(40,62%,26%)]">
-            <div className="StocksPage-header relative" >
-                <h1 className="ScreenerPage-h1 ">My Custom Collections</h1>
+            <div className="CustomCollectionsPage-header relative" >
+                <h1 className="CustomCollectionsPage-h1 ">My Custom Collections</h1>
                 <NavigationBar />
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>

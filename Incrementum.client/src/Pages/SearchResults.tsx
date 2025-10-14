@@ -1,3 +1,4 @@
+import '../styles/SearchResultsPage.css'
 import { useParams } from "react-router-dom";
 import NavigationBar from "../Components/NavigationBar";
 import StockCard from "../Components/StockCard";
@@ -13,8 +14,8 @@ function SearchResults() {
     <div style={{ padding: "20px", fontFamily: "serif" }}
       className="bg-[#6C5019] min-h-screen">
       <NavigationBar />
-      <div className="main-content">
-        <h1 className="StocksPage-h1">
+      <div className="SearchResults-main-content">
+        <h1 className="SearchResultsPage-h1">
           Search Results
         </h1>
         <h2 className="text-[#DABB7C]">Results for "{query}"</h2>

@@ -1,4 +1,5 @@
 import '../App.css';
+import '../styles/NavBar.css'
 import { useNavigate, Link } from 'react-router-dom'
 import { useCustomScreeners } from '../hooks/useCustomScreeners';
 import type { CustomScreener } from '../hooks/useCustomScreeners';

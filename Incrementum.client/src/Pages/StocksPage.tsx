@@ -1,4 +1,5 @@
-import '../App.css'
+import '../styles/Stocks/StocksPage.css'
+import '../styles/NavBar.css'
 import { useNavigate } from 'react-router-dom'
 import StockInfoPage from './StockInfoList';
 

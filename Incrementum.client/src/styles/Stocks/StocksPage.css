@@ -1,0 +1,28 @@
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap");
+@import "tailwindcss";
+
+.StocksPage-header {
+  @apply fixed;
+  @apply top-0;
+  @apply left-0;
+  @apply right-0;
+  @apply w-full;
+  @apply bg-[hsl(41,61%,9%)];
+  @apply flex;
+  @apply items-center;
+  @apply py-4;
+  @apply z-[1000];
+  @apply shadow-[0_2px_4px_rgba(0,0,0,0.5)];
+  @apply border-b-2;
+  @apply border-[hsl(42,15%,70%)]
+}
+
+.StocksPage-h1 {
+  @apply text-[hsl(40,66%,60%)];
+  @apply text-[2.5rem];
+  @apply m-0;
+  @apply flex-1;
+  @apply text-center;
+  @apply tracking-[1px];
+  font-family: 'Newsreader', serif;
+}

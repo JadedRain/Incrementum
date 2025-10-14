@@ -1,4 +1,4 @@
-import '../App.css';
+import '../styles/WatchlistPage.css';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Context/AuthContext';
 import { useEffect, useState } from 'react';
@@ -73,8 +73,8 @@ function WatchlistPage() {
     <div style={{ minHeight: '100vh' }}>
       <NavigationBar />
       <Toast message={toast} />
-      <div className='WatchlistPage-Loading'>
-        <Loading loading={loading} watchlist={watchlist} />
+      <div>
+        <Loading loading={false} loadingText="Loading Watchlist..." />
       </div>
       <div style={{ display: 'flex', marginTop: '2rem', padding: '0 2rem' }}>
         <WatchlistSidebar
@@ -85,7 +85,7 @@ function WatchlistPage() {
           handleStockClick={handleStockClick}
           loading={loading}
         />
-        <div className="main-content" style={{ flex: 1 }}>
+        <div className="WatchlistPage-main-content">
           <ChartArea selectedStock={selectedStock} imgUrl={imgUrl} />
           <GridCards />
           <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>

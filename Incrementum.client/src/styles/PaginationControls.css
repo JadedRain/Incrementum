@@ -1,0 +1,13 @@
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap");
+@import "tailwindcss";
+
+.pagination-button {
+  @apply px-4;
+  @apply py-2;
+  @apply bg-[#A0B573];
+  @apply text-[#24281B];
+  @apply rounded;
+  @apply hover:bg-[#7E8D5E];
+  @apply disabled:opacity-50;
+  font-family: 'Newsreader', serif;
+}

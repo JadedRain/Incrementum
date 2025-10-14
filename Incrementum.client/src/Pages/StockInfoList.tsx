@@ -1,3 +1,4 @@
+import '../styles/Stocks/StockInfoList.css'
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../Context/AuthContext';
 import { addToWatchlist, removeFromWatchlist } from '../utils/watchlistActions';

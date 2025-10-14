@@ -1,3 +1,5 @@
+import '../styles/Collections/IndividualCustomCollectionPage.css'
+import '../styles/SearchBar.css'
 import React, { useEffect, useState } from "react";
 import Loading from "../Components/Loading";
 import { useNavigate, useParams } from "react-router-dom";
@@ -120,9 +122,9 @@ const IndividualCustomCollectionPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[hsl(40,62%,26%)] flex flex-col items-center p-8">
-      <div className="StocksPage-header relative">
+      <div className="IndividualCustomCollectionPage-header relative">
         <BackButton onClick={() => navigate(-1)}></BackButton>
-        <h1 className="ScreenerPage-h1">{collectionName}</h1>
+        <h1 className="IndividualCustomCollectionPage-h1">{collectionName}</h1>
       </div>
       <div className="flex items-center mb-6">
         {editNameMode ? (
@@ -134,7 +136,7 @@ const IndividualCustomCollectionPage: React.FC = () => {
               autoFocus
             />
             <button
-              className="ScreenerPage-button"
+              className="IndividualCustomCollectionPage-button"
               onClick={() => {
                 setCollectionName(pendingName);
                 // Update the collection name in localStorage
@@ -150,19 +152,19 @@ const IndividualCustomCollectionPage: React.FC = () => {
               }}
             >Save</button>
             <button
-              className="ScreenerPage-button"
+              className="IndividualCustomCollectionPage-button"
               onClick={() => { setPendingName(collectionName); setEditNameMode(false); }}
             >Cancel</button>
           </>
         ) : (
           <>
             <button
-              className="ScreenerPage-button"
+              className="IndividualCustomCollectionPage-button"
               onClick={() => setEditMode(e => !e)}
             >{editMode ? 'Done' : 'Edit'}</button>
             {editMode && (
               <button
-                className="ScreenerPage-button"
+                className="IndividualCustomCollectionPage-button"
                 onClick={() => setEditNameMode(true)}
               >Edit Name</button>
             )}
@@ -181,7 +183,7 @@ const IndividualCustomCollectionPage: React.FC = () => {
                 onChange={e => setNewToken(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') searchStocks(); }}
               />
-              <button className="ScreenerPage-button" onClick={searchStocks} disabled={searching}>Search</button>
+              <button className="IndividualCustomCollectionPage-button" onClick={searchStocks} disabled={searching}>Search</button>
             </div>
             {searchResults.length > 0 && (
               <ul className="bg-white rounded shadow p-2 mb-2 max-h-40 overflow-y-auto">

@@ -1,0 +1,22 @@
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap");
+@import "tailwindcss";
+
+.search-stock-card {
+  @apply bg-[hsl(42,15%,80%)];
+  @apply text-[hsl(40,62%,15%)];
+  @apply p-4 rounded-lg;
+  @apply cursor-pointer;
+  @apply border;
+  @apply border-[hsl(40,61%,65%)]; 
+  @apply hover:bg-[hsl(40,61%,50%)];
+  @apply hover:text-[hsl(42,15%,95%)];
+  @apply hover:shadow-md;
+  @apply transition-all;
+  @apply duration-200;
+  @apply font-medium;
+  font-family: 'Newsreader', serif;
+}
+
+.newsreader-font {
+  font-family: 'Newsreader', serif;
+}

@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+.xbutton {
+  @apply absolute; 
+  @apply top-2;
+  @apply right-2;
+  @apply text-gray-600;
+  @apply hover:text-red-600;
+  @apply opacity-0;
+  @apply group-hover:opacity-100;
+  @apply transition-opacity;
+  @apply z-10;
+  @apply text-2xl;
+  @apply font-bold;
+  @apply bg-transparent;
+  @apply p-0;
+  @apply m-0;
+  @apply border-none;
+  @apply outline-none;
+  @apply cursor-pointer;
+}

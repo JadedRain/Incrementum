@@ -1,3 +1,4 @@
+import '../styles/NavBar.css'
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { addToWatchlist, removeFromWatchlist } from "../utils/watchlistActions";

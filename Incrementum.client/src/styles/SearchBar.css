@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+.search-bar {
+  @apply p-2;
+  @apply rounded-[6px];
+  @apply text-[#302D27];
+  @apply bg-[#C5BCA5];
+  @apply w-full;
+  @apply max-w-[400px];
+  @apply border-[#302D27];
+  @apply focus:outline-none;
+  @apply focus:ring-2;
+  @apply focus:ring-[hsl(40,66%,60%)];
+  @apply focus:outline-none;
+  @apply focus:ring-2;
+  @apply focus:ring-[hsl(40,66%,60%)];
+}

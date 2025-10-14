@@ -1,0 +1,17 @@
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap");
+@import "tailwindcss";
+
+.SearchResultsPage-h1 {
+  @apply text-[hsl(40,66%,60%)];
+  @apply text-[2.5rem];
+  @apply m-0;
+  @apply flex-1;
+  @apply text-center;
+  @apply tracking-[1px];
+  font-family: 'Newsreader', serif;
+}
+
+.SearchResults-main-content {
+  padding-top: 2rem;
+  min-height: calc(100vh - 90px);
+}

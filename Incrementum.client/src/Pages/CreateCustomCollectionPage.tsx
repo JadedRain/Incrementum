@@ -1,4 +1,4 @@
-
+import '../styles/SearchBar.css'
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BackButton from '../Components/BackButton';
