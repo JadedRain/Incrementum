@@ -7,7 +7,7 @@ function StocksPage() {
   const navigate = useNavigate()
 
   return (
-    <div style={{ minHeight: '100vh' }} className='bg-[#6C5019]'>
+    <div style={{ minHeight: '100vh' }} className='bg-[hsl(40,13%,53%)]'>
       <div className='StocksPage-header'>
         <button 
         onClick={() => navigate('/watchlist')}

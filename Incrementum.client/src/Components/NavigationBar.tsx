@@ -1,6 +1,7 @@
 import '../styles/NavBar.css'
 import { Link, useLocation } from 'react-router-dom';
 import SearchBar from './SearchBar';
+import { useAuth } from '../Context/AuthContext';
 
 interface NavigationBarProps {
   showAccountButton?: boolean;
@@ -8,6 +9,8 @@ interface NavigationBarProps {
 
 export default function NavigationBar({ showAccountButton = true }: NavigationBarProps) {
   const location = useLocation();
+  const { apiKey } = useAuth();
+  const isAuthenticated = !!apiKey;
 
   return (
     <div className="navbar-header">
@@ -30,19 +33,23 @@ export default function NavigationBar({ showAccountButton = true }: NavigationBa
           >
             Screener
           </Link>
-          <Link
-            to="/watchlist"
-            className={`nav-button ${location.pathname === '/watchlist' ? 'nav-button-active' : ''}`}
-          >
-            Watchlist
-          </Link>
-          <Link
-            to="/custom-collections"
-            className={`nav-button ${location.pathname.startsWith('/custom-collections') ? 'nav-button-active' : ''}`}
-          >
-            Collections
-          </Link>
-          {showAccountButton && (
+          {isAuthenticated && (
+            <>
+              <Link
+                to="/watchlist"
+                className={`nav-button ${location.pathname === '/watchlist' ? 'nav-button-active' : ''}`}
+              >
+                Watchlist
+              </Link>
+              <Link
+                to="/custom-collections"
+                className={`nav-button ${location.pathname.startsWith('/custom-collections') ? 'nav-button-active' : ''}`}
+              >
+                Collections
+              </Link>
+            </>
+          )}
+          {showAccountButton && isAuthenticated && (
             <Link 
               to="/account" 
               className={`nav-button ${location.pathname === '/account' ? 'nav-button-active' : ''}`}

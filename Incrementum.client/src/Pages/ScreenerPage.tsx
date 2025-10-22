@@ -2,7 +2,6 @@ import '../App.css';
 import '../styles/NavBar.css'
 import { useNavigate, Link } from 'react-router-dom'
 import { useCustomScreeners } from '../hooks/useCustomScreeners';
-import type { CustomScreener } from '../hooks/useCustomScreeners';
 import { useAuth } from '../Context/AuthContext';
 import NavigationBar from '../Components/NavigationBar';
 import AppCard from '../Components/AppCard';
@@ -11,14 +10,10 @@ import Loading from '../Components/Loading';
 function ScreenerPage() {
     const navigate = useNavigate();
     const { apiKey } = useAuth();
-    const { customScreeners, loading } = useCustomScreeners(apiKey);
+    const { customScreeners, loading } = useCustomScreeners(apiKey || undefined);
 
     const handleCardClick = (id: number | string) => {
         navigate(`/screener/${encodeURIComponent(id)}`);
-    };
-
-    const handleCustomScreenerClick = (screener: CustomScreener) => {
-        navigate(`/screener/${encodeURIComponent(screener.id)}`);
     };
 
     return (
@@ -42,7 +37,7 @@ function ScreenerPage() {
                             <AppCard
                                 title="No custom screeners yet"
                                 subtitle="Click to create your first one!"
-                                onClick={handleCustomScreenerClick}
+                                onClick={() => navigate('/screener/create')}
                             />
                         )}
 
@@ -51,12 +46,12 @@ function ScreenerPage() {
                                 <AppCard
                                     title="Temp Card 1"
                                     subtitle="Description"
-                                    onClick={handleCardClick}
+                                    onClick={() => handleCardClick('temp-1')}
                                 />
                                 <AppCard
                                     title="Create Custom"
                                     subtitle="Make new custom screener"
-                                    onClick={handleCustomScreenerClick}
+                                    onClick={() => navigate('/screener/create')}
                                 />
                             </>
                         )}

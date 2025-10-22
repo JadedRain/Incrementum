@@ -30,7 +30,7 @@ const CustomCollectionsPage: React.FC = () => {
     const cancelRemove = () => setShowConfirm({ id: null, visible: false });
 
     return (
-        <div className="min-h-screen bg-[hsl(40,62%,26%)]">
+        <div className="min-h-screen bg-[hsl(40,13%,53%)]">
             <div className="CustomCollectionsPage-header relative" >
                 <h1 className="CustomCollectionsPage-h1 ">My Custom Collections</h1>
                 <NavigationBar />

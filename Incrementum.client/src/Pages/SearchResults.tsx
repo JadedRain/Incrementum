@@ -12,7 +12,7 @@ function SearchResults() {
 
   return (
     <div style={{ padding: "20px", fontFamily: "serif" }}
-      className="bg-[#6C5019] min-h-screen">
+      className="bg-[hsl(40,13%,53%)] min-h-screen">
       <NavigationBar />
       <div className="SearchResults-main-content">
         <h1 className="SearchResultsPage-h1">

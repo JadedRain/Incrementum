@@ -41,11 +41,11 @@ export default function Stock({ token: propToken }: { token?: string; }) {
     await removeFromWatchlist(token, apiKey, setPending, setToast, setInWatchlist);
   };
 
-  if (loading) return <div className="bg-[hsl(40,62%,26%)] min-h-screen flex items-center justify-center" style={{ fontFamily: "serif" }}><p className="text-[hsl(40,66%,60%)]">Loading...</p></div>;
-  if (!results) return <div className="bg-[hsl(40,62%,26%)] min-h-screen flex items-center justify-center" style={{ fontFamily: "serif" }}><p className="text-[hsl(40,66%,60%)]">No stock data found.</p></div>;
+  if (loading) return <div className="bg-[hsl(40,13%,53%)] min-h-screen flex items-center justify-center" style={{ fontFamily: "serif" }}><p className="text-[hsl(40,66%,60%)]">Loading...</p></div>;
+  if (!results) return <div className="bg-[hsl(40,13%,53%)] min-h-screen flex items-center justify-center" style={{ fontFamily: "serif" }}><p className="text-[hsl(40,66%,60%)]">No stock data found.</p></div>;
 
   return (
-    <div className="bg-[hsl(40,62%,26%)] min-h-screen" style={{ fontFamily: "serif" }}>
+    <div className="bg-[hsl(40,13%,53%)] min-h-screen" style={{ fontFamily: "serif" }}>
       <NavigationBar />
       <div className="main-content" style={{ padding: "20px" }}>
         <ChartControls

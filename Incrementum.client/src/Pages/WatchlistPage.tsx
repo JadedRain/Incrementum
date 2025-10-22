@@ -70,7 +70,7 @@ function WatchlistPage() {
     : null;
 
   return (
-    <div style={{ minHeight: '100vh' }}>
+    <div style={{ minHeight: '100vh' }} className='bg-[hsl(40,13%,53%)]'>
       <NavigationBar />
       <Toast message={toast} />
       <div>

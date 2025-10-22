@@ -1,4 +1,4 @@
-import '../styles/Sidebar.css'
+import '../styles/SideBar.css'
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../Context/AuthContext';
@@ -36,7 +36,7 @@ function IndividualScreenPage() {
     queryKey: ["customScreener", id],
     queryFn: () => fetchCustomScreener(id!, apiKey),
   });
-  const idlooker = useEffect(()=>{
+  useEffect(()=>{
     console.log(data)
   }, [data]);
   
@@ -110,7 +110,7 @@ useEffect(()=> {
   console.log(error?.message)
 }, [error])
   return (
-    <div className="min-h-screen bg-[hsl(40,62%,26%)]">
+    <div className="min-h-screen bg-[hsl(40,13%,53%)]">
       <NavigationBar />
       <div className="main-content">
         <div className="pt-32 px-8 ScreenerPage-main-layout">
@@ -122,7 +122,7 @@ useEffect(()=> {
               <div className="StockTable-header">Chart</div>
               <div className="StockTable-header">Change</div>
             </div>
-            <Loading loading={loading} watchlist={[]} showEmpty={false} />
+            <Loading loading={loading} />
             {!loading &&
               stocks.map((item, idx) => {
                 const name = item.displayName || item.longName || item.shortName || 'Unnamed Stock';

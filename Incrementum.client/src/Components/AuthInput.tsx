@@ -8,7 +8,6 @@ const AuthInput: React.FC<{
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }> = ({ label, type, value, onChange }) => (
   <div className="mb-4">
-    <label className="block text-gray-700 mb-2" htmlFor={label}>{label}</label>
     <input
       id={label}
       className="signin-input"
