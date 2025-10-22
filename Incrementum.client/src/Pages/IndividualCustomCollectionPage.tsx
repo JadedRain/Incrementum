@@ -121,7 +121,7 @@ const IndividualCustomCollectionPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[hsl(40,62%,26%)] flex flex-col items-center p-8">
+    <div className="min-h-screen bg-[hsl(40,13%,53%)] flex flex-col items-center p-8">
       <div className="IndividualCustomCollectionPage-header relative">
         <BackButton onClick={() => navigate(-1)}></BackButton>
         <h1 className="IndividualCustomCollectionPage-h1">{collectionName}</h1>
@@ -220,9 +220,9 @@ const IndividualCustomCollectionPage: React.FC = () => {
       </div>
       <div className="w-full max-w-2xl">
         <h2 className="text-[hsl(40,66%,60%)] text-lg font-semibold mb-2">Aggregate Graph (Overlay):</h2>
-        <div className="bg-[hsl(40,62%,26%)] rounded shadow p-4 min-h-[200px] flex items-center justify-center">
+        <div className="bg-[hsl(40,13%,53%)] rounded shadow p-4 min-h-[200px] flex items-center justify-center">
           {graphLoading && (
-            <Loading loading={true} watchlist={[]} showEmpty={false} />
+            <Loading loading={true}/>
           )}
           <img
             src={`http://localhost:8000/custom-collection/overlay-graph/?_=${graphKey}`}

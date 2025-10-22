@@ -148,7 +148,7 @@
   @apply px-8;
   @apply flex;
   @apply flex-row;
-  @apply bg-[hsl(40,62%,26%)];
+  @apply bg-[hsl(40,13%,53%)];
   @apply justify-start;
   @apply items-start;
   @apply gap-8;
@@ -245,4 +245,4 @@
 
 /* Ensure content is not hidden behind the fixed header */
 :root { --header-height: 80px; }
-body { padding-top: var(--header-height); background-color: hsl(40,62%,26%);}
+body { padding-top: var(--header-height); background-color: hsl(40,13%,53%);}

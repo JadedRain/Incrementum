@@ -1,6 +1,7 @@
 export type AuthContextType = {
   apiKey: string | null;
   email: string | null;
-  Login: (email: string, password: string) => Promise<boolean>;
+  signIn: (email: string, password: string) => Promise<boolean>;
+  signUp: (email: string, password: string) => Promise<boolean>;
   signOut: () => void;
 };
