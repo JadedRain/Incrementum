@@ -10,6 +10,7 @@ from django.db import connection
 from yfinance.screener.query import EquityQuery
 from Screeners.moving_average_52 import fifty_two_high
 from Screeners.numeric_screeners import NumericScreeners
+
 def generate_stock_graph(history, ticker: str, period) -> bytes:
     first_price = history['Close'].iloc[0]
     last_price = history['Close'].iloc[-1]
@@ -171,7 +172,19 @@ def get_stock_info(max, offset, filters=None, source=setup):
         start = offset
         end = min(start + max, len(all_screened_stocks))
         return all_screened_stocks[start:end]
-
+    
+    if isinstance(filters, dict) and filters.get('current_share_price') is not None:
+        current_share_price = filters.get('current_share_price')
+        
+        all_screened_stocks = screen_stocks_by_current_share_price(
+            current_share_price,
+            max_results=250
+        )
+        
+        start = offset
+        end = min(start + max, len(all_screened_stocks))
+        return all_screened_stocks[start:end]
+    
     # Original CSV-based filtering
     tickers = source()
     stocks = []
@@ -289,4 +302,36 @@ def screen_stocks_by_average_volume(average_volume_filter, average_volume_value,
     
     except Exception as e:
         logging.error(f"Error screening stocks by average volume: {e}")
+        return []
+
+def screen_stocks_by_current_share_price(price_filter, price_value, max_results=100):
+    valid_filters = ['gt', 'gte', 'lt', 'lte', 'eq']
+    
+    if price_filter not in valid_filters:
+        raise ValueError(f"Invalid current_share_price. Must be one of: {valid_filters}")
+    
+    max_results = min(max_results, 250)
+    
+    try:
+        query = EquityQuery(price_filter, ['regularMarketPrice', price_value])
+        
+        screen_results = yf.screen(query, size=max_results)
+        
+        quotes = screen_results.get('quotes', [])
+        
+        stocks = []
+        for quote in quotes:
+            try:
+                symbol = quote.get('symbol')
+                if symbol:
+                    stock_data = fetch_stock_data(symbol)
+                    stocks.append(stock_data)
+            except Exception as e:
+                logging.warning(f"Failed to fetch data for symbol {quote.get('symbol', 'unknown')}: {e}")
+                continue
+            
+        return stocks
+    
+    except Exception as e:
+        logging.error(f"Error screening stocks by current share price: {e}")
         return []
