@@ -1,110 +1,124 @@
 import pytest
-from unittest.mock import patch
+import pandas as pd
+from hello.stocks_class import Stock
+from Screeners.current_share_price import current_share_price
+from Screeners.moving_average_52 import fifty_two_high
 
-from hello.get_stock_info import screen_stocks_by_current_share_price
+def values():
+    sample_stocks = [
+        {
+            "symbol": "AAPL",
+            "displayName": "Apple Inc.",
+            "sector": "Technology",
+            "sectorKey": "technology",
+            "industry": "Consumer Electronics",
+            "industryKey": "consumer_electronics",
+            "country": "USA",
+            "currentPrice": 185.32,
+            "price_52w_high": 190.12,
+            "fiftyDayAverage": 182.50,
+            "dayHigh": 186.00,
+            "dayLow": 183.40,
+            "previousClose": 184.20,
+            "exchange": "NASDAQ",
+            "fullExchangeName": "NasdaqGS",
+            "regularMarketChangePercent": 0.61,
+        },
+        {
+            "symbol": "MSFT",
+            "displayName": "Microsoft Corp.",
+            "sector": "Technology",
+            "sectorKey": "technology",
+            "industry": "Software—Infrastructure",
+            "industryKey": "software_infrastructure",
+            "country": "USA",
+            "currentPrice": 330.10,
+            "price_52w_high": 360.00,
+            "fiftyDayAverage": 325.60,
+            "dayHigh": 331.00,
+            "dayLow": 328.50,
+            "previousClose": 329.00,
+            "exchange": "NASDAQ",
+            "fullExchangeName": "NasdaqGS",
+            "regularMarketChangePercent": 0.33,
+        },
+        {
+            "symbol": "TSLA",
+            "displayName": "Tesla Inc.",
+            "sector": "Consumer Cyclical",
+            "sectorKey": "consumer_cyclical",
+            "industry": "Auto Manufacturers",
+            "industryKey": "auto_manufacturers",
+            "country": "USA",
+            "currentPrice": 245.60,
+            "price_52w_high": 300.50,
+            "fiftyDayAverage": 240.20,
+            "dayHigh": 248.00,
+            "dayLow": 243.00,
+            "previousClose": 244.10,
+            "exchange": "NASDAQ",
+            "fullExchangeName": "NasdaqGS",
+            "regularMarketChangePercent": 0.78,
+        },
+        {
+            "symbol": "NVDA",
+            "displayName": "NVIDIA Corporation",
+            "sector": "Technology",
+            "sectorKey": "technology",
+            "industry": "Semiconductors",
+            "industryKey": "semiconductors",
+            "country": "USA",
+            "currentPrice": 470.00,
+            "price_52w_high": 495.00,
+            "fiftyDayAverage": 465.20,
+            "dayHigh": 472.00,
+            "dayLow": 468.10,
+            "previousClose": 469.50,
+            "exchange": "NASDAQ",
+            "fullExchangeName": "NasdaqGS",
+            "regularMarketChangePercent": 0.12,
+        }
+    ]
+    stocks = []
+    for stock in sample_stocks:
+        stocks.append(Stock(stock))
+    return stocks
 
+def test_current_share_price_both_max_and_min():
+    stocks = values()
+    screener = current_share_price(min_value=0, max_value=200)
+    assert len(screener.screen(stocks)) == 1
+    assert screener.screen(stocks)[0].symbol == "AAPL"
 
-class DummyStock:
-    def __init__(self, symbol):
-        self.symbol = symbol
+def test_current_share_price_just_min():
+    stocks = values()
+    screener = current_share_price(min_value=200)
+    assert len(screener.screen(stocks)) == 3
+    assert screener.screen(stocks)[1].symbol == "TSLA"
+    assert screener.screen(stocks)[0].symbol == "MSFT"
+    assert screener.screen(stocks)[2].symbol == "NVDA"
 
+def test_current_share_price_just_max():
+    stocks = values()
+    screener = current_share_price(max_value=200)
+    assert len(screener.screen(stocks)) == 1
+    assert screener.screen(stocks)[0].symbol == "AAPL"
 
-def make_quote(symbol, price, **extra):
-    q = {"symbol": symbol, "regularMarketPrice": price}
-    q.update(extra)
-    return q
-
-
-@patch('hello.get_stock_info.fetch_stock_data')
-@patch('hello.get_stock_info.yf')
-def test_filter_used_correctly(mock_yf, mock_fetch):
-    # prepare mocked screen result
-    mock_yf.screen.return_value = {"quotes": [
-        make_quote('AAPL', 185.32),
-        make_quote('MSFT', 330.10),
-        make_quote('TSLA', 245.60),
-        make_quote('NVDA', 470.00),
-    ]}
-
-    mock_fetch.side_effect = lambda s: DummyStock(s)
-
-    # gt -> values greater than 300
-    res = screen_stocks_by_current_share_price('gt', 300, max_results=50)
-    assert {s.symbol for s in res} == {'MSFT', 'NVDA'}
-
-    # eq -> exact match
-    res = screen_stocks_by_current_share_price('eq', 330.10, max_results=50)
-    assert {s.symbol for s in res} == {'MSFT'}
-
-
-@patch('hello.get_stock_info.fetch_stock_data')
-@patch('hello.get_stock_info.yf')
-def test_filter_with_other_fields(mock_yf, mock_fetch):
-    # include extra fields that should be ignored by the price filter
-    mock_yf.screen.return_value = {"quotes": [
-        make_quote('AAPL', 185.32, percentchange=0.5),
-        make_quote('MSFT', 330.10, avgdailyvol3m=2000000),
-    ]}
-    mock_fetch.side_effect = lambda s: DummyStock(s)
-
-    res = screen_stocks_by_current_share_price('lte', 330.10, max_results=50)
-    assert {s.symbol for s in res} == {'AAPL', 'MSFT'}
-
-
-def test_invalid_filter_raises():
+def test_current_share_price_wrong_input():
     with pytest.raises(ValueError):
-        screen_stocks_by_current_share_price('not_a_filter', 100)
+        current_share_price(min_value="abc", max_value=200)
+    with pytest.raises(ValueError):
+        current_share_price(min_value=100, max_value="xyz")
 
-
-@patch('hello.get_stock_info.fetch_stock_data')
-@patch('hello.get_stock_info.yf')
-def test_min_but_no_max(mock_yf, mock_fetch):
-    mock_yf.screen.return_value = {"quotes": [
-        make_quote('AAPL', 185.32),
-        make_quote('TSLA', 245.60),
-        make_quote('MSFT', 330.10),
-    ]}
-    mock_fetch.side_effect = lambda s: DummyStock(s)
-
-    # min only -> use gte
-    res = screen_stocks_by_current_share_price('gte', 240, max_results=50)
-    assert {s.symbol for s in res} == {'TSLA', 'MSFT'}
-
-
-@patch('hello.get_stock_info.fetch_stock_data')
-@patch('hello.get_stock_info.yf')
-def test_max_but_no_min(mock_yf, mock_fetch):
-    mock_yf.screen.return_value = {"quotes": [
-        make_quote('AAPL', 185.32),
-        make_quote('TSLA', 245.60),
-        make_quote('MSFT', 330.10),
-    ]}
-    mock_fetch.side_effect = lambda s: DummyStock(s)
-
-    # max only -> use lte
-    res = screen_stocks_by_current_share_price('lte', 250, max_results=50)
-    assert {s.symbol for s in res} == {'AAPL', 'TSLA'}
-
-
-@patch('hello.get_stock_info.fetch_stock_data')
-@patch('hello.get_stock_info.yf')
-def test_both_min_and_max_via_intersection(mock_yf, mock_fetch):
-    # Use same underlying quotes; the range is emulated by intersecting two calls
-    mock_yf.screen.return_value = {"quotes": [
-        make_quote('AAPL', 185.32),
-        make_quote('TSLA', 245.60),
-        make_quote('MSFT', 330.10),
-        make_quote('NVDA', 470.00),
-    ]}
-    mock_fetch.side_effect = lambda s: DummyStock(s)
-
-    min_val = 200
-    max_val = 350
-    res_min = screen_stocks_by_current_share_price('gte', min_val, max_results=50)
-    res_max = screen_stocks_by_current_share_price('lte', max_val, max_results=50)
-
-    symbols_min = {s.symbol for s in res_min}
-    symbols_max = {s.symbol for s in res_max}
-    intersection = symbols_min.intersection(symbols_max)
-
-    assert intersection == {'TSLA', 'MSFT'}
+def test_current_share_price_with_other_filters():
+    stocks = values()
+    screener = current_share_price(min_value=240, max_value=500)
+    assert len(screener.screen(stocks)) == 3
+    assert screener.screen(stocks)[0].symbol == "MSFT"
+    assert screener.screen(stocks)[1].symbol == "TSLA"
+    assert screener.screen(stocks)[2].symbol == "NVDA"
+    
+    filtered_stocks = screener.screen(stocks)
+    filtered_stocks = fifty_two_high(490).screen(filtered_stocks)
+    assert len(filtered_stocks) == 1
+    assert filtered_stocks[0].symbol == "NVDA"

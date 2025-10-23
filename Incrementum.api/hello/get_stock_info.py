@@ -86,60 +86,7 @@ def fetch_stock_with_ma(symbol, ma_period=50):
         "latest_price": hist.iloc[-1],
         f"MA_{ma_period}": ma.iloc[-1]
     }
-# def get_stock_info(max, offset, filters=None, source=setup):
-#     max = int(max)
-#     offset = int(offset)
-    
-#     # Check if percent change filtering is requested
-#     if isinstance(filters, dict) and filters.get('percent_change_filter') and filters.get('percent_change_value') is not None:
-#         percent_change_filter = filters.get('percent_change_filter')
-#         percent_change_value = float(filters.get('percent_change_value'))
-        
-#         # Use yfinance screening for percent change
-#         all_screened_stocks = screen_stocks_by_percent_change(
-#             percent_change_filter, 
-#             percent_change_value, 
-#             max_results=250  # Get more results to allow for pagination
-#         )
-        
-#         # Apply pagination to screened results
-#         start = offset
-#         end = min(start + max, len(all_screened_stocks))
-#         return all_screened_stocks[start:end]
-#     # Original logic for CSV-based filtering
-#     tickers = source()
-#     stocks = []
 
-#     allowed_sectors = None
-#     if isinstance(filters, dict):
-#         fs = filters.get('sectors')
-#         if fs:
-#             fs_set = {str(s).strip().lower() for s in fs if s}
-#             if allowed_sectors:
-#                 allowed_sectors = allowed_sectors.union(fs_set)
-#             else:
-#                 allowed_sectors = fs_set
-#     if isinstance(filters, dict):
-#         moving_av_filter = filters.get('price_52w_high')
-#         mooving_av_value = float(filters.get("price_52w_high_value"))
-
-#     allowed_industries = None
-#     if isinstance(filters, dict):
-#         fi = filters.get('industries')
-#         if fi:
-#             allowed_industries = {str(s).strip().lower() for s in fi if s}
-
-#     if allowed_sectors:
-#         if 'sectorKey' in tickers.columns:
-#             tickers = tickers[tickers['sectorKey'].fillna('').str.lower().isin(allowed_sectors)]
-
-#     if allowed_industries:
-#         if 'industryKey' in tickers.columns:
-#             tickers = tickers[tickers['industryKey'].fillna('').str.lower().isin(allowed_industries)]
-
-#     for _, stock in tickers.iloc[offset:offset+max].iterrows():
-#         stocks.append(fetch_stock_data(stock['symbol']))
-#     return stocks
 def get_stock_info(max, offset, filters=None, source=setup):
     max = int(max)
     offset = int(offset)
@@ -313,7 +260,7 @@ def screen_stocks_by_current_share_price(price_filter, price_value, max_results=
     max_results = min(max_results, 250)
     
     try:
-        query = EquityQuery(price_filter, ['regularMarketPrice', price_value])
+        query = EquityQuery(price_filter, ['currentPrice', price_value])
         
         screen_results = yf.screen(query, size=max_results)
         
