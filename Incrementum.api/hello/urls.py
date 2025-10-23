@@ -20,6 +20,7 @@ from .watchlist_controller import (
 from .filters_controller import (
     get_sectors, get_industries
 )
+from .screener_run_controller import run_screener
 
 urlpatterns = [
     path('hello_world/', hello_world, name='hello_world'),
@@ -52,7 +53,7 @@ urlpatterns = [
     path('custom-screeners/', custom_screener_list_create, name='custom_screener_list_create'),
     path('screeners/custom/', create_custom_screener, name='create_custom_screener'),
     path('screeners/custom/list/', list_custom_screeners, name='list_custom_screeners'),
-    path('screeners/custom/<int:screener_id>/', get_custom_screener, name='get_custom_screener'),
+    path('screeners/custom/<screener_id>/', get_custom_screener, name='get_custom_screener'),
     path('screeners/custom/<int:screener_id>/update/', update_custom_screener, name='update_custom_screener'),
     path('screeners/custom/<int:screener_id>/delete/', delete_custom_screener, name='delete_custom_screener'),
     
@@ -61,4 +62,7 @@ urlpatterns = [
     path('filters/numeric/', get_numeric_filter_types, name='get_numeric_filter_types'),
     path('sectors/', get_sectors, name='sectors'),
     path('industries/', get_industries, name='industries'),
+    
+    # Dynamic screener run endpoint
+    path('stocks/getfilteredstocks', run_screener, name='get_filtered_stocks'),
 ]
