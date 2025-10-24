@@ -12,8 +12,11 @@ const LastCloseFilter: React.FC = () => {
   const highKey = "lastclose52weekhigh.lasttwelvemonths";
   const lowKey = "lastclose52weeklow.lasttwelvemonths";
 
+  const showWarning =
+  lowValue !== null && highValue !== null && lowValue > highValue;
+
   useEffect(() => {
-    if (highValue !== null) {
+    if (highValue !== null && !showWarning) {
       const highFilter: FilterData = {
         operand: highKey,
         operee: "gt",
@@ -26,10 +29,10 @@ const LastCloseFilter: React.FC = () => {
     } else {
       removeFilter(highKey);
     }
-  }, [highValue, addFilter, removeFilter]);
+  }, [highValue, addFilter, removeFilter, showWarning]);
 
   useEffect(() => {
-    if (lowValue !== null) {
+    if (lowValue !== null && !showWarning) {
       const lowFilter: FilterData = {
         operand: lowKey,
         operee: "lt",
@@ -42,10 +45,8 @@ const LastCloseFilter: React.FC = () => {
     } else {
       removeFilter(lowKey);
     }
-  }, [lowValue, addFilter, removeFilter]);
+  }, [lowValue, addFilter, removeFilter, showWarning]);
 
-    const showWarning =
-    lowValue !== null && highValue !== null && lowValue > highValue;
   return (
     <ExpandableSidebarItem title="Last Close Filters">
       <div style={{ marginBottom: "0.5rem" }}>
@@ -78,7 +79,6 @@ const LastCloseFilter: React.FC = () => {
             style={{ flex: 1, padding: "0.4rem" }}
           />
         </div>
-        {/* Warning message */}
       </div>
             
       <div
