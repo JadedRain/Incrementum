@@ -16,7 +16,7 @@ import { AuthProvider } from "./Context/AuthContext";
 import AccountPage from "./Pages/AccountPage";
 import CreateCustomCollectionPage from "./Pages/CreateCustomCollectionPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
+import FilterPage from "./Pages/FilterPageTest";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +39,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <Route path="/custom-collection/:id" element={<IndividualCustomCollectionPage />} />
           <Route path="/custom-collections" element={<CustomCollectionsPage />} />
           <Route path="/create-custom-collection" element={<CreateCustomCollectionPage />} />
+          <Route path="/filter-test" element={<FilterPage />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
