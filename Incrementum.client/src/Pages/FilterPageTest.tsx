@@ -1,5 +1,10 @@
 import React from "react";
 import LastCloseFilter from "../Components/FilterComponents/52whighlow";
+import MarketCapFilter from "../Components/FilterComponents/MarketCapFilter";
+import PercentChangeFilter from "../Components/FilterComponents/PercentChangeFilter";
+import SharePriceFilter from "../Components/FilterComponents/SharePriceFilter";
+import VolumeFilter from "../Components/FilterComponents/VolumeFilter";
+import WeekRangeFilter from "../Components/FilterComponents/WeekRangeFilter";
 import { FilterDataProvider, useFilterData } from "../Context/FilterDataContext";
 
 // A small sub-component to display the list
@@ -31,9 +36,16 @@ const FilterPage: React.FC = () => {
     <FilterDataProvider>
       <div style={{ padding: "1rem", maxWidth: "600px", margin: "0 auto" }}>
         <h1>Filter Page</h1>
-
-        {/* Sidebar Component */}
-        <LastCloseFilter />
+        
+        {/* Filter Components (interactive) */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <MarketCapFilter />
+          <PercentChangeFilter />
+          <SharePriceFilter />
+          <VolumeFilter />
+          <WeekRangeFilter />
+          <LastCloseFilter />
+        </div>
 
         {/* Filter List */}
         <FilterList />
