@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../Context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import NavigationBar from "../Components/NavigationBar";
-import "../App.css";
+import "../styles/SettingsPage.css";
 
-const AccountPage: React.FC = () => {
+const SettingsPage: React.FC = () => {
   const { apiKey, signOut } = useAuth();
   const [account, setAccount] = useState<{ name: string; email: string; phone_number: string } | null>(null);
   const [error, setError] = useState("");
@@ -64,4 +64,4 @@ const AccountPage: React.FC = () => {
   );
 };
 
-export default AccountPage;
+export default SettingsPage;

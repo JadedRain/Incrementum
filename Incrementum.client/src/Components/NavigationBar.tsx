@@ -51,10 +51,10 @@ export default function NavigationBar({ showAccountButton = true }: NavigationBa
           )}
           {showAccountButton && isAuthenticated && (
             <Link 
-              to="/account" 
-              className={`nav-button ${location.pathname === '/account' ? 'nav-button-active' : ''}`}
+              to="/settings" 
+              className={`nav-button ${location.pathname === '/settings' ? 'nav-button-active' : ''}`}
             >
-              Account
+              Settings
             </Link>
           )}
         </nav>
