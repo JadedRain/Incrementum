@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import ExpandableSidebarItem from "../ExpandableSidebarItem";
 import { useFilterData } from "../../Context/FilterDataContext";
 import type { FilterData } from "../../Context/FilterDataContext";
@@ -6,23 +6,35 @@ import type { FilterData } from "../../Context/FilterDataContext";
 const SectorFilter: React.FC = () => {
   const { addFilter, removeFilter, selectedSectors, setSelectedSectors } = useFilterData();
 
-  const sectors = [
-    "Technology",
-    "Healthcare",
-    "Financials",
-    "Energy",
-    "Consumer Discretionary",
-    "Industrials",
-    "Materials",
-    "Real Estate",
-    "Utilities",
-    "Communication Services",
-  ];
+  const [sectors, setSectors] = useState<string[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+    useEffect(() => {
+    const fetchSectors = async () => {
+        try {
+        setLoading(true);
+        const response = await fetch("/sectors/");
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
 
-  const filterKey = "sector";
+        const sectorNames = Array.isArray(data.sectors)
+            ? (typeof data.sectors[0] === "string" ? data.sectors : data.sectors.map((s: any) => s.name))
+            : [];
+        console.log(sectorNames)
+        setSectors(sectorNames);
+        } catch (err: any) {
+        console.error("Failed to fetch sectors:", err);
+        setError(err.message || "Failed to load sectors");
+        } finally {
+        setLoading(false);
+        }
+    };
+
+    fetchSectors();
+    }, []);
+
 
     useEffect(() => {
-    // First remove any filters for unselected sectors
     sectors.forEach((sector) => {
       const key = `sector.${sector}`;
       if (!selectedSectors.includes(sector)) {
@@ -42,7 +54,7 @@ const SectorFilter: React.FC = () => {
       };
       addFilter(key, filter);
     });
-  }, [selectedSectors, addFilter, removeFilter]);
+  }, [selectedSectors, sectors]);
 
   const handleCheckboxChange = (sector: string) => {
     setSelectedSectors((prev) =>
@@ -51,7 +63,21 @@ const SectorFilter: React.FC = () => {
         : [...prev, sector]
     );
   };
+    if (loading) {
+    return (
+      <ExpandableSidebarItem title="Sector Filters">
+        <div>Loading sectors...</div>
+      </ExpandableSidebarItem>
+    );
+  }
 
+  if (error) {
+    return (
+      <ExpandableSidebarItem title="Sector Filters">
+        <div style={{ color: "red" }}>Error: {error}</div>
+      </ExpandableSidebarItem>
+    );
+  }
   return (
     <ExpandableSidebarItem title="Sector Filters">
       <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>

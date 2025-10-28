@@ -1,6 +1,6 @@
 @host = http://localhost:8000
 ###
-GET {{host}}/getStocks/AAPL
+GET {{host}}/sectors
 
 ###
 GET {{host}}/getStockInfo/?max=5&offset=0
