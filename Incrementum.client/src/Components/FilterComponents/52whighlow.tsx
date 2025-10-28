@@ -88,7 +88,7 @@ const LastCloseFilter: React.FC = () => {
             color: "#2b2b2b",
         }}
         >
-        (High filter uses &gt;, Low filter uses &lt;. Empty inputs remove the filter.)
+        (On the left is min 52-Week High. On the right is max 52-Week Low.)
       </div>
           {showWarning && (
             <div style={{ color: "red", fontSize: "0.85rem", marginBottom: "0.5rem" }}>
