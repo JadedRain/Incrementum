@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+.SettingsPage-left-sidebar {
+  width: 325px;
+  height: calc(100vh - var(--header-height) - 80px);
+  background-color: hsl(40,63%,63%);
+  border-radius: 0.125rem;
+  box-shadow: none;
+  padding: 1.5rem;
+  position: sticky;
+  top: calc(var(--header-height) + 40px);
+  margin-right: 2rem;
+  flex-shrink: 0;
+}
+
+.Settings-main-content {
+  flex: 1 1 auto;
+  min-height: calc(100vh - var(--header-height) - 80px);
+  background-color: hsl(40,63%,63%);
+  border-radius: 0.125rem;
+  padding: 1.5rem;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
