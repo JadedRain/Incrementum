@@ -15,6 +15,8 @@ interface FilterDataContextType {
   filterDataDict: Record<string, FilterData>;
   addFilter: (key: string, filter: FilterData) => void;
   removeFilter: (key: string) => void;
+  selectedSectors: string[];
+  setSelectedSectors: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 // Create context
@@ -25,7 +27,7 @@ const FilterDataContext = createContext<FilterDataContextType | undefined>(
 // Provider
 export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
   const [filterDataDict, setFilterDataDict] = useState<Record<string, FilterData>>({});
-
+  const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
   const addFilter = (key: string, filter: FilterData) =>
     setFilterDataDict((prev) => ({ ...prev, [key]: filter }));
 
@@ -37,7 +39,7 @@ export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
     });
 
   return (
-    <FilterDataContext.Provider value={{ filterDataDict, addFilter, removeFilter }}>
+    <FilterDataContext.Provider value={{ filterDataDict, addFilter, removeFilter, selectedSectors, setSelectedSectors }}>
       {children}
     </FilterDataContext.Provider>
   );

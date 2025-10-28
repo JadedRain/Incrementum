@@ -1,6 +1,7 @@
 import React from "react";
 import LastCloseFilter from "../Components/FilterComponents/52whighlow";
 import { FilterDataProvider, useFilterData } from "../Context/FilterDataContext";
+import SectorFilter from "../Components/FilterComponents/Sectors";
 
 // A small sub-component to display the list
 const FilterList: React.FC = () => {
@@ -32,9 +33,11 @@ const FilterPage: React.FC = () => {
       <div style={{ padding: "1rem", maxWidth: "600px", margin: "0 auto" }}>
         <h1>Filter Page</h1>
 
-        {/* Sidebar Component */}
+        {/* LastClose Component */}
         <LastCloseFilter />
 
+        {/* Sectors Component */}
+        <SectorFilter />
         {/* Filter List */}
         <FilterList />
       </div>
