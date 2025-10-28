@@ -1,5 +1,5 @@
 import '../styles/NavBar.css'
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import SearchBar from './SearchBar';
 import { useAuth } from '../Context/AuthContext';
 
@@ -9,7 +9,8 @@ interface NavigationBarProps {
 
 export default function NavigationBar({ showAccountButton = true }: NavigationBarProps) {
   const location = useLocation();
-  const { apiKey } = useAuth();
+  const navigate = useNavigate();
+  const { apiKey, signOut } = useAuth();
   const isAuthenticated = !!apiKey;
 
   return (
@@ -50,12 +51,21 @@ export default function NavigationBar({ showAccountButton = true }: NavigationBa
             </>
           )}
           {showAccountButton && isAuthenticated && (
-            <Link 
-              to="/settings" 
+            <Link
+              to="/settings"
               className={`nav-button ${location.pathname === '/settings' ? 'nav-button-active' : ''}`}
             >
               Settings
             </Link>
+          )}
+          {showAccountButton && isAuthenticated && (
+            <button
+              type="button"
+              onClick={() => { signOut(); navigate('/'); }}
+              className={`nav-button nav-button-logout`}
+            >
+              Logout
+            </button>
           )}
         </nav>
       </div>
