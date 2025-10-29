@@ -1,24 +1,10 @@
 import React from 'react';
-import ExpandableSidebarItem from '../ExpandableSidebarItem';
+import CategoryFilter from "./CategoricFilter";
 
-interface RegionFilterProps {
-  regionChecks: { [k: string]: boolean };
-  setRegionChecks: React.Dispatch<React.SetStateAction<{ [k: string]: boolean }>>;
-}
 
-const RegionFilter: React.FC<RegionFilterProps> = ({
-  regionChecks,
-  setRegionChecks
-}) => {
+const RegionFilter: React.FC = () => {
   return (
-    <ExpandableSidebarItem title="Region">
-      {Object.keys(regionChecks).map((key) => (
-        <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0' }}>
-          <input type="checkbox" checked={!!regionChecks[key]} onChange={() => setRegionChecks(prev => ({ ...prev, [key]: !prev[key] }))} />
-          <span>{key}</span>
-        </label>
-      ))}
-    </ExpandableSidebarItem>
+    <CategoryFilter categorys={["ar", "at", "au", "be", "br", "ca", "ch", "cl", "cn", "co", "cz", "de", "dk", "ee", "eg", "es", "fi", "fr", "gb", "gr", "hk", "hu", "id", "ie", "il", "in", "is", "it", "jp", "kr", "kw", "lk", "lt", "lv", "mx", "my", "nl", "no", "nz", "pe", "ph", "pk", "pl", "pt", "qa", "ro", "ru", "sa", "se", "sg", "sr", "sw", "th", "tr", "tw", "us", "ve", "vn", "za"]} category="Region" displayName = "Region"/>
   );
 };
 

@@ -1,24 +1,10 @@
-import React from 'react';
-import ExpandableSidebarItem from '../ExpandableSidebarItem';
+import React, { useEffect, useState } from "react";
+import CategoryFilter from "./CategoricFilter";
 
-interface MarketFilterProps {
-  marketChecks: { [k: string]: boolean };
-  setMarketChecks: React.Dispatch<React.SetStateAction<{ [k: string]: boolean }>>;
-}
 
-const MarketFilter: React.FC<MarketFilterProps> = ({
-  marketChecks,
-  setMarketChecks
-}) => {
+const MarketFilter: React.FC = () => {
   return (
-    <ExpandableSidebarItem title="Market">
-      {Object.keys(marketChecks).map((key) => (
-        <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0' }}>
-          <input type="checkbox" checked={!!marketChecks[key]} onChange={() => setMarketChecks(prev => ({ ...prev, [key]: !prev[key] }))} />
-          <span>{key}</span>
-        </label>
-      ))}
-    </ExpandableSidebarItem>
+            <CategoryFilter categorys={["BUE", "VIE", "ASX", "BRU", "SAO", "CNQ", "NEO", "TOR", "VAN", "EBS", "SGO", "SHH", "SHZ", "BVC", "PRA", "BER", "DUS", "FRA", "GER", "HAM", "MUN", "STU", "CPH", "TAL", "CAI", "MCE", "HEL", "PAR", "AQS", "IOB", "LSE", "ATH", "HKG", "BUD", "JKT", "ISE", "TLV", "BSE", "NSI", "ICE", "MIL", "FKA", "JPX", "SAP", "KOE", "KSC", "KUW", "LIT", "RIS", "MEX", "KLS", "AMS", "OSL", "NZE", "PHP", "PHS", "WSE", "LIS", "DOH", "BVB", "SAU", "STO", "SES", "EBS", "SET", "IST","TAI", "TWO","ASE", "BTS", "CXI", "NCM", "NGM", "NMS", "NYQ", "OEM", "OQB", "OQX", "PCX", "PNK", "YHD","CCS","JNB"]} category="Exchange" displayName = "Exchange"/>
   );
 };
 
