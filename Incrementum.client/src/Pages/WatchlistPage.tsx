@@ -4,23 +4,21 @@ import { useAuth } from '../Context/AuthContext';
 import { useEffect, useState } from 'react';
 import Loading from '../Components/Loading';
 import type { StockC } from '../Components/Stock';
-import { WatchlistSidebar } from '../Components/WatchlistSidebar';
-import { GridCards } from '../Components/GridCards';
-import { ChartArea } from '../Components/ChartArea';
+import { CgAddR } from "react-icons/cg";
 import NavigationBar from '../Components/NavigationBar';
 import Toast from '../Components/Toast';
 import { useSortedWatchlist } from '../hooks/useSortedWatchlist';
+import AppCard from '../Components/AppCard';
 
 function WatchlistPage() {
   const navigate = useNavigate();
   const { apiKey } = useAuth();
   const user_id = apiKey || undefined;
   const [selectedStock, setSelectedStock] = useState<StockC | null>(null);
-  const [sortBy, setSortBy] = useState('default');
-  const [pending, setPending] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
+  const [sortBy, _setSortBy] = useState('default');
+  const [toast, _setToast] = useState<string | null>(null);
   const watchlistState = apiKey ? useSortedWatchlist(sortBy, user_id) : { watchlist: [], setWatchlist: () => { }, loading: false };
-  const { watchlist, setWatchlist, loading } = watchlistState;
+  const { watchlist } = watchlistState;
 
   useEffect(() => {
     if (!apiKey) {
@@ -34,40 +32,14 @@ function WatchlistPage() {
     }
   }, [watchlist, selectedStock]);
 
-  const handleStockClick = (stock: StockC) => {
-    setWatchlist(prev => prev.map(s =>
-      s.symbol === stock.symbol ? { ...s, lastViewed: Date.now() } : s
-    ));
-    setSelectedStock({ ...stock, lastViewed: Date.now() });
-  };
+  // const handleStockClick = (stock: StockC) => {
+  //   setWatchlist(prev => prev.map(s =>
+  //     s.symbol === stock.symbol ? { ...s, lastViewed: Date.now() } : s
+  //   ));
+  //   setSelectedStock({ ...stock, lastViewed: Date.now() });
+  // };
 
-  function addToWatchlist() {
-    return async () => {
-      try {
-        if (selectedStock) {
-          // Use utility function for addition
-          const { addToWatchlist } = await import('../utils/watchlistActions');
-          await addToWatchlist(
-            selectedStock.symbol,
-            user_id ?? null,
-            () => { },
-            () => { },
-            (inWatchlist) => {
-              if (inWatchlist) {
-                setWatchlist(prev => [...prev, selectedStock]);
-              }
-            }
-          );
-        }
-      } catch (error) {
-        console.error('Error adding to watchlist:', error);
-      }
-    };
-  }
-
-  const imgUrl = selectedStock
-    ? `http://localhost:8000/getStocks/${selectedStock.symbol}`
-    : null;
+  // const handleaddscreenerclick =
 
   return (
     <div style={{ minHeight: '100vh' }} className='bg-[hsl(40,13%,53%)]'>
@@ -76,31 +48,36 @@ function WatchlistPage() {
       <div>
         <Loading loading={false} loadingText="Loading Watchlist..." />
       </div>
-      <div style={{ display: 'flex', marginTop: '2rem', padding: '0 2rem' }}>
-        <WatchlistSidebar
-          setSortBy={setSortBy}
-          sortBy={sortBy}
-          watchlist={watchlist}
-          selectedStock={selectedStock}
-          handleStockClick={handleStockClick}
-          loading={loading}
-        />
-        <div className="WatchlistPage-main-content">
-          <ChartArea selectedStock={selectedStock} imgUrl={imgUrl} />
-          <GridCards />
-          <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
-            <div style={{ flex: 1 }}>
-              <button className="WatchlistPage-Custom-Button">
-                + Custom
-              </button>
-              <button
-                className="WatchlistPage-Custom-Button"
-                onClick={addToWatchlist()}
-              >
-                Add to Watchlist
-              </button>
-            </div>
-          </div>
+      <h1 className="text-[hsl(42,15%,70%)] text-4xl text-left ml-8 mb-0 mt-8 newsreader-font">
+        Watchlist
+      </h1>
+      <div className="WatchlistPage-main-content pt-4">
+        <div className="WatchlistPage-card-grid">
+          <AppCard
+            title="Text"
+            subtitle="Body text."
+          />
+          <AppCard
+            title="Text"
+            subtitle="Body text."
+          />
+          <AppCard
+            title="Text"
+            subtitle="Body text."
+          />
+        </div>
+      </div>
+      <button
+        type="button"
+        className="Add-screener-button cursor-pointer text-2xl"
+      >
+        <CgAddR /> Screener
+      </button>
+      <div className="WatchlistPage-right-sidebar">
+        <div
+          className="w-full text-left py-4 border-b border-[hsl(40,46%,36%)] px-1 text-[hsl(40,46%,36%)] text-2xl"
+        >
+          Stocks
         </div>
       </div>
     </div>
