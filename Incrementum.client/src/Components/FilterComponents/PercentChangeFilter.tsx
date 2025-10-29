@@ -6,13 +6,6 @@ import type { FilterData } from '../../Context/FilterDataContext';
 interface PercentChangeFilterProps {
   changePeriod?: 'daily' | 'weekly' | 'monthly';
   onChangePeriod?: (period: 'daily' | 'weekly' | 'monthly') => void;
-  localPercentChangeFilter?: string;
-  setLocalPercentChangeFilter?: React.Dispatch<React.SetStateAction<string>>;
-  onPercentChangeFilter?: (filter: string) => void;
-  percentThreshold?: string;
-  changePercent?: string;
-  setChangePercent?: React.Dispatch<React.SetStateAction<string>>;
-  onPercentThresholdChange?: (value: string) => void;
 }
 
 const PercentChangeFilter: React.FC<PercentChangeFilterProps> = ({ changePeriod = 'daily', onChangePeriod }) => {

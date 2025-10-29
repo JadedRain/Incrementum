@@ -13,59 +13,51 @@ import type { CustomScreener } from '../Types/ScreenerTypes';
 import type { StockInfo  } from '../Types/StockInfo';
 
 function IndividualScreenPage() {
-
-  const { id } = useParams<{ id: string }>();
-
-  if (!id) {
-    return <div>Loading screener...</div>; // or redirect
-}
   const navigate = useNavigate();
   const { apiKey } = useAuth();
   const [stocks, setStocks] = useState<StockInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
+  
+  const { id } = useParams<{ id: string }>();
 
-  const { data, error} = useQuery<CustomScreener>({
+  if (!id) {
+    return <div>Loading screener...</div>; // or redirect
+  }
+  
+
+  const { data, error } = useQuery<CustomScreener>({
     queryKey: ["customScreener", id],
     queryFn: () => fetchCustomScreener(id!, apiKey),
   });
-  // keep a small debug log for screener data
   useEffect(()=>{ console.log(data) }, [data]);
   
-
-  const [percentThreshold, setPercentThreshold] = useState('');
   const [changePeriod, setChangePeriod] = useState<'daily' | 'weekly' | 'monthly'>('daily');
-  const [percentChangeFilter, setPercentChangeFilter] = useState<string>('gt');
 
-  // use the shared hook to fetch stocks
   const { stocks: hookStocks, loading: hookLoading } = useScreener({
     selectedSectors,
     selectedIndustries,
-    percentThreshold,
-    percentChangeFilter,
     changePeriod,
     max: 10,
     offset: 0,
   });
 
-  // keep local state in sync with hook
   useEffect(() => {
     setStocks(hookStocks);
     setLoading(hookLoading);
   }, [hookStocks, hookLoading]);
 
-  // derive default sectors/industries from screener data
   const { sectors: defaultSectors, industries: defaultIndustries } = useScreenerDefaults(data as any);
   useEffect(() => {
     setSelectedSectors(defaultSectors);
     setSelectedIndustries(defaultIndustries);
   }, [defaultSectors, defaultIndustries]);
 
+  useEffect(()=> {
+    console.log(error?.message)
+  }, [error])
 
-useEffect(()=> {
-  console.log(error?.message)
-}, [error])
   return (
     <div className="min-h-screen bg-[hsl(40,13%,53%)]">
       <NavigationBar />
@@ -79,12 +71,8 @@ useEffect(()=> {
             onSelectedSectorsChange={setSelectedSectors}
             selectedIndustries={selectedIndustries}
             onSelectedIndustriesChange={setSelectedIndustries}
-            percentThreshold={percentThreshold}
-            onPercentThresholdChange={setPercentThreshold}
             changePeriod={changePeriod}
             onChangePeriod={setChangePeriod}
-            percentChangeFilter={percentChangeFilter}
-            onPercentChangeFilter={setPercentChangeFilter}
             showCustomScreenerSection={true}
             apiKey={apiKey || undefined}
           />
