@@ -37,7 +37,7 @@ def get_industries2(request):
                 sectors_list = [str(s).strip() for s in sectors_body if str(s).strip()]
         except Exception:
             sectors_list = None
-        industries = get_industries_2(sectors_list)
+        industries = get_unique_industries(sectors_list)
         return JsonResponse({'industries': industries})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
