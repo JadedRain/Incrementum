@@ -71,12 +71,12 @@ def test_get_sectors_failure_returns_500(api_client, monkeypatch):
 def test_get_industries_success(api_client, monkeypatch):
     url = reverse('industries')
 
-    def fake_get_unique_industries():
+    def fake_get_unique_industries(sectors=None):
         return ['software', 'pharmaceuticals', 'banking']
 
     monkeypatch.setattr(filters_controller, 'get_unique_industries', fake_get_unique_industries)
 
-    response = api_client.get(url)
+    response = api_client.post(url, {}, format='json')
     assert response.status_code == 200
     response_data = response.json()
     assert 'industries' in response_data
@@ -86,12 +86,13 @@ def test_get_industries_success(api_client, monkeypatch):
 def test_get_industries_failure_returns_500(api_client, monkeypatch):
     url = reverse('industries')
 
-    def fake_get_unique_industries():
+    def fake_get_unique_industries(sectors=None):
         raise RuntimeError('read error')
 
     monkeypatch.setattr(filters_controller, 'get_unique_industries', fake_get_unique_industries)
 
-    response = api_client.get(url)
+    # Endpoint is POST — send empty JSON to trigger controller behavior
+    response = api_client.post(url, {}, format='json')
     assert response.status_code == 500
     response_data = response.json()
     assert 'error' in response_data

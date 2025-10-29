@@ -16,7 +16,7 @@ def get_unique_sectors():
             "technology",
             "utilities"]
 
-def get_unique_industries(sectors):
+def get_unique_industries(sectors=None):
     industries = {}
     for sec in sectors:
         s = yf.Sector(sec)
