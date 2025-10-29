@@ -40,7 +40,7 @@ def test_name_fallback():
 def test_get_sectors_success(api_client, monkeypatch):
     url = reverse('sectors')
 
-    def fake_get_unique_sectors(path):
+    def fake_get_unique_sectors():
         return ['Technology', 'Finance', 'Healthcare']
 
     monkeypatch.setattr(filters_controller, 'get_unique_sectors', fake_get_unique_sectors)
@@ -56,7 +56,7 @@ def test_get_sectors_success(api_client, monkeypatch):
 def test_get_sectors_failure_returns_500(api_client, monkeypatch):
     url = reverse('sectors')
 
-    def fake_get_unique_sectors(path):
+    def fake_get_unique_sectors():
         raise ValueError('CSV missing')
 
     monkeypatch.setattr(filters_controller, 'get_unique_sectors', fake_get_unique_sectors)
