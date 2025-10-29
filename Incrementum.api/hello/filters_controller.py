@@ -7,16 +7,6 @@ from .utils import get_unique_sectors, get_unique_industries
 
 @csrf_exempt
 @require_http_methods(["GET"])
-def get_industries(request):
-    try:
-        industries = get_unique_industries()
-        return JsonResponse({'industries': industries})
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-    
-
-@csrf_exempt
-@require_http_methods(["GET"])
 def get_sectors(request):
     try:
         sectors = get_unique_sectors()
