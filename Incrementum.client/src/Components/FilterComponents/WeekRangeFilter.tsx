@@ -1,20 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
 import { useFilterData } from '../../Context/FilterDataContext';
-import type { FilterData } from '../../Context/FilterDataContext';
 
-interface WeekRangeFilterProps {
-  high52Min?: string;
-  setHigh52Min?: React.Dispatch<React.SetStateAction<string>>;
-  high52Max?: string;
-  setHigh52Max?: React.Dispatch<React.SetStateAction<string>>;
-  low52Min?: string;
-  setLow52Min?: React.Dispatch<React.SetStateAction<string>>;
-  low52Max?: string;
-  setLow52Max?: React.Dispatch<React.SetStateAction<string>>;
-}
-
-const WeekRangeFilter: React.FC<WeekRangeFilterProps> = (_props) => {
+const WeekRangeFilter: React.FC = () => {
   const { addFilter, removeFilter } = useFilterData();
   const [highMin, setHighMin] = useState<number | null>(null);
   const [highMax, setHighMax] = useState<number | null>(null);

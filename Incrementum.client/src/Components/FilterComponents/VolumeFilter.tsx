@@ -2,18 +2,8 @@ import React, { useState, useEffect } from 'react';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
 import { useFilterData } from '../../Context/FilterDataContext';
 
-interface VolumeFilterProps {
-  avgVolumeMin?: string;
-  setAvgVolumeMin?: React.Dispatch<React.SetStateAction<string>>;
-  avgVolumeMax?: string;
-  setAvgVolumeMax?: React.Dispatch<React.SetStateAction<string>>;
-  todayVolumeMin?: string;
-  setTodayVolumeMin?: React.Dispatch<React.SetStateAction<string>>;
-  todayVolumeMax?: string;
-  setTodayVolumeMax?: React.Dispatch<React.SetStateAction<string>>;
-}
 
-const VolumeFilter: React.FC<VolumeFilterProps> = (_props) => {
+const VolumeFilter: React.FC = () => {
   const { addFilter, removeFilter } = useFilterData();
   const [avgMin, setAvgMin] = useState<number | null>(null);
   const [avgMax, setAvgMax] = useState<number | null>(null);

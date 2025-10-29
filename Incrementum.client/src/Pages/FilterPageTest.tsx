@@ -5,32 +5,9 @@ import PercentChangeFilter from "../Components/FilterComponents/PercentChangeFil
 import SharePriceFilter from "../Components/FilterComponents/SharePriceFilter";
 import VolumeFilter from "../Components/FilterComponents/VolumeFilter";
 import WeekRangeFilter from "../Components/FilterComponents/WeekRangeFilter";
-import { FilterDataProvider, useFilterData } from "../Context/FilterDataContext";
+import { FilterDataProvider } from "../Context/FilterDataContext";
 import SectorFilter from "../Components/FilterComponents/Sectors";
-
-// A small sub-component to display the list
-const FilterList: React.FC = () => {
-  const { filterDataDict } = useFilterData();
-
-  return (
-    <div style={{ marginTop: "2rem" }}>
-      <h2>Current Filters</h2>
-      {Object.keys(filterDataDict).length === 0 ? (
-        <p>No filters added.</p>
-      ) : (
-        <ul>
-          {Object.entries(filterDataDict).map(([key, f]) => (
-            <li key={key} style={{ marginBottom: "0.5rem" }}>
-              <strong>{key}</strong>: {f.operand} {f.operee} ({f.type}) [High:{" "}
-              {f.value_high ?? "-"}, Low: {f.value_low ?? "-"}, Value:{" "}
-              {f.value ?? "-"}]
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-};
+import FilterList from "../Components/FilterList";
 
 const FilterPage: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState<string>("marketcap");
