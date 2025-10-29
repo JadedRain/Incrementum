@@ -15,11 +15,10 @@ function WatchlistPage() {
   const { apiKey } = useAuth();
   const user_id = apiKey || undefined;
   const [selectedStock, setSelectedStock] = useState<StockC | null>(null);
-  const [sortBy, setSortBy] = useState('default');
-  const [pending, setPending] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
+  const [sortBy, _setSortBy] = useState('default');
+  const [toast, _setToast] = useState<string | null>(null);
   const watchlistState = apiKey ? useSortedWatchlist(sortBy, user_id) : { watchlist: [], setWatchlist: () => { }, loading: false };
-  const { watchlist, setWatchlist, loading } = watchlistState;
+  const { watchlist } = watchlistState;
 
   useEffect(() => {
     if (!apiKey) {
@@ -33,12 +32,12 @@ function WatchlistPage() {
     }
   }, [watchlist, selectedStock]);
 
-  const handleStockClick = (stock: StockC) => {
-    setWatchlist(prev => prev.map(s =>
-      s.symbol === stock.symbol ? { ...s, lastViewed: Date.now() } : s
-    ));
-    setSelectedStock({ ...stock, lastViewed: Date.now() });
-  };
+  // const handleStockClick = (stock: StockC) => {
+  //   setWatchlist(prev => prev.map(s =>
+  //     s.symbol === stock.symbol ? { ...s, lastViewed: Date.now() } : s
+  //   ));
+  //   setSelectedStock({ ...stock, lastViewed: Date.now() });
+  // };
 
   // const handleaddscreenerclick =
 
