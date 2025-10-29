@@ -71,7 +71,7 @@ def test_get_sectors_failure_returns_500(api_client, monkeypatch):
 def test_get_industries_success(api_client, monkeypatch):
     url = reverse('industries')
 
-    def fake_get_unique_industries(path):
+    def fake_get_unique_industries():
         return ['software', 'pharmaceuticals', 'banking']
 
     monkeypatch.setattr(filters_controller, 'get_unique_industries', fake_get_unique_industries)
@@ -86,7 +86,7 @@ def test_get_industries_success(api_client, monkeypatch):
 def test_get_industries_failure_returns_500(api_client, monkeypatch):
     url = reverse('industries')
 
-    def fake_get_unique_industries(path):
+    def fake_get_unique_industries():
         raise RuntimeError('read error')
 
     monkeypatch.setattr(filters_controller, 'get_unique_industries', fake_get_unique_industries)

@@ -18,7 +18,7 @@ from .watchlist_controller import (
     remove_custom_screener_from_watchlist, get_all_watchlist_screeners
 )
 from .filters_controller import (
-    get_sectors, get_industries, get_industries2
+    get_sectors, get_industries
 )
 from .screener_run_controller import run_screener
 
@@ -66,5 +66,4 @@ urlpatterns = [
     
     # Dynamic screener run endpoint
     path('stocks/getfilteredstocks', run_screener, name='get_filtered_stocks'),
-    path('industries2/', get_industries2, name='industries2'),
 ]
