@@ -27,7 +27,7 @@ def get_sectors(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-def get_industries2(request):
+def get_industries(request):
     try:
         sectors_list = None
         try:
