@@ -1,21 +1,14 @@
-import React, { useState } from "react";
-import { useAuth } from '../Context/AuthContext';
-import { FilterDataProvider } from '../Context/FilterDataContext';
+import React from "react";
+import { FilterDataProvider} from '../Context/FilterDataContext';
 import Sidebar from "../Components/Sidebar";
+import FilterList from "../Components/FilterList";
 import "../styles/SettingsPage.css";
 
 const SidebarTestPage: React.FC = () => {
-  const { apiKey } = useAuth();
-
-  const [changePeriod, setChangePeriod] = useState<'daily' | 'weekly' | 'monthly'>('daily');
-
   return (
     <FilterDataProvider>
-      <Sidebar 
-          changePeriod={changePeriod}
-          onChangePeriod={setChangePeriod}
-          apiKey={apiKey || undefined}
-      />
+      <Sidebar />
+      <FilterList />
     </FilterDataProvider>
   );
 };

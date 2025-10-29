@@ -66,11 +66,7 @@ function IndividualScreenPage() {
           <div className="w-full flex">
             <StockTable stocks={stocks} loading={loading} onRowClick={(symbol: string) => navigate(`/stock/${symbol}`)} />
           </div>
-          <Sidebar
-            changePeriod={changePeriod}
-            onChangePeriod={setChangePeriod}
-            apiKey={apiKey || undefined}
-          />
+          <Sidebar />
         </div>
       </div>
     </div>
