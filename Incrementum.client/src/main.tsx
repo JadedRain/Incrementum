@@ -13,7 +13,7 @@ import SignupPage from "./Pages/SignupPage";
 import IndividualCustomCollectionPage from "./Pages/IndividualCustomCollectionPage";
 import CustomCollectionsPage from "./Pages/CustomCollectionsPage";
 import { AuthProvider } from "./Context/AuthContext";
-import AccountPage from "./Pages/AccountPage";
+import SettingsPage from "./Pages/SettingsPage";
 import CreateCustomCollectionPage from "./Pages/CreateCustomCollectionPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import FilterPage from "./Pages/FilterPageTest";
@@ -35,7 +35,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <Route path="/watchlist" element={<WatchlistPage />} />
           <Route path="/screener/:id" element={<IndividualScreenPage />} />
           <Route path="/create-custom-screener" element={<CustomScreenerPage />} />
-          <Route path="/account" element={<AccountPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/custom-collection/:id" element={<IndividualCustomCollectionPage />} />
           <Route path="/custom-collections" element={<CustomCollectionsPage />} />
           <Route path="/create-custom-collection" element={<CreateCustomCollectionPage />} />

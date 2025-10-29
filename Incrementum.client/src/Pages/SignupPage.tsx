@@ -1,4 +1,5 @@
 import '../styles/SignIn.css';
+import '../App.css'
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
@@ -31,8 +32,10 @@ const SignupPage: React.FC = () => {
 
   return (
     <div className="signin-container">
-      <form className="signin-form" onSubmit={handleSubmit}>
-        <h2 className="signin-title">Sign Up</h2>
+      <div className="signin-wrapper">
+        <div className="signin-left-section" />
+        <form className="signin-form" onSubmit={handleSubmit}>
+          <h2 className="signin-title">Sign Up</h2>
         <input
           className="signin-input"
           type="text"
@@ -65,14 +68,15 @@ const SignupPage: React.FC = () => {
         />
         {error && <div className="signin-error">{error}</div>}
         <button className="signin-button" type="submit">Sign Up</button>
-        <button
-          className="signin-button mt-2"
-          type="button"
-          onClick={() => navigate("/")}
-        >
-          Back to Login
-        </button>
-      </form>
+          <button
+            className="signin-button mt-2"
+            type="button"
+            onClick={() => navigate("/")}
+          >
+            Back to Login
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

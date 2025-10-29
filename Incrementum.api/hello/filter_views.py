@@ -2,7 +2,6 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from hello.models import CategoricalFilter, NumericFilter
-from hello.utils import get_unique_sectors, get_unique_industries
 from pathlib import Path
 
 

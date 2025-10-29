@@ -91,3 +91,7 @@
   text-decoration: none;
   font-family: "Newsreader", serif;
 }
+
+.nav-button.nav-button-logout:hover {
+  color: #ff4d4d !important;
+}
