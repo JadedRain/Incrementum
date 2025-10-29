@@ -6,6 +6,7 @@ import SharePriceFilter from "../Components/FilterComponents/SharePriceFilter";
 import VolumeFilter from "../Components/FilterComponents/VolumeFilter";
 import WeekRangeFilter from "../Components/FilterComponents/WeekRangeFilter";
 import { FilterDataProvider, useFilterData } from "../Context/FilterDataContext";
+import SectorFilter from "../Components/FilterComponents/Sectors";
 
 // A small sub-component to display the list
 const FilterList: React.FC = () => {
@@ -57,6 +58,8 @@ const FilterPage: React.FC = () => {
       <div style={{ padding: "1rem", maxWidth: "600px", margin: "0 auto" }}>
         <h1>Filter Page</h1>
 
+        {/* LastClose Component */}
+        <LastCloseFilter />
         {/* Filter Components (interactive) - select one to render */}
         <div style={{ marginBottom: '1rem' }}>
           <label htmlFor="filter-select" style={{ marginRight: '0.5rem', fontWeight: 600 }}>Choose filter:</label>
@@ -73,7 +76,8 @@ const FilterPage: React.FC = () => {
         <div style={{ padding: '0.5rem', border: '1px solid #ddd', borderRadius: 6 }}>
           {renderSelectedFilter(selectedFilter)}
         </div>
-
+        {/* Sectors Component */}
+        <SectorFilter />
         {/* Filter List */}
         <FilterList />
       </div>
