@@ -67,13 +67,8 @@ function IndividualScreenPage() {
             <StockTable stocks={stocks} loading={loading} onRowClick={(symbol: string) => navigate(`/stock/${symbol}`)} />
           </div>
           <Sidebar
-            selectedSectors={selectedSectors}
-            onSelectedSectorsChange={setSelectedSectors}
-            selectedIndustries={selectedIndustries}
-            onSelectedIndustriesChange={setSelectedIndustries}
             changePeriod={changePeriod}
             onChangePeriod={setChangePeriod}
-            showCustomScreenerSection={true}
             apiKey={apiKey || undefined}
           />
         </div>
