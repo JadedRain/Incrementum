@@ -40,32 +40,8 @@ create table custom_screener (
     id int primary key generated always as identity,
     account_id int not null references account(id),
     screener_name varchar(100) not null,
-    created_at timestamp not null default current_timestamp
-);
-
-create table numeric_filter (
-    id int primary key generated always as identity,
-    name varchar(50) not null
-);
-
-create table custom_screener_numeric (
-    id int primary key generated always as identity,
-    custom_screener_id int not null references custom_screener(id),
-    numeric_filter_id int not null references numeric_filter(id),
-    numeric_value int not null,
-    operator varchar(10) not null
-);
-
-create table categorical_filter (
-    id int primary key generated always as identity,
-    name varchar(50) not null
-);
-
-create table custom_screener_categorical (
-    id serial PRIMARY KEY,
-    custom_screener_id int not null references custom_screener(id),
-    categorical_filter_id int not null references categorical_filter(id),
-    category_value varchar(255) not null
+    created_at timestamp not null default current_timestamp,
+    filters json not null
 );
 
 create table watchlist_custom_screener (

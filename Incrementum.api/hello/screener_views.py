@@ -13,11 +13,6 @@ def get_user_from_request(request):
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
 def custom_screener_list_create(request):
-    """
-    Unified endpoint for custom screeners:
-    GET: List user's custom screeners
-    POST: Create a new custom screener
-    """
     if request.method == "GET":
         return list_custom_screeners(request)
     elif request.method == "POST":
