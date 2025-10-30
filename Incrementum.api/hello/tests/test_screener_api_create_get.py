@@ -108,3 +108,45 @@ def test_update_custom_screener_api():
 
     assert any(n.get('operand') == 'market_cap' and n.get('value') == 2000000000 for n in numeric)
     assert any(c.get('operand') == 'sector' and c.get('value') == 'Healthcare' for c in categorical)
+
+
+def test_create_custom_screener_with_range_filter_api():
+    client = APIClient()
+
+    account = Account.objects.create(
+        name="API User Range",
+        phone_number="7777777777",
+        email="apiuserrange@example.com",
+        password_hash="hash3",
+        api_key="api-user-key-789"
+    )
+
+    url = reverse('custom_screener_list_create')
+
+    payload = {
+        "screener_name": "Range Screener",
+        "numeric_filters": [
+            {"filter_name": "market_cap", "numeric_value": [1000000, 5000000]},
+        ],
+        "categorical_filters": [
+            {"filter_name": "sector", "category_value": "Technology"},
+        ]
+    }
+
+    response = client.post(url, data=json.dumps(payload), content_type='application/json', HTTP_X_USER_ID=account.api_key)
+    assert response.status_code == 201, f"Unexpected status: {response.status_code}, body: {response.content}"
+    screener_id = response.json()['id']
+
+    get_url = reverse('get_custom_screener', args=[screener_id])
+    get_resp = client.get(get_url, HTTP_X_USER_ID=account.api_key)
+    assert get_resp.status_code == 200, f"GET failed: {get_resp.content}"
+    screener = get_resp.json()
+
+    nf_list = screener.get('numeric_filters', [])
+    assert len(nf_list) == 1
+    nf = nf_list[0]
+    # for range, 'value' should be None and value_low/value_high populated
+    assert nf.get('operand') == 'market_cap'
+    assert nf.get('value') is None or nf.get('value') == [] or nf.get('value') == ''
+    assert nf.get('value_low') == 1000000
+    assert nf.get('value_high') == 5000000

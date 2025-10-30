@@ -28,14 +28,28 @@ class ScreenerService:
             if numeric_filters:
                 for f in numeric_filters:
                     operand = f.get('filter_name') or f.get('operand')
-                    value = f.get('numeric_value') if 'numeric_value' in f else f.get('value')
+                    value_low = f.get('value_low') if 'value_low' in f else None
+                    value_high = f.get('value_high') if 'value_high' in f else None
+
+                    raw_value = f.get('numeric_value') if 'numeric_value' in f else f.get('value')
+                    if isinstance(raw_value, (list, tuple)):
+                        if len(raw_value) >= 2:
+                            value_low, value_high = raw_value[0], raw_value[1]
+                        elif len(raw_value) == 1:
+                            raw_value = raw_value[0]
+
+                    if value_low is not None or value_high is not None:
+                        value_to_store = None
+                    else:
+                        value_to_store = raw_value
+
                     filters_to_store.append({
                         'operator': f.get('operator', 'eq'),
                         'operand': operand,
                         'filter_type': 'numeric',
-                        'value': value,
-                        'value_low': None,
-                        'value_high': None,
+                        'value': value_to_store,
+                        'value_low': value_low,
+                        'value_high': value_high,
                     })
 
             if categorical_filters:
@@ -116,14 +130,27 @@ class ScreenerService:
             if numeric_filters:
                 for f in numeric_filters:
                     operand = f.get('filter_name') or f.get('operand')
-                    value = f.get('numeric_value') if 'numeric_value' in f else f.get('value')
+                    value_low = f.get('value_low') if 'value_low' in f else None
+                    value_high = f.get('value_high') if 'value_high' in f else None
+                    raw_value = f.get('numeric_value') if 'numeric_value' in f else f.get('value')
+                    if isinstance(raw_value, (list, tuple)):
+                        if len(raw_value) >= 2:
+                            value_low, value_high = raw_value[0], raw_value[1]
+                        elif len(raw_value) == 1:
+                            raw_value = raw_value[0]
+
+                    if value_low is not None or value_high is not None:
+                        value_to_store = None
+                    else:
+                        value_to_store = raw_value
+
                     filters_to_store.append({
                         'operator': f.get('operator', 'eq'),
                         'operand': operand,
                         'filter_type': 'numeric',
-                        'value': value,
-                        'value_low': None,
-                        'value_high': None,
+                        'value': value_to_store,
+                        'value_low': value_low,
+                        'value_high': value_high,
                     })
             if categorical_filters:
                 for f in categorical_filters:
