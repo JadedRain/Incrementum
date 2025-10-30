@@ -3,7 +3,6 @@ import ExpandableSidebarItem from "../ExpandableSidebarItem";
 import { useFilterData } from "../../Context/FilterDataContext";
 import type { FilterData } from "../../Context/FilterDataContext";
 
-
 interface  CategoryFilterProps {
     categorys: string[];
     category: string;
