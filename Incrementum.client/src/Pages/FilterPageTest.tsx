@@ -29,6 +29,7 @@ const FilterList: React.FC = () => {
   );
 };
 
+
 const FilterPage: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState<string>("marketcap");
 

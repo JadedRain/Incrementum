@@ -17,6 +17,7 @@ import SettingsPage from "./Pages/SettingsPage";
 import CreateCustomCollectionPage from "./Pages/CreateCustomCollectionPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import FilterPage from "./Pages/FilterPageTest";
+import SidebarTestPage from "./Pages/SidebarTestPage";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <Route path="/custom-collections" element={<CustomCollectionsPage />} />
           <Route path="/create-custom-collection" element={<CreateCustomCollectionPage />} />
           <Route path="/filter-test" element={<FilterPage />} />
+          <Route path="/sidebar-test" element={<SidebarTestPage /> } />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

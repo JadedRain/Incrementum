@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+/* Global layout variables so both the screener button and the sidebar use the same values */
+:root {
+  --watchlist-sidebar-width: 325px;
+  --watchlist-sidebar-right-offset: 50px;
+  --header-height: 64px; /* override in NavigationBar if you compute header size */
+
+  /* screener/button spacing variables */
+  --watchlist-screener-top: 24px; /* gap from header to top of screener button */
+  --watchlist-screener-height: 40px; /* approximate fixed height of screener button */
+  --watchlist-screener-gap-below: 12px; /* gap between screener and sidebar */
+}
 .WatchlistPage-Custom-Button {
   @apply block;
   @apply bg-[hsl(42,15%,70%)];
@@ -16,9 +27,14 @@
 }
 
 .WatchlistPage-main-content {
-  @apply pt-8;
-  @apply min-h-[calc(100vh-90px)];
-  @apply flex-1;
+  @apply pt-32;
+  @apply px-8;
+  @apply ml-24;
+  @apply flex;
+  @apply flex-row;
+  @apply justify-start;
+  @apply items-start;
+  @apply gap-2;
 }
 
 .WatchlistPage-Sidebar {
@@ -45,4 +61,50 @@
   @apply text-[1.1rem];
   @apply min-h-[120px];
   @apply justify-center;
+}
+
+.WatchlistPage-right-sidebar {
+  width: var(--watchlist-sidebar-width);
+  height: calc(100vh - var(--header-height, 64px) - 80px);
+  @apply bg-[hsl(40,63%,63%)];
+  border-radius: 0.125rem;
+  box-shadow: 4px 8px 6px rgba(0, 0, 0, 0.5);
+  @apply py-6;
+  position: fixed;
+  top: calc(
+    var(--header-height)
+    + var(--watchlist-screener-top)
+    + var(--watchlist-screener-height)
+    + var(--watchlist-screener-gap-below)
+  );
+  right: var(--watchlist-sidebar-right-offset);
+  z-index: 100;
+}
+
+.WatchlistPage-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 325px);
+  gap: 2.5rem;
+  row-gap: 2.5rem;
+  justify-content: start;
+  flex: 1;
+}
+
+.Add-screener-button {
+  position: fixed;
+  top: calc(var(--header-height) + var(--watchlist-screener-top));
+  right: var(--watchlist-sidebar-right-offset);
+  z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: auto;
+  min-width: 64px;
+  padding: 0.35rem 0.9rem;
+  border-radius: 0.3rem;
+  background-color: hsl(40,63%,63%);
+  color: hsl(40,46%,36%);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+  border: 1px solid rgba(40,40,40,0.4);
+  backdrop-filter: blur(4px);
 }
