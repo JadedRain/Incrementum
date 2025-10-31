@@ -4,16 +4,17 @@ import yfinance as yf
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from .models import Stock
+from .models import StockModel
 from .serializers import StockSerializer
 from .get_stock_info import get_stock_info, search_stocks, get_stock_by_ticker, generate_stock_graph
+from hello.models import StockModel
 
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
 def stock_list_create(request):
     try:
         if request.method == "GET":
-            stocks = Stock.objects.all()
+            stocks = StockModel.objects.all()
             serializer = StockSerializer(stocks, many=True)
             return JsonResponse({'stocks': serializer.data})
         
@@ -59,9 +60,19 @@ def get_stocks_info(request):
         filters = None
         filters_param = request.GET.get('filters')
         if filters_param:
-            filters = json.loads(filters_param)
-        stocks = get_stock_info(max_val, offset, filters)
-        return JsonResponse({'stocks': [s.to_dict() for s in stocks]})
+            try:
+                filters = json.loads(filters_param)
+            except Exception:
+                return JsonResponse({'error': 'Invalid filters JSON'}, status=400)
+        try:
+            stocks = get_stock_info(max_val, offset, filters)
+            # If result is a list of Stock objects, convert to dicts
+            stocks_out = [s.to_dict() if hasattr(s, 'to_dict') else s for s in stocks]
+            return JsonResponse({'length': len(stocks_out), 'stocks': stocks_out}, status=200)
+        except ValueError as ve:
+            return JsonResponse({'error': str(ve)}, status=500)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
     

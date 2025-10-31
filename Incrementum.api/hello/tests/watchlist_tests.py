@@ -1,7 +1,7 @@
 import pytest
 pytestmark = pytest.mark.django_db
 from django.test import TestCase
-from hello.models import Stock, Watchlist, WatchlistStock
+from hello.models import StockModel, Watchlist, WatchlistStock
 from hello.models_user import Account
 from hello.services.watchlist_service import WatchlistService
 

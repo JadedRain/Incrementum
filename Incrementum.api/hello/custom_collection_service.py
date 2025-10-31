@@ -1,5 +1,5 @@
 from typing import List
-from .models import Stock
+from .models import StockModel
 
 class CustomCollectionService:
     def __init__(self):

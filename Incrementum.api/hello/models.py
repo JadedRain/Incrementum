@@ -1,7 +1,7 @@
 from django.db import models
 from .models_user import Account
 
-class Stock(models.Model):
+class StockModel(models.Model):
     symbol = models.CharField(max_length=5, primary_key=True)
     company_name = models.CharField(max_length=100)
 
@@ -11,11 +11,17 @@ class Stock(models.Model):
     def __str__(self):
         return f"{self.symbol} - {self.company_name}"
 
+    def to_dict(self):
+        return {
+            'symbol': self.symbol,
+            'company_name': self.company_name,
+        }
+
 class Watchlist(models.Model):
     id = models.AutoField(primary_key=True)
     account = models.OneToOneField(Account, on_delete=models.CASCADE, db_column='account_id', unique=True)
     name = models.CharField(max_length=50)
-    stocks = models.ManyToManyField('Stock', through='WatchlistStock', related_name='watchlists')
+    stocks = models.ManyToManyField('StockModel', through='WatchlistStock', related_name='watchlists')
 
     class Meta:
         db_table = 'watchlist'
@@ -25,7 +31,7 @@ class Watchlist(models.Model):
 
 class WatchlistStock(models.Model):
     watchlist = models.ForeignKey(Watchlist, on_delete=models.CASCADE, db_column='watchlist_id')
-    stock = models.ForeignKey(Stock, on_delete=models.CASCADE, db_column='stock_symbol')
+    stock = models.ForeignKey(StockModel, on_delete=models.CASCADE, db_column='stock_symbol')
 
     class Meta:
         db_table = 'watchlist_stock'

@@ -1,6 +1,6 @@
 import logging
 from hello.get_stock_info import fetch_stock_data
-from hello.models import Watchlist, Stock, WatchlistStock
+from hello.models import Watchlist, StockModel, WatchlistStock
 from django.db import transaction
 from hello.models_user import Account
 
@@ -14,7 +14,7 @@ class WatchlistService:
             logging.error(f"Account with api_key {user_id} does not exist.")
             return []
         watchlist, _ = Watchlist.objects.get_or_create(account=account, defaults={"name": f"{account.name}'s Watchlist"})
-        stock, _ = Stock.objects.get_or_create(symbol=symbol, defaults={"company_name": symbol})
+        stock, _ = StockModel.objects.get_or_create(symbol=symbol, defaults={"company_name": symbol})
         WatchlistStock.objects.get_or_create(watchlist=watchlist, stock=stock)
         logging.info(f"Added {symbol} to user {user_id} watchlist.")
         return self.get(user_id)
@@ -32,8 +32,8 @@ class WatchlistService:
         try:
             account = Account.objects.get(api_key=user_id)
             watchlist = Watchlist.objects.get(account=account)
-            stock = Stock.objects.get(symbol=symbol)
-        except (Account.DoesNotExist, Watchlist.DoesNotExist, Stock.DoesNotExist):
+            stock = StockModel.objects.get(symbol=symbol)
+        except (Account.DoesNotExist, Watchlist.DoesNotExist, StockModel.DoesNotExist):
             return self.get(user_id)
         WatchlistStock.objects.filter(watchlist=watchlist, stock=stock).delete()
         logging.info(f"Removed {symbol} from user {user_id} watchlist.")
