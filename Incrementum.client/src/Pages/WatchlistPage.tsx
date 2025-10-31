@@ -4,7 +4,7 @@ import { useAuth } from '../Context/AuthContext';
 import { useEffect, useState } from 'react';
 import Loading from '../Components/Loading';
 import type { StockC } from '../Components/Stock';
-import { CgAddR } from "react-icons/cg";
+// import { CgAddR } from "react-icons/cg";
 import NavigationBar from '../Components/NavigationBar';
 import Toast from '../Components/Toast';
 import { useSortedWatchlist } from '../hooks/useSortedWatchlist';
@@ -71,7 +71,7 @@ function WatchlistPage() {
         type="button"
         className="Add-screener-button cursor-pointer text-2xl"
       >
-        <CgAddR /> Screener
+        {/* <CgAddR /> */}  Screener
       </button>
       <div className="WatchlistPage-right-sidebar">
         <div
