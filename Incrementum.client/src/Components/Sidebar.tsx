@@ -5,6 +5,7 @@ import WeekRangeFilter from './FilterComponents/WeekRangeFilter';
 import SharePriceFilter from './FilterComponents/SharePriceFilter';
 import MarketCapFilter from './FilterComponents/MarketCapFilter';
 import PercentChangeFilter from './FilterComponents/PercentChangeFilter';
+import IndustryFilter from './FilterComponents/IndustryFilter';
 
 const Sidebar: React.FC = () => {
   return (
@@ -19,6 +20,8 @@ const Sidebar: React.FC = () => {
 
         <SectorFilter />
 
+        <IndustryFilter />
+        
         <VolumeFilter />
 
         <WeekRangeFilter />

@@ -1,6 +1,11 @@
 @host = http://localhost:8000
 ###
-GET {{host}}/sectors
+POST  {{host}}/industries/
+Content-Type: application/json
+
+{
+	"sectors": ["basic-materials"]
+}
 
 ###
 GET {{host}}/getStockInfo/?max=5&offset=0
