@@ -1,3 +1,5 @@
+from hello.views import fetch_update_and_list_stocks
+from hello.views import fetch_finnhub_stocks_view
 from django.urls import path
 from .views_auth import login, signup, account_info
 from .screener_views import (
@@ -57,13 +59,16 @@ urlpatterns = [
     path('screeners/custom/<int:screener_id>/update/', update_custom_screener, name='update_custom_screener'),
     path('screeners/custom/<int:screener_id>/delete/', delete_custom_screener, name='delete_custom_screener'),
     
+    # Finhub endpoints (mostly to test functionality)
+    path('fetch-finnhub-stocks/', fetch_finnhub_stocks_view, name='fetch_finnhub_stocks'),
+    path('fetch-update-list-stocks/', fetch_update_and_list_stocks, name='fetch_update_list_stocks'),
+    
+
     # Filter Options API endpoints
     path('filters/categorical/', get_categorical_filter_types, name='get_categorical_filter_types'),
     path('filters/numeric/', get_numeric_filter_types, name='get_numeric_filter_types'),
     path('sectors/', get_sectors, name='sectors'),
-    path('industries/', get_industries, name='industries'),
-    
-    
+    path('industries/', get_industries, name='industries'),    
     # Dynamic screener run endpoint
     path('stocks/getfilteredstocks', run_screener, name='get_filtered_stocks'),
 ]

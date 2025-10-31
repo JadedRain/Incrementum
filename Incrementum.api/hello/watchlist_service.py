@@ -1,7 +1,7 @@
 import logging
 from .models import CustomScreener, WatchlistCustomScreener
 from .get_stock_info import fetch_stock_data
-from .models import Watchlist, Stock, WatchlistStock, Screener, WatchlistScreener
+from .models import Watchlist, StockModel, WatchlistStock, Screener, WatchlistScreener
 from django.db import transaction
 from .models_user import Account
 
@@ -12,7 +12,7 @@ class WatchlistService:
     def add(self, user_id, symbol):
         account = Account.objects.get(api_key=user_id)
         watchlist, _ = Watchlist.objects.get_or_create(account=account, defaults={"name": f"{account.name}'s Watchlist"})
-        stock, _ = Stock.objects.get_or_create(symbol=symbol, defaults={"company_name": symbol})
+        stock, _ = StockModel.objects.get_or_create(symbol=symbol, defaults={"company_name": symbol})
         WatchlistStock.objects.get_or_create(watchlist=watchlist, stock=stock)
         logging.info(f"Added {symbol} to user {user_id} watchlist.")
         return self.get(user_id)
@@ -27,7 +27,7 @@ class WatchlistService:
     def remove(self, user_id, symbol):
         account = Account.objects.get(api_key=user_id)
         watchlist, created = Watchlist.objects.get_or_create(account=account)
-        stock = Stock.objects.get(symbol=symbol)
+        stock = StockModel.objects.get(symbol=symbol)
 
         WatchlistStock.objects.filter(watchlist=watchlist, stock=stock).delete()
         logging.info(f"Removed {symbol} from user {user_id} watchlist.")

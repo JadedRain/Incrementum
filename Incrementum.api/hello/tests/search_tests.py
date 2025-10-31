@@ -3,6 +3,10 @@ import pytest
 from hello.get_stock_info import search_stocks
 
 class SearchStocksTests(TestCase):
+    def setUp(self):
+        from hello.models import StockModel
+        StockModel.objects.all().delete()
+        StockModel.objects.create(symbol='AAPL', company_name='Apple')
     def test_search_stocks_found(self):
         query = "APPL"
         results = search_stocks(query, 0)

@@ -1,4 +1,4 @@
-import pandas as pd
+from hello.models import StockModel
 import yfinance as yf
 import os
 from .stocks_class import Stock
@@ -44,24 +44,21 @@ logging.basicConfig(
 
 
 def setup():
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    CSV_PATH = os.path.join(BASE_DIR, 'data', 'ticker_info.csv')
-    tickers = pd.read_csv(CSV_PATH, index_col=0)
-    return tickers
+    return StockModel.objects.all()
 
 def search_stocks(query, page, source=setup):
     tickers = source()
     logging.info(f"Searching for stocks with query: {query}")
     results = []
     query = query.lower()
-    for _, stock in tickers.iterrows():
-        symbol = str(stock['symbol'])
-        name = str(stock['companyName'])
+    for stock in tickers:
+        symbol = str(stock.symbol)
+        name = str(stock.company_name)
         if symbol.lower().startswith(query):
             results.append({'symbol': symbol, 'name': name})
-    for _, stock in tickers.iterrows():
-        symbol = str(stock['symbol'])
-        name = str(stock['companyName'])
+    for stock in tickers:
+        symbol = str(stock.symbol)
+        name = str(stock.company_name)
         if not symbol.lower().startswith(query) and query in name.lower():
             results.append({'symbol': symbol, 'name': name})
     start = 12 * page
@@ -132,8 +129,9 @@ def get_stock_info(max, offset, filters=None, source=setup):
         end = min(start + max, len(all_screened_stocks))
         return all_screened_stocks[start:end]
     
-    # Original CSV-based filtering
-    tickers = source()
+
+    # DB-based filtering
+    tickers = list(source())
     stocks = []
 
     # Sector filtering
@@ -141,20 +139,18 @@ def get_stock_info(max, offset, filters=None, source=setup):
     if filters and filters.get('sectors'):
         fs_set = {str(s).strip().lower() for s in filters.get('sectors') if s}
         allowed_sectors = fs_set
-        if 'sectorKey' in tickers.columns:
-            tickers = tickers[tickers['sectorKey'].fillna('').str.lower().isin(allowed_sectors)]
+        tickers = [t for t in tickers if hasattr(t, 'sectorKey') and str(getattr(t, 'sectorKey', '')).lower() in allowed_sectors]
 
     # Industry filtering
     allowed_industries = None
     if filters and filters.get('industries'):
         fi_set = {str(s).strip().lower() for s in filters.get('industries') if s}
         allowed_industries = fi_set
-        if 'industryKey' in tickers.columns:
-            tickers = tickers[tickers['industryKey'].fillna('').str.lower().isin(allowed_industries)]
+        tickers = [t for t in tickers if hasattr(t, 'industryKey') and str(getattr(t, 'industryKey', '')).lower() in allowed_industries]
 
     # Build Stock objects with historical prices
-    for _, row in tickers.iloc[offset:offset+max].iterrows():
-        stock_data = fetch_stock_data(row['symbol'])  # must return a Stock object with historical prices
+    for t in tickers[offset:offset+max]:
+        stock_data = fetch_stock_data(t.symbol)  # must return a Stock object with historical prices
         stocks.append(stock_data)
 
     # Moving average filtering
@@ -169,7 +165,6 @@ def get_stock_info(max, offset, filters=None, source=setup):
         stocks = numeric_screeners.apply_screenings(stocks)
 
     return stocks
-
 
 def ensure_stock_in_db(symbol, company_name):
     with connection.cursor() as cursor:

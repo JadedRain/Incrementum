@@ -1,5 +1,5 @@
 from typing import List
-from hello.models import Stock
+from hello.models import StockModel
 from hello.get_stock_info import fetch_stock_data
 
 class CustomCollectionService:
