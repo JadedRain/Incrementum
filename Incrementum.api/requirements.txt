@@ -30,3 +30,5 @@ djangorestframework
 django-cors-headers
 psycopg2-binary
 matplotlib
+dash
+plotly

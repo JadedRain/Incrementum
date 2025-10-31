@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - ./db_init:/docker-entrypoint-initdb.d
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql
 
   api:
     build:
@@ -36,6 +36,18 @@ services:
     volumes:
       - ./Incrementum.client:/app
       - client_node_modules:/app/node_modules
+    
+  dash:
+    build:
+      context: ./Incrementum.api
+    container_name: incrementum_dash
+    command: sh -c "python InteractiveGraph.py"
+    ports:
+      - "8050:8050"
+    volumes:
+      - ./Incrementum.api:/Incrementum.api:ro
+    depends_on:
+      - db
 
 volumes:
   client_node_modules:

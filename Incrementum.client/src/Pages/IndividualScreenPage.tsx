@@ -11,6 +11,7 @@ import { useScreener } from '../hooks/useScreener';
 import { useScreenerDefaults } from '../hooks/useScreenerDefaults';
 import type { CustomScreener } from '../Types/ScreenerTypes';
 import type { StockInfo  } from '../Types/StockInfo';
+import { FilterDataProvider } from '../Context/FilterDataContext';
 
 function IndividualScreenPage() {
   const navigate = useNavigate();
@@ -59,6 +60,7 @@ function IndividualScreenPage() {
   }, [error])
 
   return (
+    <FilterDataProvider>
     <div className="min-h-screen bg-[hsl(40,13%,53%)]">
       <NavigationBar />
       <div className="main-content">
@@ -70,6 +72,7 @@ function IndividualScreenPage() {
         </div>
       </div>
     </div>
+    </FilterDataProvider>
   );
 }
 

@@ -9,6 +9,7 @@ import StockDataDisplay from "../Components/StockDataDisplay";
 import ChartControls from "../Components/ChartControls";
 import { useWatchlistStatus } from "../hooks/useWatchlistStatus";
 import { useFetchStockData } from "../hooks/useFetchStockData";
+import InteractiveGraph from "../Components/InteractiveGraph"
 
 export default function Stock({ token: propToken }: { token?: string; }) {
   const { apiKey } = useAuth();
@@ -71,6 +72,7 @@ export default function Stock({ token: propToken }: { token?: string; }) {
         imgUrl={imgUrl}
         token={token}
       />
+      <InteractiveGraph country="Canada" url="http://localhost:8050" height="600px" />
       </div>
     </div>
   );
