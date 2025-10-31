@@ -1,3 +1,6 @@
+import logging
+from pathlib import Path
+from typing import List
 import yfinance as yf
 import pandas as pd
 import requests

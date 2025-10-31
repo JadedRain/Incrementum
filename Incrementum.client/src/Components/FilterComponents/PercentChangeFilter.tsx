@@ -3,21 +3,10 @@ import ExpandableSidebarItem from '../ExpandableSidebarItem';
 import { useFilterData } from '../../Context/FilterDataContext';
 import type { FilterData } from '../../Context/FilterDataContext';
 
-interface PercentChangeFilterProps {
-  changePeriod?: 'daily' | 'weekly' | 'monthly';
-  onChangePeriod?: (period: 'daily' | 'weekly' | 'monthly') => void;
-  localPercentChangeFilter?: string;
-  setLocalPercentChangeFilter?: React.Dispatch<React.SetStateAction<string>>;
-  onPercentChangeFilter?: (filter: string) => void;
-  percentThreshold?: string;
-  changePercent?: string;
-  setChangePercent?: React.Dispatch<React.SetStateAction<string>>;
-  onPercentThresholdChange?: (value: string) => void;
-}
-
-const PercentChangeFilter: React.FC<PercentChangeFilterProps> = ({ changePeriod = 'daily', onChangePeriod }) => {
+const PercentChangeFilter: React.FC = () => {
   const { addFilter, removeFilter } = useFilterData();
   const [operator, setOperator] = useState<'gt' | 'lt' | 'eq'>('gt');
+  const [changePeriod, _setChangePeriod] = useState<'daily' | 'weekly' | 'monthly'>('daily');
   const [threshold, setThreshold] = useState<number | null>(null);
 
   const key = `percent_change_${changePeriod}`;

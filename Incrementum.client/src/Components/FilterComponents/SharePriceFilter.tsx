@@ -3,14 +3,7 @@ import ExpandableSidebarItem from '../ExpandableSidebarItem';
 import { useFilterData } from '../../Context/FilterDataContext';
 import type { FilterData } from '../../Context/FilterDataContext';
 
-interface SharePriceFilterProps {
-  priceMin?: string;
-  setPriceMin?: React.Dispatch<React.SetStateAction<string>>;
-  priceMax?: string;
-  setPriceMax?: React.Dispatch<React.SetStateAction<string>>;
-}
-
-const SharePriceFilter: React.FC<SharePriceFilterProps> = (_props) => {
+const SharePriceFilter: React.FC = () => {
   const { addFilter, removeFilter } = useFilterData();
   const [minPrice, setMinPrice] = useState<number | null>(null);
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
