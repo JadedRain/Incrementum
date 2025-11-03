@@ -1,6 +1,0 @@
-{
-	"devDependencies": {
-		"@testing-library/react": "^16.3.0",
-		"jest": "^30.2.0"
-	}
-}
