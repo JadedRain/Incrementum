@@ -4,16 +4,9 @@ import yfinance as yf
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-<<<<<<<< HEAD:Incrementum.api/Incrementum/stocks_controller.py
-from .models import StockModel
-from .serializers import StockSerializer
-from .get_stock_info import get_stock_info, search_stocks, get_stock_by_ticker, generate_stock_graph
 from Incrementum.models import StockModel
-========
-from hello.models import StockModel
-from hello.serializers import StockSerializer
-from hello.get_stock_info import get_stock_info, search_stocks, get_stock_by_ticker, generate_stock_graph
->>>>>>>> main:Incrementum.api/hello/controllers/stocks_controller.py
+from Incrementum.serializers import StockSerializer
+from Incrementum.get_stock_info import get_stock_info, search_stocks, get_stock_by_ticker, generate_stock_graph
 
 @csrf_exempt
 @require_http_methods(["GET", "POST"])

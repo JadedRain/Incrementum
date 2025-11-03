@@ -12,7 +12,7 @@ from .controllers.stocks_controller import (
 from .filter_views import (
     get_categorical_filter_types, get_numeric_filter_types
 )
-from .controllers.custom_collection_controller import (
+from .custom_collection_controller import (
     custom_collection, custom_collection_aggregate, custom_collection_aggregate_graph, custom_collection_overlay_graph
 )
 from .controllers.watchlist_controller import (

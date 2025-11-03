@@ -2,7 +2,7 @@ import logging
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from hello.watchlist_service import WatchlistService
+from Incrementum.watchlist_service import WatchlistService
 from django.http import JsonResponse
         
 watchlist_service = WatchlistService()
@@ -110,6 +110,9 @@ def add_custom_screener_to_watchlist(request):
     except json.JSONDecodeError:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
     except Exception as e:
+        # Log full exception with traceback for debugging tests
+        logging.exception("Error in add_custom_screener_to_watchlist")
+        # Include error message in response to aid fast debugging in CI/test runs
         return JsonResponse({"error": str(e)}, status=500)
 @csrf_exempt
 @require_http_methods(["DELETE"])

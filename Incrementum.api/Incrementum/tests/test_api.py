@@ -4,23 +4,12 @@ import json
 import pandas as pd
 from django.urls import reverse
 from rest_framework.test import APIClient
-<<<<<<<< HEAD:Incrementum.api/Incrementum/test_api.py
 from Incrementum.get_stock_info import search_stocks
 from Incrementum import get_stock_info
 from Incrementum.stocks_class import Stock
 from Incrementum.models import StockModel
 from Incrementum.get_stock_info import screen_stocks_by_average_volume
-from . import filters_controller
-from Incrementum.get_stock_info import screen_stocks_by_average_volume
-========
-from hello.get_stock_info import search_stocks
-from hello import get_stock_info
-from hello.stocks_class import Stock
-from hello.models import StockModel
-from hello.get_stock_info import screen_stocks_by_average_volume
-from hello.controllers import filters_controller
-from hello.get_stock_info import screen_stocks_by_average_volume
->>>>>>>> main:Incrementum.api/Incrementum/tests/test_api.py
+from Incrementum.controllers import filters_controller
 import unittest.mock
 from Incrementum.get_stock_info import screen_stocks_by_average_volume
     
