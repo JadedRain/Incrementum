@@ -6,23 +6,23 @@ from .screener_views import (
     custom_screener_list_create, create_custom_screener, get_custom_screener, list_custom_screeners,
     update_custom_screener, delete_custom_screener
 )
-from .stocks_controller import (
+from .controllers.stocks_controller import (
     get_stocks_info, get_stock_graph, search_stocks_controller, stock_list_create, hello_world, get_stock_info_controller  
 )
 from .filter_views import (
     get_categorical_filter_types, get_numeric_filter_types
 )
-from .custom_collection_controller import (
+from .controllers.custom_collection_controller import (
     custom_collection, custom_collection_aggregate, custom_collection_aggregate_graph, custom_collection_overlay_graph
 )
-from .watchlist_controller import (
+from .controllers.watchlist_controller import (
     get_watchlist,add_to_watchlist, remove_from_watchlist, search_stocks_watchlist, get_sorted_watchlist, add_custom_screener_to_watchlist,
     remove_custom_screener_from_watchlist, get_all_watchlist_screeners
 )
-from .filters_controller import (
+from .controllers.filters_controller import (
     get_sectors, get_industries
 )
-from .screener_run_controller import run_screener
+from .controllers.screener_run_controller import run_screener
 
 urlpatterns = [
     path('hello_world/', hello_world, name='hello_world'),

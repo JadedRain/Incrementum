@@ -10,7 +10,7 @@ import { fetchCustomScreener } from "../Query/apiScreener"
 import { useScreener } from '../hooks/useScreener';
 import { useScreenerDefaults } from '../hooks/useScreenerDefaults';
 import type { CustomScreener } from '../Types/ScreenerTypes';
-import type { StockInfo  } from '../Types/StockInfo';
+import type { StockInfo  } from '../Types/StockInfoTypes';
 
 function IndividualScreenPage() {
   const navigate = useNavigate();
