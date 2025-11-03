@@ -6,9 +6,10 @@ import pandas as pd
 import requests
 import os
 from .models import StockModel
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
-load_dotenv()
+# What in the world is this doing? The only thing I've seen it do is break the tests
+# load_dotenv()
 
 def fetch_and_update_symbols():
     data = fetch_new_stocks_from_finnhub()

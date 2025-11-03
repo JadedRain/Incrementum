@@ -123,3 +123,27 @@ class WatchlistCustomScreener(models.Model):
     class Meta:
         db_table = 'watchlist_custom_screener'
         unique_together = (('watchlist', 'custom_screener'),)
+
+
+class CustomCollection(models.Model):
+    id = models.AutoField(primary_key=True)
+    # account may be null for a default/global collection; user-specific collections should set this
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, db_column='account_id', null=True, blank=True)
+    collection_name = models.CharField(max_length=20)
+    stocks = models.ManyToManyField('StockModel', through='CustomCollectionStock', related_name='custom_collections')
+
+    class Meta:
+        db_table = 'custom_collection_table'
+
+    def __str__(self):
+        return f"CustomCollection {self.collection_name} (account={self.account})"
+
+
+class CustomCollectionStock(models.Model):
+    collection = models.ForeignKey(CustomCollection, on_delete=models.CASCADE, db_column='collection_id')
+    stock = models.ForeignKey(StockModel, on_delete=models.CASCADE, db_column='stock_symbol')
+
+    class Meta:
+        db_table = 'custom_collection_stock'
+        unique_together = (('collection', 'stock'),)
+        managed = True

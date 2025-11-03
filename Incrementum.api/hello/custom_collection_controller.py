@@ -3,7 +3,7 @@ import yfinance as yf
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from .custom_collection_service import CustomCollectionService
+from .services.custom_collection_service import CustomCollectionService
 from .get_stock_info import generate_stock_graph
 from .graph_utils import generate_overlay_graph
 
@@ -56,24 +56,24 @@ def custom_collection_aggregate(request):
 def custom_collection_aggregate_graph(request):
     try:
         custom_collection = CustomCollectionService()
-        tokens = custom_collection.get_stocks()
+        # tokens from service are stock dicts; extract symbols for plotting
+        tokens = [t.get('symbol') for t in custom_collection.get_stocks()]
         logger = logging.getLogger("django")
-        
+
         if not tokens:
             logger.error("No stocks in collection")
             return JsonResponse({"error": "No stocks in collection"}, status=404)
-        
+
         ticker = tokens[0]
         stock = yf.Ticker(ticker)
         history = stock.history(period="1y")
-        
+
         if history is None or history.empty:
             logger.error(f"No history for ticker {ticker}")
             return JsonResponse({"error": f"No history for ticker {ticker}"}, status=500)
-        
+
         img_bytes = generate_stock_graph(history, ticker, "1y")
         return HttpResponse(img_bytes, content_type="image/png")
-        
     except Exception as e:
         logger = logging.getLogger("django")
         logger.exception("Error generating aggregate graph")
@@ -84,13 +84,13 @@ def custom_collection_aggregate_graph(request):
 def custom_collection_overlay_graph(request):
     try:
         custom_collection = CustomCollectionService()
-        tokens = custom_collection.get_stocks()
+        # tokens from service are stock dicts; extract symbols for plotting
+        tokens = [t.get('symbol') for t in custom_collection.get_stocks()]
         img_bytes, error = generate_overlay_graph(tokens)
-        
+
         if error:
             return JsonResponse({"error": error}, status=500)
-        
+
         return HttpResponse(img_bytes, content_type="image/png")
-        
     except Exception as e:
         return JsonResponse({"error": f"Error generating overlay graph: {str(e)}"}, status=500)
