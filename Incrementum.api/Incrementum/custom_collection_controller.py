@@ -45,9 +45,17 @@ def custom_collection(request):
             token = data.get('token')
             if not token:
                 return JsonResponse({'error': 'Token is required'}, status=400)
+            # optional symbols list in body can seed the collection when created
+            symbols_field = data.get('symbols') or request.META.get('HTTP_X_SYMBOLS')
+            symbols = None
+            if symbols_field:
+                if isinstance(symbols_field, str):
+                    symbols = [s.strip().upper() for s in symbols_field.split(',') if s.strip()]
+                else:
+                    symbols = list(symbols_field)
 
             try:
-                custom_collection.add_stock(token, api_key, collection_name)
+                custom_collection.add_stock(token, api_key, collection_name, symbols)
                 tokens = custom_collection.get_stocks(api_key, collection_name)
             except ValueError as e:
                 return JsonResponse({'error': str(e)}, status=400)

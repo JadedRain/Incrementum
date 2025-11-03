@@ -16,27 +16,30 @@ class CustomCollectionService:
         except Account.DoesNotExist:
             raise ValueError(f"Account with api_key {account_api_key} does not exist")
 
-    def _get_or_create_collection_for_account(self, collection_name, account):
+    def _get_or_create_collection_for_account(self, collection_name, account, symbols=None):
         collection, created = CustomCollection.objects.get_or_create(
             collection_name=collection_name,
             account=account,
         )
-        # seed default stocks if newly created and empty
         if created or not collection.stocks.exists():
-            for sym in ['AAPL', 'MSFT', 'GOOGL']:
+            if symbols is None:
+                raise ValueError("symbols list is required to create/seed a collection")
+            if not isinstance(symbols, (list, tuple)) or len(symbols) == 0:
+                raise ValueError("symbols must be a non-empty list when creating a collection")
+            for sym in symbols:
                 stock, _ = StockModel.objects.get_or_create(symbol=sym, defaults={'company_name': sym})
                 CustomCollectionStock.objects.get_or_create(collection=collection, stock=stock)
         return collection
 
     def get_stocks(self, account_api_key: str, collection_name: str = 'default'):
         account = self._get_account(account_api_key)
-        collection = self._get_or_create_collection_for_account(collection_name, account)
+        collection = CustomCollection.objects.get(collection_name=collection_name, account=account)
         symbols = collection.stocks.values_list('symbol', flat=True)
         return [fetch_stock_data(symbol).to_dict() for symbol in symbols]
 
-    def add_stock(self, token: str, account_api_key: str, collection_name: str = 'default') -> None:
+    def add_stock(self, token: str, account_api_key: str, collection_name: str = 'default', symbols=None) -> None:
         account = self._get_account(account_api_key)
-        collection = self._get_or_create_collection_for_account(collection_name, account)
+        collection = self._get_or_create_collection_for_account(collection_name, account, symbols)
         stock, _ = StockModel.objects.get_or_create(symbol=token, defaults={'company_name': token})
         CustomCollectionStock.objects.get_or_create(collection=collection, stock=stock)
 
