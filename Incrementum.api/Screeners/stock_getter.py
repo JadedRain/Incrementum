@@ -1,6 +1,6 @@
-from hello.DTOs.ifilterdata import FilterData
+from Incrementum.DTOs.ifilterdata import FilterData
 from Screeners.screener_constructor import ScreenerConstructor
-from hello.stocks_class import Stock
+from Incrementum.stocks_class import Stock
 
 class StockGetter:
     def __init__(self, max = 250):

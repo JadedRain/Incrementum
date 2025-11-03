@@ -7,7 +7,7 @@ from django.views.decorators.http import require_http_methods
 from .models import StockModel
 from .serializers import StockSerializer
 from .get_stock_info import get_stock_info, search_stocks, get_stock_by_ticker, generate_stock_graph
-from hello.models import StockModel
+from Incrementum.models import StockModel
 
 @csrf_exempt
 @require_http_methods(["GET", "POST"])

@@ -1,13 +1,13 @@
 import os
 import pytest
 from unittest.mock import patch
-from hello.models import StockModel
+from Incrementum.models import StockModel
 
-from hello.utils import fetch_new_stocks_from_finnhub, update_stocks_in_db_from_finnhub, fetch_and_update_symbols
+from Incrementum.utils import fetch_new_stocks_from_finnhub, update_stocks_in_db_from_finnhub, fetch_and_update_symbols
 
 
 # Test fetch_new_stocks_from_finnhub
-@patch('hello.utils.requests.get')
+@patch('Incrementum.utils.requests.get')
 def test_fetch_new_stocks_from_finnhub_returns_data(mock_get):
     mock_get.return_value.status_code = 200
     mock_get.return_value.json.return_value = [
@@ -20,7 +20,7 @@ def test_fetch_new_stocks_from_finnhub_returns_data(mock_get):
     assert data[0]['symbol'] == 'MOCK1'
     assert data[1]['description'] == 'Mock Company Two'
 
-@patch('hello.utils.requests.get')
+@patch('Incrementum.utils.requests.get')
 def test_fetch_new_stocks_from_finnhub_empty_response(mock_get):
     mock_get.return_value.status_code = 200
     mock_get.return_value.json.return_value = []
@@ -28,7 +28,7 @@ def test_fetch_new_stocks_from_finnhub_empty_response(mock_get):
     data = fetch_new_stocks_from_finnhub()
     assert data == []
 
-@patch('hello.utils.requests.get')
+@patch('Incrementum.utils.requests.get')
 def test_fetch_new_stocks_from_finnhub_missing_token(mock_get):
     os.environ.pop('FINNHUB_TOKEN', None)
     print(f"TEST DEBUG: FINNHUB_TOKEN value: '{os.environ.get('FINNHUB_TOKEN')}'")
@@ -36,7 +36,7 @@ def test_fetch_new_stocks_from_finnhub_missing_token(mock_get):
     assert not mock_get.called
     assert data == []
 
-@patch('hello.utils.requests.get')
+@patch('Incrementum.utils.requests.get')
 def test_fetch_new_stocks_from_finnhub_whitespace_token(mock_get):
     os.environ['FINNHUB_TOKEN'] = '   '
     data = fetch_new_stocks_from_finnhub()
@@ -72,7 +72,7 @@ def test_update_stocks_in_db_empty():
     assert StockModel.objects.count() == 0
 
 @pytest.mark.django_db
-@patch('hello.utils.requests.get')
+@patch('Incrementum.utils.requests.get')
 def test_fetch_and_update_symbols_empty_response(mock_get):
     mock_get.return_value.status_code = 200
     mock_get.return_value.json.return_value = []
@@ -82,7 +82,7 @@ def test_fetch_and_update_symbols_empty_response(mock_get):
     assert StockModel.objects.count() == 0
 
 @pytest.mark.django_db
-@patch('hello.utils.requests.get')
+@patch('Incrementum.utils.requests.get')
 def test_fetch_and_update_symbols_missing_token(mock_get):
     os.environ.pop('FINNHUB_TOKEN', None)
     StockModel.objects.all().delete()

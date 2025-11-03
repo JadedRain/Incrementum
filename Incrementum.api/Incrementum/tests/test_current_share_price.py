@@ -1,6 +1,6 @@
 import pytest
 import pandas as pd
-from hello.stocks_class import Stock
+from Incrementum.stocks_class import Stock
 from Screeners.current_share_price import current_share_price
 from Screeners.moving_average_52 import fifty_two_high
 

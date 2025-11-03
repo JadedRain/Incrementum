@@ -2,7 +2,7 @@ import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from hello.DTOs.ifilterdata import FilterData
+from Incrementum.DTOs.ifilterdata import FilterData
 from Screeners.stock_getter import StockGetter
 
 REQUIRED_KEYS = {"operator", "operand", "filter_type", "value"}

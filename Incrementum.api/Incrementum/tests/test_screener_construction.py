@@ -1,6 +1,6 @@
 import pytest
 from yfinance import EquityQuery
-from hello.DTOs.ifilterdata import FilterData
+from Incrementum.DTOs.ifilterdata import FilterData
 from Screeners.screener_constructor import ScreenerConstructor
 
 def assert_queries_equal_list(actual_list, expected_list):

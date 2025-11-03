@@ -3,8 +3,8 @@ import json
 from django.test import TestCase, Client
 from django.urls import reverse
 from .models_user import Account
-from hello.screener_service import ScreenerService
-from hello.watchlist_service import WatchlistService
+from Incrementum.screener_service import ScreenerService
+from Incrementum.watchlist_service import WatchlistService
 
 
 class WatchlistCustomScreenerTest(TestCase):

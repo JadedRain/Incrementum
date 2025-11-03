@@ -1,5 +1,5 @@
-from hello.utils import fetch_new_stocks_from_finnhub, update_stocks_in_db_from_finnhub
-from hello.models import StockModel
+from Incrementum.utils import fetch_new_stocks_from_finnhub, update_stocks_in_db_from_finnhub
+from Incrementum.models import StockModel
 
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -15,7 +15,7 @@ def fetch_update_and_list_stocks(request):
 
 
 from django.http import JsonResponse
-from hello.utils import fetch_new_stocks_from_finnhub
+from Incrementum.utils import fetch_new_stocks_from_finnhub
 
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods

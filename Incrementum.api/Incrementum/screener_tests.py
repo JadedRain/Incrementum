@@ -1,9 +1,9 @@
 import pytest
 pytestmark = pytest.mark.django_db
 from django.test import TestCase
-from hello.models import CustomScreener
+from Incrementum.models import CustomScreener
 from .models_user import Account
-from hello.screener_service import ScreenerService
+from Incrementum.screener_service import ScreenerService
 
 
 class ScreenerServiceTest(TestCase):

@@ -1,4 +1,4 @@
-from hello.models import StockModel
+from Incrementum.models import StockModel
 import yfinance as yf
 import os
 from .stocks_class import Stock

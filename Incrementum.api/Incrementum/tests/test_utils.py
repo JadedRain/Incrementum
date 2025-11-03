@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from hello.utils import get_unique_sectors
+from Incrementum.utils import get_unique_sectors
 
 
 def test_get_unique_sectors_contains_known_value():

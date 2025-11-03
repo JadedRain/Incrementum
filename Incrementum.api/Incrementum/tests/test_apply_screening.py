@@ -1,5 +1,5 @@
 import pytest
-from hello.DTOs.ifilterdata import FilterData
+from Incrementum.DTOs.ifilterdata import FilterData
 from Screeners.screener_constructor import ScreenerConstructor
 
 class FakeLeafQuery:

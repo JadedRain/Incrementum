@@ -1,8 +1,8 @@
 import logging
-from hello.get_stock_info import fetch_stock_data
-from hello.models import Watchlist, StockModel, WatchlistStock
+from Incrementum.get_stock_info import fetch_stock_data
+from Incrementum.models import Watchlist, StockModel, WatchlistStock
 from django.db import transaction
-from hello.models_user import Account
+from Incrementum.models_user import Account
 
 class WatchlistService:
     def __init__(self, fetch_stock_data_func=fetch_stock_data):

@@ -133,7 +133,7 @@ class CustomCollection(models.Model):
     stocks = models.ManyToManyField('StockModel', through='CustomCollectionStock', related_name='custom_collections')
 
     class Meta:
-        db_table = 'custom_collection_table'
+        db_table = 'custom_collection'
 
     def __str__(self):
         return f"CustomCollection {self.collection_name} (account={self.account})"

@@ -1,5 +1,5 @@
 import pytest
-from hello.stocks_class import Stock
+from Incrementum.stocks_class import Stock
 import pandas as pd
 from Screeners.moving_average_52 import fifty_two_high
 

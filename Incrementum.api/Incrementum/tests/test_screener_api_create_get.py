@@ -5,7 +5,7 @@ import json
 from django.urls import reverse
 from rest_framework.test import APIClient
 
-from hello.models_user import Account
+from Incrementum.models_user import Account
 
 
 def test_create_and_get_custom_screener_api():

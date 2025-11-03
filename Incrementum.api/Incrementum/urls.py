@@ -1,5 +1,5 @@
-from hello.views import fetch_update_and_list_stocks
-from hello.views import fetch_finnhub_stocks_view
+from Incrementum.views import fetch_update_and_list_stocks
+from Incrementum.views import fetch_finnhub_stocks_view
 from django.urls import path
 from .views_auth import login, signup, account_info
 from .screener_views import (

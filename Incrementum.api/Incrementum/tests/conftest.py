@@ -1,6 +1,6 @@
 import pytest
 
-from hello.tests.mock.mock_equity_query import MockEquityQuery
+from Incrementum.tests.mock.mock_equity_query import MockEquityQuery
 
 try:
     from Screeners.screener_constructor import ScreenerConstructor as _SC

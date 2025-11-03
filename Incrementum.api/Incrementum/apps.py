@@ -2,12 +2,12 @@ import threading
 from django.apps import AppConfig
 
 
-class HelloConfig(AppConfig):
+class IncrementumConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'hello'
+    name = 'Incrementum'
 
     def ready(self):
-        from hello.utils import fetch_and_update_symbols
+        from Incrementum.utils import fetch_and_update_symbols
         thread = threading.Thread(target=fetch_and_update_symbols, daemon=True)
         thread.start()
         return super().ready()
