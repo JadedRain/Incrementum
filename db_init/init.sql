@@ -48,3 +48,14 @@ create table watchlist_custom_screener (
     watchlist_id int not null references watchlist(id),
     custom_screener_id int not null references custom_screener(id)
 );
+
+create table custom_collection (
+    id int primary key generated always as identity,
+    account_id int not null references account(id),
+    collection_name varchar(20) not null
+);
+
+create table custom_collection_stock (
+    collection_id int not null references custom_collection(id),
+    stock_symbol varchar(5) not null references stock(symbol)
+);

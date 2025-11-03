@@ -1,4 +1,4 @@
-from hello.stocks_class import Stock
+from Incrementum.stocks_class import Stock
 from typing import List
 from .screener_interface import IScreener
 
