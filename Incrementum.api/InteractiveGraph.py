@@ -1,50 +1,62 @@
-from dash import Dash, html, dcc, callback, Output, Input
+from dash import Dash, html, dcc, callback, Output, Input, State
 import plotly.express as px
 import pandas as pd
 import requests
 from urllib.parse import parse_qs
+import json
 
-def _detect_api_base():
-    candidates = [
-        "http://api:8000",            # service name inside docker-compose network
-        "http://incrementum_api:8000",# container name
-        "http://localhost:8000",      # when running locally
-    ]
-    for c in candidates:
-        try:
-            requests.head(c, timeout=1)
-            return c
-        except Exception:
-            continue
-    # fallback to localhost
-    return "http://localhost:8000"
+API_BASE = 'http://api:8000'
 
-
-API_BASE = _detect_api_base()
-
+def fetch_data_from_api():
+     api_url = f"{API_BASE}/getStocks/"
+     
+     try:
+         response = requests.get(api_url)
+         response.raise_for_status()
+         data = response.json()
+         return html.Pre(json.dumps(data, indent=2))
+     except requests.exceptions.RequestException as e:
+         return f"Error fetching data: {e}"
+     
 app = Dash()
 
 app.layout = html.Div([
     dcc.Location(id="url", refresh=False),
-    html.H1("Interactive Stock Chart", style={"textAlign": "center"}),
-    html.Div([
-        html.Label("Ticker:"),
-        dcc.Input(id="ticker-input", type="text", placeholder="e.g. AAPL", value=""),
-        html.Label("Period:" , style={"marginLeft":"12px"}),
-        dcc.Dropdown(id="period-dropdown", options=[
-            {"label": "1 month", "value": "1mo"},
-            {"label": "6 months", "value": "6mo"},
-            {"label": "1 year", "value": "1y"},
-            {"label": "5 years", "value": "5y"},
-        ], value="1y", clearable=False, style={"width":"150px", "display":"inline-block", "marginLeft":"8px"}),
-        html.Label("Interval:", style={"marginLeft":"12px"}),
-        dcc.Dropdown(id="interval-dropdown", options=[
-            {"label": "1 day", "value": "1d"},
-            {"label": "1 week", "value": "1wk"},
-        ], value="1d", clearable=False, style={"width":"120px", "display":"inline-block", "marginLeft":"8px"}),
-    ], style={"display": "flex", "alignItems": "center", "gap": "8px", "justifyContent": "center"}),
-    dcc.Graph(id="graph-content"),
-])
+    dcc.Input(id="ticker-input", type="text", value="", style={"display": "none"}),
+    html.Div(
+        [
+            html.Div(
+                [
+                    html.H1(id="ticker-title", children="TICKER", style={"fontSize": "36px", "fontWeight": "700", "margin": 0}),
+                    html.Div(id="price-display", children="", style={"fontSize": "24px", "marginTop": "6px"}),
+                ],
+                style={"textAlign": "left", "padding": "6px 10px", "marginRight": "auto"},
+            ),
+           dcc.Tabs(
+                id="period-tabs",
+                value="ytd",
+                persistence=True,
+                style={"borderBottom": "1px solid rgba(0,0,0,0.06)", "paddingBottom": "6px", "backgroundColor": "transparent"},
+                children=[
+                    dcc.Tab(label="1D", value="1d", style={"padding":"2px 6px","fontSize":"11px","color":"#251C09","border":"none","minWidth":"28px","lineHeight":"1","textAlign":"center"}, selected_style={"color":"#16A34A","border":"none","borderBottom":"2px solid #16A34A","fontWeight":"600"}),
+                    dcc.Tab(label="1W", value="1wk", style={"padding":"4px 8px","fontSize":"12px","color":"#251C09","border":"none","minWidth":"34px","textAlign":"center"}, selected_style={"color":"#16A34A","border":"none","borderBottom":"3px solid #16A34A","fontWeight":"600"}),
+                    dcc.Tab(label="1M", value="1mo", style={"padding":"4px 8px","fontSize":"12px","color":"#251C09","border":"none","minWidth":"34px","textAlign":"center"}, selected_style={"color":"#16A34A","border":"none","borderBottom":"3px solid #16A34A","fontWeight":"600"}),
+                    dcc.Tab(label="3M", value="3mo", style={"padding":"4px 8px","fontSize":"12px","color":"#251C09","border":"none","minWidth":"34px","textAlign":"center"}, selected_style={"color":"#16A34A","border":"none","borderBottom":"3px solid #16A34A","fontWeight":"600"}),
+                    dcc.Tab(label="YTD", value="ytd", style={"padding":"4px 8px","fontSize":"12px","color":"#251C09","border":"none","minWidth":"34px","textAlign":"center"}, selected_style={"color":"#16A34A","border":"none","borderBottom":"3px solid #16A34A","fontWeight":"600"}),
+                    dcc.Tab(label="1Y", value="1Y", style={"padding":"4px 8px","fontSize":"12px","color":"#251C09","border":"none","minWidth":"34px","textAlign":"center"}, selected_style={"color":"#16A34A","border":"none","borderBottom":"3px solid #16A34A","fontWeight":"600"})
+                ],
+            ),
+            dcc.Input(id="interval-dropdown", type="hidden", value="1d"),
+        ],
+        style={"display": "flex", "alignItems": "center", "gap": "8px", "justifyContent": "flex-start", "paddingRight": "32px", "marginLeft":"12px"},
+    ),
+    dcc.Graph(id="graph-content", config={"displayModeBar": False}),
+], style={
+    "backgroundColor": "#DCB465",
+    "color": "#251C09",
+    "minHeight": "100vh",
+    "paddingTop": "12px"
+})
 
 
 @callback(Output("ticker-input", "value"), Input("url", "search"))
@@ -59,34 +71,101 @@ def set_ticker_from_search(search):
 @callback(
     Output("graph-content", "figure"),
     Input("ticker-input", "value"),
-    Input("period-dropdown", "value"),
+    Input("period-tabs", "value"),
     Input("interval-dropdown", "value"),
 )
 def update_graph(ticker, period, interval):
-    # If no ticker provided, show empty figure
     if not ticker:
         return px.line(pd.DataFrame({"x": [], "y": []}), x="x", y="y").update_layout(title="No ticker provided")
 
     try:
-        url = f"{API_BASE}/getStocks/{ticker}/"
-        params = {"period": period, "interval": interval, "format": "json"}
-        resp = requests.get(url, params=params, timeout=10)
-        resp.raise_for_status()
-        data = resp.json()
-        # expecting keys: dates (ISO strings) and close (numbers)
+        intervals_to_try = [interval]
+        if (period or "").lower() == "1d" and interval not in ("1h", "60m", "30m", "15m"):
+            intervals_to_try = ["1h", "60m", "30m", "15m", "5m", interval]
+
+        data = None
+        for itv in intervals_to_try:
+            try:
+                url = f"{API_BASE}/getStocks/{ticker}/"
+                params = {"period": period, "interval": itv, "format": "json"}
+                resp = requests.get(url, params=params, timeout=10)
+                resp.raise_for_status()
+                candidate = resp.json()
+                close = candidate.get("close", []) or []
+                if len(close) >= 2:
+                    data = candidate
+                    break
+            except Exception:
+                continue
+
+        if data is None:
+            try:
+                url = f"{API_BASE}/getStocks/{ticker}/"
+                params = {"period": period, "interval": interval, "format": "json"}
+                resp = requests.get(url, params=params, timeout=10)
+                resp.raise_for_status()
+                data = resp.json()
+            except Exception as e:
+                return px.line(pd.DataFrame({"x": [], "y": []}), x="x", y="y").update_layout(title=f"Error: {e}")
+
         dates = pd.to_datetime(data.get("dates", []))
-        close = data.get("close", [])
+        close = data.get("close", []) or []
         df = pd.DataFrame({"date": dates, "close": close})
         if df.empty:
             return px.line(df, x="date", y="close").update_layout(title=f"No data for {ticker}")
-        fig = px.line(df, x="date", y="close", title=f"{ticker} Closing Prices")
-        fig.update_layout(xaxis_title="Date", yaxis_title="Price ($)")
+        fig = px.line(df, x="date", y="close", color_discrete_sequence=["#251C09"], labels={"date": "", "close": ""})
+        fig.update_layout(
+            xaxis=dict(showticklabels=False, showgrid=False, zeroline=False, showline=False, title=""),
+            yaxis=dict(showticklabels=False, showgrid=False, zeroline=False, showline=False, title=""),
+            paper_bgcolor="#DCB465",
+            plot_bgcolor="#DCB465",
+            font_color="#251C09"
+        )
+        if fig.data:
+            fig.data[0].update(hovertemplate="$%{y:.2f}<extra></extra>")
         return fig
     except Exception as e:
-        # return a simple figure with the error message as the title so the iframe shows something useful
         return px.line(pd.DataFrame({"x": [], "y": []}), x="x", y="y").update_layout(title=f"Error: {e}")
 
+@callback(
+    Output("price-display", "children"),
+    Input("graph-content", "hoverData"),
+    Input("graph-content", "figure"),
+    Input("ticker-input", "value"),
+    Input("period-tabs", "value"),
+    Input("interval-dropdown", "value"),
+)
+def update_price_display(hoverData, figure, ticker, period, interval):
+    if hoverData and "points" in hoverData and len(hoverData["points"]) > 0:
+        y = hoverData["points"][0].get("y")
+        try:
+            return f"${float(y):,.2f}"
+        except Exception:
+            return str(y)
+
+    if figure and "data" in figure and len(figure["data"]) > 0:
+        intervals_to_try = [interval]
+        if (period or "").lower() == "1d" and interval not in ("1h", "60m", "30m", "15m"):
+            intervals_to_try = ["1h", "60m", "30m", "15m", "5m", interval]
+        for itv in intervals_to_try:
+            try:
+                url = f"{API_BASE}/getStocks/{ticker}/"
+                params = {"period": period or "1y", "interval": itv, "format": "json"}
+                resp = requests.get(url, params=params, timeout=6)
+                resp.raise_for_status()
+                data = resp.json()
+                close = data.get("close", []) or []
+                if close:
+                    last = close[-1]
+                    return f"${float(last):,.2f}"
+            except Exception:
+                continue
+    return ""
+
+@callback(Output("ticker-title", "children"), Input("ticker-input", "value"))
+def update_title_from_input(ticker_value):
+    # show the ticker or fallback text; format as you like
+    return (ticker_value or "TICKER").upper()
 
 if __name__ == "__main__":
-    # listen on all interfaces so the container port is reachable from host
-    app.run(host="0.0.0.0", port=8050, debug=True)
+    app.run(host="0.0.0.0", port=8050, debug=False)

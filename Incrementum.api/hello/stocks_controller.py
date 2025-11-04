@@ -1,13 +1,13 @@
 import json
 import logging
+import pandas as pd
 import yfinance as yf
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from .models import Stock
 from .serializers import StockSerializer
-from .get_stock_info import get_stock_info, search_stocks, get_stock_by_ticker, generate_stock_graph
-
+from .get_stock_info import get_stock_info, search_stocks, get_stock_by_ticker
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
 def stock_list_create(request):
@@ -86,10 +86,30 @@ def get_stock_graph(request, ticker):
             return JsonResponse({
                 "error": f"No data found for {ticker} with period={period} and interval={interval}"
             }, status=404)
-        png_bytes = generate_stock_graph(history, ticker, f"{period}, {interval}")
-        return HttpResponse(png_bytes, content_type="image/png")
-        
+        try:
+            dates = [ts.strftime("%Y-%m-%dT%H:%M:%S") for ts in history.index.to_pydatetime()]
+        except Exception:
+            # fallback if index not datetime
+            dates = [str(i) for i in history.index]
+
+        close = [
+            None if (pd.isna(v)) else float(v)
+            for v in history["Close"].tolist()
+        ]
+
+        graphdata = {
+            "period": period,
+            "interval": interval,
+            "count": len(dates),
+            "dates": dates,
+            "close": close,
+        }
+
+        logging.info("Returning JSON for %s (%d points)", ticker, len(dates))
+        return JsonResponse(graphdata, status=200)
+
     except Exception as e:
+        logging.exception("Error in get_stock_graph for %s", ticker)
         return JsonResponse({'error': str(e)}, status=500)
 
 @csrf_exempt
