@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+:root {
+  --header-height: 80px;
+}
+
 .IndividualCustomCollectionPage-header {
   @apply fixed;
   @apply top-0;
@@ -38,56 +42,113 @@
 }
 
 .StockTable-container {
-  @apply bg-[hsl(42,15%,75%)]; 
-  @apply rounded-2xl;
-  @apply shadow-lg; 
-  @apply text-[hsl(40,62%,20%)]; 
-  @apply w-full;
-  @apply border;
-  @apply border-[hsl(40,61%,55%)];
-  @apply overflow-hidden;
-  @apply mb-8;
+  @apply bg-[hsl(40,63%,63%)]; /* lighter tan */
+  @apply rounded-sm;
+  @apply shadow-[5px_5px_5px_#3F3A30]; 
+  @apply text-[hsl(40,62%,20%)];
+  position: fixed;
+  top: calc(var(--header-height) + 40px);
+  left: 50px;
+  right: 390px; /* Leave space for sidebar (300px + 50px right margin + 40px gap) */
+  height: calc(100vh - var(--header-height) - 60px); /* Taller than sidebar */
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-bottom: 0;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
 }
+
+/* Scrollbar styling for StockTable */
+.StockTable-container::-webkit-scrollbar {
+  width: 10px;
+}
+.StockTable-container::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.05);
+  border-radius: 8px;
+}
+.StockTable-container::-webkit-scrollbar-thumb {
+  background: rgba(175,130,40,0.95);
+  border-radius: 8px;
+  border: 2px solid rgba(235,203,146,0.3);
+}
+
+/* Firefox */
+.StockTable-container {
+  scrollbar-width: thin;
+  scrollbar-color: #DABB7C #AF8228;
+}
+
 .StockTable-header-row {
   @apply flex;
-  @apply bg-[hsl(40,61%,45%)];
-  @apply text-[hsl(42,15%,90%)];
-  @apply font-bold;
-  @apply text-lg;
-  @apply border-b-2;
-  @apply border-[hsl(40,61%,35%)];
-  @apply shadow-sm;
+  @apply text-[hsl(40,62%,18%)];
+  @apply font-semibold;
+  @apply text-sm;
 }
 .StockTable-header {
-  @apply flex-1; 
-  @apply px-6; 
-  @apply py-4; 
-  @apply text-left;
-  @apply text-[hsl(42,15%,90%)];
-  @apply font-semibold;
-  @apply tracking-wide;
+  @apply flex-1;
+  @apply px-4;
+  @apply py-3;
+  @apply text-center;
+  @apply w-[98%];
+  @apply mx-auto;
+  @apply border-b-[#251C09];
+  position: relative;
+}
+.StockTable-header:after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 6px;
+  height: 2px;
+  background: rgba(0,0,0,0.08);
 }
 .StockTable-row {
-  @apply flex; 
-  @apply bg-[hsl(42,15%,80%)];
-  @apply text-[hsl(40,62%,15%)];
+  @apply flex;
+  @apply bg-[#E8CB92]; /* row background light */
+  @apply text-[hsl(40,62%,20%)];
   @apply border-b;
+  @apply rounded-sm;
   @apply border-[hsl(40,61%,65%)];
+  @apply border-b-[#251C09];
   @apply transition-all;
-  @apply duration-200;
-  @apply hover:bg-[hsl(40,61%,50%)];
-  @apply hover:text-[hsl(42,15%,95%)];
-  @apply hover:shadow-md;
+  @apply duration-150;
+  @apply hover:bg-[hsl(38,70%,86%)];
+  @apply hover:shadow-sm;
+  /* inset the rows to 90% of the container to create the 'card' look */
+  @apply w-[98%];
+  @apply mx-auto;
 }
 .StockTable-row:last-child {
   @apply border-b-0;
 }
 .StockTable-cell {
   @apply flex-1; 
-  @apply px-6; 
-  @apply py-4; 
-  @apply text-left;
+  @apply px-4; 
+  @apply py-3; 
+  @apply text-center;
   @apply font-medium;
+  @apply justify-center;
+  display: flex;
+  align-items: center;
+}
+
+.watch-btn {
+  @apply text-[hsl(40,62%,20%)];
+  @apply font-bold;
+  @apply text-4xl;
+  @apply rounded;
+  @apply cursor-pointer;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  transition: all 0.15s ease;
+}
+.watch-btn:disabled {
+  cursor: not-allowed;
 }
 
 .StockTable-row:hover .text-green-500 {

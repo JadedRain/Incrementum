@@ -1,25 +1,38 @@
 import Loading from './Loading';
 import StockRow from './StockRow';
+
 import { useFilterData } from '../Context/FilterDataContext';
 
 type Props = {
   onRowClick?: (symbol: string) => void;
+  watchlistSymbols?: Set<string>;
+  onToggleWatchlist?: (symbol: string, inWatchlist: boolean) => void;
+  pendingSymbol?: string | null;
 };
 
-export default function StockTable({ onRowClick }: Props) {
+export default function StockTable({ onRowClick, watchlistSymbols, onToggleWatchlist, pendingSymbol  }: Props) {
   const {stocks, isLoading, filterDataDict} = useFilterData()
   return (
     <div className="StockTable-container">
       <div className="StockTable-header-row">
-        <div className="StockTable-header">Company</div>
-        <div className="StockTable-header">Symbol</div>
-        <div className="StockTable-header">Chart</div>
-        <div className="StockTable-header">Change</div>
+           <div className="StockTable-header">Symbol</div>
+           <div className="StockTable-header">Price</div>
+           <div className="StockTable-header">1 Day % Chg.</div>
+           <div className="StockTable-header">Vol.</div>
+           <div className="StockTable-header">Mkt. Cap</div>
+           <div className="StockTable-header">Add to Watchlist</div>
       </div>
+      <Loading loading={loading} />
       {Object.keys(filterDataDict).length == 0 && <div>Select some filters to get started!</div>}
-      <Loading loading={isLoading} />
-      {!isLoading && stocks.map((s, idx) => (
-        <StockRow key={s.symbol ?? idx} stock={s} onClick={() => onRowClick?.(s.symbol ?? '')} />
+      {!loading && stocks.map((s, idx) => (
+        <StockRow 
+          key={s.symbol ?? idx} 
+          stock={s} 
+          onClick={() => onRowClick?.(s.symbol ?? '')}
+          inWatchlist={watchlistSymbols?.has(s.symbol ?? '') ?? false}
+          onToggleWatchlist={onToggleWatchlist}
+          isPending={pendingSymbol === s.symbol}
+        />
       ))}
     </div>
   );
