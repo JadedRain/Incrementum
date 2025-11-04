@@ -21,7 +21,13 @@ Content-Type: application/json
 ###
 Get {{host}}/stock/aapl
 ###
-GET {{host}}/watchlist/
+POST {{host}}/stocks/getfilteredstocks
+Content-Type: application/json
+
+[
+  { "operator": "eq", "operand": "sector", "value": "Financial Services", "filter_type": "categoric" },
+  { "operator": "gt", "operand": "lastclose52weekhigh.lasttwelvemonths", "value": 35, "filter_type": "numeric" }
+]
 
 ###
 DELETE {{host}}/watchlist/remove/

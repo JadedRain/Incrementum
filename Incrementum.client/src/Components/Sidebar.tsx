@@ -5,7 +5,7 @@ import WeekRangeFilter from './FilterComponents/WeekRangeFilter';
 import SharePriceFilter from './FilterComponents/SharePriceFilter';
 import MarketCapFilter from './FilterComponents/MarketCapFilter';
 import PercentChangeFilter from './FilterComponents/PercentChangeFilter';
-import IndustryFilter from './FilterComponents/IndustryFilter';
+import RegionFilter from './FilterComponents/RegionFilter';
 
 const Sidebar: React.FC = () => {
   return (
@@ -17,18 +17,24 @@ const Sidebar: React.FC = () => {
             apiKey={apiKey}
           />
         )} */}
-
+        <RegionFilter />
         <SectorFilter />
-
-        <IndustryFilter />
         
+        {/* industry not working */}
+        {/* <IndustryFilter /> */}
+        
+        {/* todayvolume.min not working */}
+        {/* avgvolume.min */}
+        {/* avgvolume.max */}
+        {/* todayvolume.max */}
         <VolumeFilter />
-
+          {/* lastclose52weekhigh.min */}
+          {/* lastclose52weekhigh.max  */}
         <WeekRangeFilter />
 
         <SharePriceFilter />
 
-        <MarketCapFilter />
+        <MarketCapFilter /> 
 
         <PercentChangeFilter />
       </nav>

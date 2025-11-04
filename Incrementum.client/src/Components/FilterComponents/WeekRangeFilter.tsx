@@ -9,30 +9,30 @@ const WeekRangeFilter: React.FC = () => {
   const [lowMin, setLowMin] = useState<number | null>(null);
   const [lowMax, setLowMax] = useState<number | null>(null);
 
-  const highMinKey = 'lastclose52weekhigh.min';
-  const highMaxKey = 'lastclose52weekhigh.max';
-  const lowMinKey = 'lastclose52weeklow.min';
-  const lowMaxKey = 'lastclose52weeklow.max';
+  const highMinKey = 'lastclose52weekhigh.lasttwelvemonths';
+  const highMaxKey = 'lastclose52weekhigh.lasttwelvemonths';
+  const lowMinKey = 'lastclose52weeklow.lasttwelvemonths';
+  const lowMaxKey = 'lastclose52weeklow.lasttwelvemonths';
   const showHighWarning = highMin !== null && highMax !== null && highMin > highMax;
   const showLowWarning = lowMin !== null && lowMax !== null && lowMin > lowMax;
 
   useEffect(() => {
-    if (highMin !== null) addFilter(highMinKey, { operand: highMinKey, operee: 'gt', type: 'numeric', value_high: null, value_low: null, value: highMin });
+    if (highMin !== null) addFilter(highMinKey, { operand: highMinKey, operator: 'gt', filter_type: 'numeric', value_high: null, value_low: null, value: highMin });
     else removeFilter(highMinKey);
   }, [highMin, addFilter, removeFilter]);
 
   useEffect(() => {
-    if (highMax !== null) addFilter(highMaxKey, { operand: highMaxKey, operee: 'lt', type: 'numeric', value_high: null, value_low: null, value: highMax });
+    if (highMax !== null) addFilter(highMaxKey, { operand: highMaxKey, operator: 'lt', filter_type: 'numeric', value_high: null, value_low: null, value: highMax });
     else removeFilter(highMaxKey);
   }, [highMax, addFilter, removeFilter]);
 
   useEffect(() => {
-    if (lowMin !== null) addFilter(lowMinKey, { operand: lowMinKey, operee: 'gt', type: 'numeric', value_high: null, value_low: null, value: lowMin });
+    if (lowMin !== null) addFilter(lowMinKey, { operand: lowMinKey, operator: 'gt', filter_type: 'numeric', value_high: null, value_low: null, value: lowMin });
     else removeFilter(lowMinKey);
   }, [lowMin, addFilter, removeFilter]);
 
   useEffect(() => {
-    if (lowMax !== null) addFilter(lowMaxKey, { operand: lowMaxKey, operee: 'lt', type: 'numeric', value_high: null, value_low: null, value: lowMax });
+    if (lowMax !== null) addFilter(lowMaxKey, { operand: lowMaxKey, operator: 'lt', filter_type: 'numeric', value_high: null, value_low: null, value: lowMax });
     else removeFilter(lowMaxKey);
   }, [lowMax, addFilter, removeFilter]);
 
