@@ -66,13 +66,28 @@ def search_stocks(query, page, source=setup):
     return results[start:end]
 
 def get_stock_by_ticker(ticker, source=setup):
-    tickers = source()
-    stock_row = tickers[tickers['symbol'].str.lower() == ticker.lower()]
-    if stock_row.empty:
-        logging.warning(f"No stock found for ticker: {ticker}")
-        return None
-    stock_data = fetch_stock_data(ticker)
-    return stock_data
+    try:
+        # Get all stocks from database
+        tickers = source()
+        
+        # For Django QuerySet, filter directly
+        if hasattr(tickers, 'filter'):
+            stock_exists = tickers.filter(symbol__iexact=ticker).exists()
+        else:
+            # For DataFrame or list
+            stock_row = tickers[tickers['symbol'].str.lower() == ticker.lower()]
+            stock_exists = not stock_row.empty
+        
+        if not stock_exists:
+            logging.warning(f"No stock found in database for ticker: {ticker}")
+            # Still try to fetch from yfinance even if not in our database
+        
+        # Fetch fresh data from yfinance
+        stock_data = fetch_stock_data(ticker)
+        return stock_data
+    except Exception as e:
+        logging.error(f"Error in get_stock_by_ticker for {ticker}: {str(e)}")
+        raise
 
 def fetch_stock_with_ma(symbol, ma_period=50):
     ticker = yf.Ticker(symbol)
@@ -177,12 +192,22 @@ def ensure_stock_in_db(symbol, company_name):
             )
 
 def fetch_stock_data(ticker):
-    stock = yf.Ticker(ticker)
-    info = stock.info
-    symbol = info.get('symbol', ticker)
-    company_name = info.get('longName') or info.get('shortName') or symbol
-    ensure_stock_in_db(symbol, company_name)
-    return Stock(info)
+    try:
+        stock = yf.Ticker(ticker)
+        info = stock.info
+        
+        # Check if we got valid data
+        if not info or info.get('regularMarketPrice') is None:
+            # Sometimes yfinance returns empty dict for invalid tickers
+            raise ValueError(f"Unable to fetch valid data for ticker: {ticker}")
+        
+        symbol = info.get('symbol', ticker)
+        company_name = info.get('longName') or info.get('shortName') or symbol
+        ensure_stock_in_db(symbol, company_name)
+        return Stock(info)
+    except Exception as e:
+        logging.error(f"Error fetching stock data for {ticker}: {str(e)}")
+        raise ValueError(f"Failed to fetch data for ticker {ticker}: {str(e)}")
 
 def screen_stocks_by_percent_change(percent_change_filter, percent_change_value, max_results=100):
     valid_filters = ['gt', 'gte', 'lt', 'lte', 'eq']

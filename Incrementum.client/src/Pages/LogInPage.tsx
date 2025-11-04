@@ -6,7 +6,7 @@ import AuthInput from "../Components/AuthInput";
 import NavigationBar from "../Components/NavigationBar";
 
 const LogInPage: React.FC = () => {
-  const { signIn } = useAuth();
+  const { signIn, apiKey, email: userEmail } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,6 +22,26 @@ const LogInPage: React.FC = () => {
       setError("Invalid email or password");
     }
   }, [email, password, signIn, navigate]);
+
+  // Show if logged in
+  if (apiKey) {
+    return (
+      <>
+        <NavigationBar />
+        <div className="signin-container">
+          <div className="signin-wrapper">
+            <div className="signin-form">
+              <h2 className="signin-title">✓ Logged In</h2>
+              <p style={{ color: '#4CAF50', margin: '1rem 0' }}>{userEmail}</p>
+              <button className="signin-button" onClick={() => navigate("/screener")}>
+                Go to Screener
+              </button>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

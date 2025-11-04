@@ -1,7 +1,7 @@
 from hello.views import fetch_update_and_list_stocks
 from hello.views import fetch_finnhub_stocks_view
 from django.urls import path
-from .views_auth import login, signup, account_info
+from .views_auth import login, signup, account_info, sync_keycloak_user
 from .screener_views import (
     custom_screener_list_create, create_custom_screener, get_custom_screener, list_custom_screeners,
     update_custom_screener, delete_custom_screener
@@ -34,6 +34,7 @@ urlpatterns = [
     path('api/signup', signup, name='signup'),
     path('api/login', login, name='login'),
     path('api/account', account_info, name='account_info'),
+    path('api/sync-keycloak-user', sync_keycloak_user, name='sync_keycloak_user'),
     path('custom-collection/', custom_collection, name='custom_collection'),
     path('custom-collection/aggregate/', custom_collection_aggregate, name='custom_collection_aggregate'),
     path('custom-collection/aggregate-graph/', custom_collection_aggregate_graph, name='custom_collection_aggregate_graph'),

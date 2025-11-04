@@ -10,7 +10,8 @@ import { fetchCustomScreener } from "../Query/apiScreener"
 import { useScreener } from '../hooks/useScreener';
 import { useScreenerDefaults } from '../hooks/useScreenerDefaults';
 import type { CustomScreener } from '../Types/ScreenerTypes';
-import type { StockInfo  } from '../Types/StockInfoTypes';
+import type { StockInfo } from '../Types/StockInfoTypes';
+import { FilterDataProvider } from '../Context/FilterDataContext';
 
 function IndividualScreenPage() {
   const navigate = useNavigate();
@@ -19,20 +20,20 @@ function IndividualScreenPage() {
   const [loading, setLoading] = useState(true);
   const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
-  
+
   const { id } = useParams<{ id: string }>();
 
   if (!id) {
     return <div>Loading screener...</div>; // or redirect
   }
-  
+
 
   const { data, error } = useQuery<CustomScreener>({
     queryKey: ["customScreener", id],
     queryFn: () => fetchCustomScreener(id!, apiKey),
   });
-  useEffect(()=>{ console.log(data) }, [data]);
-  
+  useEffect(() => { console.log(data) }, [data]);
+
   const [changePeriod, setChangePeriod] = useState<'daily' | 'weekly' | 'monthly'>('daily');
 
   const { stocks: hookStocks, loading: hookLoading } = useScreener({
@@ -54,22 +55,24 @@ function IndividualScreenPage() {
     setSelectedIndustries(defaultIndustries);
   }, [defaultSectors, defaultIndustries]);
 
-  useEffect(()=> {
+  useEffect(() => {
     console.log(error?.message)
   }, [error])
 
   return (
-    <div className="min-h-screen bg-[hsl(40,13%,53%)]">
-      <NavigationBar />
-      <div className="main-content">
-        <div className="pt-32 px-8 ScreenerPage-main-layout">
-          <div className="w-full flex">
-            <StockTable stocks={stocks} loading={loading} onRowClick={(symbol: string) => navigate(`/stock/${symbol}`)} />
+    <FilterDataProvider>
+      <div className="min-h-screen bg-[hsl(40,13%,53%)]">
+          <NavigationBar />
+          <div className="main-content">
+            <div className="pt-32 px-8 ScreenerPage-main-layout">
+              <div className="w-full flex">
+                <StockTable stocks={stocks} loading={loading} onRowClick={(symbol: string) => navigate(`/stock/${symbol}`)} />
+              </div>
+              <Sidebar />
+            </div>
           </div>
-          <Sidebar />
         </div>
-      </div>
-    </div>
+    </FilterDataProvider>
   );
 }
 

@@ -9,6 +9,7 @@ import StockDataDisplay from "../Components/StockDataDisplay";
 import ChartControls from "../Components/ChartControls";
 import { useWatchlistStatus } from "../hooks/useWatchlistStatus";
 import { useFetchStockData } from "../hooks/useFetchStockData";
+import { FilterDataProvider } from '../Context/FilterDataContext';
 
 export default function Stock({ token: propToken }: { token?: string; }) {
   const { apiKey } = useAuth();
@@ -45,19 +46,14 @@ export default function Stock({ token: propToken }: { token?: string; }) {
   if (!results) return <div className="bg-[hsl(40,13%,53%)] min-h-screen flex items-center justify-center" style={{ fontFamily: "serif" }}><p className="text-[hsl(40,66%,60%)]">No stock data found.</p></div>;
 
   return (
+    <FilterDataProvider>
     <div className="bg-[hsl(40,13%,53%)] min-h-screen" style={{ fontFamily: "serif" }}>
       <NavigationBar />
       <div className="main-content" style={{ padding: "20px" }}>
-        <ChartControls
-          period={period}
-          interval={interval}
-          onPeriodChange={handlePeriodChange}
-          onIntervalChange={handleIntervalChange}
-        />
       <Toast message={toast} />
       <button 
         onClick={() => window.history.back()}
-        className="nav-button mb-4"
+        className="back-button mb-4"
       >
         ← Back
       </button>
@@ -71,7 +67,14 @@ export default function Stock({ token: propToken }: { token?: string; }) {
         imgUrl={imgUrl}
         token={token}
       />
+<ChartControls
+  period={period}
+  interval={interval}
+  onPeriodChange={handlePeriodChange}
+  onIntervalChange={handleIntervalChange}
+/>
       </div>
     </div>
+    </FilterDataProvider>
   );
 }

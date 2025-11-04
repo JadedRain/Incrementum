@@ -21,6 +21,9 @@ services:
     environment:
       - DJANGO_ENV=development
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - KEYCLOAK_REALM_URL=https://auth-dev.snowse.io/realms/DevRealm
+      - KEYCLOAK_CLIENT_ID=incrementum-client
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-}
     restart: unless-stopped
     depends_on:
       - db
