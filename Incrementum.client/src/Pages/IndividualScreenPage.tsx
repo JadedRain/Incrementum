@@ -13,58 +13,38 @@ import { useScreenerDefaults } from '../hooks/useScreenerDefaults';
 import { useFetchWatchlist } from '../useFetchWatchlist';
 import { addToWatchlist, removeFromWatchlist } from '../utils/watchlistActions';
 import type { CustomScreener } from '../Types/ScreenerTypes';
-import type { StockInfo } from '../Types/StockInfoTypes';
 import { FilterDataProvider } from '../Context/FilterDataContext';
 
 function IndividualScreenPage() {
   const navigate = useNavigate();
   const { apiKey } = useAuth();
-  const [stocks, setStocks] = useState<StockInfo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
-  const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
   const [toast, setToast] = useState<string | null>(null);
   const [pending, setPending] = useState<string | null>(null);
 
   const { watchlistSymbols, setWatchlistSymbols } = useFetchWatchlist(apiKey);
 
+
   const { id } = useParams<{ id: string }>();
+  const numid = Number(id);
 
   if (!id) {
     return <div>Loading screener...</div>; // or redirect
   }
 
+  
+  if (!isNaN(numid)) {
+      const { data, error } = useQuery<CustomScreener>({
+        queryKey: ["customScreener", id],
+        queryFn: () => fetchCustomScreener(id!, apiKey),
+      });
+      useEffect(()=>{ console.log(data) }, [data]);
+  }
+  else {
+    const data = null;
+    const error = null;
+  }
 
-  const { data, error } = useQuery<CustomScreener>({
-    queryKey: ["customScreener", id],
-    queryFn: () => fetchCustomScreener(id!, apiKey),
-  });
-  useEffect(() => { console.log(data) }, [data]);
-
-  const [changePeriod, setChangePeriod] = useState<'daily' | 'weekly' | 'monthly'>('daily');
-
-  const { stocks: hookStocks, loading: hookLoading } = useScreener({
-    selectedSectors,
-    selectedIndustries,
-    changePeriod,
-    max: 10,
-    offset: 0,
-  });
-
-  useEffect(() => {
-    setStocks(hookStocks);
-    setLoading(hookLoading);
-  }, [hookStocks, hookLoading]);
-
-  const { sectors: defaultSectors, industries: defaultIndustries } = useScreenerDefaults(data as any);
-  useEffect(() => {
-    setSelectedSectors(defaultSectors);
-    setSelectedIndustries(defaultIndustries);
-  }, [defaultSectors, defaultIndustries]);
-
-  useEffect(() => {
-    console.log(error?.message)
-  }, [error])
 
   const handleToggleWatchlist = async (symbol: string, inWatchlist: boolean) => {
     if (!apiKey || !symbol) return;
@@ -85,8 +65,6 @@ function IndividualScreenPage() {
           <div className="pt-32 px-8 ScreenerPage-main-layout">
             <div className="w-full flex">
               <StockTable 
-                stocks={stocks} 
-                loading={loading} 
                 onRowClick={(symbol: string) => navigate(`/stock/${symbol}`)}
                 watchlistSymbols={watchlistSymbols}
                 onToggleWatchlist={handleToggleWatchlist}

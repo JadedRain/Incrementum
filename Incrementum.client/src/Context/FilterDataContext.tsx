@@ -1,10 +1,11 @@
 import { createContext, useCallback, useContext, useState } from "react";
 import type { ReactNode } from "react";
+import {useEffect} from "react";
 // Define the shape of each filterData object
 export interface FilterData {
   operand: string;
-  operee: string;
-  type: "numeric" | "categoric";
+  operator: string;
+  filter_type: "numeric" | "categoric";
   value_high: number | null;
   value_low: number | null;
   value: string| number | null;
@@ -17,6 +18,9 @@ interface FilterDataContextType {
   removeFilter: (key: string) => void;
   selectedSectors: string[];
   setSelectedSectors: React.Dispatch<React.SetStateAction<string[]>>;
+  stocks: any[];               // fetched stock data
+  isLoading: boolean;          // loading indicator
+  error: string | null; 
 }
 
 // Create context
@@ -28,6 +32,9 @@ const FilterDataContext = createContext<FilterDataContextType | undefined>(
 export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
   const [filterDataDict, setFilterDataDict] = useState<Record<string, FilterData>>({});
   const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
+  const [stocks, setStocks] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
     const addFilter = useCallback((key: string, filter: FilterData) => {
     setFilterDataDict((prev) => ({ ...prev, [key]: filter }));
   }, []);
@@ -39,9 +46,57 @@ export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
       return newDict;
     });
   }, []);
+  useEffect(() => {
+    const fetchFilteredStocks = async () => {
+      // Extract list of filter objects (values only)
+      const filtersList = Object.values(filterDataDict);
 
+      // Don't fetch if no filters
+      if (filtersList.length === 0) {
+        setStocks([]);
+        return;
+      }
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch("/stocks/getfilteredstocks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(filtersList), // send as list of values
+        });
+
+        if (!response.ok) {
+          throw new Error(`Request failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Fetched stocks:", data.stocks.quotes);
+        setStocks(data.stocks.quotes || []);
+      } catch (err: any) {
+        console.error("Error fetching stocks:", err);
+        setError(err.message ?? "Unknown error");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchFilteredStocks();
+  }, [filterDataDict]);
   return (
-    <FilterDataContext.Provider value={{ filterDataDict, addFilter, removeFilter, selectedSectors, setSelectedSectors }}>
+    <FilterDataContext.Provider
+      value={{
+        filterDataDict,
+        addFilter,
+        removeFilter,
+        selectedSectors,
+        setSelectedSectors,
+        stocks,
+        isLoading,
+        error,
+      }}
+    >
       {children}
     </FilterDataContext.Provider>
   );

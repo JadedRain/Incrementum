@@ -9,17 +9,14 @@ const PercentChangeFilter: React.FC = () => {
   const [changePeriod, _setChangePeriod] = useState<'daily' | 'weekly' | 'monthly'>('daily');
   const [threshold, setThreshold] = useState<number | null>(null);
 
-  const key = `percent_change_${changePeriod}`;
+  const key = 'percentchange';
 
   useEffect(() => {
-    ['daily', 'weekly', 'monthly'].forEach((p) => {
-      if (p !== changePeriod) removeFilter(`percent_change_${p}`);
-    });
     if (threshold !== null) {
       const f: FilterData = {
         operand: key,
-        operee: operator,
-        type: 'numeric',
+        operator: operator,
+        filter_type: 'numeric',
         value_high: null,
         value_low: null,
         value: threshold,
@@ -35,7 +32,7 @@ const PercentChangeFilter: React.FC = () => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         <div>
           <label style={{ marginRight: '0.5rem' }}>Period:</label>
-          <select value={changePeriod} onChange={e => { const p = e.target.value as 'daily'|'weekly'|'monthly'; if (onChangePeriod) onChangePeriod(p); }}>
+          <select value={changePeriod} onChange={e => { const p = e.target.value as 'daily'|'weekly'|'monthly'; if (_setChangePeriod) _setChangePeriod(p); }}>
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
             <option value="monthly">Monthly</option>

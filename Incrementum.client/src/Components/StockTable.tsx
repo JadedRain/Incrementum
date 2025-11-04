@@ -1,17 +1,17 @@
 import Loading from './Loading';
 import StockRow from './StockRow';
-import type { StockInfo } from '../Types/StockInfoTypes';
+
+import { useFilterData } from '../Context/FilterDataContext';
 
 type Props = {
-  stocks: StockInfo[];
-  loading: boolean;
   onRowClick?: (symbol: string) => void;
   watchlistSymbols?: Set<string>;
   onToggleWatchlist?: (symbol: string, inWatchlist: boolean) => void;
   pendingSymbol?: string | null;
 };
 
-export default function StockTable({ stocks, loading, onRowClick, watchlistSymbols, onToggleWatchlist, pendingSymbol }: Props) {
+export default function StockTable({ onRowClick, watchlistSymbols, onToggleWatchlist, pendingSymbol  }: Props) {
+  const {stocks, isLoading, filterDataDict} = useFilterData()
   return (
     <div className="StockTable-container">
       <div className="StockTable-header-row">
@@ -23,6 +23,7 @@ export default function StockTable({ stocks, loading, onRowClick, watchlistSymbo
            <div className="StockTable-header">Add to Watchlist</div>
       </div>
       <Loading loading={loading} />
+      {Object.keys(filterDataDict).length == 0 && <div>Select some filters to get started!</div>}
       {!loading && stocks.map((s, idx) => (
         <StockRow 
           key={s.symbol ?? idx} 

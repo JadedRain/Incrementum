@@ -16,24 +16,17 @@ const CategoryFilter: React.FC<CategoryFilterProps> = (_props) => {
   const name = `${categore} Filters`
       useEffect(() => {
       categorys.forEach((category) => {
-        const key = `${category}.${category}`;
+        const key = `${categore}.${category}`;
         if (!selectedCategorys.includes(category)) {
           removeFilter(key);
         }
       });
-  const handleCheckboxChange = (category: string) => {
-    setSelectedCategorys((prev) =>
-      prev.includes(category)
-        ? prev.filter((s) => s !== category)
-        : [...prev, category]
-    );
-  };
       selectedCategorys.forEach((category) => {
         const key = `${categore}.${category}`;
         const filter: FilterData = {
           operand: categore,
-          operee: "eq",
-          type: "categoric",
+          operator: "eq",
+          filter_type: "categoric",
           value: category,
           value_high: null,
           value_low: null,
@@ -42,13 +35,14 @@ const CategoryFilter: React.FC<CategoryFilterProps> = (_props) => {
       });
     }, [selectedCategorys]);
   
-    const handleCheckboxChange = (category: string) => {
-      setSelectedCategorys((prev) =>
-        prev.includes(category)
-          ? prev.filter((s) => s !== category)
-          : [...prev, category]
-      );
-    };
+  const handleCheckboxChange = (category: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedCategorys((prev) =>
+      !event.target.checked
+        ? prev.filter((s) => s !== category)
+        : [...prev, category]
+    );
+    console.log(event.target.checked)
+  };
 
   return (
     <ExpandableSidebarItem title={name}>
@@ -58,7 +52,7 @@ const CategoryFilter: React.FC<CategoryFilterProps> = (_props) => {
             <input
               type="checkbox"
               checked={selectedCategorys.includes(category)}
-              onChange={() => handleCheckboxChange(category)}
+              onChange={(event) => handleCheckboxChange(category, event)}
               style={{ marginRight: "0.5rem" }}
             />
             {category}
