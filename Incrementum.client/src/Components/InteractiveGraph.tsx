@@ -22,7 +22,8 @@ const InteractiveGraph: React.FC<Props> = ({ url = "http://localhost:8050", peri
       <iframe
         src={src}
         title="Dash App"
-        style={{ width: "100%", height: "100%", border: "none" }}
+        className="w-full h-full border-0  bg-[hsl(40, 63%, 63%)]"
+        scrolling="no"
         sandbox="allow-same-origin allow-scripts allow-forms"
       />
     </div>

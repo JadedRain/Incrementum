@@ -5,7 +5,6 @@ import { addToWatchlist, removeFromWatchlist } from "../utils/watchlistActions";
 import { useAuth } from "../Context/AuthContext";
 import NavigationBar from "../Components/NavigationBar";
 import Toast from "../Components/Toast";
-import ChartControls from "../Components/ChartControls";
 import { useWatchlistStatus } from "../hooks/useWatchlistStatus";
 import { useFetchStockData } from "../hooks/useFetchStockData";
 import InteractiveGraph from "../Components/InteractiveGraph"
