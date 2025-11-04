@@ -22,9 +22,9 @@ export default function StockTable({ onRowClick, watchlistSymbols, onToggleWatch
            <div className="StockTable-header">Mkt. Cap</div>
            <div className="StockTable-header">Add to Watchlist</div>
       </div>
-      <Loading loading={loading} />
+      <Loading loading={isLoading} />
       {Object.keys(filterDataDict).length == 0 && <div>Select some filters to get started!</div>}
-      {!loading && stocks.map((s, idx) => (
+      {!isLoading && stocks.map((s, idx) => (
         <StockRow 
           key={s.symbol ?? idx} 
           stock={s} 

@@ -1,7 +1,7 @@
 import type { StockInfo } from '../Types/StockInfoTypes';
 
 type Props = {
-  stock: StockInfo;
+  stock: any;
   onClick?: () => void;
   idx?: number;
   inWatchlist?: boolean;
@@ -12,7 +12,7 @@ type Props = {
 export default function StockRow({ stock, onClick, inWatchlist = false, onToggleWatchlist, isPending = false }: Props) {
   const symbol = (stock.symbol || 'N/A').toUpperCase();
   const percent = stock.regularMarketChangePercent as number | undefined;
-  const price = stock.currentPrice as number | undefined;
+  const price = stock.regularMarketPrice as number | undefined;
   const marketCap = stock.marketCap as number | undefined;
   const volume = (stock.volume ?? stock.averageVolume) as number | undefined;
 
