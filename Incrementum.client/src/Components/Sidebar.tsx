@@ -1,4 +1,5 @@
 import React from 'react';
+import Keywords from './FilterComponents/Keywords';
 import SectorFilter from './FilterComponents/Sectors';
 import VolumeFilter from './FilterComponents/VolumeFilter';
 import WeekRangeFilter from './FilterComponents/WeekRangeFilter';
@@ -10,6 +11,7 @@ import IndustryFilter from './FilterComponents/IndustryFilter';
 const Sidebar: React.FC = () => {
   return (
     <aside className="sidebar">
+      <Keywords />
       <nav className="sidebar-nav">
         {/* {showCustomScreenerSection && (
           <SaveCustomScreener

@@ -19,7 +19,13 @@ class Stock:
         self.fiftyDayAverage = json.get('fiftyDayAverage')
         self.price_52w_high = json.get('price_52w_high')
         self.regularMarketChangePercent = json.get('regularMarketChangePercent')
-        
+        # Additional market fields
+        # marketCap: total market capitalization
+        self.marketCap = json.get('marketCap')
+        # current trading volume
+        self.volume = json.get('volume') or json.get('regularMarketVolume')
+        # average trading volume (3 month/daily avg)
+        self.averageVolume = json.get('averageVolume') or json.get('averageDailyVolume3Month') or json.get('avgDailyVolume3Month')    
 
     def to_dict(self):
         return self.__dict__

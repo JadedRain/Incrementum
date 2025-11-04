@@ -1,7 +1,10 @@
 @import "tailwindcss";
 
+:root {
+  --header-height: 80px;
+}
+
 .sidebar-dropdown-btn {
-  /* These were: flex items-center justify-between w-full px-4 py-2 focus:outline-none */
   @apply flex;
   @apply items-center;
   @apply justify-between;
@@ -34,17 +37,17 @@
 
 .sidebar {
   @apply fixed;
-  @apply top-0;
-  @apply right-0;
-  @apply w-[340px];
-  @apply h-screen;
-  @apply bg-[hsl(42,15%,70%)];
-  @apply text-[hsl(40,62%,26%)];
-  @apply rounded-bl-2xl;
-  @apply shadow-lg;
-  @apply py-24;
-  @apply px-8;
-  @apply pb-8;
+  top: calc(var(--header-height) + 40px);
+  right: 50px;
+  @apply w-[300px];
+  height: calc(100vh - var(--header-height) - 80px);
+  @apply bg-[hsl(40,63%,63%)];
+  @apply text-[hsl(40,62%,18%)];
+  @apply font-semibold;
+  @apply rounded-sm;
+  @apply shadow-[5px_5px_5px_#3F3A30];
+  @apply py-6;
+  @apply px-6;
   @apply flex;
   @apply flex-col;
   @apply items-start;
@@ -52,8 +55,7 @@
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   box-sizing: border-box;
-  padding-right: 18px; /* inset content so scrollbar is separated from content */
-  scrollbar-gutter: stable; /* reserve space for scrollbar so content doesn't shift */
+  padding-right: 12px; 
 }
 
 .sidebar-nav {
@@ -63,20 +65,20 @@
   @apply w-full;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-right: 8px; /* extra inset between content and scrollbar */
+  padding-right: 8px;
 }
 
 /* Scrollbar styling to blend with the sidebar */
 .sidebar::-webkit-scrollbar {
-  width: 12px;
+  width: 10px;
 }
 .sidebar::-webkit-scrollbar-track {
   background: transparent; /* keep track transparent to blend with page edge */
 }
 .sidebar::-webkit-scrollbar-thumb {
-  background: rgba(218,187,124,0.95); /* lighter thumb */
+  background: rgba(175,130,40,0.95); /* slightly darker thumb to match panel */
   border-radius: 8px;
-  border: 3px solid rgba(175,130,40,0.9);
+  border: 3px solid rgba(243,224,192,0.9);
 }
 
 /* Firefox */
@@ -90,12 +92,12 @@
   @apply no-underline;
   @apply text-base;
   @apply py-2;
-  @apply px-4;
-  @apply rounded-lg;
+  @apply px-3;
+  @apply rounded-md;
   @apply transition-colors;
   @apply duration-200;
-  @apply bg-[hsl(40,61%,55%)];
-  @apply hover:shadow-[0_4px_24px_0_hsl(220,9%,46%)];
+  @apply bg-[#E8CB92];
+  @apply hover:shadow-sm;
 }
 
 .sidebar-input {
@@ -111,4 +113,74 @@
   position: absolute;
   right: 0;
   left: 0;
+}
+
+/* Keywords Section */
+.keywords-section {
+  @apply w-full;
+  @apply mb-4;
+  @apply pb-4;
+  @apply border-b-2;
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+  padding: 12px;
+}
+
+.keywords-label {
+  @apply text-sm;
+  @apply font-semibold;
+  @apply mb-2;
+  @apply text-[hsl(40,62%,18%)];
+}
+
+.keywords-container {
+  @apply flex;
+  @apply flex-wrap;
+  @apply gap-2;
+}
+
+.keyword-tag {
+  @apply inline-flex;
+  @apply items-center;
+  @apply gap-2;
+  @apply px-3;
+  @apply py-1.5;
+  @apply rounded;
+  @apply bg-[#E8CB92];
+  color: hsl(40, 62%, 18%);
+  @apply text-sm;
+  @apply font-medium;
+  @apply transition-all;
+  @apply duration-200;
+}
+
+.keyword-text {
+  @apply leading-none;
+}
+
+.keyword-remove-btn {
+  @apply bg-transparent;
+  @apply border-0;
+  color: hsl(40, 62%, 18%);
+  @apply font-bold;
+  @apply leading-none;
+  @apply cursor-pointer;
+  @apply transition-all;
+  @apply duration-150;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 18px;
+}
+
+.keyword-remove-btn:hover {
+  @apply transform;
+  @apply scale-125;
+  color: hsl(0, 50%, 40%);
+}
+
+.keyword-remove-btn:focus {
+  @apply outline-none;
 }
