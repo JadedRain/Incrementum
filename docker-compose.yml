@@ -24,6 +24,7 @@ services:
       - KEYCLOAK_REALM_URL=https://auth-dev.snowse.io/realms/DevRealm
       - KEYCLOAK_CLIENT_ID=incrementum-client
       - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-}
+      - FINNHUB_TOKEN=${FINNHUB_TOKEN}
     restart: unless-stopped
     depends_on:
       - db

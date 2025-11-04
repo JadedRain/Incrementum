@@ -1,5 +1,5 @@
 from typing import List
-from hello.stocks_class import Stock
+from Incrementum.stocks_class import Stock
 from .screener_interface import IScreener
 class current_share_price(IScreener):
     def __init__(self, min_value=None, max_value=None):
