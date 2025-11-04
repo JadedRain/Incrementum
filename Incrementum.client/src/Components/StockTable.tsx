@@ -1,14 +1,13 @@
 import Loading from './Loading';
 import StockRow from './StockRow';
-import type { StockInfo } from '../Types/StockInfo';
+import { useFilterData } from '../Context/FilterDataContext';
 
 type Props = {
-  stocks: StockInfo[];
-  loading: boolean;
   onRowClick?: (symbol: string) => void;
 };
 
-export default function StockTable({ stocks, loading, onRowClick }: Props) {
+export default function StockTable({ onRowClick }: Props) {
+  const {stocks, isLoading, filterDataDict} = useFilterData()
   return (
     <div className="StockTable-container">
       <div className="StockTable-header-row">
@@ -17,8 +16,9 @@ export default function StockTable({ stocks, loading, onRowClick }: Props) {
         <div className="StockTable-header">Chart</div>
         <div className="StockTable-header">Change</div>
       </div>
-      <Loading loading={loading} />
-      {!loading && stocks.map((s, idx) => (
+      {Object.keys(filterDataDict).length == 0 && <div>Select some filters to get started!</div>}
+      <Loading loading={isLoading} />
+      {!isLoading && stocks.map((s, idx) => (
         <StockRow key={s.symbol ?? idx} stock={s} onClick={() => onRowClick?.(s.symbol ?? '')} />
       ))}
     </div>

@@ -9,9 +9,10 @@ const VolumeFilter: React.FC = () => {
   const [avgMax, setAvgMax] = useState<number | null>(null);
   const [todayMin, setTodayMin] = useState<number | null>(null);
   const [todayMax, setTodayMax] = useState<number | null>(null);
-
+  const avgkey = 'avgdailyvol3m';
   const avgMinKey = 'avgvolume.min';
   const avgMaxKey = 'avgvolume.max';
+  const todaykey = 'dayvolume';
   const todayMinKey = 'todayvolume.min';
   const todayMaxKey = 'todayvolume.max';
 
@@ -19,22 +20,22 @@ const VolumeFilter: React.FC = () => {
   const showTodayWarning = todayMin !== null && todayMax !== null && todayMin > todayMax;
 
   useEffect(() => {
-    if (avgMin !== null) addFilter(avgMinKey, { operand: avgMinKey, operee: 'gt', type: 'numeric', value_high: null, value_low: null, value: avgMin });
+    if (avgMin !== null) addFilter(avgMinKey, { operand: avgkey, operator: 'gt', filter_type: 'numeric', value_high: null, value_low: null, value: avgMin });
     else removeFilter(avgMinKey);
   }, [avgMin, addFilter, removeFilter]);
 
   useEffect(() => {
-    if (avgMax !== null) addFilter(avgMaxKey, { operand: avgMaxKey, operee: 'lt', type: 'numeric', value_high: null, value_low: null, value: avgMax });
+    if (avgMax !== null) addFilter(avgMaxKey, { operand: avgkey, operator: 'lt', filter_type: 'numeric', value_high: null, value_low: null, value: avgMax });
     else removeFilter(avgMaxKey);
   }, [avgMax, addFilter, removeFilter]);
 
   useEffect(() => {
-    if (todayMin !== null) addFilter(todayMinKey, { operand: todayMinKey, operee: 'gt', type: 'numeric', value_high: null, value_low: null, value: todayMin });
+    if (todayMin !== null) addFilter(todayMinKey, { operand: todaykey, operator: 'gt', filter_type: 'numeric', value_high: null, value_low: null, value: todayMin });
     else removeFilter(todayMinKey);
   }, [todayMin, addFilter, removeFilter]);
 
   useEffect(() => {
-    if (todayMax !== null) addFilter(todayMaxKey, { operand: todayMaxKey, operee: 'lt', type: 'numeric', value_high: null, value_low: null, value: todayMax });
+    if (todayMax !== null) addFilter(todayMaxKey, { operand: todaykey, operator: 'lt', filter_type: 'numeric', value_high: null, value_low: null, value: todayMax });
     else removeFilter(todayMaxKey);
   }, [todayMax, addFilter, removeFilter]);
 

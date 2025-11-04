@@ -18,15 +18,15 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = (_props) => {
 
   const minKey = 'marketcap.min';
   const maxKey = 'marketcap.max';
-
+  const keykey = "lastclosemarketcap.lasttwelvemonths"
   const showWarning = minValue !== null && maxValue !== null && minValue > maxValue;
 
   useEffect(() => {
     if (minValue !== null) {
       const f: FilterData = {
-        operand: minKey,
-        operee: 'gt',
-        type: 'numeric',
+        operand: keykey,
+        operator: 'gt',
+        filter_type: 'numeric',
         value_high: null,
         value_low: null,
         value: minValue,
@@ -40,9 +40,9 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = (_props) => {
   useEffect(() => {
     if (maxValue !== null) {
       const f: FilterData = {
-        operand: maxKey,
-        operee: 'lt',
-        type: 'numeric',
+        operand: keykey,
+        operator: 'lt',
+        filter_type: 'numeric',
         value_high: null,
         value_low: null,
         value: maxValue,

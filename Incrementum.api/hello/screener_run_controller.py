@@ -31,7 +31,7 @@ def run_screener(request):
             filter_type = item.get("filter_type")
             value = item.get("value")
 
-            if filter_type not in ("numeric", "categorical"):
+            if filter_type not in ("numeric", "categoric"):
                 return JsonResponse({"error": f"Invalid filter_type '{filter_type}' at index {index}"}, status=400)
 
             if operator == 'btwn':

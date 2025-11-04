@@ -46,8 +46,8 @@ const SectorFilter: React.FC = () => {
       const key = `sector.${sector}`;
       const filter: FilterData = {
         operand: "sector",
-        operee: "eq",
-        type: "categoric",
+        operator: "eq",
+        filter_type: "categoric",
         value: sector,
         value_high: null,
         value_low: null,

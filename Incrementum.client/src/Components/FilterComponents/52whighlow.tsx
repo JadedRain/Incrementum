@@ -19,8 +19,8 @@ const LastCloseFilter: React.FC = () => {
     if (highValue !== null && !showWarning) {
       const highFilter: FilterData = {
         operand: highKey,
-        operee: "gt",
-        type: "numeric",
+        operator: "gt",
+        filter_type: "numeric",
         value_high: null,
         value_low: null,
         value: highValue,
@@ -33,10 +33,11 @@ const LastCloseFilter: React.FC = () => {
 
   useEffect(() => {
     if (lowValue !== null && !showWarning) {
+      console.log(lowKey)
       const lowFilter: FilterData = {
         operand: lowKey,
-        operee: "lt",
-        type: "numeric",
+        operator: "lt",
+        filter_type: "numeric",
         value_high: null,
         value_low: null,
         value: lowValue,
