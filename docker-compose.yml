@@ -21,6 +21,7 @@ services:
     environment:
       - DJANGO_ENV=development
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - FINNHUB_TOKEN=${FINNHUB_TOKEN}
     restart: unless-stopped
     depends_on:
       - db

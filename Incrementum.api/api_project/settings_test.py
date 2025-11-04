@@ -34,7 +34,7 @@ DATABASES = {
 }
 
 INSTALLED_APPS = [
-    'hello',
+    'Incrementum',
     'django.contrib.admin',
     'django.contrib.contenttypes',
     'django.contrib.auth',

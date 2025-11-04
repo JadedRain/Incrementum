@@ -1,5 +1,5 @@
 from typing import List
-from hello.stocks_class import Stock
+from Incrementum.stocks_class import Stock
 from .screener_interface import IScreener
 class fifty_two_high(IScreener):
     def __init__(self, value):

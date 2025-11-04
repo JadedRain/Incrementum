@@ -1,5 +1,5 @@
-from hello.DTOs.ifilterdata import FilterData
-from hello.stocks_class import Stock
+from Incrementum.DTOs.ifilterdata import FilterData
+from Incrementum.stocks_class import Stock
 from yfinance import EquityQuery
 from yfinance import screen
 
