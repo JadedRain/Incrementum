@@ -57,8 +57,8 @@ function IndividualScreenPage() {
   };
 
   return (
-    <FilterDataProvider>
-      <div className="min-h-screen bg-[hsl(40,13%,53%)]">
+      <FilterDataProvider>
+    <div className="min-h-screen bg-[hsl(40,13%,53%)]">
         <NavigationBar />
         <Toast message={toast} />
         <div className="main-content">

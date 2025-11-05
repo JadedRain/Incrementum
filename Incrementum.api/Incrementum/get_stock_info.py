@@ -11,38 +11,6 @@ from yfinance.screener.query import EquityQuery
 from Screeners.moving_average_52 import fifty_two_high
 from Screeners.numeric_screeners import NumericScreeners
 
-def generate_stock_graph(history, ticker: str, period) -> bytes:
-    first_price = history['Close'].iloc[0]
-    last_price = history['Close'].iloc[-1]
-    color = "green" if last_price >= first_price else "red"
-
-    fig, ax = plt.subplots(figsize=(8, 4))
-
-    history['Close'].plot(
-        ax=ax, 
-        title=f"{ticker} Closing Prices {period}", 
-        color=color, 
-        linewidth=2
-    )
-
-    ax.set_xlabel("Date")
-    ax.set_ylabel("Price ($)")
-    ax.grid(True, linestyle="--", alpha=0.6)
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-
-    buffer = io.BytesIO()
-    plt.savefig(buffer, format="png", bbox_inches="tight", dpi=120)
-    buffer.seek(0)
-    plt.close(fig)
-    return buffer.getvalue()
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
-
-
 def setup():
     return StockModel.objects.all()
 
