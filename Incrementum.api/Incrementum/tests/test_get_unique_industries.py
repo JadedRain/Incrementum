@@ -1,4 +1,4 @@
-from hello.utils import get_unique_sectors, get_unique_industries
+from Incrementum.utils import get_unique_sectors, get_unique_industries
 
 def test_get_unique_sectors():
     sectors = get_unique_sectors()

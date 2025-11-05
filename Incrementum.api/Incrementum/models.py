@@ -147,3 +147,6 @@ class CustomCollectionStock(models.Model):
         db_table = 'custom_collection_stock'
         unique_together = (('collection', 'stock'),)
         managed = True
+
+
+Stock = StockModel

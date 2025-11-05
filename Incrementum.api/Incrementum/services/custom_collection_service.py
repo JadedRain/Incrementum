@@ -34,26 +34,57 @@ class CustomCollectionService:
     def get_stocks(self, account_api_key: str, collection_name: str = 'default'):
         account = self._get_account(account_api_key)
         collection = CustomCollection.objects.get(collection_name=collection_name, account=account)
-        symbols = collection.stocks.values_list('symbol', flat=True)
-        return [fetch_stock_data(symbol).to_dict() for symbol in symbols]
+        stocks = []
+        # iterate StockModel instances so we can fallback to DB values if external fetch fails
+        for stock_obj in collection.stocks.all():
+            symbol = stock_obj.symbol
+            try:
+                data = fetch_stock_data(symbol)
+                # fetch_stock_data should return a Stock object with to_dict
+                try:
+                    stocks.append(data.to_dict())
+                except Exception:
+                    # If data isn't the expected object, accept dicts
+                    if isinstance(data, dict):
+                        stocks.append(data)
+                    else:
+                        stocks.append({'symbol': symbol, 'company_name': stock_obj.company_name})
+            except Exception:
+                # External fetch failed (network/yfinance). Fall back to DB values.
+                stocks.append({'symbol': symbol, 'company_name': stock_obj.company_name})
+        return stocks
 
-    def add_stock(self, token: str, account_api_key: str, collection_name: str = 'default', symbols=None) -> None:
+    def add_stocks(self, account_api_key: str, collection_name: str = 'default', symbols=None) -> None:
+        if not symbols:
+            return
         account = self._get_account(account_api_key)
         collection = self._get_or_create_collection_for_account(collection_name, account, symbols)
-        stock, _ = StockModel.objects.get_or_create(symbol=token, defaults={'company_name': token})
-        CustomCollectionStock.objects.get_or_create(collection=collection, stock=stock)
+        for sym in symbols:
+            try:
+                stock = StockModel.objects.get(symbol=sym)
+            except StockModel.DoesNotExist:
+                continue
+            CustomCollectionStock.objects.get_or_create(collection=collection, stock=stock)
 
-    def remove_stock(self, token: str, account_api_key: str, collection_name: str = 'default') -> None:
+    def remove_stocks(self, symbols, account_api_key: str, collection_name: str = 'default') -> None:
+        if not symbols:
+            return
+        # normalize to list if a single symbol string was passed
+        if isinstance(symbols, str):
+            symbols = [symbols]
+
         account = self._get_account(account_api_key)
         try:
             collection = CustomCollection.objects.get(collection_name=collection_name, account=account)
         except CustomCollection.DoesNotExist:
             return
-        try:
-            stock = StockModel.objects.get(symbol=token)
-        except StockModel.DoesNotExist:
-            return
-        CustomCollectionStock.objects.filter(collection=collection, stock=stock).delete()
+        for sym in symbols:
+            try:
+                stock = StockModel.objects.get(symbol=sym)
+            except StockModel.DoesNotExist:
+                continue
+            CustomCollectionStock.objects.filter(collection=collection, stock=stock).delete()
+
 
     def aggregate_data(self, account_api_key: str, collection_name: str = 'default'):
         stock_objs = self.get_stocks(account_api_key, collection_name)

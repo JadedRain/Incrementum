@@ -41,10 +41,6 @@ def custom_collection(request):
             return JsonResponse({'tokens': tokens})
 
         elif request.method == "POST":
-            token = data.get('token')
-            if not token:
-                return JsonResponse({'error': 'Token is required'}, status=400)
-            # optional symbols list in body can seed the collection when created
             symbols_field = data.get('symbols') or request.META.get('HTTP_X_SYMBOLS')
             symbols = None
             if symbols_field:
@@ -54,25 +50,33 @@ def custom_collection(request):
                     symbols = list(symbols_field)
 
             try:
-                custom_collection.add_stock(token, api_key, collection_name, symbols)
-                tokens = custom_collection.get_stocks(api_key, collection_name)
+                custom_collection.add_stocks(api_key, collection_name, symbols)
             except ValueError as e:
                 return JsonResponse({'error': str(e)}, status=400)
-            return JsonResponse({'tokens': tokens})
+ 
+            return JsonResponse({'status': 'ok'}, status=200)
 
         elif request.method == "DELETE":
-            token = data.get('token')
-            if not token:
-                return JsonResponse({'error': 'Token is required'}, status=400)
+            symbols_field = data.get('symbols') or request.META.get('HTTP_X_SYMBOLS')
+            symbols = None
+            if symbols_field:
+                if isinstance(symbols_field, str):
+                    symbols = [s.strip().upper() for s in symbols_field.split(',') if s.strip()]
+                else:
+                    symbols = list(symbols_field)
+
+            if not symbols:
+                return JsonResponse({'error': 'Symbols are required'}, status=400)
 
             try:
-                custom_collection.remove_stock(token, api_key, collection_name)
-                tokens = custom_collection.get_stocks(api_key, collection_name)
+                if symbols:
+                    custom_collection.remove_stocks(symbols, api_key, collection_name)
             except ValueError as e:
                 return JsonResponse({'error': str(e)}, status=400)
-            return JsonResponse({'tokens': tokens})
+            return JsonResponse({'status': 'ok'}, status=200)
 
     except Exception as e:
+        logging.exception("Unhandled error in custom_collection endpoint")
         return JsonResponse({'error': str(e)}, status=500)
 
 @csrf_exempt
@@ -152,4 +156,5 @@ def custom_collection_overlay_graph(request):
 
         return HttpResponse(img_bytes, content_type="image/png")
     except Exception as e:
+        logging.exception("Unhandled error in custom_collection_overlay_graph")
         return JsonResponse({"error": f"Error generating overlay graph: {str(e)}"}, status=500)
