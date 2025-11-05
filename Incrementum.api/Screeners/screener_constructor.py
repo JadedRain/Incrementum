@@ -31,6 +31,11 @@ class ScreenerConstructor:
 
     def apply_screening(self) -> list[Stock]:
         categoric = [self.EquityQuery('or', v) if len(v) > 1 else v[0] for v in self.filters_categorical.values()]
+        
+        # Handle empty filters case
+        if not categoric and not self.filters_numeric:
+            return []
+        
         if not self.filters_numeric:
             return screen(self.EquityQuery("and", categoric) if len(categoric) > 1 else categoric[0])
         both = categoric + self.filters_numeric

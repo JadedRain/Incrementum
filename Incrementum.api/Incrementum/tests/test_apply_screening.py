@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import patch
 from Incrementum.DTOs.ifilterdata import FilterData
 from Screeners.screener_constructor import ScreenerConstructor
 
@@ -6,6 +7,9 @@ class FakeLeafQuery:
     def __init__(self, operator, payload):
         self.operator = operator
         self.payload = payload
+    def get_stocks(self):
+        # Single leaf query returns one stock
+        return [{"symbol": "STK0", "filters_applied": 1}]
     def __repr__(self):
         return f"FakeLeafQuery({self.operator}, {self.payload})"
 
@@ -27,15 +31,21 @@ class FakeEquityQuery:
             return FakeAndQuery(operator, payload)
         return FakeLeafQuery(operator, payload)
 
+def fake_screen(query):
+    if hasattr(query, 'get_stocks'):
+        return query.get_stocks()
+    return []
+
 @pytest.mark.parametrize("filters, expected_symbols", [
     ([], []),
-    ([FilterData('eq', 'sector', 'categorical', 'Tech')], ["STK0"]),
+    ([FilterData('eq', 'sector', 'categoric', 'Tech')], ["STK0"]),
     ([
-        FilterData('eq', 'sector', 'categorical', 'Tech'),
+        FilterData('eq', 'sector', 'categoric', 'Tech'),
         FilterData('gt', 'avgdailyvol3m', 'numeric', 1000000)
     ], ["STK0", "STK1"]),
 ])
-def test_apply_screening(filters, expected_symbols):
+@patch('Screeners.screener_constructor.screen', side_effect=fake_screen)
+def test_apply_screening(mock_screen, filters, expected_symbols):
     constructor = ScreenerConstructor(filters, Eq=FakeEquityQuery)
     stocks = constructor.apply_screening()
     if not filters:
@@ -49,6 +59,30 @@ def test_apply_screening(filters, expected_symbols):
 
 
 # --- Enhanced filtering semantics test ---
+
+class DatasetFilteringLeafQuery(FakeLeafQuery):
+    def get_stocks(self):
+        # Simulated underlying dataset
+        data = [
+            {"symbol": "AAA", "sector": "Tech", "avgdailyvol3m": 2_000_000},
+            {"symbol": "BBB", "sector": "Finance", "avgdailyvol3m": 5_000_000},
+            {"symbol": "CCC", "sector": "Tech", "avgdailyvol3m": 500_000},
+            {"symbol": "DDD", "sector": "Energy", "avgdailyvol3m": 3_500_000},
+        ]
+        # Apply single leaf condition
+        op = self.operator.lower()
+        field, value = self.payload[0], self.payload[1]
+        if op == 'eq':
+            return [r for r in data if r.get(field) == value]
+        elif op == 'gt':
+            return [r for r in data if r.get(field, 0) > value]
+        elif op == 'gte':
+            return [r for r in data if r.get(field, 0) >= value]
+        elif op == 'lt':
+            return [r for r in data if r.get(field, 0) < value]
+        elif op == 'lte':
+            return [r for r in data if r.get(field, 0) <= value]
+        return data
 
 class DatasetFilteringAndQuery(FakeAndQuery):
     def get_stocks(self):
@@ -80,33 +114,34 @@ class DatasetFilteringEquityQuery(FakeEquityQuery):
     def __new__(cls, operator=None, payload=None):
         if operator == 'and':
             return DatasetFilteringAndQuery(operator, payload)
-        return FakeLeafQuery(operator, payload)
+        return DatasetFilteringLeafQuery(operator, payload)
 
 @pytest.mark.parametrize(
     "filters,expected",
     [
         # sector == Tech (no volume restriction) -> AAA & CCC
-        ([FilterData('eq', 'sector', 'categorical', 'Tech')], {'AAA', 'CCC'}),
+        ([FilterData('eq', 'sector', 'categoric', 'Tech')], {'AAA', 'CCC'}),
         # sector == Tech & volume > 1M -> AAA only
         ([
-            FilterData('eq', 'sector', 'categorical', 'Tech'),
+            FilterData('eq', 'sector', 'categoric', 'Tech'),
             FilterData('gt', 'avgdailyvol3m', 'numeric', 1_000_000)
         ], {'AAA'}),
         # volume > 3M -> BBB (5M) & DDD (3.5M)
         ([FilterData('gt', 'avgdailyvol3m', 'numeric', 3_000_000)], {'BBB', 'DDD'}),
         # sector == Energy & volume >= 3M -> DDD only
         ([
-            FilterData('eq', 'sector', 'categorical', 'Energy'),
+            FilterData('eq', 'sector', 'categoric', 'Energy'),
             FilterData('gte', 'avgdailyvol3m', 'numeric', 3_000_000)
         ], {'DDD'}),
         # sector == Finance & volume < 6M -> BBB only
         ([
-            FilterData('eq', 'sector', 'categorical', 'Finance'),
+            FilterData('eq', 'sector', 'categoric', 'Finance'),
             FilterData('lt', 'avgdailyvol3m', 'numeric', 6_000_000)
         ], {'BBB'}),
     ]
 )
-def test_apply_screening_filters_data(filters, expected):
+@patch('Screeners.screener_constructor.screen', side_effect=fake_screen)
+def test_apply_screening_filters_data(mock_screen, filters, expected):
     constructor = ScreenerConstructor(filters, Eq=DatasetFilteringEquityQuery)
     results = constructor.apply_screening()
     symbols = {r['symbol'] for r in results}
