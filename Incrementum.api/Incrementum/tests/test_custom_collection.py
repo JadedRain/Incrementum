@@ -112,6 +112,56 @@ class TestCustomCollection:
         assert response.status_code in (200, 500)
         if response.status_code == 200:
             assert response['Content-Type'] == 'image/png'
+
+    def test_delete_collection_removes_from_list(self, client):
+        """Create a collection, delete it (DELETE with no symbols) and verify it no longer appears in the collections list."""
+        add_url = reverse('custom_collection')
+        list_url = reverse('custom_collections_list')
+
+        # create collection first via API add
+        resp = client.post(add_url, {'collection': 'to_delete', 'symbols': ['AAPL', 'MSFT']}, content_type='application/json', HTTP_X_USER_ID='testapikey')
+        assert resp.status_code == 200
+
+        # ensure it shows up in list
+        resp = client.get(list_url, HTTP_X_USER_ID='testapikey')
+        assert resp.status_code == 200
+        data = resp.json()
+        names = [c.get('name') for c in data.get('collections', [])]
+        assert 'to_delete' in names
+
+        # delete the collection by sending DELETE with no symbols
+        resp = client.delete(add_url, {'collection': 'to_delete'}, content_type='application/json', HTTP_X_USER_ID='testapikey')
+        assert resp.status_code == 200
+
+        # now the list should not include it
+        resp = client.get(list_url, HTTP_X_USER_ID='testapikey')
+        assert resp.status_code == 200
+        data = resp.json()
+        names = [c.get('name') for c in data.get('collections', [])]
+        assert 'to_delete' not in names
+
+    def test_collections_list_requires_user_header_and_returns_collections(self, client):
+        """Verify the list endpoint requires X-User-Id and returns the created collections."""
+        list_url = reverse('custom_collections_list')
+        # missing header should return 401
+        resp = client.get(list_url)
+        assert resp.status_code == 401
+
+        # create a collection
+        add_url = reverse('custom_collection')
+        resp = client.post(add_url, {'collection': 'mylist', 'symbols': ['GOOGL']}, content_type='application/json', HTTP_X_USER_ID='testapikey')
+        assert resp.status_code == 200
+
+        # now list with header
+        resp = client.get(list_url, HTTP_X_USER_ID='testapikey')
+        assert resp.status_code == 200
+        data = resp.json()
+        assert 'collections' in data
+        # find our collection
+        found = [c for c in data['collections'] if c.get('name') == 'mylist']
+        assert len(found) == 1
+        c = found[0]
+        assert isinstance(c.get('stocks'), list)
             
 @pytest.fixture(autouse=True)
 def seed_stocks(db):

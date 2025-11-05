@@ -29,7 +29,13 @@ export const CollectionCard = ({ collection, onRemove }: CollectionCardProps) =>
         &times;
       </button>
       <h2 className="text-lg font-bold leading-relaxed m-0">{collection.name}</h2>
-      <p className="text-gray-700 leading-relaxed mb-2">{collection.description || 'No description.'}</p>
+          <p className="text-gray-700 leading-relaxed mb-2">{
+            collection.description
+              ? collection.description
+              : (collection.stocks && collection.stocks.length > 0
+                  ? `${collection.stocks.length} stock${collection.stocks.length > 1 ? 's' : ''}`
+                  : 'No description.')
+          }</p>
     </div>
   );
 };

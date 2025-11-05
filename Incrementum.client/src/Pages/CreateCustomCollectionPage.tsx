@@ -1,6 +1,7 @@
 import '../styles/SearchBar.css'
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../Context/AuthContext';
 import BackButton from '../Components/BackButton';
 
 const CreateCustomCollectionPage = () => {
@@ -14,6 +15,8 @@ const CreateCustomCollectionPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const auth = useAuth();
+  const apiKeyFromContext = auth?.apiKey;
 
   // TODO: Replace with real authentication check
   const isAuthenticated = true;
@@ -28,6 +31,15 @@ const CreateCustomCollectionPage = () => {
     }
     setDefaultNameNumber(num);
   }, []);
+
+  // Prefill selected stocks if navigation state provided
+  const location = useLocation();
+  useEffect(() => {
+    const state: any = location.state as any;
+    if (state && Array.isArray(state.selectedStocks) && state.selectedStocks.length > 0) {
+      setSelectedStocks(state.selectedStocks.map((s: any) => String(s)));
+    }
+  }, [location]);
 
 
   // Search for stocks by symbol or name
@@ -65,29 +77,40 @@ const CreateCustomCollectionPage = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
     let finalName = name.trim() || `name ${defaultNameNumber}`;
     if (selectedStocks.length === 0) {
       setError('Please select at least one stock.');
       setLoading(false);
       return;
     }
-    // Create a fake new collection object
-    const newCollection = {
-      id: Date.now(),
-      name: finalName,
-      description,
-      stocks: selectedStocks,
-    };
-    // Save to localStorage (simulate API)
-    const updated = [...collections, newCollection];
-    localStorage.setItem('customCollections', JSON.stringify(updated));
-  // Increment default name number for next time
-  localStorage.setItem('customCollectionNameNumber', String(defaultNameNumber + 1));
-  setDefaultNameNumber(defaultNameNumber + 1);
-    setLoading(false);
-    // Redirect to custom collections page
-    navigate('/custom-collections');
+    try {
+      const apiKey = apiKeyFromContext;
+
+      const res = await fetch(`/custom-collection/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(apiKey ? { 'X-User-Id': apiKey } : {}),
+        },
+        body: JSON.stringify({ collection: finalName, symbols: selectedStocks }),
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `Server returned ${res.status}`);
+      }
+
+      const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
+      const newCollection = { id: Date.now(), name: finalName, description, stocks: selectedStocks };
+      localStorage.setItem('customCollections', JSON.stringify([...collections, newCollection]));
+      localStorage.setItem('customCollectionNameNumber', String(defaultNameNumber + 1));
+      setDefaultNameNumber(defaultNameNumber + 1);
+
+      setLoading(false);
+      navigate('/custom-collections');
+    } catch (err: any) {
+      setError('Save failed: ' + (err.message || err));
+      setLoading(false);
+    }
   };
 
   if (!isAuthenticated) {
@@ -98,12 +121,12 @@ const CreateCustomCollectionPage = () => {
 
   return (
     <div className="max-w-xl mx-auto p-4">
-        <header className="WatchlistPage-header flex items-center justify-center py-6 ">
-            <BackButton onClick={() => navigate(-1)} />
-            <h1 className="WatchlistPage-h1"> 
-                Create Custom Collection 
-            </h1>
-        </header>
+      <header className="WatchlistPage-header flex items-center justify-center py-6 ">
+        <BackButton onClick={() => navigate(-1)} />
+        <h1 className="WatchlistPage-h1">
+          Create Custom Collection
+        </h1>
+      </header>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block font-medium">Name</label>

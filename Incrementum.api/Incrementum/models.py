@@ -130,6 +130,7 @@ class CustomCollection(models.Model):
     # account may be null for a default/global collection; user-specific collections should set this
     account = models.ForeignKey(Account, on_delete=models.CASCADE, db_column='account_id', null=True, blank=True)
     collection_name = models.CharField(max_length=20)
+    c_desc = models.CharField(max_length=300)
     stocks = models.ManyToManyField('StockModel', through='CustomCollectionStock', related_name='custom_collections')
 
     class Meta:
@@ -146,7 +147,7 @@ class CustomCollectionStock(models.Model):
     class Meta:
         db_table = 'custom_collection_stock'
         unique_together = (('collection', 'stock'),)
-        managed = True
+        managed = False
 
 
 Stock = StockModel

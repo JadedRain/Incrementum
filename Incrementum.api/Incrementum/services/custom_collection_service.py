@@ -1,5 +1,7 @@
 from Incrementum.get_stock_info import fetch_stock_data
 from Incrementum.models import StockModel, CustomCollection, CustomCollectionStock
+from django.db import connection
+from django.db.utils import ProgrammingError, IntegrityError
 
 
 class CustomCollectionService:
@@ -16,10 +18,11 @@ class CustomCollectionService:
         except Account.DoesNotExist:
             raise ValueError(f"Account with api_key {account_api_key} does not exist")
 
-    def _get_or_create_collection_for_account(self, collection_name, account, symbols=None):
+    def _get_or_create_collection_for_account(self, collection_name, account, desc, symbols=None):
         collection, created = CustomCollection.objects.get_or_create(
             collection_name=collection_name,
             account=account,
+            c_desc=desc
         )
         if created or not collection.stocks.exists():
             if symbols is None:
@@ -28,7 +31,24 @@ class CustomCollectionService:
                 raise ValueError("symbols must be a non-empty list when creating a collection")
             for sym in symbols:
                 stock, _ = StockModel.objects.get_or_create(symbol=sym, defaults={'company_name': sym})
-                CustomCollectionStock.objects.get_or_create(collection=collection, stock=stock)
+                if not CustomCollectionStock.objects.filter(collection=collection, stock=stock).exists():
+                    try:
+                        CustomCollectionStock.objects.create(collection=collection, stock=stock)
+                    except Exception as e:
+                        msg = str(e) or ''
+                        if 'custom_collection_stock.id' in msg or 'RETURNING' in msg or 'UndefinedColumn' in msg:
+                            try:
+                                sql = """
+                                INSERT INTO custom_collection_stock (collection_id, stock_symbol)
+                                VALUES (%s, %s)
+                                ON CONFLICT (collection_id, stock_symbol) DO NOTHING
+                                """
+                                with connection.cursor() as cur:
+                                    cur.execute(sql, [collection.id, stock.symbol])
+                            except IntegrityError:
+                                pass
+                        else:
+                            raise
         return collection
 
     def get_stocks(self, account_api_key: str, collection_name: str = 'default'):
@@ -54,17 +74,34 @@ class CustomCollectionService:
                 stocks.append({'symbol': symbol, 'company_name': stock_obj.company_name})
         return stocks
 
-    def add_stocks(self, account_api_key: str, collection_name: str = 'default', symbols=None) -> None:
+    def add_stocks(self, account_api_key: str, collection_name: str = 'default', symbols=None, desc=None) -> None:
         if not symbols:
             return
         account = self._get_account(account_api_key)
-        collection = self._get_or_create_collection_for_account(collection_name, account, symbols)
+        collection = self._get_or_create_collection_for_account(collection_name, account, desc, symbols)
         for sym in symbols:
             try:
                 stock = StockModel.objects.get(symbol=sym)
             except StockModel.DoesNotExist:
                 continue
-            CustomCollectionStock.objects.get_or_create(collection=collection, stock=stock)
+            if not CustomCollectionStock.objects.filter(collection=collection, stock=stock).exists():
+                try:
+                    CustomCollectionStock.objects.create(collection=collection, stock=stock)
+                except Exception as e:
+                    msg = str(e) or ''
+                    if 'custom_collection_stock.id' in msg or 'RETURNING' in msg or 'UndefinedColumn' in msg:
+                        sql = """
+                        INSERT INTO custom_collection_stock (collection_id, stock_symbol)
+                        VALUES (%s, %s)
+                        ON CONFLICT (collection_id, stock_symbol) DO NOTHING
+                        """
+                        try:
+                            with connection.cursor() as cur:
+                                cur.execute(sql, [collection.id, stock.symbol])
+                        except IntegrityError:
+                            pass
+                    else:
+                        raise
 
     def remove_stocks(self, symbols, account_api_key: str, collection_name: str = 'default') -> None:
         if not symbols:
@@ -84,6 +121,26 @@ class CustomCollectionService:
             except StockModel.DoesNotExist:
                 continue
             CustomCollectionStock.objects.filter(collection=collection, stock=stock).delete()
+            
+    def get_all_collections(self, api_key):
+        account = self._get_account(api_key)
+        collections = []
+        for c in CustomCollection.objects.filter(account=account):
+            collections.append({
+                'id': c.id,
+                'name': c.collection_name,
+                'stocks': [s.symbol for s in c.stocks.all()]
+            })
+        return collections
+    
+    def delete_collection(self, api_key, collection_name):
+        account = self._get_account(api_key)
+        try:
+            collection = CustomCollection.objects.get(collection_name=collection_name, account=account)
+        except CustomCollection.DoesNotExist:
+            return
+        CustomCollectionStock.objects.filter(collection=collection).delete()
+        CustomCollection.objects.filter(collection_name=collection_name).delete()
 
 
     def aggregate_data(self, account_api_key: str, collection_name: str = 'default'):

@@ -5,6 +5,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from .services.custom_collection_service import CustomCollectionService
 from .graph_utils import generate_overlay_graph
+from django.views.decorators.http import require_GET
+from Incrementum.models_user import Account
 
 
 @csrf_exempt
@@ -66,7 +68,7 @@ def custom_collection(request):
                     symbols = list(symbols_field)
 
             if not symbols:
-                return JsonResponse({'error': 'Symbols are required'}, status=400)
+                custom_collection.delete_collection(api_key, collection_name)
 
             try:
                 if symbols:
@@ -144,7 +146,6 @@ def custom_collection_overlay_graph(request):
         if not collection_name:
             return JsonResponse({'error': 'collection name is required (query param "collection" or header X-Collection-Name)'}, status=400)
         custom_collection = CustomCollectionService()
-        # tokens from service are stock dicts; extract symbols for plotting
         try:
             tokens = [t.get('symbol') for t in custom_collection.get_stocks(api_key, collection_name)]
         except ValueError as e:
@@ -158,3 +159,18 @@ def custom_collection_overlay_graph(request):
     except Exception as e:
         logging.exception("Unhandled error in custom_collection_overlay_graph")
         return JsonResponse({"error": f"Error generating overlay graph: {str(e)}"}, status=500)
+
+
+@csrf_exempt
+@require_GET
+def custom_collections_list(request):
+    try:
+        api_key = request.META.get('HTTP_X_USER_ID')
+        if not api_key:
+            return JsonResponse({'error': 'User id header X-User-Id required'}, status=401)
+        custom_collection = CustomCollectionService()
+        collections = custom_collection.get_all_collections(api_key)
+        return JsonResponse({'collections': collections})
+    except Exception as e:
+        logging.exception('Unhandled error listing custom collections')
+        return JsonResponse({'error': str(e)}, status=500)

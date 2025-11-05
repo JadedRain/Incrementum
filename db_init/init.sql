@@ -52,10 +52,14 @@ create table watchlist_custom_screener (
 create table custom_collection (
     id int primary key generated always as identity,
     account_id int not null references account(id),
-    collection_name varchar(20) not null
+    collection_name varchar(20) not null,
+    c_desc varchar(300)
 );
 
 create table custom_collection_stock (
     collection_id int not null references custom_collection(id),
     stock_symbol varchar(5) not null references stock(symbol)
 );
+
+alter table custom_collection_stock
+    add constraint custom_collection_stock_collection_id_stock_symbol_key unique (collection_id, stock_symbol);
