@@ -7,6 +7,7 @@ class Account(models.Model):
     email = models.CharField(max_length=50, unique=True)
     password_hash = models.CharField(max_length=255)
     api_key = models.CharField(max_length=64, unique=True)
+    keycloak_id = models.CharField(max_length=255, unique=True, null=True, blank=True)  # Link to Keycloak user
 
     class Meta:
         db_table = 'account'

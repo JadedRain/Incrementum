@@ -5,6 +5,7 @@ import { addToWatchlist, removeFromWatchlist } from '../utils/watchlistActions';
 import { useFetchStocks } from '../useFetchStocks';
 import { useFetchWatchlist } from '../useFetchWatchlist';
 import Toast from '../Components/Toast';
+import { FilterDataProvider } from '../Context/FilterDataContext';
 
 interface StockInfo {
   [key: string]: any;
@@ -45,6 +46,7 @@ const StockInfoList: React.FC = () => {
     if (loading) return <div>Loading...</div>;
 
     return (
+        <FilterDataProvider>
         <div>
             <Toast message={toast} />
             <h2>Stock Info</h2>
@@ -71,6 +73,7 @@ const StockInfoList: React.FC = () => {
                 })}
             </ul>
         </div>
+        </FilterDataProvider>
     );
 }
 

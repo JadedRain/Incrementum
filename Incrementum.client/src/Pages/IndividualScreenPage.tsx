@@ -8,8 +8,6 @@ import NavigationBar from '../Components/NavigationBar'
 import StockTable from '../Components/StockTable'
 import Toast from '../Components/Toast'
 import { fetchCustomScreener } from "../Query/apiScreener"
-import { useScreener } from '../hooks/useScreener';
-import { useScreenerDefaults } from '../hooks/useScreenerDefaults';
 import { useFetchWatchlist } from '../useFetchWatchlist';
 import { addToWatchlist, removeFromWatchlist } from '../utils/watchlistActions';
 import type { CustomScreener } from '../Types/ScreenerTypes';

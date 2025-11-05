@@ -18,11 +18,14 @@ class CustomCollectionService:
         except Account.DoesNotExist:
             raise ValueError(f"Account with api_key {account_api_key} does not exist")
 
-    def _get_or_create_collection_for_account(self, collection_name, account, desc, symbols=None):
+    def _get_or_create_collection_for_account(self, collection_name, account, desc=None, symbols=None):
+        defaults = {}
+        if desc is not None:
+            defaults['c_desc'] = desc
         collection, created = CustomCollection.objects.get_or_create(
             collection_name=collection_name,
             account=account,
-            c_desc=desc
+            defaults=defaults or None
         )
         if created or not collection.stocks.exists():
             if symbols is None:
