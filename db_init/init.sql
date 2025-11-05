@@ -57,7 +57,7 @@ create table incrementum.watchlist_custom_screener (
 create table incrementum.custom_collection (
     id int primary key generated always as identity,
     account_id int not null references incrementum.account(id),
-    collection_name varchar(20) not null
+    collection_name varchar(20) not null,
     c_desc varchar(300)
 );
 
