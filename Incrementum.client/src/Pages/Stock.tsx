@@ -7,7 +7,10 @@ import NavigationBar from "../Components/NavigationBar";
 import Toast from "../Components/Toast";
 import { useWatchlistStatus } from "../hooks/useWatchlistStatus";
 import { useFetchStockData } from "../hooks/useFetchStockData";
+import { FilterDataProvider } from '../Context/FilterDataContext';
 import InteractiveGraph from "../Components/InteractiveGraph"
+import StockInfoSidebar from '../Components/StockInfoSidebar';
+import ChartControls from '../Components/ChartControls';
 
 export default function Stock({ token: propToken }: { token?: string; }) {
   const { apiKey } = useAuth();
@@ -42,18 +45,34 @@ export default function Stock({ token: propToken }: { token?: string; }) {
   if (!results) return <div className="bg-[hsl(40,13%,53%)] min-h-screen flex items-center justify-center" style={{ fontFamily: "serif" }}><p className="text-[hsl(40,66%,60%)]">No stock data found.</p></div>;
 
   return (
+    <FilterDataProvider>
     <div className="bg-[hsl(40,13%,53%)] min-h-screen" style={{ fontFamily: "serif" }}>
       <NavigationBar />
       <div className="main-content" style={{ padding: "20px" }}>
       <Toast message={toast} />
       <button 
         onClick={() => window.history.back()}
-        className="nav-button mb-4"
+        className="back-button mb-4"
       >
         ← Back
       </button>
+      <StockInfoSidebar
+        results={results}
+        apiKey={apiKey}
+        inWatchlist={inWatchlist}
+        pending={pending}
+        onAddToWatchlist={handleAdd}
+        onRemoveFromWatchlist={handleRemove}
+      />
+      <ChartControls
+        period={period}
+        interval={interval}
+        onPeriodChange={handlePeriodChange}
+        onIntervalChange={handleIntervalChange}
+      />
       <InteractiveGraph url="http://localhost:8050" height="600px" />
       </div>
     </div>
+    </FilterDataProvider>
   );
 }

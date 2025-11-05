@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir pytest pytest-django
 # Copy project
 COPY . .
-RUN python manage.py makemigrations hello
+RUN python manage.py makemigrations Incrementum
 
 
 # Apply migrations and run tests

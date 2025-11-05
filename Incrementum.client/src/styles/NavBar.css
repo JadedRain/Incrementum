@@ -92,6 +92,26 @@
   font-family: "Newsreader", serif;
 }
 
+.back-button {
+  @apply text-[#DCAF56];
+  @apply rounded-lg;
+  @apply w-[100px];
+  @apply h-[40px];
+  @apply px-4;
+  padding-bottom: 4px;
+  background: #AF8228;
+  @apply duration-200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  text-decoration: none;
+  font-family: "Newsreader", serif;
+}
+
+.back-button:hover {
+  background: hsl(40, 62%, 26%) !important;
+}
+
 .nav-button.nav-button-logout:hover {
   color: #ff4d4d !important;
 }

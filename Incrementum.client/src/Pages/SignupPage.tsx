@@ -3,6 +3,7 @@ import '../App.css'
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
+import { useKeycloak } from "../hooks/useKeycloak";
 
 const SignupPage: React.FC = () => {
   const [name, setName] = useState("");
@@ -12,6 +13,7 @@ const SignupPage: React.FC = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { signUp, signIn } = useAuth();
+  const { redirectToRegistration } = useKeycloak();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,6 +70,13 @@ const SignupPage: React.FC = () => {
         />
         {error && <div className="signin-error">{error}</div>}
         <button className="signin-button" type="submit">Sign Up</button>
+          <button
+            className="signin-button mt-2"
+            type="button"
+            onClick={redirectToRegistration}
+          >
+            Register with Keycloak
+          </button>
           <button
             className="signin-button mt-2"
             type="button"

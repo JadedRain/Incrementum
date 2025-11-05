@@ -86,8 +86,11 @@ def get_stocks_info(request):
 def get_stock_info_controller(request, ticker):
     try:
         stock_data = get_stock_by_ticker(ticker)
+        if stock_data is None:
+            return JsonResponse({'error': f'Stock with ticker {ticker} not found'}, status=404)
         return JsonResponse(stock_data.to_dict(), status=200)
     except Exception as e:
+        logging.error(f"Error fetching stock {ticker}: {str(e)}")
         return JsonResponse({'error': str(e)}, status=500)
 
 @csrf_exempt
