@@ -5,16 +5,22 @@ import { getAuthFromStorage, setAuthToStorage } from "./authStorage";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const KEYCLOAK_REALM_URL = 'https://auth-dev.snowse.io/realms/DevRealm';
-const CLIENT_ID = 'incrementum-client';
+// Keycloak configuration
+export const KEYCLOAK_REALM_URL = 'https://auth-dev.snowse.io/realms/incrementum';
+export const KEYCLOAK_CLIENT_ID = 'incrementum-client';
+
+export const getKeycloakRegistrationUrl = () => {
+  return `${KEYCLOAK_REALM_URL}/protocol/openid-connect/registrations?client_id=${KEYCLOAK_CLIENT_ID}&response_type=code&scope=openid&redirect_uri=${window.location.origin}/`;
+};
 
 const keycloakLogin = async (username: string, password: string) => {
   try {
-    const res = await fetch(`${KEYCLOAK_REALM_URL}/protocol/openid-connect/token`, {
+    const res = await fetch('/api/keycloak-login', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ grant_type: 'password', client_id: CLIENT_ID, username, password }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
     });
+    
     if (res.ok) {
       const data = await res.json();
       return data.access_token;
@@ -52,13 +58,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Use database API key for consistency with rest of app
           setUserAndPersist(syncData.api_key, email);
           return true;
+        } else {
+          console.error('Failed to sync Keycloak user - sync endpoint returned error');
+          return false;
         }
       } catch (e) {
         console.error('Failed to sync Keycloak user:', e);
+        return false;
       }
-      // Fallback: use Keycloak token directly if sync fails
-      setUserAndPersist(keycloakToken, email);
-      return true;
     }
     const result = await signInApi(email, password);
     if (result) {

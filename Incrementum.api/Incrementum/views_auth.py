@@ -4,7 +4,7 @@ import bcrypt
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models_user import Account
-from .keycloak_service import verify_keycloak_token
+from .keycloak_service import verify_keycloak_token, get_token_with_password
 
 @csrf_exempt
 def signup(request):
@@ -51,7 +51,11 @@ def login(request):
             account = Account.objects.get(email=email)
         except Account.DoesNotExist:
             return JsonResponse({'error': 'Invalid credentials'}, status=401)
-        if bcrypt.checkpw(password.encode(), account.password_hash.encode()):
+        
+        if account.keycloak_id and not account.password_hash:
+            return JsonResponse({'error': 'Please use Keycloak login'}, status=401)
+        
+        if account.password_hash and bcrypt.checkpw(password.encode(), account.password_hash.encode()):
             return JsonResponse({'api_key': account.api_key})
         else:
             return JsonResponse({'error': 'Invalid credentials'}, status=401)
@@ -106,6 +110,25 @@ def sync_keycloak_user(request):
         )
         
         return JsonResponse({'api_key': account.api_key, 'user_id': account.id})
+    
+    return JsonResponse({'error': 'Invalid method'}, status=405)
+
+@csrf_exempt
+def keycloak_login(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        username = data.get('username')
+        password = data.get('password')
+        
+        if not username or not password:
+            return JsonResponse({'error': 'Username and password required'}, status=400)
+        
+        access_token = get_token_with_password(username, password)
+        
+        if access_token:
+            return JsonResponse({'access_token': access_token})
+        else:
+            return JsonResponse({'error': 'Invalid credentials'}, status=401)
     
     return JsonResponse({'error': 'Invalid method'}, status=405)
 
