@@ -13,7 +13,8 @@ from .filter_views import (
     get_categorical_filter_types, get_numeric_filter_types
 )
 from .custom_collection_controller import (
-    custom_collection, custom_collection_aggregate, custom_collection_aggregate_graph, custom_collection_overlay_graph
+    custom_collection, custom_collection_aggregate, custom_collection_aggregate_graph, custom_collection_overlay_graph,
+    custom_collections_list,
 )
 from .controllers.watchlist_controller import (
     get_watchlist,add_to_watchlist, remove_from_watchlist, search_stocks_watchlist, get_sorted_watchlist, add_custom_screener_to_watchlist,
@@ -40,6 +41,7 @@ urlpatterns = [
     path('custom-collection/aggregate/', custom_collection_aggregate, name='custom_collection_aggregate'),
     path('custom-collection/aggregate-graph/', custom_collection_aggregate_graph, name='custom_collection_aggregate_graph'),
     path('custom-collection/overlay-graph/', custom_collection_overlay_graph, name='custom_collection_overlay_graph'),
+    path('custom-collections/', custom_collections_list, name='custom_collections_list'),
 
     # Watchlist API endpoints
     path('watchlist/', get_watchlist, name='watchlist'),

@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch, MagicMock
 import pandas as pd
-from Incrementum.controllers.filters_controller import get_unique_sectors, get_unique_industries
+from Incrementum.utils import get_unique_sectors, get_unique_industries
 
 @patch('Incrementum.utils.get_sectors_industry')
 def test_get_unique_sectors(mock_get_sectors_industry):

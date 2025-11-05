@@ -5,6 +5,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from .services.custom_collection_service import CustomCollectionService
 from .graph_utils import generate_overlay_graph
+from django.views.decorators.http import require_GET
+from Incrementum.models_user import Account
 
 
 @csrf_exempt
@@ -41,10 +43,6 @@ def custom_collection(request):
             return JsonResponse({'tokens': tokens})
 
         elif request.method == "POST":
-            token = data.get('token')
-            if not token:
-                return JsonResponse({'error': 'Token is required'}, status=400)
-            # optional symbols list in body can seed the collection when created
             symbols_field = data.get('symbols') or request.META.get('HTTP_X_SYMBOLS')
             symbols = None
             if symbols_field:
@@ -54,25 +52,33 @@ def custom_collection(request):
                     symbols = list(symbols_field)
 
             try:
-                custom_collection.add_stock(token, api_key, collection_name, symbols)
-                tokens = custom_collection.get_stocks(api_key, collection_name)
+                custom_collection.add_stocks(api_key, collection_name, symbols)
             except ValueError as e:
                 return JsonResponse({'error': str(e)}, status=400)
-            return JsonResponse({'tokens': tokens})
+ 
+            return JsonResponse({'status': 'ok'}, status=200)
 
         elif request.method == "DELETE":
-            token = data.get('token')
-            if not token:
-                return JsonResponse({'error': 'Token is required'}, status=400)
+            symbols_field = data.get('symbols') or request.META.get('HTTP_X_SYMBOLS')
+            symbols = None
+            if symbols_field:
+                if isinstance(symbols_field, str):
+                    symbols = [s.strip().upper() for s in symbols_field.split(',') if s.strip()]
+                else:
+                    symbols = list(symbols_field)
+
+            if not symbols:
+                custom_collection.delete_collection(api_key, collection_name)
 
             try:
-                custom_collection.remove_stock(token, api_key, collection_name)
-                tokens = custom_collection.get_stocks(api_key, collection_name)
+                if symbols:
+                    custom_collection.remove_stocks(symbols, api_key, collection_name)
             except ValueError as e:
                 return JsonResponse({'error': str(e)}, status=400)
-            return JsonResponse({'tokens': tokens})
+            return JsonResponse({'status': 'ok'}, status=200)
 
     except Exception as e:
+        logging.exception("Unhandled error in custom_collection endpoint")
         return JsonResponse({'error': str(e)}, status=500)
 
 @csrf_exempt
@@ -140,7 +146,6 @@ def custom_collection_overlay_graph(request):
         if not collection_name:
             return JsonResponse({'error': 'collection name is required (query param "collection" or header X-Collection-Name)'}, status=400)
         custom_collection = CustomCollectionService()
-        # tokens from service are stock dicts; extract symbols for plotting
         try:
             tokens = [t.get('symbol') for t in custom_collection.get_stocks(api_key, collection_name)]
         except ValueError as e:
@@ -152,4 +157,20 @@ def custom_collection_overlay_graph(request):
 
         return HttpResponse(img_bytes, content_type="image/png")
     except Exception as e:
+        logging.exception("Unhandled error in custom_collection_overlay_graph")
         return JsonResponse({"error": f"Error generating overlay graph: {str(e)}"}, status=500)
+
+
+@csrf_exempt
+@require_GET
+def custom_collections_list(request):
+    try:
+        api_key = request.META.get('HTTP_X_USER_ID')
+        if not api_key:
+            return JsonResponse({'error': 'User id header X-User-Id required'}, status=401)
+        custom_collection = CustomCollectionService()
+        collections = custom_collection.get_all_collections(api_key)
+        return JsonResponse({'collections': collections})
+    except Exception as e:
+        logging.exception('Unhandled error listing custom collections')
+        return JsonResponse({'error': str(e)}, status=500)

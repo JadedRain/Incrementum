@@ -8,11 +8,6 @@ from .models import StockModel
 from .serializers import StockSerializer
 from .get_stock_info import get_stock_info, search_stocks, get_stock_by_ticker, generate_stock_graph
 from Incrementum.models import StockModel
-========
-from hello.models import StockModel
-from hello.serializers import StockSerializer
-from hello.get_stock_info import get_stock_info, search_stocks, get_stock_by_ticker, generate_stock_graph
->>>>>>>> main:Incrementum.api/hello/controllers/stocks_controller.py
 
 @csrf_exempt
 @require_http_methods(["GET", "POST"])

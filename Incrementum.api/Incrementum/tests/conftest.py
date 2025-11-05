@@ -40,3 +40,6 @@ def test_combo(screener_constructor_with_mock):
         {'operator': 'gt', 'operand': 'avgvolume3m', 'filter_type': 'numeric', 'value': 1000000},
     ])
     assert [q.operator for q in c.filters] == ['eq', 'gt']
+
+
+# Seed common StockModel rows so API tests that expect existing stocks don't create missing stocks

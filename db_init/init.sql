@@ -58,9 +58,13 @@ create table incrementum.custom_collection (
     id int primary key generated always as identity,
     account_id int not null references incrementum.account(id),
     collection_name varchar(20) not null
+    c_desc varchar(300)
 );
 
 create table incrementum.custom_collection_stock (
     collection_id int not null references incrementum.custom_collection(id),
     stock_symbol varchar(5) not null references incrementum.stock(symbol)
 );
+
+alter table incrementum.custom_collection_stock
+    add constraint custom_collection_stock_collection_id_stock_symbol_key unique (collection_id, stock_symbol);
