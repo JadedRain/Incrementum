@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import Loading from "../Components/Loading";
 import { useNavigate, useParams } from "react-router-dom";
 import BackButton from "../Components/BackButton";
+import { useCustomCollections } from '../hooks/useCustomCollections';
+import { useAuth } from '../Context/AuthContext';
 
 const IndividualCustomCollectionPage: React.FC = () => {
   const [tokens, setTokens] = useState<string[]>([]);
@@ -21,30 +23,39 @@ const IndividualCustomCollectionPage: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  // Get collection id from route param or fallback to latest
+  const { collections, loading: collectionsLoading } = useCustomCollections();
+  const { apiKey } = useAuth();
+
   useEffect(() => {
-    let collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
-    let collection;
-    if (id) {
-      collection = collections.find((c: any) => String(c.id) === String(id));
-    } else {
-      // fallback to last created
-      collection = collections[collections.length - 1];
+    if (!collectionsLoading) {
+      let collection: any | undefined;
+      if (id) {
+        collection = collections.find((c: any) => String(c.id) === String(id));
+      } else if (collections && collections.length > 0) {
+        collection = collections[collections.length - 1];
+      }
+
+      if (collection) {
+        setTokens(collection.stocks || []);
+        setCollectionName(collection.name || "My Custom Collection");
+        setPendingName(collection.name || "My Custom Collection");
+      } else {
+        const stored = JSON.parse(localStorage.getItem('customCollections') || '[]');
+        let fallback;
+        if (id) fallback = stored.find((c: any) => String(c.id) === String(id));
+        else fallback = stored[stored.length - 1];
+        if (fallback) {
+          setTokens(fallback.stocks || []);
+          setCollectionName(fallback.name || "My Custom Collection");
+          setPendingName(fallback.name || "My Custom Collection");
+        }
+      }
     }
-    if (collection) {
-      setTokens(collection.stocks || []);
-      setCollectionName(collection.name || "My Custom Collection");
-      setPendingName(collection.name || "My Custom Collection");
-    }
-  }, [id]);
+  }, [collections, collectionsLoading, id]);
 
 
-  // No backend fetches; handled by localStorage effect below
-
-  // For demo: compute a fake aggregate from tokens
   useEffect(() => {
     if (tokens.length > 0) {
-      // Example: just count the tokens, or make a fake data structure
       setAggregate({ count: tokens.length, tokens });
     } else {
       setAggregate(null);
@@ -52,30 +63,37 @@ const IndividualCustomCollectionPage: React.FC = () => {
   }, [tokens]);
 
 
-  // Helper to refresh tokens and aggregate
   const refreshCollection = async () => {
     try {
-      const tokensRes = await fetch("http://localhost:8000/custom-collection/");
-      const tokensData = await tokensRes.json();
-      setTokens(tokensData.tokens || []);
-      const aggRes = await fetch("http://localhost:8000/custom-collection/aggregate/");
-      const aggData = await aggRes.json();
-      setAggregate(aggData.aggregate);
-      setGraphKey(Date.now()); // update graphKey to force image reload
+      const devBase = (typeof window !== 'undefined' && window.location && window.location.port === '5173') ? 'http://localhost:8000' : '';
+      const headers: any = { 'Content-Type': 'application/json' };
+      if (apiKey) headers['X-User-Id'] = apiKey;
+
+      const query = `?collection=${encodeURIComponent(collectionName)}`;
+      const tokensRes = await fetch(`${devBase}/custom-collection/${query}`, { headers });
+      if (tokensRes.ok) {
+        const tokensData = await tokensRes.json();
+        setTokens(tokensData.tokens || []);
+      }
+
+      const aggRes = await fetch(`${devBase}/custom-collection/aggregate/${query}`, { headers });
+      if (aggRes.ok) {
+        const aggData = await aggRes.json();
+        setAggregate(aggData.aggregate);
+      }
+
+      setGraphKey(Date.now());
     } catch (err: any) {
       setError("Refresh: " + err.message);
     }
   };
 
-
-  // Search for stocks by symbol or name
   const searchStocks = async () => {
     if (!newToken) return;
     setSearching(true);
     setSearchResults([]);
     setError("");
     try {
-      // Use your backend search endpoint, adjust as needed
       const res = await fetch(`http://localhost:8000/searchStocks/${encodeURIComponent(newToken)}/0/`);
       if (!res.ok) throw new Error("Failed to search stocks");
       const data = await res.json();
@@ -87,17 +105,26 @@ const IndividualCustomCollectionPage: React.FC = () => {
     }
   };
 
-  // Add selected stock symbol to collection
   const addToken = async (tokenOverride?: string) => {
     const token = tokenOverride || newToken;
     if (!token) return;
     try {
-      const res = await fetch("http://localhost:8000/custom-collection/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token })
-      });
-      if (!res.ok) throw new Error("Failed to add stock");
+      const devBase = (typeof window !== 'undefined' && window.location && window.location.port === '5173') ? 'http://localhost:8000' : '';
+      if (apiKey) {
+        const res = await fetch(`${devBase}/custom-collection/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-User-Id": apiKey },
+          body: JSON.stringify({ symbols: [token], collection: collectionName })
+        });
+        if (!res.ok) throw new Error("Failed to add stock");
+      } else {
+        const stored = JSON.parse(localStorage.getItem('customCollections') || '[]');
+        const idx = stored.findIndex((c: any) => c.name === collectionName || String(c.id) === String(id));
+        if (idx !== -1) {
+          stored[idx].stocks = Array.from(new Set([...(stored[idx].stocks || []), token]));
+          localStorage.setItem('customCollections', JSON.stringify(stored));
+        }
+      }
       setNewToken("");
       setSearchResults([]);
       await refreshCollection();
@@ -108,12 +135,22 @@ const IndividualCustomCollectionPage: React.FC = () => {
 
   const removeToken = async (token: string) => {
     try {
-      const res = await fetch("http://localhost:8000/custom-collection/", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token })
-      });
-      if (!res.ok) throw new Error("Failed to remove stock");
+      const devBase = (typeof window !== 'undefined' && window.location && window.location.port === '5173') ? 'http://localhost:8000' : '';
+      if (apiKey) {
+        const res = await fetch(`${devBase}/custom-collection/`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json", "X-User-Id": apiKey },
+          body: JSON.stringify({ symbols: [token], collection: collectionName })
+        });
+        if (!res.ok) throw new Error("Failed to remove stock");
+      } else {
+        const stored = JSON.parse(localStorage.getItem('customCollections') || '[]');
+        const idx = stored.findIndex((c: any) => c.name === collectionName || String(c.id) === String(id));
+        if (idx !== -1) {
+          stored[idx].stocks = (stored[idx].stocks || []).filter((s: string) => s !== token);
+          localStorage.setItem('customCollections', JSON.stringify(stored));
+        }
+      }
       await refreshCollection();
     } catch (err: any) {
       setError("Remove: " + err.message);
@@ -139,7 +176,6 @@ const IndividualCustomCollectionPage: React.FC = () => {
               className="IndividualCustomCollectionPage-button"
               onClick={() => {
                 setCollectionName(pendingName);
-                // Update the collection name in localStorage
                 const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
                 if (id) {
                   const idx = collections.findIndex((c: any) => String(c.id) === String(id));
@@ -222,7 +258,7 @@ const IndividualCustomCollectionPage: React.FC = () => {
         <h2 className="text-[hsl(40,66%,60%)] text-lg font-semibold mb-2">Aggregate Graph (Overlay):</h2>
         <div className="bg-[hsl(40,13%,53%)] rounded shadow p-4 min-h-[200px] flex items-center justify-center">
           {graphLoading && (
-            <Loading loading={true}/>
+            <Loading loading={true} />
           )}
           <img
             src={`http://localhost:8000/custom-collection/overlay-graph/?_=${graphKey}`}
