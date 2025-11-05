@@ -6,6 +6,7 @@ import pandas as pd
 import requests
 import os
 from .models import StockModel
+from Incrementum.data.sector_industry import get_sectors_industry
 # from dotenv import load_dotenv
 
 # What in the world is this doing? The only thing I've seen it do is break the tests
@@ -46,17 +47,7 @@ def update_stocks_in_db_from_finnhub(stock_data):
             )
 
 def get_unique_sectors():
-    return ["basic-materials",
-            "communication-services",
-            "consumer-cyclical",
-            "consumer-defensive",
-            "energy",
-            "financial-services",
-            "healthcare",
-            "industrials",
-            "real-estate",
-            "technology",
-            "utilities"]
+    return list(get_sectors_industry().keys())
 
 def get_unique_industries(sectors=None):
     industries = {}

@@ -14,4 +14,7 @@ export interface StockData {
   country: string;
   longName: string;
   shortName: string;
+  marketCap?: number;
+  volume?: number;
+  averageVolume?: number;
 }

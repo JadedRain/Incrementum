@@ -7,7 +7,7 @@ const SharePriceFilter: React.FC = () => {
   const { addFilter, removeFilter } = useFilterData();
   const [minPrice, setMinPrice] = useState<number | null>(null);
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
-
+  const keykey = 'intradayprice';
   const minKey = 'shareprice.min';
   const maxKey = 'shareprice.max';
 
@@ -15,7 +15,7 @@ const SharePriceFilter: React.FC = () => {
 
   useEffect(() => {
     if (minPrice !== null) {
-      const f: FilterData = { operand: minKey, operee: 'gt', type: 'numeric', value_high: null, value_low: null, value: minPrice };
+      const f: FilterData = { operand: keykey, operator: 'gt', filter_type: 'numeric', value_high: null, value_low: null, value: minPrice };
       addFilter(minKey, f);
     } else {
       removeFilter(minKey);
@@ -24,7 +24,7 @@ const SharePriceFilter: React.FC = () => {
 
   useEffect(() => {
     if (maxPrice !== null) {
-      const f: FilterData = { operand: maxKey, operee: 'lt', type: 'numeric', value_high: null, value_low: null, value: maxPrice };
+      const f: FilterData = { operand: keykey, operator: 'lt', filter_type: 'numeric', value_high: null, value_low: null, value: maxPrice };
       addFilter(maxKey, f);
     } else {
       removeFilter(maxKey);

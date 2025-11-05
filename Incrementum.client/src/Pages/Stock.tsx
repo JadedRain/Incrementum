@@ -5,11 +5,12 @@ import { addToWatchlist, removeFromWatchlist } from "../utils/watchlistActions";
 import { useAuth } from "../Context/AuthContext";
 import NavigationBar from "../Components/NavigationBar";
 import Toast from "../Components/Toast";
-import StockDataDisplay from "../Components/StockDataDisplay";
-import ChartControls from "../Components/ChartControls";
 import { useWatchlistStatus } from "../hooks/useWatchlistStatus";
 import { useFetchStockData } from "../hooks/useFetchStockData";
 import { FilterDataProvider } from '../Context/FilterDataContext';
+import InteractiveGraph from "../Components/InteractiveGraph"
+import StockInfoSidebar from '../Components/StockInfoSidebar';
+import ChartControls from '../Components/ChartControls';
 
 export default function Stock({ token: propToken }: { token?: string; }) {
   const { apiKey } = useAuth();
@@ -21,8 +22,6 @@ export default function Stock({ token: propToken }: { token?: string; }) {
   const [toast, setToast] = useState<string | null>(null);
   const [period, setPeriod] = useState("1y");
   const [interval, setInterval] = useState("1d");
-
-  const imgUrl = `http://localhost:8000/getStocks/${token}/?period=${period}&interval=${interval}`;
 
   const handlePeriodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setPeriod(e.target.value);
@@ -57,22 +56,21 @@ export default function Stock({ token: propToken }: { token?: string; }) {
       >
         ← Back
       </button>
-      <StockDataDisplay
+      <StockInfoSidebar
         results={results}
         apiKey={apiKey}
         inWatchlist={inWatchlist}
         pending={pending}
         onAddToWatchlist={handleAdd}
         onRemoveFromWatchlist={handleRemove}
-        imgUrl={imgUrl}
-        token={token}
       />
-<ChartControls
-  period={period}
-  interval={interval}
-  onPeriodChange={handlePeriodChange}
-  onIntervalChange={handleIntervalChange}
-/>
+      <ChartControls
+        period={period}
+        interval={interval}
+        onPeriodChange={handlePeriodChange}
+        onIntervalChange={handleIntervalChange}
+      />
+      <InteractiveGraph url="http://localhost:8050" height="600px" />
       </div>
     </div>
     </FilterDataProvider>

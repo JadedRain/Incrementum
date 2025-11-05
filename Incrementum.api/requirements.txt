@@ -32,4 +32,6 @@ django-cors-headers
 psycopg2-binary
 matplotlib
 python-keycloak
+dash
+plotly
 dotenv

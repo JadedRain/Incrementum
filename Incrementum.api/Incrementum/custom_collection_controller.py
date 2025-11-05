@@ -4,7 +4,6 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from .services.custom_collection_service import CustomCollectionService
-from .get_stock_info import generate_stock_graph
 from .graph_utils import generate_overlay_graph
 
 
@@ -125,8 +124,6 @@ def custom_collection_aggregate_graph(request):
             logger.error(f"No history for ticker {ticker}")
             return JsonResponse({"error": f"No history for ticker {ticker}"}, status=500)
 
-        img_bytes = generate_stock_graph(history, ticker, "1y")
-        return HttpResponse(img_bytes, content_type="image/png")
     except Exception as e:
         logger = logging.getLogger("django")
         logger.exception("Error generating aggregate graph")

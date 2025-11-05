@@ -18,7 +18,7 @@ import CreateCustomCollectionPage from "./Pages/CreateCustomCollectionPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import FilterPage from "./Pages/FilterPageTest";
 import SidebarTestPage from "./Pages/SidebarTestPage";
-
+import { FilterDataProvider } from "./Context/FilterDataContext";
 const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -34,10 +34,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <Route path="/stock/:token" element={<Stock />} />
           <Route path="/stocks" element={<StocksPage />} />
           <Route path="/watchlist" element={<WatchlistPage />} />
-          <Route path="/screener/:id" element={<IndividualScreenPage />} />
+          <Route path="/screener/:id" element={<FilterDataProvider><IndividualScreenPage /></FilterDataProvider>} />
           <Route path="/create-custom-screener" element={<CustomScreenerPage />} />
           <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/custom-collection/:id" element={<IndividualCustomCollectionPage />} />
+          <Route path="/custom-collection/:id" element={<FilterDataProvider><IndividualCustomCollectionPage /></FilterDataProvider>} />
           <Route path="/custom-collections" element={<CustomCollectionsPage />} />
           <Route path="/create-custom-collection" element={<CreateCustomCollectionPage />} />
           <Route path="/filter-test" element={<FilterPage />} />

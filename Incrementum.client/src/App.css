@@ -144,15 +144,13 @@
 }
 
 .ScreenerPage-main-layout {
-  @apply pt-32;
-  @apply px-8;
   @apply flex;
   @apply flex-row;
   @apply bg-[hsl(40,13%,53%)];
   @apply justify-start;
   @apply items-start;
-  @apply gap-8;
-  @apply mr-[360px];
+  position: relative;
+  min-height: calc(100vh - var(--header-height));
 }
 
 .ScreenerPage-sidebar {
