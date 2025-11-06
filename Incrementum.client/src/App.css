@@ -227,3 +227,14 @@
 /* Ensure content is not hidden behind the fixed header */
 :root { --header-height: 80px; }
 body { padding-top: var(--header-height); background-color: hsl(40,13%,53%);}
+
+/* IndividualScreenPage specific StockTable styling */
+.ScreenerPage-main-layout .StockTable-container {
+  position: fixed;
+  top: calc(var(--header-height) + 40px);
+  left: 70px;
+  width: calc(100vw - 450px);
+  max-width: 1400px;
+  height: calc(100vh - var(--header-height) - 80px);
+  overflow-y: auto;
+}

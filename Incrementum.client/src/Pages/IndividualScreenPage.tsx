@@ -59,7 +59,7 @@ function IndividualScreenPage() {
         <NavigationBar />
         <Toast message={toast} />
         <div className="main-content">
-          <div className="pt-32 px-8 ScreenerPage-main-layout">
+          <div className="px-8 ScreenerPage-main-layout" style={{ paddingTop: 'calc(var(--header-height) + 40px)' }}>
             <div className="w-full flex">
               <StockTable
                 onRowClick={(symbol: string) => navigate(`/stock/${symbol}`)}

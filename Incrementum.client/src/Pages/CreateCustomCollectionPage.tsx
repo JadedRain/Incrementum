@@ -85,23 +85,61 @@ const CreateCustomCollectionPage = () => {
     }
     try {
       const apiKey = apiKeyFromContext;
+      
+      if (!apiKey) {
+        setError('You must be logged in to save a collection.');
+        setLoading(false);
+        return;
+      }
 
       const res = await fetch(`/custom-collection/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(apiKey ? { 'X-User-Id': apiKey } : {}),
+          'X-User-Id': apiKey,
         },
         body: JSON.stringify({ collection: finalName, symbols: selectedStocks, desc: description }),
       });
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(text || `Server returned ${res.status}`);
+        let errorData;
+        try {
+          errorData = JSON.parse(text);
+        } catch {
+          throw new Error(text || `Server returned ${res.status}`);
+        }
+        
+        // Check if it's an authentication error
+        if (errorData.error && (errorData.error.includes('does not exist') || errorData.error.includes('Invalid or expired session'))) {
+          auth?.signOut();
+          setError('Your session has expired. Please log in again.');
+          setLoading(false);
+          setTimeout(() => navigate('/login'), 2000);
+          return;
+        }
+        
+        throw new Error(errorData.error || `Server returned ${res.status}`);
       }
 
-      const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
-      const newCollection = { id: Date.now(), name: finalName, description, stocks: selectedStocks };
-      localStorage.setItem('customCollections', JSON.stringify([...collections, newCollection]));
+      // After successful creation, fetch the updated collections list from backend
+      try {
+        const collectionsRes = await fetch('/custom-collections/', {
+          headers: {
+            'X-User-Id': apiKey,
+          }
+        });
+        if (collectionsRes.ok) {
+          const collectionsData = await collectionsRes.json();
+          localStorage.setItem('customCollections', JSON.stringify(collectionsData.collections || []));
+        }
+      } catch (err) {
+        console.warn('Failed to sync collections from server, using local data', err);
+        // Fallback to local storage update
+        const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
+        const newCollection = { id: Date.now(), name: finalName, description, stocks: selectedStocks };
+        localStorage.setItem('customCollections', JSON.stringify([...collections, newCollection]));
+      }
+      
       localStorage.setItem('customCollectionNameNumber', String(defaultNameNumber + 1));
       setDefaultNameNumber(defaultNameNumber + 1);
 
