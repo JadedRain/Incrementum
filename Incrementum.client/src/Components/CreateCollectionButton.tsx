@@ -5,7 +5,7 @@ export const CreateCollectionButton: React.FC = () => {
   const navigate = useNavigate();
   return (
     <div
-      className="ScreenerPage-card-custom cursor-pointer"
+      className="collection-card-create cursor-pointer"
       onClick={() => navigate('/create-custom-collection')}
       tabIndex={0}
       role="button"

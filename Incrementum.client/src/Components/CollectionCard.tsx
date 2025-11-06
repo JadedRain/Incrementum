@@ -37,18 +37,18 @@ export const CollectionCard = ({ collection, onRemove }: CollectionCardProps) =>
         </svg>
       </div>
 
-      <div className="ScreenerPage-card-content collection-card-content-wrapper">
+      <div className="collection-card-content-wrapper">
         <h2 className="collection-card-title">{collection.name}</h2>
-        <div className='collection-card-date'>
-          {collection.date_created}
-        </div>
         <p className="collection-card-description">{
-          collection.description
-            ? collection.description
+          collection.c_desc
+            ? collection.c_desc
             : (collection.stocks && collection.stocks.length > 0
               ? `${collection.stocks.length} stock${collection.stocks.length > 1 ? 's' : ''}`
               : 'No description.')
         }</p>
+        <p className='collection-card-date'>
+          {collection.date_created}
+        </p>
       </div>
     </div>
   );

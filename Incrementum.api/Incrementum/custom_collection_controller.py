@@ -40,6 +40,7 @@ def custom_collection(request):
             return JsonResponse({'tokens': tokens})
 
         elif request.method == "POST":
+            desc = data.get('desc')
             symbols_field = data.get('symbols') or request.META.get('HTTP_X_SYMBOLS')
             symbols = None
             if symbols_field:
@@ -47,9 +48,9 @@ def custom_collection(request):
                     symbols = [s.strip().upper() for s in symbols_field.split(',') if s.strip()]
                 else:
                     symbols = list(symbols_field)
-
+            
             try:
-                custom_collection.add_stocks(api_key, collection_name, symbols)
+                custom_collection.add_stocks(api_key, collection_name, symbols, desc)
             except ValueError as e:
                 return JsonResponse({'error': str(e)}, status=400)
  

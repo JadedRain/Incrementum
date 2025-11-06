@@ -4,9 +4,9 @@ import { useAuth } from '../Context/AuthContext';
 export interface CustomCollection {
   id: number;
   name: string;
-  description?: string;
-  date_created: string;
   stocks?: string[];
+  c_desc?: string;
+  date_created: string;
 }
 
 export function useCustomCollections() {

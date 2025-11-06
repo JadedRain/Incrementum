@@ -20,7 +20,7 @@ const CustomCollectionsPage: React.FC = () => {
 
     const displayCollections = collections.length === 0
         ? [
-            { id: 1, name: 'Demo Collection', description: 'This is a demo collection. Click to view.' }
+            { id: 1, name: 'Demo Collection', description: 'This is a demo collection. Click to view.', date_created: '2025-11-06' }
         ]
         : collections;
 
@@ -70,12 +70,10 @@ const CustomCollectionsPage: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-[hsl(40,13%,53%)]">
-            <div className="ScreenerPage-header">
-                <h1 className="ScreenerPage-h1">My Custom Collections</h1>
-                <NavigationBar />
-            </div>
+            <NavigationBar />
             <div className="ScreenerPage-container">
-                <div className="ScreenerPage-card-grid" style={{ paddingLeft: '2.5rem' }}>
+                <h1 className="ScreenerPage-h1" style={{ position: 'absolute', top: '1.5rem', left: '50%', transform: 'translateX(-50%)', width: '100%', textAlign: 'center' }}>My Custom Collections</h1>
+                <div className="ScreenerPage-card-grid">
                     <CreateCollectionButton />
                     {displayCollections.length > 0 ? (
                         displayCollections.map(collection => (
