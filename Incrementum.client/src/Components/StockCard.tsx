@@ -8,6 +8,7 @@ import { addToWatchlist, removeFromWatchlist } from '../utils/watchlistActions';
 interface StockCardProps {
   symbol: string;
   name: string;
+  setToast?: (msg: string | null) => void;
 }
 
 const StockCard: React.FC<StockCardProps> = ({ symbol, name, setToast }) => {
