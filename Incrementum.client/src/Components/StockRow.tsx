@@ -1,5 +1,3 @@
-import type { StockInfo } from '../Types/StockInfoTypes';
-
 type Props = {
   stock: any;
   onClick?: () => void;

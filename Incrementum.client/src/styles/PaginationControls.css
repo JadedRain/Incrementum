@@ -4,8 +4,8 @@
 .pagination-button {
   @apply px-4;
   @apply py-2;
-  @apply bg-[#A0B573];
-  @apply text-[#24281B];
+  @apply bg-[#E8CB92];
+  @apply text-[#533E13];
   @apply rounded;
   @apply hover:bg-[#7E8D5E];
   @apply disabled:opacity-50;

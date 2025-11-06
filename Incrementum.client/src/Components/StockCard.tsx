@@ -14,13 +14,28 @@ const StockCard: React.FC<StockCardProps> = ({ symbol, name }) => {
     navigate(`/stock/${symbol}`);
   };
 
+  const handleAdd = () => {
+    
+  }
+
   return (
     <div
       className="search-stock-card newsreader-font"
       onClick={handleClick}
     >
-      <h2 className="text-lg font-semibold">{symbol}</h2>
-      <p className="text-sm">{name}</p>
+      <div className="card-content">
+        <div className="text-stack">
+          <p className="StockTable-cell name-cell">{name}</p>
+          <div className="StockTable-cell font-mono symbol-cell">{symbol}</div>
+        </div>
+        <button
+          className="card-action"
+          aria-label={`Add ${symbol}`}
+          onClick={(e) => { e.stopPropagation(); console.log('plus clicked', symbol); }}
+        >
+          +
+        </button>
+      </div>
     </div>
   );
 };
