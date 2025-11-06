@@ -16,7 +16,6 @@ import { FilterDataProvider } from '../Context/FilterDataContext';
 function IndividualScreenPage() {
   const navigate = useNavigate();
   const { apiKey } = useAuth();
-  const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
   const [pending, setPending] = useState<string | null>(null);
 
@@ -30,13 +29,13 @@ function IndividualScreenPage() {
     return <div>Loading screener...</div>; // or redirect
   }
 
-  
+
   if (!isNaN(numid)) {
-      const { data, error } = useQuery<CustomScreener>({
-        queryKey: ["customScreener", id],
-        queryFn: () => fetchCustomScreener(id!, apiKey),
-      });
-      useEffect(()=>{ console.log(data) }, [data]);
+    const { data, error } = useQuery<CustomScreener>({
+      queryKey: ["customScreener", id],
+      queryFn: () => fetchCustomScreener(id!, apiKey),
+    });
+    useEffect(() => { console.log(data) }, [data]);
   }
   else {
     const data = null;
@@ -46,7 +45,7 @@ function IndividualScreenPage() {
 
   const handleToggleWatchlist = async (symbol: string, inWatchlist: boolean) => {
     if (!apiKey || !symbol) return;
-    
+
     if (inWatchlist) {
       await removeFromWatchlist(symbol, apiKey, setPending, setToast, undefined, setWatchlistSymbols);
     } else {
@@ -55,14 +54,14 @@ function IndividualScreenPage() {
   };
 
   return (
-      <FilterDataProvider>
-    <div className="min-h-screen bg-[hsl(40,13%,53%)]">
+    <FilterDataProvider>
+      <div className="min-h-screen bg-[hsl(40,13%,53%)]">
         <NavigationBar />
         <Toast message={toast} />
         <div className="main-content">
           <div className="pt-32 px-8 ScreenerPage-main-layout">
             <div className="w-full flex">
-              <StockTable 
+              <StockTable
                 onRowClick={(symbol: string) => navigate(`/stock/${symbol}`)}
                 watchlistSymbols={watchlistSymbols}
                 onToggleWatchlist={handleToggleWatchlist}
