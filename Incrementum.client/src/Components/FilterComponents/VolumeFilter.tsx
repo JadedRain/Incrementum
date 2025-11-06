@@ -4,11 +4,13 @@ import { useFilterData } from '../../Context/FilterDataContext';
 
 
 const VolumeFilter: React.FC = () => {
-  const { addFilter, removeFilter } = useFilterData();
-  const [avgMin, setAvgMin] = useState<number | null>(null);
-  const [avgMax, setAvgMax] = useState<number | null>(null);
-  const [todayMin, setTodayMin] = useState<number | null>(null);
-  const [todayMax, setTodayMax] = useState<number | null>(null);
+  const { addFilter, removeFilter, fetchInit } = useFilterData();
+  const initAvg = fetchInit("avgvolume") ?? {min: null, max: null}
+  const initNow = fetchInit("nowvolume") ?? {min: null, max: null}
+  const [avgMin, setAvgMin] = useState<number | null>(initAvg.min);
+  const [avgMax, setAvgMax] = useState<number | null>(initAvg.max);
+  const [todayMin, setTodayMin] = useState<number | null>(initNow.min);
+  const [todayMax, setTodayMax] = useState<number | null>(initNow.max);
   const avgkey = 'avgdailyvol3m';
   const avgMinKey = 'avgvolume.min';
   const avgMaxKey = 'avgvolume.max';

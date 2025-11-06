@@ -4,9 +4,10 @@ import { useFilterData } from '../../Context/FilterDataContext';
 import type { FilterData } from '../../Context/FilterDataContext';
 
 const SharePriceFilter: React.FC = () => {
-  const { addFilter, removeFilter } = useFilterData();
-  const [minPrice, setMinPrice] = useState<number | null>(null);
-  const [maxPrice, setMaxPrice] = useState<number | null>(null);
+  const { addFilter, removeFilter, fetchInit } = useFilterData();
+  const init = fetchInit("shareprice") ?? {min: null, max: null};
+  const [minPrice, setMinPrice] = useState<number | null>(init.min);
+  const [maxPrice, setMaxPrice] = useState<number | null>(init.max);
   const keykey = 'intradayprice';
   const minKey = 'shareprice.min';
   const maxKey = 'shareprice.max';

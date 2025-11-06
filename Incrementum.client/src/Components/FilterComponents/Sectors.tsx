@@ -4,8 +4,12 @@ import { useFilterData } from "../../Context/FilterDataContext";
 import type { FilterData } from "../../Context/FilterDataContext";
 
 const SectorFilter: React.FC = () => {
-  const { addFilter, removeFilter, selectedSectors, setSelectedSectors } = useFilterData();
-
+  const { addFilter, removeFilter, selectedSectors, setSelectedSectors, fetchInit } = useFilterData();
+  const init = fetchInit("sector") // string[] | null
+  if(init != null)
+  {
+    setSelectedSectors(init)
+  }
   const [sectors, setSectors] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);

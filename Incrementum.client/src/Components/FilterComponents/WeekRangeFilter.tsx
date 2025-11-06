@@ -3,11 +3,13 @@ import ExpandableSidebarItem from '../ExpandableSidebarItem';
 import { useFilterData } from '../../Context/FilterDataContext';
 
 const WeekRangeFilter: React.FC = () => {
-  const { addFilter, removeFilter } = useFilterData();
-  const [highMin, setHighMin] = useState<number | null>(null);
-  const [highMax, setHighMax] = useState<number | null>(null);
-  const [lowMin, setLowMin] = useState<number | null>(null);
-  const [lowMax, setLowMax] = useState<number | null>(null);
+  const { addFilter, removeFilter, fetchInit } = useFilterData();
+  const initHigh = fetchInit("weekhigh") ?? {min: null, max: null}
+  const initLow = fetchInit("weeklow") ?? {min: null, max: null}
+  const [highMin, setHighMin] = useState<number | null>(initHigh.min);
+  const [highMax, setHighMax] = useState<number | null>(initHigh.max);
+  const [lowMin, setLowMin] = useState<number | null>(initLow.min);
+  const [lowMax, setLowMax] = useState<number | null>(initLow.max);
 
   const highMinKey = 'lastclose52weekhigh.lasttwelvemonths';
   const highMaxKey = 'lastclose52weekhigh.lasttwelvemonths';

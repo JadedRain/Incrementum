@@ -11,10 +11,10 @@ interface MarketCapFilterProps {
 }
 
 const MarketCapFilter: React.FC<MarketCapFilterProps> = (_props) => {
-  const { addFilter, removeFilter } = useFilterData();
-
-  const [minValue, setMinValue] = useState<number | null>(null);
-  const [maxValue, setMaxValue] = useState<number | null>(null);
+  const { addFilter, removeFilter, fetchInit } = useFilterData();
+  const init = fetchInit("MarketCapFilter") ?? {min: null, max: null}
+  const [minValue, setMinValue] = useState<number | null>(init.min);
+  const [maxValue, setMaxValue] = useState<number | null>(init.max);
 
   const minKey = 'marketcap.min';
   const maxKey = 'marketcap.max';
