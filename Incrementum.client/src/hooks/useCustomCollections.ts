@@ -4,8 +4,9 @@ import { useAuth } from '../Context/AuthContext';
 export interface CustomCollection {
   id: number;
   name: string;
-  description?: string;
   stocks?: string[];
+  c_desc?: string;
+  date_created: string;
 }
 
 export function useCustomCollections() {
@@ -39,15 +40,15 @@ export function useCustomCollections() {
           }
         }
 
-        const stored = localStorage.getItem('customCollections');
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          // eslint-disable-next-line no-console
-          console.debug('useCustomCollections: loaded from localStorage', parsed);
-          setCollections(parsed);
-        } else {
-          setCollections([]);
-        }
+        // const stored = localStorage.getItem('customCollections');
+        // if (stored) {
+        //   const parsed = JSON.parse(stored);
+        //   // eslint-disable-next-line no-console
+        //   console.debug('useCustomCollections: loaded from localStorage', parsed);
+        //   setCollections(parsed);
+        // } else {
+        //   setCollections([]);
+        // }
       } catch (err) {
         console.warn('useCustomCollections: failed to fetch collections, falling back to localStorage', err);
         const stored = localStorage.getItem('customCollections');

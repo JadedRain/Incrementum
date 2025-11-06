@@ -58,7 +58,8 @@ create table incrementum.custom_collection (
     id int primary key generated always as identity,
     account_id int not null references incrementum.account(id),
     collection_name varchar(20) not null,
-    c_desc varchar(300)
+    c_desc varchar(300),
+    date_created date not null
 );
 
 create table incrementum.custom_collection_stock (

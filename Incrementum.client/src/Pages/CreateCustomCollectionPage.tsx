@@ -92,7 +92,7 @@ const CreateCustomCollectionPage = () => {
           'Content-Type': 'application/json',
           ...(apiKey ? { 'X-User-Id': apiKey } : {}),
         },
-        body: JSON.stringify({ collection: finalName, symbols: selectedStocks }),
+        body: JSON.stringify({ collection: finalName, symbols: selectedStocks, desc: description }),
       });
       if (!res.ok) {
         const text = await res.text();

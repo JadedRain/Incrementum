@@ -132,7 +132,9 @@ class CustomCollectionService:
             collections.append({
                 'id': c.id,
                 'name': c.collection_name,
-                'stocks': [s.symbol for s in c.stocks.all()]
+                'stocks': [s.symbol for s in c.stocks.all()],
+                'c_desc': c.c_desc,
+                'date_created': c.date_created
             })
         return collections
     

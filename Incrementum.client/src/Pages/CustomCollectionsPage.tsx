@@ -20,7 +20,7 @@ const CustomCollectionsPage: React.FC = () => {
 
     const displayCollections = collections.length === 0
         ? [
-            { id: 1, name: 'Demo Collection', description: 'This is a demo collection. Click to view.' }
+            { id: 1, name: 'Demo Collection', description: 'This is a demo collection. Click to view.', date_created: '2025-11-06' }
         ]
         : collections;
 
@@ -69,20 +69,20 @@ const CustomCollectionsPage: React.FC = () => {
     const cancelRemove = () => setShowConfirm({ id: null, visible: false });
 
     return (
-        <div className="min-h-screen bg-[hsl(40,13%,53%)] pt-24">
-            <div className="CustomCollectionsPage-header relative" >
-                <h1 className="CustomCollectionsPage-h1 ">My Custom Collections</h1>
-                <NavigationBar />
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, marginTop: 8 }}>
-                <CreateCollectionButton />
-                {displayCollections.length > 0 ? (
-                    displayCollections.map(collection => (
-                        <CollectionCard key={collection.id} collection={collection} onRemove={handleRemove} />
-                    ))
-                ) : (
-                    <div style={{ padding: 24, color: '#222' }}>No collections to show.</div>
-                )}
+        <div className="min-h-screen bg-[hsl(40,13%,53%)]">
+            <NavigationBar />
+            <div className="ScreenerPage-container">
+                <h1 className="ScreenerPage-h1" style={{ position: 'absolute', top: '1.5rem', left: '50%', transform: 'translateX(-50%)', width: '100%', textAlign: 'center' }}>My Custom Collections</h1>
+                <div className="ScreenerPage-card-grid">
+                    <CreateCollectionButton />
+                    {displayCollections.length > 0 ? (
+                        displayCollections.map(collection => (
+                            <CollectionCard key={collection.id} collection={collection} onRemove={handleRemove} />
+                        ))
+                    ) : (
+                        <div style={{ padding: 24, color: '#222' }}>No collections to show.</div>
+                    )}
+                </div>
             </div>
 
             {showConfirm.visible && (
