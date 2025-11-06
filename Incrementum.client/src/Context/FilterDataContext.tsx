@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useState } from "react";
 import type { ReactNode } from "react";
 import {useEffect} from "react";
 // Define the shape of each filterData object
+export interface MinMaxData {min: null, max: null}
 export interface FilterData {
   operand: string;
   operator: string;
@@ -21,6 +22,9 @@ interface FilterDataContextType {
   stocks: any[];               // fetched stock data
   isLoading: boolean;          // loading indicator
   error: string | null; 
+  fetchInit: (key: string) => any | null;
+  setInitDict:React.Dispatch<React.SetStateAction<Record<string, any | null>>>;
+
 }
 
 // Create context
@@ -30,6 +34,21 @@ const FilterDataContext = createContext<FilterDataContextType | undefined>(
 
 // Provider
 export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
+  const [initDict, setInitDict] = useState<Record<string, any>>({})
+  const fetchInit =  (key: string)=> {
+    if(initDict.keys().includes(key))
+    {
+      const result = initDict[key];
+      setInitDict((prev) => {
+      const newDict = { ...prev };
+      delete newDict[key];
+      return newDict;
+    });
+      return result;
+    }
+    return null;
+  }
+  
   const [filterDataDict, setFilterDataDict] = useState<Record<string, FilterData>>({});
   const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
   const [stocks, setStocks] = useState<any[]>([]);
@@ -87,6 +106,8 @@ export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
   return (
     <FilterDataContext.Provider
       value={{
+        setInitDict,
+        fetchInit,
         filterDataDict,
         addFilter,
         removeFilter,

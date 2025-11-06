@@ -4,10 +4,11 @@ import { useFilterData } from "../../Context/FilterDataContext";
 import type { FilterData } from "../../Context/FilterDataContext";
 
 const LastCloseFilter: React.FC = () => {
-  const { addFilter, removeFilter } = useFilterData();
+  const { addFilter, removeFilter, fetchInit } = useFilterData();
+  const init = fetchInit("52hilo") ?? {high: null, low: null};
 
-  const [highValue, setHighValue] = useState<number | null>(null);
-  const [lowValue, setLowValue] = useState<number | null>(null);
+  const [highValue, setHighValue] = useState<number | null>(init.high);
+  const [lowValue, setLowValue] = useState<number | null>(init.low);
 
   const highKey = "lastclose52weekhigh.lasttwelvemonths";
   const lowKey = "lastclose52weeklow.lasttwelvemonths";
