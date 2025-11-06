@@ -12,7 +12,7 @@ export default function StockRow({ stock, onClick, inWatchlist = false, onToggle
   const percent = stock.regularMarketChangePercent as number | undefined;
   const price = stock.regularMarketPrice as number | undefined;
   const marketCap = stock.marketCap as number | undefined;
-  const volume = (stock.volume ?? stock.averageVolume) as number | undefined;
+  const volume = (stock.regularMarketVolume ?? stock.averageDailyVolume3Month ?? stock.averageVolume ?? stock.volume) as number | undefined;
 
   const formatLarge = (v?: number) => {
     if (v == null || Number.isNaN(v)) return 'N/A';
@@ -37,8 +37,8 @@ export default function StockRow({ stock, onClick, inWatchlist = false, onToggle
       <div className={`StockTable-cell ${percent != null && percent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
         {percent != null ? (percent >= 0 ? `+${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`) : 'N/A'}
       </div>
-      <div className="StockTable-cell">{formatLarge(marketCap)}</div>
       <div className="StockTable-cell">{formatLarge(volume)}</div>
+      <div className="StockTable-cell">{formatLarge(marketCap)}</div>
       <div className="StockTable-cell">
         <button
           aria-label={inWatchlist ? `Remove ${symbol} from watchlist` : `Add ${symbol} to watchlist`}
