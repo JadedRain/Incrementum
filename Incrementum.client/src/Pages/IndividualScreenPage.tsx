@@ -16,7 +16,6 @@ import { FilterDataProvider } from '../Context/FilterDataContext';
 function IndividualScreenPage() {
   const navigate = useNavigate();
   const { apiKey } = useAuth();
-  const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
   const [pending, setPending] = useState<string | null>(null);
 

@@ -1,20 +1,23 @@
 import '../styles/SearchResultsPage.css'
 import { useParams } from "react-router-dom";
+import { useState } from 'react';
 import NavigationBar from "../Components/NavigationBar";
 import StockCard from "../Components/StockCard";
 import { useStockSearch } from "../hooks/useStockSearch";
 import Loading from "../Components/Loading";
 import PaginationControls from "../Components/PaginationControls";
-import StockTable from '../Components/StockTable';
+import Toast from '../Components/Toast';
 
 function SearchResults() {
   const { query } = useParams<{ query: string }>();
   const { results, loading, page, hasMore, handleNext, handlePrev } = useStockSearch(query ?? "");
+  const [toast, setToast] = useState<string | null>(null);
 
   return (
     <div style={{ padding: "20px", fontFamily: "serif" }}
       className="bg-[hsl(40,13%,53%)] min-h-screen">
       <NavigationBar />
+      <Toast message={toast} />
       <div className="SearchResults-main-content">
         {loading && (
           <div className="w-full flex items-center justify-center" style={{ height: '120px' }}>
@@ -25,10 +28,10 @@ function SearchResults() {
 
         {!loading && results.length >= 1 && (
           <>
-            <ul className="stockTable-cell">
+            <ul>
               {results.map((stock: { symbol: string; name: string }) => (
                 <li key={stock.symbol}>
-                  <StockCard symbol={stock.symbol} name={stock.name} />
+                  <StockCard symbol={stock.symbol} name={stock.name} setToast={setToast} />
                 </li>
               ))}
             </ul>
@@ -39,6 +42,7 @@ function SearchResults() {
           <PaginationControls
             page={page}
             hasMore={hasMore}
+            loading={loading}
             onPrev={handlePrev}
             onNext={handleNext}
           />

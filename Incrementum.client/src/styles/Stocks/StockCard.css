@@ -9,10 +9,10 @@
   margin: 8px 0;
   background: #E8CB92;
   color: hsl(40 62% 20%);
+  border: 1px solid rgba(37,28,9,0.06);
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.28);
-  transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
-  cursor: pointer;
+  transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease, border-color 150ms ease;
   overflow: hidden;
   padding: 6px;
   box-sizing: border-box;
@@ -21,7 +21,8 @@
 .search-stock-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-  background: #E8CB92;
+  background: hsl(38 70% 86%);
+  border-color: hsl(38 70% 86%);
 }
 
 .newsreader-font {
