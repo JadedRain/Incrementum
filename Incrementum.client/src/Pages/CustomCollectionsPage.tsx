@@ -69,20 +69,22 @@ const CustomCollectionsPage: React.FC = () => {
     const cancelRemove = () => setShowConfirm({ id: null, visible: false });
 
     return (
-        <div className="min-h-screen bg-[hsl(40,13%,53%)] pt-24">
-            <div className="CustomCollectionsPage-header relative" >
-                <h1 className="CustomCollectionsPage-h1 ">My Custom Collections</h1>
+        <div className="min-h-screen bg-[hsl(40,13%,53%)]">
+            <div className="ScreenerPage-header">
+                <h1 className="ScreenerPage-h1">My Custom Collections</h1>
                 <NavigationBar />
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, marginTop: 8 }}>
-                <CreateCollectionButton />
-                {displayCollections.length > 0 ? (
-                    displayCollections.map(collection => (
-                        <CollectionCard key={collection.id} collection={collection} onRemove={handleRemove} />
-                    ))
-                ) : (
-                    <div style={{ padding: 24, color: '#222' }}>No collections to show.</div>
-                )}
+            <div className="ScreenerPage-container">
+                <div className="ScreenerPage-card-grid" style={{ paddingLeft: '2.5rem' }}>
+                    <CreateCollectionButton />
+                    {displayCollections.length > 0 ? (
+                        displayCollections.map(collection => (
+                            <CollectionCard key={collection.id} collection={collection} onRemove={handleRemove} />
+                        ))
+                    ) : (
+                        <div style={{ padding: 24, color: '#222' }}>No collections to show.</div>
+                    )}
+                </div>
             </div>
 
             {showConfirm.visible && (

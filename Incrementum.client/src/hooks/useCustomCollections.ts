@@ -5,6 +5,7 @@ export interface CustomCollection {
   id: number;
   name: string;
   description?: string;
+  date_created: string;
   stocks?: string[];
 }
 
