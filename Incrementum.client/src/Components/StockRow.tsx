@@ -38,18 +38,21 @@ export default function StockRow({ stock, onClick, inWatchlist = false, onToggle
         {percent != null ? (percent >= 0 ? `+${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`) : 'N/A'}
       </div>
       <div className="StockTable-cell">{formatLarge(volume)}</div>
+        
       <div className="StockTable-cell">{formatLarge(marketCap)}</div>
-      <div className="StockTable-cell">
-        <button
-          aria-label={inWatchlist ? `Remove ${symbol} from watchlist` : `Add ${symbol} to watchlist`}
-          onClick={handleWatchlistClick}
-          className='watch-btn'
-          disabled={isPending}
-          style={{ opacity: isPending ? 0.5 : 1 }}
-        >
-          {inWatchlist ? '−' : '+'}
-        </button>
-      </div>
+      {onToggleWatchlist && (
+        <div className="StockTable-cell">
+          <button
+            aria-label={inWatchlist ? `Remove ${symbol} from watchlist` : `Add ${symbol} to watchlist`}
+            onClick={handleWatchlistClick}
+            className='watch-btn'
+            disabled={isPending}
+            style={{ opacity: isPending ? 0.5 : 1 }}
+          >
+            {inWatchlist ? '−' : '+'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

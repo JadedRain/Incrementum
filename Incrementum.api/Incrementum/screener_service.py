@@ -74,6 +74,7 @@ class ScreenerService:
         if screener_id == "undefined":
             return {
                 'id': "undefined",
+                'screener_name': "Undefined Screener",
                 'created_at': "na",
                 'numeric_filters': [],
                 'categorical_filters': []
@@ -87,6 +88,7 @@ class ScreenerService:
 
         return {
             'id': custom_screener.id,
+            'screener_name': custom_screener.screener_name,
             'created_at': custom_screener.created_at,
             'numeric_filters': numeric_filters,
             'categorical_filters': categorical_filters
