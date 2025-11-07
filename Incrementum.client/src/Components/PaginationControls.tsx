@@ -4,13 +4,14 @@ type PaginationControlsProps = {
   page: number;
   hasMore: boolean;
   loading?: boolean;
+  totalPages?: number;
   onPrev: () => void;
   onNext: () => void;
 };
 
-export default function PaginationControls({ page, hasMore, loading, onPrev, onNext }: PaginationControlsProps) {
+export default function PaginationControls({ page, hasMore, loading, totalPages, onPrev, onNext }: PaginationControlsProps) {
   return (
-    <div className="mt-4 flex gap-2">
+    <div className="mt-4 flex items-center gap-2">
       <button
         onClick={onPrev}
         disabled={page === 0}
@@ -26,6 +27,10 @@ export default function PaginationControls({ page, hasMore, loading, onPrev, onN
       >
         Next
       </button>
+
+      <div className="pagination-info" aria-live="polite" style={{ marginLeft: '8px' }}>
+        {totalPages && totalPages > 0 ? `Page ${page + 1} of ${totalPages}` : `Page ${page + 1}`}
+      </div>
     </div>
   );
 }
