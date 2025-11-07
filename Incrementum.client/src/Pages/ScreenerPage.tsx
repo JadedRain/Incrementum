@@ -41,13 +41,16 @@ function ScreenerPage() {
                             />
                         )}
 
-                        {!loading && customScreeners.length >= 0 && apiKey && (
+                        {!loading && apiKey && (
                             <>
-                                <AppCard
-                                    title="Temp Card 1"
-                                    subtitle="Description"
-                                    onClick={() => handleCardClick('temp-1')}
-                                />
+                                {customScreeners.map((screener) => (
+                                    <AppCard
+                                        key={screener.id}
+                                        title={screener.screener_name}
+                                        subtitle={`${screener.filter_count || 0} filters • Created ${new Date(screener.created_at).toLocaleDateString()}`}
+                                        onClick={() => handleCardClick(screener.id)}
+                                    />
+                                ))}
                                 <AppCard
                                     title="Create Custom"
                                     subtitle="Make new custom screener"

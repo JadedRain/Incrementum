@@ -4,7 +4,7 @@ import { useFilterData } from "../../Context/FilterDataContext";
 import type { FilterData } from "../../Context/FilterDataContext";
 
 const SectorFilter: React.FC = () => {
-  const { addFilter, removeFilter, selectedSectors, setSelectedSectors, fetchInit } = useFilterData();
+  const { addFilter, removeFilter, selectedSectors, setSelectedSectors, fetchInit, filterDataDict } = useFilterData();
   const init = fetchInit("sector") // string[] | null
   if(init != null)
   {
@@ -13,6 +13,23 @@ const SectorFilter: React.FC = () => {
   const [sectors, setSectors] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [initialized, setInitialized] = useState<boolean>(false);
+  
+  // Check for existing sector filters on mount
+  useEffect(() => {
+    if (!initialized && Object.keys(filterDataDict).length > 0) {
+      const existingSectors: string[] = [];
+      Object.entries(filterDataDict).forEach(([_key, filter]) => {
+        if (filter.operand === 'sector' && filter.value && typeof filter.value === 'string') {
+          existingSectors.push(filter.value);
+        }
+      });
+      if (existingSectors.length > 0 && selectedSectors.length === 0) {
+        setSelectedSectors(existingSectors);
+      }
+      setInitialized(true);
+    }
+  }, [filterDataDict, initialized, selectedSectors.length, setSelectedSectors]);
     useEffect(() => {
     const fetchSectors = async () => {
         try {

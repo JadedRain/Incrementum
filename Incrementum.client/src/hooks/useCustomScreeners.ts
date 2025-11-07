@@ -4,6 +4,7 @@ export interface CustomScreener {
   id: number;
   screener_name: string;
   created_at: string;
+  filter_count?: number;
 }
 
 export function useCustomScreeners(apiKey?: string) {
