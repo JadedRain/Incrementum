@@ -11,8 +11,19 @@ import { useFilterData } from '../Context/FilterDataContext';
 import { useAuth } from '../Context/AuthContext';
 import { useNavigate, useParams } from 'react-router-dom';
 
+interface SidebarProps {
+  screenerName?: string;
+  screenerInWatchlist?: boolean;
+  pendingScreener?: boolean;
+  onToggleScreenerWatchlist?: () => void;
+}
 
-const Sidebar: React.FC = () => {
+const Sidebar: React.FC<SidebarProps> = ({ 
+  screenerName: screenerNameProp, 
+  screenerInWatchlist, 
+  pendingScreener,
+  onToggleScreenerWatchlist 
+}) => {
   // Save screener results -> custom collection UI
   const { stocks, filterDataDict } = useFilterData();
   const auth = useAuth();
@@ -150,6 +161,33 @@ const Sidebar: React.FC = () => {
   return (
     <aside className="sidebar">
       <Keywords />
+      {/* Watchlist button for the screener */}
+      {onToggleScreenerWatchlist && (
+        <div className="mb-4 pb-4 border-b-2" style={{ borderBottomColor: 'rgba(0, 0, 0, 0.1)' }}>
+          {screenerNameProp && (
+            <h3 className="text-lg font-semibold mb-2 text-[hsl(40,62%,18%)]">
+              {screenerNameProp}
+            </h3>
+          )}
+          <button
+            className={`w-full px-4 py-2 text-sm rounded transition-colors ${
+              pendingScreener
+                ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                : screenerInWatchlist
+                ? 'bg-red-500 hover:bg-red-600 text-white'
+                : 'bg-green-500 hover:bg-green-600 text-white'
+            }`}
+            onClick={onToggleScreenerWatchlist}
+            disabled={pendingScreener || !screenerNameProp}
+          >
+            {pendingScreener 
+              ? 'Loading...' 
+              : screenerInWatchlist 
+              ? 'Remove from Watchlist' 
+              : 'Add to Watchlist'}
+          </button>
+        </div>
+      )}
       {apiKey && (
         <div className="sidebar-section p-2">
           <label className="block text-sm font-medium mb-1">

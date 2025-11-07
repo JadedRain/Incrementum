@@ -8,6 +8,7 @@ import type { StockC } from '../Components/Stock';
 import NavigationBar from '../Components/NavigationBar';
 import Toast from '../Components/Toast';
 import { useSortedWatchlist } from '../hooks/useSortedWatchlist';
+import { useWatchlistScreenersData } from '../hooks/useWatchlistScreenersData';
 import AppCard from '../Components/AppCard';
 
 function WatchlistPage() {
@@ -19,6 +20,7 @@ function WatchlistPage() {
   const [toast, _setToast] = useState<string | null>(null);
   const watchlistState = apiKey ? useSortedWatchlist(sortBy, user_id) : { watchlist: [], setWatchlist: () => { }, loading: false };
   const { watchlist, loading } = watchlistState;
+  const { watchlistScreeners, loading: screenersLoading } = useWatchlistScreenersData(apiKey);
 
   useEffect(() => {
     if (!apiKey) {
@@ -37,25 +39,26 @@ function WatchlistPage() {
       <NavigationBar />
       <Toast message={toast} />
       <div>
-        <Loading loading={loading} loadingText="Loading Watchlist..." />
+        <Loading loading={loading || screenersLoading} loadingText="Loading Watchlist..." />
       </div>
       <h1 className="text-[hsl(42,15%,70%)] text-4xl text-left ml-8 mb-0 mt-8 newsreader-font">
         Watchlist
       </h1>
       <div className="WatchlistPage-main-content pt-4">
         <div className="WatchlistPage-card-grid">
-          <AppCard
-            title="Text"
-            subtitle="Body text."
-          />
-          <AppCard
-            title="Text"
-            subtitle="Body text."
-          />
-          <AppCard
-            title="Text"
-            subtitle="Body text."
-          />
+          {!screenersLoading && watchlistScreeners.length === 0 && (
+            <div className="col-span-full text-center py-8 text-[hsl(42,15%,70%)]">
+              No screeners in watchlist
+            </div>
+          )}
+          {watchlistScreeners.map((screener) => (
+            <AppCard
+              key={screener.id}
+              title={screener.screener_name}
+              subtitle={`${screener.filter_count || 0} filters • Created ${new Date(screener.created_at).toLocaleDateString()}`}
+              onClick={() => navigate(`/screener/${screener.id}`)}
+            />
+          ))}
         </div>
       </div>
       <button

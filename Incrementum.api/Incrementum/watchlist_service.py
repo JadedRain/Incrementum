@@ -162,9 +162,12 @@ class WatchlistService:
             
             custom_screeners = []
             for wcs in WatchlistCustomScreener.objects.filter(watchlist=watchlist):
+                filters_list = wcs.custom_screener.filters or []
                 custom_screeners.append({
                     'id': wcs.custom_screener.id,
-                    'created_at': wcs.custom_screener.created_at,
+                    'screener_name': wcs.custom_screener.screener_name,
+                    'created_at': wcs.custom_screener.created_at.isoformat(),
+                    'filter_count': len(filters_list),
                     'type': 'custom'
                 })
         except (Account.DoesNotExist, Watchlist.DoesNotExist):
