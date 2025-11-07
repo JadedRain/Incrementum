@@ -42,19 +42,25 @@ const StockCard: React.FC<StockCardProps> = ({ symbol, name, setToast }) => {
     >
       <div className="card-content">
         <div className="text-stack">
-          <p className="StockTable-cell name-cell">{name}</p>
-          <div className="StockTable-cell font-mono symbol-cell">{symbol}</div>
+            <div className="field">
+              <div className="field-label">Name</div>
+              <p className="StockTable-cell name-cell">{name}</p>
+              <div className="StockTable-cell font-mono symbol-cell">{symbol}</div>
+            </div>
         </div>
         {apiKey && (
-          <button
-            className="card-action"
-            aria-label={`${inWatchlist ? 'Remove' : 'Add'} ${symbol}`}
-            onClick={handleToggle}
-            disabled={pending === symbol}
-            onMouseDown={(e) => e.stopPropagation()}
-          >
-            {inWatchlist ? '−' : '+'}
-          </button>
+          <div className="action-stack">
+            <div className="field-label">Add to Watchlist</div>
+            <button
+              className="card-action"
+              aria-label={`${inWatchlist ? 'Remove' : 'Add'} ${symbol}`}
+              onClick={handleToggle}
+              disabled={pending === symbol}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              {inWatchlist ? '−' : '+'}
+            </button>
+          </div>
         )}
       </div>
     </div>

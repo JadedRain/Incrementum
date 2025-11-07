@@ -10,6 +10,7 @@ export function useStockSearch(query: string) {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [totalPages, setTotalPages] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -26,12 +27,16 @@ export function useStockSearch(query: string) {
             (!stock.symbol || !stock.symbol.toLowerCase().startsWith(query.toLowerCase())) &&
             stock.name && stock.name.toLowerCase().includes(query.toLowerCase())
         );
-        const PAGE_SIZE = 7;
+        const PAGE_SIZE = 6;
         const combined = [...symbolMatches, ...nameMatches];
-
         const start = page * PAGE_SIZE;
         const paged = combined.slice(start, start + PAGE_SIZE);
         setResults(paged);
+
+        // compute total pages from the full combined result set
+        const total = combined.length;
+        const pages = total > 0 ? Math.max(1, Math.ceil(total / PAGE_SIZE)) : 0;
+        setTotalPages(pages);
 
         if (paged.length === 0) {
           setHasMore(false);
@@ -84,5 +89,5 @@ export function useStockSearch(query: string) {
     if (page > 0) setPage((prev: number) => prev - 1);
   }, [page]);
 
-  return { results, loading, page, hasMore, handleNext, handlePrev };
+  return { results, loading, page, hasMore, totalPages, handleNext, handlePrev };
 }

@@ -10,7 +10,7 @@ import Toast from '../Components/Toast';
 
 function SearchResults() {
   const { query } = useParams<{ query: string }>();
-  const { results, loading, page, hasMore, handleNext, handlePrev } = useStockSearch(query ?? "");
+  const { results, loading, page, hasMore, totalPages, handleNext, handlePrev } = useStockSearch(query ?? "");
   const [toast, setToast] = useState<string | null>(null);
 
   return (
@@ -43,6 +43,7 @@ function SearchResults() {
             page={page}
             hasMore={hasMore}
             loading={loading}
+            totalPages={totalPages ?? undefined}
             onPrev={handlePrev}
             onNext={handleNext}
           />

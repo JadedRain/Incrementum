@@ -33,15 +33,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 8px 12px;
+  gap: 8px;
+  /* slightly reduced padding to compensate for labels so card height stays similar */
+  padding: 6px 10px;
 }
 
 .search-stock-card .text-stack {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 6px;
+  gap: 2px; /* compact vertical spacing so labels don't increase height */
   flex: 1 1 auto;
   text-align: left;
 }
@@ -62,7 +63,7 @@
 .search-stock-card .symbol-cell {
   align-self: flex-start;
   padding-left: 0;
-  font-size: 1.05rem;
+  font-size: 1.00rem;
 }
 
 .search-stock-card .StockTable-cell.font-mono {
@@ -71,19 +72,19 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: hsl(40 62% 20%);
-  font-size: 1.05rem;
+  font-size: 1.00rem; /* slightly reduced to keep card compact */
 }
 
 .search-stock-card p.StockTable-cell {
   margin: 0;
-  font-size: 0.86rem;
+  font-size: 0.82rem; /* slightly smaller so adding labels doesn't increase height */
   overflow: visible;
   text-overflow: unset;
   white-space: normal;
   word-break: break-word;
   max-width: none;
   text-align: left;
-  line-height: 1.1;
+  line-height: 1.05;
 }
 
 .search-stock-card .card-action {
@@ -129,4 +130,42 @@
 .search-stock-card .text-stack {
   width: 100%;
   align-items: flex-start;
+}
+
+/* Field wrapper and labels that sit above each value (compact) */
+.search-stock-card .field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.search-stock-card .field-label {
+  font-size: 0.66rem; /* small label so it doesn't add much height */
+  font-weight: 700;
+  /* improve contrast so labels are visible on the card background */
+  color: rgba(37,28,9,0.75);
+  opacity: 0.95;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  margin-bottom: 0;
+  line-height: 1;
+}
+
+/* Stack for the action button so the label sits above the circular button */
+.search-stock-card .action-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px; /* tighter gap to keep compact */
+  margin-left: 8px;
+}
+
+/* Slightly reduce button size on very small screens */
+@media (max-width: 480px) {
+  .search-stock-card .card-action {
+    width: 44px;
+    height: 44px;
+    font-size: 1.6rem;
+  }
 }
