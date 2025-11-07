@@ -34,7 +34,10 @@ export function useCustomCollections() {
             } else {
               const data = await res.json();
               console.debug('useCustomCollections: server collections response', data);
-              setCollections(data.collections || []);
+              const collections = data.collections || [];
+              setCollections(collections);
+              // Sync to localStorage with proper field names
+              localStorage.setItem('customCollections', JSON.stringify(collections));
               return;
             }
           }

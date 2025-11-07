@@ -31,31 +31,27 @@
 }
 
 .IndividualCustomCollectionPage-button {
-    @apply ml-4;
+    @apply ml-0;
     @apply px-4;
     @apply py-2;
-    @apply rounded;
     @apply bg-[hsl(79,26%,36%)];
     @apply text-[hsl(78,41%,73%)];
     @apply cursor-pointer;
     @apply hover:shadow-[0_4px_24px_0_hsl(220,9%,46%)];
+    @apply text-sm;
+    border-radius: 2px;
 }
 
 .StockTable-container {
   @apply bg-[hsl(40,63%,63%)]; /* lighter tan */
-  @apply rounded-sm;
-  @apply shadow-[5px_5px_5px_#3F3A30]; 
   @apply text-[hsl(40,62%,20%)];
-  position: fixed;
-  top: calc(var(--header-height) + 40px);
-  left: 50px;
-  right: 390px; /* Leave space for sidebar (300px + 50px right margin + 40px gap) */
-  height: calc(100vh - var(--header-height) - 60px); /* Taller than sidebar */
-  overflow-y: auto;
+  @apply w-full;
+  @apply max-w-full;
   overflow-x: hidden;
-  margin-bottom: 0;
   -webkit-overflow-scrolling: touch;
   box-sizing: border-box;
+  border-radius: 2px;
+  box-shadow: 5px 5px 5px #3F3A30 !important;
 }
 
 /* Scrollbar styling for StockTable */
@@ -64,11 +60,11 @@
 }
 .StockTable-container::-webkit-scrollbar-track {
   background: rgba(0,0,0,0.05);
-  border-radius: 8px;
+  border-radius: 2px;
 }
 .StockTable-container::-webkit-scrollbar-thumb {
   background: rgba(175,130,40,0.95);
-  border-radius: 8px;
+  border-radius: 2px;
   border: 2px solid rgba(235,203,146,0.3);
 }
 
@@ -108,7 +104,6 @@
   @apply bg-[#E8CB92]; /* row background light */
   @apply text-[hsl(40,62%,20%)];
   @apply border-b;
-  @apply rounded-sm;
   @apply border-[hsl(40,61%,65%)];
   @apply border-b-[#251C09];
   @apply transition-all;
@@ -118,6 +113,7 @@
   /* inset the rows to 90% of the container to create the 'card' look */
   @apply w-[98%];
   @apply mx-auto;
+  border-radius: 2px;
 }
 .StockTable-row:last-child {
   @apply border-b-0;
@@ -137,7 +133,6 @@
   @apply text-[hsl(40,62%,20%)];
   @apply font-bold;
   @apply text-4xl;
-  @apply rounded;
   @apply cursor-pointer;
   width: 32px;
   height: 32px;
@@ -146,6 +141,7 @@
   justify-content: center;
   margin: 0 auto;
   transition: all 0.15s ease;
+  border-radius: 2px;
 }
 .watch-btn:disabled {
   cursor: not-allowed;

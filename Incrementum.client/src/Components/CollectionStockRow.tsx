@@ -1,18 +1,16 @@
 type Props = {
   stock: any;
   onClick?: () => void;
-  idx?: number;
-  inWatchlist?: boolean;
-  onToggleWatchlist?: (symbol: string, inWatchlist: boolean) => void;
+  onRemove?: (symbol: string) => void;
   isPending?: boolean;
 };
 
-export default function StockRow({ stock, onClick, inWatchlist = false, onToggleWatchlist, isPending = false }: Props) {
+export default function CollectionStockRow({ stock, onClick, onRemove, isPending = false }: Props) {
   const symbol = (stock.symbol || 'N/A').toUpperCase();
   const percent = stock.regularMarketChangePercent as number | undefined;
-  const price = stock.regularMarketPrice as number | undefined;
+  const price = stock.currentPrice as number | undefined;
   const marketCap = stock.marketCap as number | undefined;
-  const volume = (stock.regularMarketVolume ?? stock.averageDailyVolume3Month ?? stock.averageVolume ?? stock.volume) as number | undefined;
+  const volume = (stock.volume ?? stock.averageVolume) as number | undefined;
 
   const formatLarge = (v?: number) => {
     if (v == null || Number.isNaN(v)) return 'N/A';
@@ -23,10 +21,10 @@ export default function StockRow({ stock, onClick, inWatchlist = false, onToggle
     return v.toString();
   };
 
-  const handleWatchlistClick = (e: React.MouseEvent) => {
+  const handleRemoveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!isPending && onToggleWatchlist && stock.symbol) {
-      onToggleWatchlist(stock.symbol, inWatchlist);
+    if (!isPending && onRemove && stock.symbol) {
+      onRemove(stock.symbol);
     }
   };
 
@@ -38,21 +36,18 @@ export default function StockRow({ stock, onClick, inWatchlist = false, onToggle
         {percent != null ? (percent >= 0 ? `+${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`) : 'N/A'}
       </div>
       <div className="StockTable-cell">{formatLarge(volume)}</div>
-        
       <div className="StockTable-cell">{formatLarge(marketCap)}</div>
-      {onToggleWatchlist && (
-        <div className="StockTable-cell">
-          <button
-            aria-label={inWatchlist ? `Remove ${symbol} from watchlist` : `Add ${symbol} to watchlist`}
-            onClick={handleWatchlistClick}
-            className='watch-btn'
-            disabled={isPending}
-            style={{ opacity: isPending ? 0.5 : 1 }}
-          >
-            {inWatchlist ? '−' : '+'}
-          </button>
-        </div>
-      )}
+      <div className="StockTable-cell">
+        <button
+          aria-label={`Remove ${symbol} from collection`}
+          onClick={handleRemoveClick}
+          className='watch-btn'
+          disabled={isPending}
+          style={{ opacity: isPending ? 0.5 : 1 }}
+        >
+          −
+        </button>
+      </div>
     </div>
   );
 }

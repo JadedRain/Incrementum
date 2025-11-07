@@ -1,5 +1,5 @@
 import '../styles/Collections/CustomCollectionsPage.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import NavigationBar from '../Components/NavigationBar';
 import { CreateCollectionButton } from '../Components/CreateCollectionButton';
 import { useCustomCollections } from '../hooks/useCustomCollections';
@@ -12,6 +12,24 @@ const CustomCollectionsPage: React.FC = () => {
     const [showConfirm, setShowConfirm] = useState<{ id: number | null, visible: boolean }>({ id: null, visible: false });
     const auth = useAuth();
     const [removing, setRemoving] = useState(false);
+    
+    // Listen for localStorage changes from other components
+    useEffect(() => {
+        const handleStorageChange = () => {
+            const stored = localStorage.getItem('customCollections');
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    setCollections(parsed);
+                } catch (err) {
+                    console.error('Failed to parse collections from localStorage', err);
+                }
+            }
+        };
+        
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, [setCollections]);
 
     if (loading) return <div style={{ textAlign: 'center', margin: '2rem' }}>Loading...</div>;
     // debug: show state in console
