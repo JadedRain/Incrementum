@@ -12,6 +12,8 @@ type Props = {
 
 export default function StockTable({ onRowClick, watchlistSymbols, onToggleWatchlist, pendingSymbol  }: Props) {
   const {stocks, isLoading, filterDataDict} = useFilterData()
+  const showWatchlist = !!onToggleWatchlist;
+  
   return (
     <div className="StockTable-container">
       <div className="StockTable-header-row">
@@ -20,7 +22,7 @@ export default function StockTable({ onRowClick, watchlistSymbols, onToggleWatch
            <div className="StockTable-header">1 Day % Chg.</div>
            <div className="StockTable-header">Vol.</div>
            <div className="StockTable-header">Mkt. Cap</div>
-           <div className="StockTable-header">Add to Watchlist</div>
+           {showWatchlist && <div className="StockTable-header">Add to Watchlist</div>}
       </div>
       <Loading loading={isLoading} />
       {Object.keys(filterDataDict).length == 0 && <div>Select some filters to get started!</div>}
@@ -30,7 +32,7 @@ export default function StockTable({ onRowClick, watchlistSymbols, onToggleWatch
           stock={s} 
           onClick={() => onRowClick?.(s.symbol ?? '')}
           inWatchlist={watchlistSymbols?.has(s.symbol ?? '') ?? false}
-          onToggleWatchlist={onToggleWatchlist}
+          onToggleWatchlist={showWatchlist ? onToggleWatchlist : undefined}
           isPending={pendingSymbol === s.symbol}
         />
       ))}

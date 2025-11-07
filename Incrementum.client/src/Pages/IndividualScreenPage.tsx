@@ -63,9 +63,9 @@ function IndividualScreenPage() {
             <div className="w-full flex">
               <StockTable
                 onRowClick={(symbol: string) => navigate(`/stock/${symbol}`)}
-                watchlistSymbols={watchlistSymbols}
-                onToggleWatchlist={handleToggleWatchlist}
-                pendingSymbol={pending}
+                watchlistSymbols={apiKey ? watchlistSymbols : undefined}
+                onToggleWatchlist={apiKey ? handleToggleWatchlist : undefined}
+                pendingSymbol={apiKey ? pending : undefined}
               />
             </div>
             <Sidebar />
