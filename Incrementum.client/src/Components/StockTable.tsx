@@ -24,6 +24,12 @@ export default function StockTable({ onRowClick, watchlistSymbols, onToggleWatch
            marketCap != null && !Number.isNaN(marketCap) &&
            volume != null && !Number.isNaN(volume);
   });
+  // ensure deterministic alphabetical order by symbol (A -> Z)
+  const sortedStocks = [...filteredStocks].sort((a, b) => {
+    const sa = (a.symbol ?? '').toString();
+    const sb = (b.symbol ?? '').toString();
+    return sa.localeCompare(sb, undefined, { sensitivity: 'base' });
+  });
   const showWatchlist = !!onToggleWatchlist;
   
   return (
@@ -38,7 +44,7 @@ export default function StockTable({ onRowClick, watchlistSymbols, onToggleWatch
       </div>
       <Loading loading={isLoading} />
       {Object.keys(filterDataDict).length == 0 && <div>Select some filters to get started!</div>}
-      {!isLoading && filteredStocks.map((s, idx) => (
+      {!isLoading && sortedStocks.map((s, idx) => (
         <StockRow 
           key={s.symbol ?? idx} 
           stock={s} 
