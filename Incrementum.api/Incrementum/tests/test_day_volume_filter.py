@@ -1,6 +1,6 @@
 import pytest
 from rest_framework.test import APIClient
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from Screeners.stock_getter import StockGetter
 
 pytestmark = pytest.mark.django_db
@@ -10,21 +10,20 @@ pytestmark = pytest.mark.django_db
 def api_client():
     return APIClient()
 
-
 @patch.object(StockGetter, 'get_stocks')
-def test_average_volume_greater_than(mock_get_stocks, api_client):
-    """Test filtering stocks with average volume greater than a threshold"""
+def test_day_volume_greater_than(mock_get_stocks, api_client):
+    """Test filtering stocks with day volume greater than a threshold"""
     mock_get_stocks.return_value = [
         {
-            'symbol': 'HIGH_VOL1',
-            'shortName': 'High Volume Stock 1',
-            'averageVolume': 15000000,
+            'symbol': 'HIGH_DAY_VOL1',
+            'shortName': 'High Day Volume Stock 1',
+            'volume': 25000000,
             'regularMarketPrice': 150.0
         },
         {
-            'symbol': 'HIGH_VOL2',
-            'shortName': 'High Volume Stock 2',
-            'averageVolume': 12000000,
+            'symbol': 'HIGH_DAY_VOL2',
+            'shortName': 'High Day Volume Stock 2',
+            'volume': 20000000,
             'regularMarketPrice': 85.0
         }
     ]
@@ -32,9 +31,9 @@ def test_average_volume_greater_than(mock_get_stocks, api_client):
     filters = [
         {
             'operator': 'gt',
-            'operand': 'avgdailyvol3m',
+            'operand': 'dayvolume',
             'filter_type': 'numeric',
-            'value': 10000000
+            'value': 15000000
         }
     ]
     
@@ -48,26 +47,27 @@ def test_average_volume_greater_than(mock_get_stocks, api_client):
     response_data = response.json()
     assert 'stocks' in response_data
     assert response_data['count'] == 2
+    assert len(response_data['stocks']) == 2
     
     symbols = [stock['symbol'] for stock in response_data['stocks']]
-    assert 'HIGH_VOL1' in symbols
-    assert 'HIGH_VOL2' in symbols
+    assert 'HIGH_DAY_VOL1' in symbols
+    assert 'HIGH_DAY_VOL2' in symbols
 
 
 @patch.object(StockGetter, 'get_stocks')
-def test_average_volume_less_than(mock_get_stocks, api_client):
-    """Test filtering stocks with average volume less than a threshold"""
+def test_day_volume_less_than(mock_get_stocks, api_client):
+    """Test filtering stocks with day volume less than a threshold"""
     mock_get_stocks.return_value = [
         {
-            'symbol': 'LOW_VOL1',
-            'shortName': 'Low Volume Stock 1',
-            'averageVolume': 500000,
+            'symbol': 'LOW_DAY_VOL1',
+            'shortName': 'Low Day Volume Stock 1',
+            'volume': 800000,
             'regularMarketPrice': 25.0
         },
         {
-            'symbol': 'LOW_VOL2',
-            'shortName': 'Low Volume Stock 2',
-            'averageVolume': 750000,
+            'symbol': 'LOW_DAY_VOL2',
+            'shortName': 'Low Day Volume Stock 2',
+            'volume': 950000,
             'regularMarketPrice': 30.0
         }
     ]
@@ -75,7 +75,7 @@ def test_average_volume_less_than(mock_get_stocks, api_client):
     filters = [
         {
             'operator': 'lt',
-            'operand': 'avgdailyvol3m',
+            'operand': 'dayvolume',
             'filter_type': 'numeric',
             'value': 1000000
         }
@@ -93,24 +93,24 @@ def test_average_volume_less_than(mock_get_stocks, api_client):
     assert response_data['count'] == 2
     
     symbols = [stock['symbol'] for stock in response_data['stocks']]
-    assert 'LOW_VOL1' in symbols
-    assert 'LOW_VOL2' in symbols
+    assert 'LOW_DAY_VOL1' in symbols
+    assert 'LOW_DAY_VOL2' in symbols
 
 
 @patch.object(StockGetter, 'get_stocks')
-def test_average_volume_greater_than_or_equal(mock_get_stocks, api_client):
-    """Test filtering stocks with average volume greater than or equal to a threshold"""
+def test_day_volume_greater_than_or_equal(mock_get_stocks, api_client):
+    """Test filtering stocks with day volume greater than or equal to a threshold"""
     mock_get_stocks.return_value = [
         {
-            'symbol': 'GTE_VOL1',
-            'shortName': 'GTE Volume Stock 1',
-            'averageVolume': 5000000,
+            'symbol': 'GTE_DAY_VOL1',
+            'shortName': 'GTE Day Volume Stock 1',
+            'volume': 5000000,
             'regularMarketPrice': 120.0
         },
         {
-            'symbol': 'GTE_VOL2',
-            'shortName': 'GTE Volume Stock 2',
-            'averageVolume': 6000000,
+            'symbol': 'GTE_DAY_VOL2',
+            'shortName': 'GTE Day Volume Stock 2',
+            'volume': 6000000,
             'regularMarketPrice': 140.0
         }
     ]
@@ -118,7 +118,7 @@ def test_average_volume_greater_than_or_equal(mock_get_stocks, api_client):
     filters = [
         {
             'operator': 'gte',
-            'operand': 'avgdailyvol3m',
+            'operand': 'dayvolume',
             'filter_type': 'numeric',
             'value': 5000000
         }
@@ -137,19 +137,19 @@ def test_average_volume_greater_than_or_equal(mock_get_stocks, api_client):
 
 
 @patch.object(StockGetter, 'get_stocks')
-def test_average_volume_less_than_or_equal(mock_get_stocks, api_client):
-    """Test filtering stocks with average volume less than or equal to a threshold"""
+def test_day_volume_less_than_or_equal(mock_get_stocks, api_client):
+    """Test filtering stocks with day volume less than or equal to a threshold"""
     mock_get_stocks.return_value = [
         {
-            'symbol': 'LTE_VOL1',
-            'shortName': 'LTE Volume Stock 1',
-            'averageVolume': 2000000,
+            'symbol': 'LTE_DAY_VOL1',
+            'shortName': 'LTE Day Volume Stock 1',
+            'volume': 2000000,
             'regularMarketPrice': 45.0
         },
         {
-            'symbol': 'LTE_VOL2',
-            'shortName': 'LTE Volume Stock 2',
-            'averageVolume': 3000000,
+            'symbol': 'LTE_DAY_VOL2',
+            'shortName': 'LTE Day Volume Stock 2',
+            'volume': 3000000,
             'regularMarketPrice': 55.0
         }
     ]
@@ -157,7 +157,7 @@ def test_average_volume_less_than_or_equal(mock_get_stocks, api_client):
     filters = [
         {
             'operator': 'lte',
-            'operand': 'avgdailyvol3m',
+            'operand': 'dayvolume',
             'filter_type': 'numeric',
             'value': 3000000
         }
@@ -176,13 +176,13 @@ def test_average_volume_less_than_or_equal(mock_get_stocks, api_client):
 
 
 @patch.object(StockGetter, 'get_stocks')
-def test_average_volume_equal_to(mock_get_stocks, api_client):
-    """Test filtering stocks with average volume exactly equal to a value"""
+def test_day_volume_equal_to(mock_get_stocks, api_client):
+    """Test filtering stocks with day volume exactly equal to a value"""
     mock_get_stocks.return_value = [
         {
-            'symbol': 'EXACT_VOL',
-            'shortName': 'Exact Volume Stock',
-            'averageVolume': 5000000,
+            'symbol': 'EXACT_DAY_VOL',
+            'shortName': 'Exact Day Volume Stock',
+            'volume': 5000000,
             'regularMarketPrice': 100.0
         }
     ]
@@ -190,7 +190,7 @@ def test_average_volume_equal_to(mock_get_stocks, api_client):
     filters = [
         {
             'operator': 'eq',
-            'operand': 'avgdailyvol3m',
+            'operand': 'dayvolume',
             'filter_type': 'numeric',
             'value': 5000000
         }
@@ -206,18 +206,18 @@ def test_average_volume_equal_to(mock_get_stocks, api_client):
     response_data = response.json()
     assert 'stocks' in response_data
     assert response_data['count'] == 1
-    assert response_data['stocks'][0]['symbol'] == 'EXACT_VOL'
+    assert response_data['stocks'][0]['symbol'] == 'EXACT_DAY_VOL'
 
 
 @patch.object(StockGetter, 'get_stocks')
-def test_average_volume_combined_with_sector(mock_get_stocks, api_client):
-    """Test combining average volume filter with sector filter"""
+def test_day_volume_combined_with_sector(mock_get_stocks, api_client):
+    """Test combining day volume filter with sector filter"""
     mock_get_stocks.return_value = [
         {
             'symbol': 'TECH_HIGH_VOL',
             'shortName': 'Tech High Volume Stock',
             'sector': 'Technology',
-            'averageVolume': 10000000,
+            'volume': 10000000,
             'regularMarketPrice': 200.0
         }
     ]
@@ -225,7 +225,7 @@ def test_average_volume_combined_with_sector(mock_get_stocks, api_client):
     filters = [
         {
             'operator': 'gt',
-            'operand': 'avgdailyvol3m',
+            'operand': 'dayvolume',
             'filter_type': 'numeric',
             'value': 5000000
         },
@@ -251,19 +251,19 @@ def test_average_volume_combined_with_sector(mock_get_stocks, api_client):
 
 
 @patch.object(StockGetter, 'get_stocks')
-def test_average_volume_range_filter(mock_get_stocks, api_client):
-    """Test filtering stocks within an average volume range (min and max)"""
+def test_day_volume_range_filter(mock_get_stocks, api_client):
+    """Test filtering stocks within a day volume range (min and max)"""
     mock_get_stocks.return_value = [
         {
             'symbol': 'MID_VOL1',
             'shortName': 'Mid Volume Stock 1',
-            'averageVolume': 2500000,
+            'volume': 2500000,
             'regularMarketPrice': 75.0
         },
         {
             'symbol': 'MID_VOL2',
             'shortName': 'Mid Volume Stock 2',
-            'averageVolume': 3500000,
+            'volume': 3500000,
             'regularMarketPrice': 85.0
         }
     ]
@@ -271,13 +271,13 @@ def test_average_volume_range_filter(mock_get_stocks, api_client):
     filters = [
         {
             'operator': 'gte',
-            'operand': 'avgdailyvol3m',
+            'operand': 'dayvolume',
             'filter_type': 'numeric',
             'value': 2000000
         },
         {
             'operator': 'lte',
-            'operand': 'avgdailyvol3m',
+            'operand': 'dayvolume',
             'filter_type': 'numeric',
             'value': 4000000
         }
@@ -300,7 +300,7 @@ def test_invalid_filter_type(api_client):
     filters = [
         {
             'operator': 'gt',
-            'operand': 'avgdailyvol3m',
+            'operand': 'dayvolume',
             'filter_type': 'invalid_type',
             'value': 5000000
         }
@@ -322,7 +322,7 @@ def test_missing_required_keys(api_client):
     filters = [
         {
             'operator': 'gt',
-            'operand': 'avgdailyvol3m',
+            'operand': 'dayvolume',
             # Missing 'filter_type' and 'value'
         }
     ]
@@ -356,7 +356,7 @@ def test_non_array_payload(api_client):
     """Test that non-array payload returns appropriate error"""
     filters = {
         'operator': 'gt',
-        'operand': 'avgdailyvol3m',
+        'operand': 'dayvolume',
         'filter_type': 'numeric',
         'value': 5000000
     }
@@ -393,19 +393,19 @@ def test_empty_filter_array(mock_get_stocks, api_client):
 
 
 @patch.object(StockGetter, 'get_stocks')
-def test_average_volume_with_zero_value(mock_get_stocks, api_client):
-    """Test filtering stocks with average volume greater than zero"""
+def test_day_volume_with_zero_value(mock_get_stocks, api_client):
+    """Test filtering stocks with day volume greater than zero (excluding non-traded stocks)"""
     mock_get_stocks.return_value = [
         {
             'symbol': 'ACTIVE1',
             'shortName': 'Active Stock 1',
-            'averageVolume': 1000,
+            'volume': 1000,
             'regularMarketPrice': 50.0
         },
         {
             'symbol': 'ACTIVE2',
             'shortName': 'Active Stock 2',
-            'averageVolume': 500,
+            'volume': 500,
             'regularMarketPrice': 30.0
         }
     ]
@@ -413,7 +413,7 @@ def test_average_volume_with_zero_value(mock_get_stocks, api_client):
     filters = [
         {
             'operator': 'gt',
-            'operand': 'avgdailyvol3m',
+            'operand': 'dayvolume',
             'filter_type': 'numeric',
             'value': 0
         }
@@ -432,13 +432,13 @@ def test_average_volume_with_zero_value(mock_get_stocks, api_client):
 
 
 @patch.object(StockGetter, 'get_stocks')
-def test_average_volume_high_threshold(mock_get_stocks, api_client):
-    """Test filtering with a very high average volume threshold"""
+def test_day_volume_high_threshold(mock_get_stocks, api_client):
+    """Test filtering with a very high volume threshold"""
     mock_get_stocks.return_value = [
         {
             'symbol': 'MEGAVOL',
             'shortName': 'Mega Volume Stock',
-            'averageVolume': 100000000,
+            'volume': 100000000,
             'regularMarketPrice': 150.0
         }
     ]
@@ -446,7 +446,7 @@ def test_average_volume_high_threshold(mock_get_stocks, api_client):
     filters = [
         {
             'operator': 'gt',
-            'operand': 'avgdailyvol3m',
+            'operand': 'dayvolume',
             'filter_type': 'numeric',
             'value': 50000000
         }
@@ -467,12 +467,12 @@ def test_average_volume_high_threshold(mock_get_stocks, api_client):
 
 @patch.object(StockGetter, 'get_stocks')
 def test_multiple_numeric_filters(mock_get_stocks, api_client):
-    """Test combining multiple numeric filters (average volume + price)"""
+    """Test combining multiple numeric filters (volume + price)"""
     mock_get_stocks.return_value = [
         {
             'symbol': 'FILTERED1',
             'shortName': 'Filtered Stock 1',
-            'averageVolume': 5000000,
+            'volume': 5000000,
             'regularMarketPrice': 100.0
         }
     ]
@@ -480,7 +480,7 @@ def test_multiple_numeric_filters(mock_get_stocks, api_client):
     filters = [
         {
             'operator': 'gt',
-            'operand': 'avgdailyvol3m',
+            'operand': 'dayvolume',
             'filter_type': 'numeric',
             'value': 1000000
         },
