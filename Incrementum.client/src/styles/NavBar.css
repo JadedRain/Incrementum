@@ -13,7 +13,6 @@
   padding: 1rem 2rem;
   z-index: 1000;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-  border-bottom: 2px solid hsl(42, 15%, 70%);
 }
 
 .navbar-container {

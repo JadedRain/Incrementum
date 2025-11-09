@@ -29,9 +29,7 @@ def search_stocks(query, page, source=setup):
         name = str(stock.company_name)
         if not symbol.lower().startswith(query) and query in name.lower():
             results.append({'symbol': symbol, 'name': name})
-    start = 12 * page
-    end = min(start + 12, len(results))
-    return results[start:end]
+    return results
 
 def get_stock_by_ticker(ticker, source=setup):
     try:

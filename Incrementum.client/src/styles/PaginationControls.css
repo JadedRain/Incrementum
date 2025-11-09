@@ -4,10 +4,23 @@
 .pagination-button {
   @apply px-4;
   @apply py-2;
-  @apply bg-[#A0B573];
-  @apply text-[#24281B];
+  @apply bg-[#E8CB92];
+  @apply text-[#533E13];
   @apply rounded;
-  @apply hover:bg-[#7E8D5E];
   @apply disabled:opacity-50;
   font-family: 'Newsreader', serif;
+}
+
+.pagination-button:hover {
+  background: hsl(38 70% 86%);
+  cursor: pointer;
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.pagination-button:disabled:hover {
+  background: #E8CB92;
 }

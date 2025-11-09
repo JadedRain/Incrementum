@@ -41,7 +41,7 @@ function ScreenerPage() {
                             />
                         )}
 
-                        {!loading && customScreeners.length >= 0 && apiKey && (
+                        {!loading && apiKey && (
                             <>
                                 <AppCard
                                     title="Day Gainers"

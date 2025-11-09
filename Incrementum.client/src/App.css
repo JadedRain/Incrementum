@@ -170,20 +170,19 @@
 
 .ScreenerPage-card-grid {
   display: grid;
-  grid-template-columns: repeat(3, 325px);
-  gap: 2.5rem;
+  grid-template-columns: repeat(4, 325px);
+  gap: 2rem;
   row-gap: 2.5rem;
-  justify-content: start;
+  justify-content: center;
   flex: 1;
 }
 
 .ScreenerPage-container {
   @apply pt-32;
   @apply px-8;
-  @apply ml-24;
   @apply flex;
   @apply flex-row;
-  @apply justify-start;
+  @apply justify-center;
   @apply items-start;
   @apply gap-2;
 }
@@ -202,22 +201,6 @@
 }
 
 .newsreader-font {
-  font-family: 'Newsreader', serif;
-}
-
-.search-stock-card {
-  @apply bg-[hsl(42,15%,80%)];
-  @apply text-[hsl(40,62%,15%)];
-  @apply p-4 rounded-lg;
-  @apply cursor-pointer;
-  @apply border;
-  @apply border-[hsl(40,61%,65%)]; 
-  @apply hover:bg-[hsl(40,61%,50%)];
-  @apply hover:text-[hsl(42,15%,95%)];
-  @apply hover:shadow-md;
-  @apply transition-all;
-  @apply duration-200;
-  @apply font-medium;
   font-family: 'Newsreader', serif;
 }
 
@@ -244,3 +227,14 @@
 /* Ensure content is not hidden behind the fixed header */
 :root { --header-height: 80px; }
 body { padding-top: var(--header-height); background-color: hsl(40,13%,53%);}
+
+/* IndividualScreenPage specific StockTable styling */
+.ScreenerPage-main-layout .StockTable-container {
+  position: fixed;
+  top: calc(var(--header-height) + 40px);
+  left: 70px;
+  width: calc(100vw - 450px);
+  max-width: 1400px;
+  height: calc(100vh - var(--header-height) - 80px);
+  overflow-y: auto;
+}
