@@ -44,6 +44,23 @@ function ScreenerPage() {
                         {!loading && customScreeners.length >= 0 && apiKey && (
                             <>
                                 <AppCard
+                                    title="Day Gainers"
+                                    subtitle="Stocks with the highest percentage gains today"
+                                    onClick={() => navigate('/screener/day_gainers')}
+                                />
+
+                                <AppCard
+                                    title="Day Losers"
+                                    subtitle="Stocks with the largest percentage losses today"
+                                    onClick={() => navigate('/screener/day_losers')}
+                                />
+
+                                <AppCard
+                                    title="Most Actives"
+                                    subtitle="Stocks with the highest trading volume today"
+                                    onClick={() => navigate('/screener/most_actives')}
+                                />
+                                <AppCard
                                     title="Temp Card 1"
                                     subtitle="Description"
                                     onClick={() => handleCardClick('temp-1')}
