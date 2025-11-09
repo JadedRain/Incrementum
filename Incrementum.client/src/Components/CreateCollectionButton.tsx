@@ -5,13 +5,19 @@ export const CreateCollectionButton: React.FC = () => {
   const navigate = useNavigate();
   return (
     <div
-      className="ScreenerPage-card-custom cursor-pointer"
+      className="collection-card-create cursor-pointer"
       onClick={() => navigate('/create-custom-collection')}
       tabIndex={0}
       role="button"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
     >
-      <span style={{ fontSize: 32, marginBottom: 8 }}>＋</span>
-      <span>Create New Collection</span>
+      <span style={{ fontSize: 48, marginBottom: 8, lineHeight: 1 }}>＋</span>
+      <span style={{ fontSize: 18, fontWeight: 600 }}>Create New Collection</span>
     </div>
   );
 };

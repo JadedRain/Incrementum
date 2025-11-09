@@ -8,6 +8,7 @@ import type { StockC } from '../Components/Stock';
 import NavigationBar from '../Components/NavigationBar';
 import Toast from '../Components/Toast';
 import { useSortedWatchlist } from '../hooks/useSortedWatchlist';
+import { useWatchlistScreenersData } from '../hooks/useWatchlistScreenersData';
 import AppCard from '../Components/AppCard';
 
 function WatchlistPage() {
@@ -18,7 +19,8 @@ function WatchlistPage() {
   const [sortBy, _setSortBy] = useState('default');
   const [toast, _setToast] = useState<string | null>(null);
   const watchlistState = apiKey ? useSortedWatchlist(sortBy, user_id) : { watchlist: [], setWatchlist: () => { }, loading: false };
-  const { watchlist } = watchlistState;
+  const { watchlist, loading } = watchlistState;
+  const { watchlistScreeners, loading: screenersLoading } = useWatchlistScreenersData(apiKey);
 
   useEffect(() => {
     if (!apiKey) {
@@ -32,39 +34,31 @@ function WatchlistPage() {
     }
   }, [watchlist, selectedStock]);
 
-  // const handleStockClick = (stock: StockC) => {
-  //   setWatchlist(prev => prev.map(s =>
-  //     s.symbol === stock.symbol ? { ...s, lastViewed: Date.now() } : s
-  //   ));
-  //   setSelectedStock({ ...stock, lastViewed: Date.now() });
-  // };
-
-  // const handleaddscreenerclick =
-
   return (
     <div style={{ minHeight: '100vh' }} className='bg-[hsl(40,13%,53%)]'>
       <NavigationBar />
       <Toast message={toast} />
       <div>
-        <Loading loading={false} loadingText="Loading Watchlist..." />
+        <Loading loading={loading || screenersLoading} loadingText="Loading Watchlist..." />
       </div>
       <h1 className="text-[hsl(42,15%,70%)] text-4xl text-left ml-8 mb-0 mt-8 newsreader-font">
         Watchlist
       </h1>
       <div className="WatchlistPage-main-content pt-4">
         <div className="WatchlistPage-card-grid">
-          <AppCard
-            title="Text"
-            subtitle="Body text."
-          />
-          <AppCard
-            title="Text"
-            subtitle="Body text."
-          />
-          <AppCard
-            title="Text"
-            subtitle="Body text."
-          />
+          {!screenersLoading && watchlistScreeners.length === 0 && (
+            <div className="col-span-full text-center py-8 text-[hsl(42,15%,70%)]">
+              No screeners in watchlist
+            </div>
+          )}
+          {watchlistScreeners.map((screener) => (
+            <AppCard
+              key={screener.id}
+              title={screener.screener_name}
+              subtitle={`${screener.filter_count || 0} filters • Created ${new Date(screener.created_at).toLocaleDateString()}`}
+              onClick={() => navigate(`/screener/${screener.id}`)}
+            />
+          ))}
         </div>
       </div>
       <button
@@ -78,6 +72,30 @@ function WatchlistPage() {
           className="w-full text-left py-4 border-b border-[hsl(40,46%,36%)] px-1 text-[hsl(40,46%,36%)] text-2xl"
         >
           Stocks
+        </div>
+        <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+          {!loading && watchlist.length === 0 && (
+            <div className="px-4 py-8 text-center text-[hsl(40,46%,36%)]">
+              No stocks in watchlist
+            </div>
+          )}
+          {watchlist.map((stock) => (
+            <div
+              key={stock.symbol}
+              onClick={() => navigate(`/stock/${stock.symbol}`)}
+              className="px-6 py-3 border-b border-[hsl(40,56%,53%)] cursor-pointer hover:bg-[hsl(40,56%,56%)] transition-colors"
+            >
+              <div className="font-mono text-sm font-semibold text-[hsl(40,46%,36%)] uppercase">
+                {stock.symbol}
+              </div>
+              <div className="text-xs text-[hsl(40,46%,40%)] truncate mt-1">
+                {stock.shortName || stock.displayName}
+              </div>
+              <div className="text-sm font-medium text-[hsl(40,46%,36%)] mt-1">
+                ${stock.currentPrice?.toFixed(2) || 'N/A'}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

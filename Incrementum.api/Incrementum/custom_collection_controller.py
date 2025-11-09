@@ -14,18 +14,15 @@ from Incrementum.models_user import Account
 def custom_collection(request):
     try:
         import json
-        # expect client to provide user id via X-User-Id header
         api_key = request.META.get('HTTP_X_USER_ID')
         if not api_key:
             return JsonResponse({'error': 'User id header X-User-Id required'}, status=401)
         custom_collection = CustomCollectionService()
 
-        # Determine collection name: prefer explicit collection in body (POST/DELETE) or query param/header (GET)
         collection_name = None
         if request.method == "GET":
             collection_name = request.GET.get('collection') or request.META.get('HTTP_X_COLLECTION_NAME')
         else:
-            # POST and DELETE: expect JSON body with 'collection'
             try:
                 data = json.loads(request.body)
             except Exception:
@@ -43,6 +40,7 @@ def custom_collection(request):
             return JsonResponse({'tokens': tokens})
 
         elif request.method == "POST":
+            desc = data.get('desc')
             symbols_field = data.get('symbols') or request.META.get('HTTP_X_SYMBOLS')
             symbols = None
             if symbols_field:
@@ -50,9 +48,9 @@ def custom_collection(request):
                     symbols = [s.strip().upper() for s in symbols_field.split(',') if s.strip()]
                 else:
                     symbols = list(symbols_field)
-
+            
             try:
-                custom_collection.add_stocks(api_key, collection_name, symbols)
+                custom_collection.add_stocks(api_key, collection_name, symbols, desc)
             except ValueError as e:
                 return JsonResponse({'error': str(e)}, status=400)
  

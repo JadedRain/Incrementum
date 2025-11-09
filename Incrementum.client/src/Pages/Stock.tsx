@@ -10,7 +10,6 @@ import { useFetchStockData } from "../hooks/useFetchStockData";
 import { FilterDataProvider } from '../Context/FilterDataContext';
 import InteractiveGraph from "../Components/InteractiveGraph"
 import StockInfoSidebar from '../Components/StockInfoSidebar';
-import ChartControls from '../Components/ChartControls';
 
 export default function Stock({ token: propToken }: { token?: string; }) {
   const { apiKey } = useAuth();
@@ -20,16 +19,6 @@ export default function Stock({ token: propToken }: { token?: string; }) {
   const { inWatchlist, setInWatchlist } = useWatchlistStatus(token);
   const [pending, setPending] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
-  const [period, setPeriod] = useState("1y");
-  const [interval, setInterval] = useState("1d");
-
-  const handlePeriodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setPeriod(e.target.value);
-  };
-
-  const handleIntervalChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setInterval(e.target.value);
-  };
 
   const handleAdd = async () => {
     if (!token || pending) return;
@@ -46,33 +35,40 @@ export default function Stock({ token: propToken }: { token?: string; }) {
 
   return (
     <FilterDataProvider>
-    <div className="bg-[hsl(40,13%,53%)] min-h-screen" style={{ fontFamily: "serif" }}>
-      <NavigationBar />
-      <div className="main-content" style={{ padding: "20px" }}>
-      <Toast message={toast} />
-      <button 
-        onClick={() => window.history.back()}
-        className="back-button mb-4"
-      >
-        ← Back
-      </button>
-      <StockInfoSidebar
-        results={results}
-        apiKey={apiKey}
-        inWatchlist={inWatchlist}
-        pending={pending}
-        onAddToWatchlist={handleAdd}
-        onRemoveFromWatchlist={handleRemove}
-      />
-      <ChartControls
-        period={period}
-        interval={interval}
-        onPeriodChange={handlePeriodChange}
-        onIntervalChange={handleIntervalChange}
-      />
-      <InteractiveGraph url="http://localhost:8050" height="600px" />
+      <div className="bg-[hsl(40,13%,53%)] min-h-screen" style={{ fontFamily: "serif" }}>
+        <NavigationBar />
+        <div className="main-content" style={{ padding: "20px" }}>
+          <Toast message={toast} />
+
+          {/* Back button in a full-width header row above the two-column content */}
+          <div style={{ width: '100%', marginBottom: '12px' }}>
+            <button
+              onClick={() => window.history.back()}
+              className="back-button"
+            >
+              ← Back
+            </button>
+          </div>
+
+          {/* Two-column layout: sidebar (fixed width) + graph (fluid). Align tops and give both the same height */}
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
+            <div style={{ flexShrink: 0 }}>
+              <StockInfoSidebar
+                results={results}
+                apiKey={apiKey}
+                inWatchlist={inWatchlist}
+                pending={pending}
+                onAddToWatchlist={handleAdd}
+                onRemoveFromWatchlist={handleRemove}
+              />
+            </div>
+
+            <div style={{ flex: 1, height: '800px' }}>
+              <InteractiveGraph url="http://localhost:8050" height="800px" />
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
     </FilterDataProvider>
   );
 }
