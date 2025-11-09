@@ -5,31 +5,14 @@ import { useFilterData } from '../../Context/FilterDataContext';
 
 const VolumeFilter: React.FC = () => {
   const { addFilter, removeFilter, fetchInit } = useFilterData();
-  const initAvg = fetchInit("avgvolume") ?? {min: null, max: null}
   const initNow = fetchInit("nowvolume") ?? {min: null, max: null}
-  const [avgMin, setAvgMin] = useState<number | null>(initAvg.min);
-  const [avgMax, setAvgMax] = useState<number | null>(initAvg.max);
   const [todayMin, setTodayMin] = useState<number | null>(initNow.min);
   const [todayMax, setTodayMax] = useState<number | null>(initNow.max);
-  const avgkey = 'avgdailyvol3m';
-  const avgMinKey = 'avgvolume.min';
-  const avgMaxKey = 'avgvolume.max';
   const todaykey = 'dayvolume';
   const todayMinKey = 'todayvolume.min';
   const todayMaxKey = 'todayvolume.max';
 
-  const showAvgWarning = avgMin !== null && avgMax !== null && avgMin > avgMax;
   const showTodayWarning = todayMin !== null && todayMax !== null && todayMin > todayMax;
-
-  useEffect(() => {
-    if (avgMin !== null) addFilter(avgMinKey, { operand: avgkey, operator: 'gte', filter_type: 'numeric', value_high: null, value_low: null, value: avgMin });
-    else removeFilter(avgMinKey);
-  }, [avgMin, addFilter, removeFilter]);
-
-  useEffect(() => {
-    if (avgMax !== null) addFilter(avgMaxKey, { operand: avgkey, operator: 'lte', filter_type: 'numeric', value_high: null, value_low: null, value: avgMax });
-    else removeFilter(avgMaxKey);
-  }, [avgMax, addFilter, removeFilter]);
 
   useEffect(() => {
     if (todayMin !== null) addFilter(todayMinKey, { operand: todaykey, operator: 'gte', filter_type: 'numeric', value_high: null, value_low: null, value: todayMin });
@@ -43,27 +26,6 @@ const VolumeFilter: React.FC = () => {
 
   return (
     <ExpandableSidebarItem title="Stocks Traded Volume">
-      <div style={{ marginBottom: '0.5rem' }}>
-        <div style={{ fontWeight: 600 }}>Average Volume</div>
-        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-          <input
-            type="number"
-            placeholder="Min"
-            value={avgMin ?? ''}
-            onChange={e => setAvgMin(e.target.value ? Number(e.target.value) : null)}
-            className="sidebar-input"
-            style={{ flex: 1, padding: '0.4rem' }}
-          />
-          <input
-            type="number"
-            placeholder="Max"
-            value={avgMax ?? ''}
-            onChange={e => setAvgMax(e.target.value ? Number(e.target.value) : null)}
-            className="sidebar-input"
-            style={{ flex: 1, padding: '0.4rem' }}
-          />
-        </div>
-      </div>
       <div>
         <div style={{ fontWeight: 600 }}>Today's Volume</div>
         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
@@ -85,11 +47,6 @@ const VolumeFilter: React.FC = () => {
           />
         </div>
       </div>
-      {showAvgWarning && (
-        <div style={{ color: 'red', fontSize: '0.85rem', marginTop: '0.5rem' }}>
-          Warning: Average Volume Min cannot be greater than Max.
-        </div>
-      )}
       {showTodayWarning && (
         <div style={{ color: 'red', fontSize: '0.85rem', marginTop: '0.5rem' }}>
           Warning: Today's Volume Min cannot be greater than Max.
