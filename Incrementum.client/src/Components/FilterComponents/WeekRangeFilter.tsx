@@ -19,22 +19,22 @@ const WeekRangeFilter: React.FC = () => {
   const showLowWarning = lowMin !== null && lowMax !== null && lowMin > lowMax;
 
   useEffect(() => {
-    if (highMin !== null) addFilter(highMinKey, { operand: highMinKey, operator: 'gt', filter_type: 'numeric', value_high: null, value_low: null, value: highMin });
+    if (highMin !== null) addFilter(highMinKey, { operand: highMinKey, operator: 'gte', filter_type: 'numeric', value_high: null, value_low: null, value: highMin });
     else removeFilter(highMinKey);
   }, [highMin, addFilter, removeFilter]);
 
   useEffect(() => {
-    if (highMax !== null) addFilter(highMaxKey, { operand: highMaxKey, operator: 'lt', filter_type: 'numeric', value_high: null, value_low: null, value: highMax });
+    if (highMax !== null) addFilter(highMaxKey, { operand: highMaxKey, operator: 'lte', filter_type: 'numeric', value_high: null, value_low: null, value: highMax });
     else removeFilter(highMaxKey);
   }, [highMax, addFilter, removeFilter]);
 
   useEffect(() => {
-    if (lowMin !== null) addFilter(lowMinKey, { operand: lowMinKey, operator: 'gt', filter_type: 'numeric', value_high: null, value_low: null, value: lowMin });
+    if (lowMin !== null) addFilter(lowMinKey, { operand: lowMinKey, operator: 'gte', filter_type: 'numeric', value_high: null, value_low: null, value: lowMin });
     else removeFilter(lowMinKey);
   }, [lowMin, addFilter, removeFilter]);
 
   useEffect(() => {
-    if (lowMax !== null) addFilter(lowMaxKey, { operand: lowMaxKey, operator: 'lt', filter_type: 'numeric', value_high: null, value_low: null, value: lowMax });
+    if (lowMax !== null) addFilter(lowMaxKey, { operand: lowMaxKey, operator: 'lte', filter_type: 'numeric', value_high: null, value_low: null, value: lowMax });
     else removeFilter(lowMaxKey);
   }, [lowMax, addFilter, removeFilter]);
 
@@ -93,7 +93,7 @@ const WeekRangeFilter: React.FC = () => {
         </div>
       )}
       <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#2b2b2b' }}>
-        (Min filter uses &gt;, Max filter uses &lt;. Empty inputs remove the filter.)
+        (Min filter uses &gt;=, Max filter uses &lt;=. Empty inputs remove the filter.)
       </div>
     </ExpandableSidebarItem>
   );

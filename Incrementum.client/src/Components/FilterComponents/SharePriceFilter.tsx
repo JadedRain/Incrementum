@@ -16,7 +16,7 @@ const SharePriceFilter: React.FC = () => {
 
   useEffect(() => {
     if (minPrice !== null) {
-      const f: FilterData = { operand: keykey, operator: 'gt', filter_type: 'numeric', value_high: null, value_low: null, value: minPrice };
+      const f: FilterData = { operand: keykey, operator: 'gte', filter_type: 'numeric', value_high: null, value_low: null, value: minPrice };
       addFilter(minKey, f);
     } else {
       removeFilter(minKey);
@@ -25,7 +25,7 @@ const SharePriceFilter: React.FC = () => {
 
   useEffect(() => {
     if (maxPrice !== null) {
-      const f: FilterData = { operand: keykey, operator: 'lt', filter_type: 'numeric', value_high: null, value_low: null, value: maxPrice };
+      const f: FilterData = { operand: keykey, operator: 'lte', filter_type: 'numeric', value_high: null, value_low: null, value: maxPrice };
       addFilter(maxKey, f);
     } else {
       removeFilter(maxKey);
@@ -61,7 +61,7 @@ const SharePriceFilter: React.FC = () => {
         </div>
       )}
       <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#2b2b2b' }}>
-        (Min filter uses &gt;, Max filter uses &lt;. Empty inputs remove the filter.)
+        (Min filter uses &gt;=, Max filter uses &lt;=. Empty inputs remove the filter.)
       </div>
     </ExpandableSidebarItem>
   );
