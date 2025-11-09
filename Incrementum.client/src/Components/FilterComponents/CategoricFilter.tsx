@@ -10,9 +10,9 @@ interface  CategoryFilterProps {
 }
 const CategoryFilter: React.FC<CategoryFilterProps> = (_props) => {
   const { addFilter, removeFilter, fetchInit} = useFilterData();
-  const init = fetchInit(_props.category) ?? []
+  // const init = fetchInit(_props.category) ?? []
 
-  const [selectedCategorys, setSelectedCategorys] = useState<string[]>(init)
+  const [selectedCategorys, setSelectedCategorys] = useState<string[]>([])
   const categorys = _props.categorys;
   const categore = _props.category;
   const name = `${categore} Filters`
