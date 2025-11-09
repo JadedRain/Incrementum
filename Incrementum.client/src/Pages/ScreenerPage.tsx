@@ -43,14 +43,23 @@ function ScreenerPage() {
 
                         {!loading && apiKey && (
                             <>
-                                {customScreeners.map((screener) => (
-                                    <AppCard
-                                        key={screener.id}
-                                        title={screener.screener_name}
-                                        subtitle={`${screener.filter_count || 0} filters • Created ${new Date(screener.created_at).toLocaleDateString()}`}
-                                        onClick={() => handleCardClick(screener.id)}
-                                    />
-                                ))}
+                                <AppCard
+                                    title="Day Gainers"
+                                    subtitle="Stocks with the highest percentage gains today"
+                                    onClick={() => navigate('/screener/day_gainers')}
+                                />
+
+                                <AppCard
+                                    title="Day Losers"
+                                    subtitle="Stocks with the largest percentage losses today"
+                                    onClick={() => navigate('/screener/day_losers')}
+                                />
+
+                                <AppCard
+                                    title="Most Actives"
+                                    subtitle="Stocks with the highest trading volume today"
+                                    onClick={() => navigate('/screener/most_actives')}
+                                />
                                 <AppCard
                                     title="Create Custom"
                                     subtitle="Make new custom screener"
