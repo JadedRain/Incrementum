@@ -38,7 +38,7 @@ const FilterDataContext = createContext<FilterDataContextType | undefined>(
 export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
   const [initDict, setInitDict] = useState<Record<string, any>>({})
   const fetchInit =  (key: string)=> {
-    if(Object.hasOwn(initDict, key))
+    if(initDict != null && Object.hasOwn(initDict, key))
       {
       const result = initDict[key];
       return result;

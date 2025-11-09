@@ -61,11 +61,6 @@ function ScreenerPage() {
                                     onClick={() => navigate('/screener/most_actives')}
                                 />
                                 <AppCard
-                                    title="Temp Card 1"
-                                    subtitle="Description"
-                                    onClick={() => handleCardClick('temp-1')}
-                                />
-                                <AppCard
                                     title="Create Custom"
                                     subtitle="Make new custom screener"
                                     onClick={() => navigate('/screener/create')}
