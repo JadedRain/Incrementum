@@ -13,6 +13,7 @@ import { useWatchlistScreeners } from '../hooks/useWatchlistScreeners';
 import { addToWatchlist, removeFromWatchlist } from '../utils/watchlistActions';
 import type { CustomScreener } from '../Types/ScreenerTypes';
 import { FilterDataProvider, useFilterData } from '../Context/FilterDataContext';
+import { getDefaultFilterDict } from './DefaultScreenerHelper';
 
 function IndividualScreenPageContent() {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ function IndividualScreenPageContent() {
   useEffect(() => {
     const numid = Number(id);
     if (isNaN(numid)) {
-      const base = getDefaultFilterDict(id);
+      const base = getDefaultFilterDict(id!);
       setIsInit(true);
       console.log(base)
       setInitDict(()=>{
@@ -211,7 +212,6 @@ function IndividualScreenPageContent() {
           />
         </div>
       </div>
-    </div>
   );
 }
 
