@@ -77,10 +77,12 @@ export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
       setError(null);
 
       try {
+        const jsonData = JSON.stringify(filtersList)
+        console.log(jsonData)
         const response = await fetch("/stocks/getfilteredstocks", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(filtersList), // send as list of values
+          body: jsonData, // send as list of values
         });
 
         if (!response.ok) {

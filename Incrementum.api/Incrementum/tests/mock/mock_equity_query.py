@@ -1,37 +1,3 @@
-"""MockEquityQuery
-===================
-A lightweight stand‑in for yfinance's EquityQuery for use in unit tests.
-
-Goals:
-- Minimal API surface: operator plus either a leaf operand [field, value]
-  or a composite list of subqueries when operator == 'and'.
-- Deterministic equality & hashing so it can be compared directly or placed in sets.
-- Human‑readable repr for debugging test failures.
-
-Typical usage patterns:
------------------------
-1. Dependency injection (preferred if production code allows):
-   from tests.mock.mock_equity_query import MockEquityQuery
-   constructor = ScreenerConstructor(filters, query_cls=MockEquityQuery)
-
-2. Monkeypatch import inside module under test:
-   monkeypatch.setattr('Screeners.screener_constructor.EquityQuery', MockEquityQuery)
-
-3. Building expected queries in tests:
-   expected = [
-       MockEquityQuery('eq', ['sector', 'Technology']),
-       MockEquityQuery('gt', ['market_cap', 1000000])
-   ]
-
-Normalization helper:
----------------------
-Use MockEquityQuery.normalize(q) to convert any supported query (mock or realish) to a tuple
-for structural comparison: (operator, payload). Composite payload is a tuple of normalized children.
-
-Limitations:
-------------
-This mock intentionally does NOT implement any networking or screening logic.
-"""
 from __future__ import annotations
 from typing import Any, Iterable, Sequence, Tuple
 

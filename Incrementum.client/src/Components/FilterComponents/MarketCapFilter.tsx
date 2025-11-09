@@ -27,14 +27,14 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = (_props) => {
 
   const minKey = 'marketcap.min';
   const maxKey = 'marketcap.max';
-  const keykey = "lastclosemarketcap.lasttwelvemonths"
+  const keykey = "intradaymarketcap"
   const showWarning = minValue !== null && maxValue !== null && minValue > maxValue;
 
   useEffect(() => {
     if (minValue !== null) {
       const f: FilterData = {
         operand: keykey,
-        operator: 'gt',
+        operator: 'gte',
         filter_type: 'numeric',
         value_high: null,
         value_low: null,
@@ -50,7 +50,7 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = (_props) => {
     if (maxValue !== null) {
       const f: FilterData = {
         operand: keykey,
-        operator: 'lt',
+        operator: 'lte',
         filter_type: 'numeric',
         value_high: null,
         value_low: null,
@@ -91,7 +91,7 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = (_props) => {
         </div>
       )}
       <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#2b2b2b' }}>
-        (Min filter uses &gt;, Max filter uses &lt;. Empty inputs remove the filter.)
+        (Min filter uses &gt;=, Max filter uses &lt;=. Empty inputs remove the filter.)
       </div>
     </ExpandableSidebarItem>
   );

@@ -90,6 +90,14 @@
   @apply border-b-[#251C09];
   position: relative;
 }
+.StockTable-header.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+.StockTable-header.sortable:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
 .StockTable-header:after {
   content: '';
   position: absolute;
