@@ -4,10 +4,33 @@ import { useFilterData } from '../../Context/FilterDataContext';
 
 
 const VolumeFilter: React.FC = () => {
-  const { addFilter, removeFilter, fetchInit } = useFilterData();
+  const { addFilter, removeFilter, fetchInit, initDict } = useFilterData();
   const initNow = fetchInit("nowvolume") ?? {min: null, max: null}
-  const [todayMin, setTodayMin] = useState<number | null>(initNow.min);
-  const [todayMax, setTodayMax] = useState<number | null>(initNow.max);
+  const [avgMin, setAvgMin] = useState<number | null>(null);
+  const [avgMax, setAvgMax] = useState<number | null>(null);
+  const [todayMin, setTodayMin] = useState<number | null>(null);
+  const [todayMax, setTodayMax] = useState<number | null>(null);
+    useEffect(() => {
+    console.log(initDict)
+    const init = fetchInit("avgvolume");
+    console.log(init)
+    if (init) {
+      setAvgMax(init.high ?? null);
+      setAvgMin(init.low ?? null);
+    }
+  }, [initDict]);
+    useEffect(() => {
+    console.log(initDict)
+    const init = fetchInit("nowvolume");
+    console.log(init)
+    if (init) {
+      setTodayMax(init.high ?? null);
+      setTodayMin(init.low ?? null);
+    }
+  }, [initDict]);
+  const avgkey = 'avgdailyvol3m';
+  const avgMinKey = 'avgvolume.min';
+  const avgMaxKey = 'avgvolume.max';
   const todaykey = 'dayvolume';
   const todayMinKey = 'todayvolume.min';
   const todayMaxKey = 'todayvolume.max';

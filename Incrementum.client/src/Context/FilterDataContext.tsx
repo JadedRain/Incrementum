@@ -12,7 +12,6 @@ export interface FilterData {
   value: string| number | null;
 }
 
-// Context type: dictionary of filterData, keyed by string
 interface FilterDataContextType {
   filterDataDict: Record<string, FilterData>;
   addFilter: (key: string, filter: FilterData) => void;
@@ -24,6 +23,9 @@ interface FilterDataContextType {
   error: string | null; 
   fetchInit: (key: string) => any | null;
   setInitDict:React.Dispatch<React.SetStateAction<Record<string, any | null>>>;
+  isInit: boolean;
+  setIsInit: React.Dispatch<React.SetStateAction<boolean>>;
+  initDict: Record<string, any>;
 
 }
 
@@ -36,19 +38,14 @@ const FilterDataContext = createContext<FilterDataContextType | undefined>(
 export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
   const [initDict, setInitDict] = useState<Record<string, any>>({})
   const fetchInit =  (key: string)=> {
-    if(key in initDict)
-    {
+    if(initDict != null && Object.hasOwn(initDict, key))
+      {
       const result = initDict[key];
-      setInitDict((prev) => {
-      const newDict = { ...prev };
-      delete newDict[key];
-      return newDict;
-    });
       return result;
     }
     return null;
   }
-  
+  const [isInit, setIsInit] = useState(false);
   const [filterDataDict, setFilterDataDict] = useState<Record<string, FilterData>>({});
   const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
   const [stocks, setStocks] = useState<any[]>([]);
@@ -108,6 +105,9 @@ export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
   return (
     <FilterDataContext.Provider
       value={{
+        initDict,
+        setIsInit,
+        isInit,
         setInitDict,
         fetchInit,
         filterDataDict,
