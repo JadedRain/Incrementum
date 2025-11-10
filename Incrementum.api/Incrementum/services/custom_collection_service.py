@@ -153,6 +153,26 @@ class CustomCollectionService:
         CustomCollectionStock.objects.filter(collection=collection).delete()
         CustomCollection.objects.filter(collection_name=collection_name).delete()
 
+    def update_collection(self, api_key, collection_name, new_name=None, new_desc=None):
+        """Update a collection's name and/or description."""
+        account = self._get_account(api_key)
+        try:
+            collection = CustomCollection.objects.get(collection_name=collection_name, account=account)
+        except CustomCollection.DoesNotExist:
+            raise ValueError(f"Collection '{collection_name}' not found")
+        
+        # Check if new name already exists (if changing name)
+        if new_name and new_name != collection_name:
+            if CustomCollection.objects.filter(collection_name=new_name, account=account).exists():
+                raise ValueError(f"Collection '{new_name}' already exists")
+            collection.collection_name = new_name
+        
+        # Update description if provided
+        if new_desc is not None:
+            collection.c_desc = new_desc
+        
+        collection.save()
+        return collection
 
     def aggregate_data(self, account_api_key: str, collection_name: str = 'default'):
         stock_objs = self.get_stocks(account_api_key, collection_name)

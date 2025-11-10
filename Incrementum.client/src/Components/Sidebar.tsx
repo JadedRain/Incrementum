@@ -9,7 +9,7 @@ import PercentChangeFilter from './FilterComponents/PercentChangeFilter';
 import RegionFilter from './FilterComponents/RegionFilter';
 import { useFilterData } from '../Context/FilterDataContext';
 import { useAuth } from '../Context/AuthContext';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 interface SidebarProps {
   screenerName?: string;
@@ -31,12 +31,16 @@ const Sidebar: React.FC<SidebarProps> = ({
   const auth = useAuth();
   const apiKey = auth?.apiKey;
   const navigate = useNavigate();
+  const location = useLocation();
   const { id: screenerId } = useParams<{ id: string }>();
   const [collections, setCollections] = useState<string[]>([]);
   const [selectedCollection, setSelectedCollection] = useState<string>('');
   const [savingScreener, setSavingScreener] = useState(false);
   const [screenerName, setScreenerName] = useState<string>('');
   const [screenerError, setScreenerError] = useState<string>('');
+
+  const isPrebuiltScreener = screenerId && isNaN(Number(screenerId));
+  const isCreatePage = location.pathname.includes('/create');
 
   useEffect(() => {
     // load collections from localStorage for client-side demo
@@ -183,8 +187,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside className="sidebar">
       <Keywords />
-      {/* Watchlist button for the screener */}
-      {onToggleScreenerWatchlist && (
+      {/* Watchlist button for the screener - only show for custom screeners */}
+      {onToggleScreenerWatchlist && (!isCreatePage && !isPrebuiltScreener) && (
         <div className="mb-4 pb-4 border-b-2" style={{ borderBottomColor: 'rgba(0, 0, 0, 0.1)' }}>
           {screenerNameProp && (
             <h3 className="text-lg font-semibold mb-2 text-[hsl(40,62%,18%)]">
@@ -210,7 +214,8 @@ const Sidebar: React.FC<SidebarProps> = ({
           </button>
         </div>
       )}
-      {apiKey && (
+      {/* Save screener section - only show for custom screeners */}
+      {apiKey && (isCreatePage || !isPrebuiltScreener) && (
         <div className="sidebar-section p-2">
           <label className="block text-sm font-medium mb-1">
             {screenerId && !isNaN(Number(screenerId)) ? 'Update screener' : 'Save screener'}

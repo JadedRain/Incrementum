@@ -65,11 +65,19 @@ function ScreenerPage() {
                                     subtitle="Make new custom screener"
                                     onClick={() => navigate('/screener/create')}
                                 />
+                                
+                                {customScreeners.map((screener) => (
+                                    <AppCard
+                                        key={screener.id}
+                                        title={screener.screener_name}
+                                        subtitle="Custom screener"
+                                        onClick={() => handleCardClick(screener.id)}
+                                    />
+                                ))}
                             </>
                         )}
                     </div>
                 </div>
-                
             </div>
         </div>
     );

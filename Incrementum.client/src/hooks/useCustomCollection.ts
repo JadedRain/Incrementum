@@ -26,8 +26,15 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
       
       if (!id || !apiKey) return;
 
+      // Get collection name from localStorage to use in API call
+      const collectionNameForApi = collection?.name || collection?.collection_name;
+      if (!collectionNameForApi) {
+        setError('Collection name not found');
+        return;
+      }
+
       try {
-        const res = await fetch(`/custom-collection/${id}/`, {
+        const res = await fetch(`/custom-collection/?collection=${encodeURIComponent(collectionNameForApi)}`, {
           headers: { 'X-User-Id': apiKey }
         });
         
@@ -66,9 +73,9 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
   }, [id, apiKey]);
 
   const refreshCollection = async () => {
-    if (!id || !apiKey) return;
+    if (!id || !apiKey || !collectionName) return;
     try {
-      const res = await fetch(`/custom-collection/${id}/`, {
+      const res = await fetch(`/custom-collection/?collection=${encodeURIComponent(collectionName)}`, {
         headers: { 'X-User-Id': apiKey }
       });
       const data = await res.json();
@@ -87,6 +94,14 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
   };
 
   const updateCollectionName = async (newName: string) => {
+    if (!newName.trim()) {
+      setError("Collection name cannot be empty");
+      return;
+    }
+
+    const oldName = collectionName;
+    
+    // Optimistically update UI
     setCollectionName(newName);
     
     // Update localStorage
@@ -96,6 +111,56 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
       if (idx !== -1) {
         collections[idx].name = newName;
         localStorage.setItem('customCollections', JSON.stringify(collections));
+      }
+    }
+
+    // Persist to backend if we have apiKey and collection name
+    if (apiKey && oldName) {
+      try {
+        const res = await fetch('/custom-collection/', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Id': apiKey
+          },
+          body: JSON.stringify({
+            collection: oldName,
+            new_name: newName
+          })
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || 'Failed to update collection name');
+        }
+
+        const data = await res.json();
+        // Update with the actual name from server response
+        if (data.collection?.name) {
+          setCollectionName(data.collection.name);
+          
+          // Update localStorage with server response
+          const updatedCollections = JSON.parse(localStorage.getItem('customCollections') || '[]');
+          if (id) {
+            const idx = updatedCollections.findIndex((c: any) => String(c.id) === String(id));
+            if (idx !== -1) {
+              updatedCollections[idx].name = data.collection.name;
+              localStorage.setItem('customCollections', JSON.stringify(updatedCollections));
+            }
+          }
+        }
+      } catch (err: any) {
+        // Revert on error
+        setCollectionName(oldName);
+        const revertCollections = JSON.parse(localStorage.getItem('customCollections') || '[]');
+        if (id) {
+          const idx = revertCollections.findIndex((c: any) => String(c.id) === String(id));
+          if (idx !== -1) {
+            revertCollections[idx].name = oldName;
+            localStorage.setItem('customCollections', JSON.stringify(revertCollections));
+          }
+        }
+        setError("Failed to update collection name: " + err.message);
       }
     }
   };
