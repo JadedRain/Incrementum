@@ -56,8 +56,11 @@ const LastCloseFilter: React.FC = () => {
         <div
           style={{
             display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
             gap: "0.5rem",
-            marginTop: "0.5rem",
+            width: "100%",
+            boxSizing: "border-box",
           }}
         >
           <input
@@ -67,8 +70,8 @@ const LastCloseFilter: React.FC = () => {
             onChange={(e) =>
               setHighValue(e.target.value ? Number(e.target.value) : null)
             }
-            className="sidebar-input"
-            style={{ flex: 1, padding: "0.4rem" }}
+            className="sidebar-input"    
+            style={{ flex: 1, minWidth: 0, padding: "0.4rem"}}
           />
           <input
             type="number"
@@ -77,8 +80,8 @@ const LastCloseFilter: React.FC = () => {
             onChange={(e) =>
               setLowValue(e.target.value ? Number(e.target.value) : null)
             }
-            className="sidebar-input"
-            style={{ flex: 1, padding: "0.4rem" }}
+            className="sidebar-input"            
+            style={{ flex: 1, minWidth: 0, padding: "0.4rem"}}
           />
         </div>
       </div>

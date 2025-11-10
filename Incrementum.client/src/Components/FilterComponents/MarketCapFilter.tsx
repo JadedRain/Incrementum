@@ -66,14 +66,22 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = (_props) => {
     <ExpandableSidebarItem title="Market Cap">
       <div style={{ marginBottom: '0.5rem' }}>
         <div style={{ fontWeight: 600 }}>Market Cap</div>
-        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+        <div 
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.5rem",
+            width: "100%",
+            boxSizing: "border-box",
+          }}>
           <input
             type="number"
             placeholder="Min"
             value={minValue ?? ''}
             onChange={e => setMinValue(e.target.value ? Number(e.target.value) : null)}
             className="sidebar-input"
-            style={{ flex: 1, padding: '0.4rem' }}
+            style={{ flex: 1, padding: '0.4rem', minWidth: 0}}
           />
           <input
             type="number"
@@ -81,7 +89,7 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = (_props) => {
             value={maxValue ?? ''}
             onChange={e => setMaxValue(e.target.value ? Number(e.target.value) : null)}
             className="sidebar-input"
-            style={{ flex: 1, padding: '0.4rem' }}
+            style={{ flex: 1, padding: '0.4rem', minWidth: 0}}
           />
         </div>
       </div>
