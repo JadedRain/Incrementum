@@ -71,7 +71,7 @@ export default function StockTable({ onRowClick, watchlistSymbols, onToggleWatch
       </div>
       <Loading loading={isLoading} />
       {Object.keys(filterDataDict).length == 0 && <div>Select some filters to get started!</div>}
-      {!isLoading && sortedStocks.map((s, idx) => (
+      {!isLoading && displayStocks.map((s, idx) => (
         <StockRow 
           key={s.symbol ?? idx} 
           stock={s} 
