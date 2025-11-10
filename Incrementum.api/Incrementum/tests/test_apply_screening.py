@@ -8,8 +8,8 @@ class FakeLeafQuery:
         self.operator = operator
         self.payload = payload
     def get_stocks(self):
-        # Single leaf query returns one stock
-        return [{"symbol": "STK0", "filters_applied": 1}]
+        # Single leaf query returns one stock with US region
+        return [{"symbol": "STK0", "filters_applied": 1, "region": "us"}]
     def __repr__(self):
         return f"FakeLeafQuery({self.operator}, {self.payload})"
 
@@ -19,7 +19,7 @@ class FakeAndQuery:
         self.subqueries = subqueries
     def get_stocks(self):
         return [
-            {"symbol": f"STK{i}", "filters_applied": len(self.subqueries)}
+            {"symbol": f"STK{i}", "filters_applied": len(self.subqueries), "region": "us"}
             for i in range(len(self.subqueries))
         ]
     def __repr__(self):
@@ -37,37 +37,42 @@ def fake_screen(query):
     return []
 
 @pytest.mark.parametrize("filters, expected_symbols", [
-    ([], []),
-    ([FilterData('eq', 'sector', 'categoric', 'Tech')], ["STK0"]),
+    ([], ["STK0"]),  # Empty user filters, but region filter is applied, so returns stock
+    ([FilterData('eq', 'sector', 'categoric', 'Tech')], ["STK0", "STK1"]),  # 1 user filter + 1 region filter = 2 total
     ([
         FilterData('eq', 'sector', 'categoric', 'Tech'),
         FilterData('gt', 'avgdailyvol3m', 'numeric', 1000000)
-    ], ["STK0", "STK1"]),
+    ], ["STK0", "STK1", "STK2"]),  # 2 user filters + 1 region filter = 3 total
 ])
 @patch('Screeners.screener_constructor.screen', side_effect=fake_screen)
 def test_apply_screening(mock_screen, filters, expected_symbols):
     constructor = ScreenerConstructor(filters, Eq=FakeEquityQuery)
     stocks = constructor.apply_screening()
-    if not filters:
-        assert stocks == []
-    else:
-        returned_symbols = [s["symbol"] for s in stocks]
-        assert returned_symbols == expected_symbols
+    
+    returned_symbols = [s["symbol"] for s in stocks]
+    assert returned_symbols == expected_symbols
 
+    # Check filters_applied count
+    if not filters:
+        # Only region filter applied
         for s in stocks:
-            assert s["filters_applied"] == len(filters)
+            assert s["filters_applied"] == 1
+    else:
+        # User filters + region filter
+        for s in stocks:
+            assert s["filters_applied"] == len(filters) + 1
 
 
 # --- Enhanced filtering semantics test ---
 
 class DatasetFilteringLeafQuery(FakeLeafQuery):
     def get_stocks(self):
-        # Simulated underlying dataset
+        # Simulated underlying dataset - all stocks are in US region
         data = [
-            {"symbol": "AAA", "sector": "Tech", "avgdailyvol3m": 2_000_000},
-            {"symbol": "BBB", "sector": "Finance", "avgdailyvol3m": 5_000_000},
-            {"symbol": "CCC", "sector": "Tech", "avgdailyvol3m": 500_000},
-            {"symbol": "DDD", "sector": "Energy", "avgdailyvol3m": 3_500_000},
+            {"symbol": "AAA", "sector": "Tech", "avgdailyvol3m": 2_000_000, "region": "us"},
+            {"symbol": "BBB", "sector": "Finance", "avgdailyvol3m": 5_000_000, "region": "us"},
+            {"symbol": "CCC", "sector": "Tech", "avgdailyvol3m": 500_000, "region": "us"},
+            {"symbol": "DDD", "sector": "Energy", "avgdailyvol3m": 3_500_000, "region": "us"},
         ]
         # Apply single leaf condition
         op = self.operator.lower()
@@ -86,12 +91,12 @@ class DatasetFilteringLeafQuery(FakeLeafQuery):
 
 class DatasetFilteringAndQuery(FakeAndQuery):
     def get_stocks(self):
-        # Simulated underlying dataset
+        # Simulated underlying dataset - all stocks are in US region
         data = [
-            {"symbol": "AAA", "sector": "Tech", "avgdailyvol3m": 2_000_000},
-            {"symbol": "BBB", "sector": "Finance", "avgdailyvol3m": 5_000_000},
-            {"symbol": "CCC", "sector": "Tech", "avgdailyvol3m": 500_000},
-            {"symbol": "DDD", "sector": "Energy", "avgdailyvol3m": 3_500_000},
+            {"symbol": "AAA", "sector": "Tech", "avgdailyvol3m": 2_000_000, "region": "us"},
+            {"symbol": "BBB", "sector": "Finance", "avgdailyvol3m": 5_000_000, "region": "us"},
+            {"symbol": "CCC", "sector": "Tech", "avgdailyvol3m": 500_000, "region": "us"},
+            {"symbol": "DDD", "sector": "Energy", "avgdailyvol3m": 3_500_000, "region": "us"},
         ]
         # Reduce dataset by applying all subquery leaf conditions (AND semantics)
         filtered = data
