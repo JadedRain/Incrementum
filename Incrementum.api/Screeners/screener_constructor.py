@@ -69,7 +69,7 @@ class ScreenerConstructor:
         else:
             # Combine all filters with the region filter
             all_filters = categoric + self.filters_numeric + [region_filter]
-            result = screen(self.EquityQuery('and', all_filters), size=250)
+            result = screen(self.EquityQuery('and', all_filters), size=250, sortAsc = self.value, sortField=self.value )
         
         # Convert yfinance response to Stock objects
         if isinstance(result, dict) and 'quotes' in result:
