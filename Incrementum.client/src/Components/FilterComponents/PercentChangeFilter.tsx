@@ -4,11 +4,18 @@ import { useFilterData } from '../../Context/FilterDataContext';
 import type { FilterData } from '../../Context/FilterDataContext';
 
 const PercentChangeFilter: React.FC = () => {
-  const { addFilter, removeFilter, fetchInit } = useFilterData();
+  const { addFilter, removeFilter, fetchInit, initDict } = useFilterData();
   const [operator, setOperator] = useState<'gt' | 'lt' | 'eq'>('gt');
   const [changePeriod, _setChangePeriod] = useState<'daily' | 'weekly' | 'monthly'>('daily');
-  const init = fetchInit("%change") // number | null
-  const [threshold, setThreshold] = useState<number | null>(init);
+  const [threshold, setThreshold] = useState<number | null>(null);
+          useEffect(() => {
+          console.log(initDict)
+          const init = fetchInit("%change");
+          console.log(init)
+          if (init) {
+            setThreshold(init)
+          }
+        }, [initDict]);
 
   const key = 'percentchange';
 

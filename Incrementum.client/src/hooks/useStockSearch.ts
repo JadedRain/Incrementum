@@ -27,7 +27,7 @@ export function useStockSearch(query: string) {
             (!stock.symbol || !stock.symbol.toLowerCase().startsWith(query.toLowerCase())) &&
             stock.name && stock.name.toLowerCase().includes(query.toLowerCase())
         );
-        const PAGE_SIZE = 6;
+  const PAGE_SIZE = 7;
         const combined = [...symbolMatches, ...nameMatches];
         const start = page * PAGE_SIZE;
         const paged = combined.slice(start, start + PAGE_SIZE);

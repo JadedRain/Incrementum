@@ -13,6 +13,7 @@ import { useWatchlistScreeners } from '../hooks/useWatchlistScreeners';
 import { addToWatchlist, removeFromWatchlist } from '../utils/watchlistActions';
 import type { CustomScreener } from '../Types/ScreenerTypes';
 import { FilterDataProvider, useFilterData } from '../Context/FilterDataContext';
+import { getDefaultFilterDict } from './DefaultScreenerHelper';
 
 function IndividualScreenPageContent() {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ function IndividualScreenPageContent() {
   const { addFilter, setSelectedSectors } = useFilterData();
 
   const { watchlistSymbols, setWatchlistSymbols } = useFetchWatchlist(apiKey);
+  const {setInitDict, setIsInit, initDict} = useFilterData()
   const { watchlistScreenerIds, setWatchlistScreenerIds } = useWatchlistScreeners(apiKey);
 
   const { id } = useParams<{ id: string }>();
@@ -33,6 +35,19 @@ function IndividualScreenPageContent() {
     enabled: !!id && !isNaN(Number(id)),
   });
 
+
+  useEffect(() => {
+    const numid = Number(id);
+    if (isNaN(numid)) {
+      const base = getDefaultFilterDict(id!);
+      setIsInit(true);
+      console.log(base)
+      setInitDict(()=>{
+        console.log(base);
+        return base!});
+      console.log(initDict)
+    }
+  }, []);
   // Load filters when screener data is fetched
   useEffect(() => {
     if (screenerData) {
@@ -174,18 +189,20 @@ function IndividualScreenPageContent() {
   const screenerInWatchlist = !isNaN(screenerId) && watchlistScreenerIds.has(screenerId);
 
   return (
-    <div className="min-h-screen bg-[hsl(40,13%,53%)]">
-      <NavigationBar />
-      <Toast message={toast} />
-      <div className="main-content">
-        <div className="pt-32 px-8 ScreenerPage-main-layout" style={{ paddingTop: 'calc(var(--header-height) + 40px)' }}>
-          <div className="w-full flex">
-            <StockTable
-              onRowClick={(symbol: string) => navigate(`/stock/${symbol}`)}
-              watchlistSymbols={apiKey ? watchlistSymbols : undefined}
-              onToggleWatchlist={apiKey ? handleToggleWatchlist : undefined}
-              pendingSymbol={apiKey ? pending : undefined}
-            />
+      <div className="min-h-screen bg-[hsl(40,13%,53%)]">
+        <NavigationBar />
+        <Toast message={toast} />
+        <div className="main-content">
+          <div className="pt-32 px-8 ScreenerPage-main-layout">
+            <div className="w-full flex">
+              <StockTable
+                onRowClick={(symbol: string) => navigate(`/stock/${symbol}`)}
+                watchlistSymbols={watchlistSymbols}
+                onToggleWatchlist={handleToggleWatchlist}
+                pendingSymbol={pending}
+              />
+            </div>
+            <Sidebar />
           </div>
           <Sidebar 
             screenerName={screenerData?.screener_name}
@@ -195,7 +212,6 @@ function IndividualScreenPageContent() {
           />
         </div>
       </div>
-    </div>
   );
 }
 

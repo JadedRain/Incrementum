@@ -31,7 +31,7 @@ class FakeEquityQuery:
             return FakeAndQuery(operator, payload)
         return FakeLeafQuery(operator, payload)
 
-def fake_screen(query):
+def fake_screen(query, offset, size):
     if hasattr(query, 'get_stocks'):
         return query.get_stocks()
     return []

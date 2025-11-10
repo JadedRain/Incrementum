@@ -43,14 +43,12 @@ const StockCard: React.FC<StockCardProps> = ({ symbol, name, setToast }) => {
       <div className="card-content">
         <div className="text-stack">
             <div className="field">
-              <div className="field-label">Name</div>
               <p className="StockTable-cell name-cell">{name}</p>
               <div className="StockTable-cell font-mono symbol-cell">{symbol}</div>
             </div>
         </div>
         {apiKey && (
           <div className="action-stack">
-            <div className="field-label">Add to Watchlist</div>
             <button
               className="card-action"
               aria-label={`${inWatchlist ? 'Remove' : 'Add'} ${symbol}`}

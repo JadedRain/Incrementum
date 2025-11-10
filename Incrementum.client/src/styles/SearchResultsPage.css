@@ -17,3 +17,11 @@
   box-sizing: border-box;
   -webkit-overflow-scrolling: touch;
 }
+
+.SearchResults-main-content .field-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(37,28,9,0.75);
+  opacity: 0.95;
+  line-height: 1;
+}
