@@ -18,6 +18,13 @@
   box-sizing: border-box;
 }
 
+@media (max-width: 768px) {
+  .search-stock-card {
+    margin: 6px 0;
+    padding: 4px;
+  }
+}
+
 .search-stock-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 18px rgba(0,0,0,0.35);
@@ -36,6 +43,20 @@
   gap: 8px;
   /* slightly reduced padding to compensate for labels so card height stays similar */
   padding: 6px 10px;
+}
+
+@media (max-width: 768px) {
+  .search-stock-card .card-content {
+    gap: 6px;
+    padding: 4px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-stock-card .card-content {
+    gap: 4px;
+    padding: 4px 6px;
+  }
 }
 
 .search-stock-card .text-stack {
@@ -98,11 +119,23 @@
   align-items: center;
   justify-content: center;
   font-weight: 900;
-  font-size: 1.9rem;
-  -webkit-text-stroke: 0.6px currentColor;
-  text-shadow: 0 0 0.6px currentColor, 0 0 1px currentColor;
-  cursor: pointer;
-  transition: background 120ms ease, transform 120ms ease;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .search-stock-card .card-action {
+    width: 44px;
+    height: 44px;
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-stock-card .card-action {
+    width: 38px;
+    height: 38px;
+    font-size: 1.1rem;
+  }
 }
 
 .search-stock-card .card-action:hover {

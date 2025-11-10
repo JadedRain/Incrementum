@@ -198,3 +198,44 @@ def custom_collections_list(request):
     except Exception as e:
         logging.exception('Unhandled error listing custom collections')
         return JsonResponse({'error': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_GET
+def custom_collection_by_id(request, collection_id):
+    try:
+        api_key = request.META.get('HTTP_X_USER_ID')
+        if not api_key:
+            return JsonResponse({'error': 'User id header X-User-Id required'}, status=401)
+        
+        from .models import CustomCollection
+        from .models_user import Account
+        
+        # Get the account for this API key
+        try:
+            account = Account.objects.get(api_key=api_key)
+        except Account.DoesNotExist:
+            return JsonResponse({'error': 'Invalid or expired session'}, status=401)
+        
+        # Get the collection by ID and ensure it belongs to this user
+        try:
+            collection = CustomCollection.objects.get(id=collection_id, account=account)
+        except CustomCollection.DoesNotExist:
+            return JsonResponse({'error': f'Collection with ID {collection_id} does not exist or does not belong to this user'}, status=404)
+        
+        # Get the stocks in this collection
+        stocks = collection.stocks.all()
+        tokens = [{'symbol': stock.symbol, 'company_name': stock.company_name} for stock in stocks]
+        
+        return JsonResponse({
+            'id': collection.id,
+            'collection_name': collection.collection_name,
+            'name': collection.collection_name,  # for frontend compatibility
+            'description': collection.c_desc,
+            'date_created': collection.date_created.isoformat() if collection.date_created else None,
+            'tokens': tokens
+        })
+        
+    except Exception as e:
+        logging.exception(f'Unhandled error getting collection by ID {collection_id}')
+        return JsonResponse({'error': str(e)}, status=500)

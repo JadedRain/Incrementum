@@ -26,3 +26,15 @@
   @apply tracking-[1px];
   font-family: 'Newsreader', serif;
 }
+
+@media (max-width: 768px) {
+  .StocksPage-h1 {
+    @apply text-[2rem];
+  }
+}
+
+@media (max-width: 480px) {
+  .StocksPage-h1 {
+    @apply text-[1.5rem];
+  }
+}

@@ -58,6 +58,20 @@
   padding-right: 12px; 
 }
 
+/* On smaller screens, position sidebar above the table */
+@media (max-width: 1400px) {
+  .sidebar {
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 600px;
+    margin-bottom: 2rem;
+    right: auto;
+    top: auto;
+  }
+}
+
 .sidebar-nav {
   @apply flex;
   @apply flex-col;

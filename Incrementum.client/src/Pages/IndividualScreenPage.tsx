@@ -14,14 +14,15 @@ import { addToWatchlist, removeFromWatchlist } from '../utils/watchlistActions';
 import type { CustomScreener } from '../Types/ScreenerTypes';
 import { FilterDataProvider, useFilterData } from '../Context/FilterDataContext';
 import { getDefaultFilterDict } from './DefaultScreenerHelper';
-
+import type {RangeFilter} from "./DefaultScreenerHelper"
+import FilterList from '../Components/FilterList';
 function IndividualScreenPageContent() {
   const navigate = useNavigate();
   const { apiKey } = useAuth();
   const [toast, setToast] = useState<string | null>(null);
   const [pending, setPending] = useState<string | null>(null);
   const [pendingScreener, setPendingScreener] = useState<boolean>(false);
-  const { addFilter, setSelectedSectors } = useFilterData();
+  const { addFilter, setSelectedSectors, setSortValue, setSortBool } = useFilterData();
 
   const { watchlistSymbols, setWatchlistSymbols } = useFetchWatchlist(apiKey);
   const {setInitDict, setIsInit, initDict} = useFilterData()
@@ -47,6 +48,30 @@ function IndividualScreenPageContent() {
       const base = getDefaultFilterDict(id!);
       setIsInit(true);
       console.log(base)
+      if(base != null && Object.hasOwn(base, "sortValue"))
+      {
+        const val = base["sortValue"]?.toString() ?? null
+        const bol = base["sortBool"]?.toString() ?? null
+        setSortValue(val)
+        setSortBool(bol)
+      }
+      if (base != null && Object.hasOwn(base, "notimplemented")) {
+        const list = (base as any).notimplemented; // or define a type for base
+
+        if (Array.isArray(list)) {
+          for (const item of list) {
+            const minmaxData = base[item] as RangeFilter
+            if(minmaxData.high != null)
+            {
+              addFilter(item + "high", { operand: item, operator: "lt", filter_type: "numeric", value_high: null, value_low: null, value: minmaxData.high,})
+            }
+            if(minmaxData.low != null)
+            {
+              addFilter(item + "high", { operand: item, operator: "gt", filter_type: "numeric", value_high: null, value_low: null, value: minmaxData.low,})
+            }
+          }
+        }
+  }
       setInitDict(()=>{
         console.log(base);
         return base!});
@@ -199,6 +224,13 @@ function IndividualScreenPageContent() {
         <Toast message={toast} />
         <div className="main-content">
           <div className="pt-32 px-8 ScreenerPage-main-layout">
+            {/* Sidebar appears first on smaller screens, will stack above table */}
+            <Sidebar 
+              screenerName={screenerData?.screener_name}
+              screenerInWatchlist={screenerInWatchlist}
+              pendingScreener={pendingScreener}
+              onToggleScreenerWatchlist={apiKey ? handleToggleScreenerWatchlist : undefined}
+            />
             <div className="w-full flex">
               <StockTable
                 onRowClick={(symbol: string) => navigate(`/stock/${symbol}`)}
@@ -207,8 +239,6 @@ function IndividualScreenPageContent() {
                 pendingSymbol={pending}
               />
             </div>
-            <Sidebar onShowToast={showToast} />
-          </div>
           <Sidebar 
             screenerName={screenerData?.screener_name}
             screenerInWatchlist={screenerInWatchlist}

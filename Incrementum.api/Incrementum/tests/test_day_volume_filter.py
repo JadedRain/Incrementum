@@ -2,6 +2,7 @@ import pytest
 from rest_framework.test import APIClient
 from unittest.mock import patch, MagicMock
 from Screeners.stock_getter import StockGetter
+from Incrementum.stocks_class import Stock
 
 pytestmark = pytest.mark.django_db
 
@@ -14,18 +15,18 @@ def api_client():
 def test_day_volume_greater_than(mock_get_stocks, api_client):
     """Test filtering stocks with day volume greater than a threshold"""
     mock_get_stocks.return_value = [
-        {
+        Stock({
             'symbol': 'HIGH_DAY_VOL1',
             'shortName': 'High Day Volume Stock 1',
             'volume': 25000000,
             'regularMarketPrice': 150.0
-        },
-        {
+        }),
+        Stock({
             'symbol': 'HIGH_DAY_VOL2',
             'shortName': 'High Day Volume Stock 2',
             'volume': 20000000,
             'regularMarketPrice': 85.0
-        }
+        })
     ]
     
     filters = [
@@ -47,9 +48,9 @@ def test_day_volume_greater_than(mock_get_stocks, api_client):
     response_data = response.json()
     assert 'stocks' in response_data
     assert response_data['count'] == 2
-    assert len(response_data['stocks']) == 2
+    assert len(response_data['stocks']['quotes']) == 2
     
-    symbols = [stock['symbol'] for stock in response_data['stocks']]
+    symbols = [stock['symbol'] for stock in response_data['stocks']['quotes']]
     assert 'HIGH_DAY_VOL1' in symbols
     assert 'HIGH_DAY_VOL2' in symbols
 
@@ -58,18 +59,18 @@ def test_day_volume_greater_than(mock_get_stocks, api_client):
 def test_day_volume_less_than(mock_get_stocks, api_client):
     """Test filtering stocks with day volume less than a threshold"""
     mock_get_stocks.return_value = [
-        {
+        Stock({
             'symbol': 'LOW_DAY_VOL1',
             'shortName': 'Low Day Volume Stock 1',
             'volume': 800000,
             'regularMarketPrice': 25.0
-        },
-        {
+        }),
+        Stock({
             'symbol': 'LOW_DAY_VOL2',
             'shortName': 'Low Day Volume Stock 2',
             'volume': 950000,
             'regularMarketPrice': 30.0
-        }
+        })
     ]
     
     filters = [
@@ -92,7 +93,7 @@ def test_day_volume_less_than(mock_get_stocks, api_client):
     assert 'stocks' in response_data
     assert response_data['count'] == 2
     
-    symbols = [stock['symbol'] for stock in response_data['stocks']]
+    symbols = [stock['symbol'] for stock in response_data['stocks']['quotes']]
     assert 'LOW_DAY_VOL1' in symbols
     assert 'LOW_DAY_VOL2' in symbols
 
@@ -101,18 +102,18 @@ def test_day_volume_less_than(mock_get_stocks, api_client):
 def test_day_volume_greater_than_or_equal(mock_get_stocks, api_client):
     """Test filtering stocks with day volume greater than or equal to a threshold"""
     mock_get_stocks.return_value = [
-        {
+        Stock({
             'symbol': 'GTE_DAY_VOL1',
             'shortName': 'GTE Day Volume Stock 1',
             'volume': 5000000,
             'regularMarketPrice': 120.0
-        },
-        {
+        }),
+        Stock({
             'symbol': 'GTE_DAY_VOL2',
             'shortName': 'GTE Day Volume Stock 2',
             'volume': 6000000,
             'regularMarketPrice': 140.0
-        }
+        })
     ]
     
     filters = [
@@ -140,18 +141,18 @@ def test_day_volume_greater_than_or_equal(mock_get_stocks, api_client):
 def test_day_volume_less_than_or_equal(mock_get_stocks, api_client):
     """Test filtering stocks with day volume less than or equal to a threshold"""
     mock_get_stocks.return_value = [
-        {
+        Stock({
             'symbol': 'LTE_DAY_VOL1',
             'shortName': 'LTE Day Volume Stock 1',
             'volume': 2000000,
             'regularMarketPrice': 45.0
-        },
-        {
+        }),
+        Stock({
             'symbol': 'LTE_DAY_VOL2',
             'shortName': 'LTE Day Volume Stock 2',
             'volume': 3000000,
             'regularMarketPrice': 55.0
-        }
+        })
     ]
     
     filters = [
@@ -179,12 +180,12 @@ def test_day_volume_less_than_or_equal(mock_get_stocks, api_client):
 def test_day_volume_equal_to(mock_get_stocks, api_client):
     """Test filtering stocks with day volume exactly equal to a value"""
     mock_get_stocks.return_value = [
-        {
+        Stock({
             'symbol': 'EXACT_DAY_VOL',
             'shortName': 'Exact Day Volume Stock',
             'volume': 5000000,
             'regularMarketPrice': 100.0
-        }
+        })
     ]
     
     filters = [
@@ -206,20 +207,20 @@ def test_day_volume_equal_to(mock_get_stocks, api_client):
     response_data = response.json()
     assert 'stocks' in response_data
     assert response_data['count'] == 1
-    assert response_data['stocks'][0]['symbol'] == 'EXACT_DAY_VOL'
+    assert response_data['stocks']['quotes'][0]['symbol'] == 'EXACT_DAY_VOL'
 
 
 @patch.object(StockGetter, 'get_stocks')
 def test_day_volume_combined_with_sector(mock_get_stocks, api_client):
     """Test combining day volume filter with sector filter"""
     mock_get_stocks.return_value = [
-        {
+        Stock({
             'symbol': 'TECH_HIGH_VOL',
             'shortName': 'Tech High Volume Stock',
             'sector': 'Technology',
             'volume': 10000000,
             'regularMarketPrice': 200.0
-        }
+        })
     ]
     
     filters = [
@@ -247,25 +248,25 @@ def test_day_volume_combined_with_sector(mock_get_stocks, api_client):
     response_data = response.json()
     assert 'stocks' in response_data
     assert response_data['count'] == 1
-    assert response_data['stocks'][0]['symbol'] == 'TECH_HIGH_VOL'
+    assert response_data['stocks']['quotes'][0]['symbol'] == 'TECH_HIGH_VOL'
 
 
 @patch.object(StockGetter, 'get_stocks')
 def test_day_volume_range_filter(mock_get_stocks, api_client):
     """Test filtering stocks within a day volume range (min and max)"""
     mock_get_stocks.return_value = [
-        {
+        Stock({
             'symbol': 'MID_VOL1',
             'shortName': 'Mid Volume Stock 1',
             'volume': 2500000,
             'regularMarketPrice': 75.0
-        },
-        {
+        }),
+        Stock({
             'symbol': 'MID_VOL2',
             'shortName': 'Mid Volume Stock 2',
             'volume': 3500000,
             'regularMarketPrice': 85.0
-        }
+        })
     ]
     
     filters = [
@@ -396,18 +397,18 @@ def test_empty_filter_array(mock_get_stocks, api_client):
 def test_day_volume_with_zero_value(mock_get_stocks, api_client):
     """Test filtering stocks with day volume greater than zero (excluding non-traded stocks)"""
     mock_get_stocks.return_value = [
-        {
+        Stock({
             'symbol': 'ACTIVE1',
             'shortName': 'Active Stock 1',
             'volume': 1000,
             'regularMarketPrice': 50.0
-        },
-        {
+        }),
+        Stock({
             'symbol': 'ACTIVE2',
             'shortName': 'Active Stock 2',
             'volume': 500,
             'regularMarketPrice': 30.0
-        }
+        })
     ]
     
     filters = [
@@ -435,12 +436,12 @@ def test_day_volume_with_zero_value(mock_get_stocks, api_client):
 def test_day_volume_high_threshold(mock_get_stocks, api_client):
     """Test filtering with a very high volume threshold"""
     mock_get_stocks.return_value = [
-        {
+        Stock({
             'symbol': 'MEGAVOL',
             'shortName': 'Mega Volume Stock',
             'volume': 100000000,
             'regularMarketPrice': 150.0
-        }
+        })
     ]
     
     filters = [
@@ -462,19 +463,19 @@ def test_day_volume_high_threshold(mock_get_stocks, api_client):
     response_data = response.json()
     assert 'stocks' in response_data
     assert response_data['count'] >= 1
-    assert response_data['stocks'][0]['symbol'] == 'MEGAVOL'
+    assert response_data['stocks']['quotes'][0]['symbol'] == 'MEGAVOL'
 
 
 @patch.object(StockGetter, 'get_stocks')
 def test_multiple_numeric_filters(mock_get_stocks, api_client):
     """Test combining multiple numeric filters (volume + price)"""
     mock_get_stocks.return_value = [
-        {
+        Stock({
             'symbol': 'FILTERED1',
             'shortName': 'Filtered Stock 1',
             'volume': 5000000,
             'regularMarketPrice': 100.0
-        }
+        })
     ]
     
     filters = [

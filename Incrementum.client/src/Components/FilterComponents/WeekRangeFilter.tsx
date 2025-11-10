@@ -56,15 +56,24 @@ const WeekRangeFilter: React.FC = () => {
   return (
     <ExpandableSidebarItem title="52-Week Range">
       <div style={{ marginBottom: '0.5rem' }}>
-        <div style={{ fontWeight: 600 }}>52-Week High</div>
-        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+        <div style={{ fontWeight: 600 }}>52-Week High Value</div>
+        <div 
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.5rem",
+            width: "100%",
+            boxSizing: "border-box"
+          }}
+        >
           <input
             type="number"
             placeholder="Min"
             value={highMin ?? ''}
             onChange={e => setHighMin(e.target.value ? Number(e.target.value) : null)}
             className="sidebar-input"
-            style={{ flex: 1, padding: '0.4rem' }}
+            style={{ flex: 1, padding: '0.4rem', minWidth: 0 }}
           />
           <input
             type="number"
@@ -72,20 +81,29 @@ const WeekRangeFilter: React.FC = () => {
             value={highMax ?? ''}
             onChange={e => setHighMax(e.target.value ? Number(e.target.value) : null)}
             className="sidebar-input"
-            style={{ flex: 1, padding: '0.4rem' }}
+            style={{ flex: 1, padding: '0.4rem', minWidth: 0 }}
           />
         </div>
       </div>
       <div>
-        <div style={{ fontWeight: 600 }}>52-Week Low</div>
-        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+        <div style={{ fontWeight: 600 }}>52-Week Low Value</div>
+        <div 
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "0.5rem",
+            width: "100%",
+            boxSizing: "border-box"
+          }}
+        >
           <input
             type="number"
             placeholder="Min"
             value={lowMin ?? ''}
             onChange={e => setLowMin(e.target.value ? Number(e.target.value) : null)}
             className="sidebar-input"
-            style={{ flex: 1, padding: '0.4rem' }}
+            style={{ flex: 1, padding: '0.4rem', minWidth: 0 }}
           />
           <input
             type="number"
@@ -93,7 +111,7 @@ const WeekRangeFilter: React.FC = () => {
             value={lowMax ?? ''}
             onChange={e => setLowMax(e.target.value ? Number(e.target.value) : null)}
             className="sidebar-input"
-            style={{ flex: 1, padding: '0.4rem' }}
+            style={{ flex: 1, padding: '0.4rem', minWidth: 0 }}
           />
         </div>
       </div>

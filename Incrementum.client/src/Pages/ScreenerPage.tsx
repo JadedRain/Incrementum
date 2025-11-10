@@ -60,6 +60,13 @@ function ScreenerPage() {
                                     subtitle="Stocks with the highest trading volume today"
                                     onClick={() => navigate('/screener/most_actives')}
                                 />
+
+                                <AppCard
+                                    title="undervalued growth stocks"
+                                    subtitle="Stocks with the highest trading volume today"
+                                    onClick={() => navigate('/screener/undervalued_growth_stocks')}
+                                />
+
                                 <AppCard
                                     title="Create Custom"
                                     subtitle="Make new custom screener"

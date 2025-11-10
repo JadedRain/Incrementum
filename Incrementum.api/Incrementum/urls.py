@@ -14,7 +14,7 @@ from .filter_views import (
 )
 from .custom_collection_controller import (
     custom_collection, custom_collection_aggregate, custom_collection_aggregate_graph, custom_collection_overlay_graph,
-    custom_collections_list,
+    custom_collections_list, custom_collection_by_id,
 )
 from .controllers.watchlist_controller import (
     get_watchlist,add_to_watchlist, remove_from_watchlist, search_stocks_watchlist, get_sorted_watchlist, add_custom_screener_to_watchlist,
@@ -37,6 +37,7 @@ urlpatterns = [
     path('api/account', account_info, name='account_info'),
     path('api/keycloak-login', keycloak_login, name='keycloak_login'),
     path('api/sync-keycloak-user', sync_keycloak_user, name='sync_keycloak_user'),
+    path('custom-collection/<int:collection_id>/', custom_collection_by_id, name='custom_collection_by_id'),
     path('custom-collection/', custom_collection, name='custom_collection'),
     path('custom-collection/aggregate/', custom_collection_aggregate, name='custom_collection_aggregate'),
     path('custom-collection/aggregate-graph/', custom_collection_aggregate_graph, name='custom_collection_aggregate_graph'),

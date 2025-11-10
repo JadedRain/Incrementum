@@ -2,6 +2,7 @@ import pytest
 from rest_framework.test import APIClient
 from unittest.mock import patch
 from Screeners.stock_getter import StockGetter
+from Incrementum.stocks_class import Stock
 
 pytestmark = pytest.mark.django_db
 
@@ -15,18 +16,18 @@ def api_client():
 def test_average_volume_greater_than(mock_get_stocks, api_client):
     """Test filtering stocks with average volume greater than a threshold"""
     mock_get_stocks.return_value = [
-        {
+        Stock({
             'symbol': 'HIGH_VOL1',
             'shortName': 'High Volume Stock 1',
             'averageVolume': 15000000,
             'regularMarketPrice': 150.0
-        },
-        {
+        }),
+        Stock({
             'symbol': 'HIGH_VOL2',
             'shortName': 'High Volume Stock 2',
             'averageVolume': 12000000,
             'regularMarketPrice': 85.0
-        }
+        })
     ]
     
     filters = [
@@ -49,7 +50,7 @@ def test_average_volume_greater_than(mock_get_stocks, api_client):
     assert 'stocks' in response_data
     assert response_data['count'] == 2
     
-    symbols = [stock['symbol'] for stock in response_data['stocks']]
+    symbols = [stock['symbol'] for stock in response_data['stocks']['quotes']]
     assert 'HIGH_VOL1' in symbols
     assert 'HIGH_VOL2' in symbols
 
@@ -58,18 +59,18 @@ def test_average_volume_greater_than(mock_get_stocks, api_client):
 def test_average_volume_less_than(mock_get_stocks, api_client):
     """Test filtering stocks with average volume less than a threshold"""
     mock_get_stocks.return_value = [
-        {
+        Stock({
             'symbol': 'LOW_VOL1',
             'shortName': 'Low Volume Stock 1',
             'averageVolume': 500000,
             'regularMarketPrice': 25.0
-        },
-        {
+        }),
+        Stock({
             'symbol': 'LOW_VOL2',
             'shortName': 'Low Volume Stock 2',
             'averageVolume': 750000,
             'regularMarketPrice': 30.0
-        }
+        })
     ]
     
     filters = [
@@ -92,7 +93,7 @@ def test_average_volume_less_than(mock_get_stocks, api_client):
     assert 'stocks' in response_data
     assert response_data['count'] == 2
     
-    symbols = [stock['symbol'] for stock in response_data['stocks']]
+    symbols = [stock['symbol'] for stock in response_data['stocks']['quotes']]
     assert 'LOW_VOL1' in symbols
     assert 'LOW_VOL2' in symbols
 
@@ -101,18 +102,18 @@ def test_average_volume_less_than(mock_get_stocks, api_client):
 def test_average_volume_greater_than_or_equal(mock_get_stocks, api_client):
     """Test filtering stocks with average volume greater than or equal to a threshold"""
     mock_get_stocks.return_value = [
-        {
+        Stock({
             'symbol': 'GTE_VOL1',
             'shortName': 'GTE Volume Stock 1',
             'averageVolume': 5000000,
             'regularMarketPrice': 120.0
-        },
-        {
+        }),
+        Stock({
             'symbol': 'GTE_VOL2',
             'shortName': 'GTE Volume Stock 2',
             'averageVolume': 6000000,
             'regularMarketPrice': 140.0
-        }
+        })
     ]
     
     filters = [
@@ -140,18 +141,18 @@ def test_average_volume_greater_than_or_equal(mock_get_stocks, api_client):
 def test_average_volume_less_than_or_equal(mock_get_stocks, api_client):
     """Test filtering stocks with average volume less than or equal to a threshold"""
     mock_get_stocks.return_value = [
-        {
+        Stock({
             'symbol': 'LTE_VOL1',
             'shortName': 'LTE Volume Stock 1',
             'averageVolume': 2000000,
             'regularMarketPrice': 45.0
-        },
-        {
+        }),
+        Stock({
             'symbol': 'LTE_VOL2',
             'shortName': 'LTE Volume Stock 2',
             'averageVolume': 3000000,
             'regularMarketPrice': 55.0
-        }
+        })
     ]
     
     filters = [
@@ -179,12 +180,12 @@ def test_average_volume_less_than_or_equal(mock_get_stocks, api_client):
 def test_average_volume_equal_to(mock_get_stocks, api_client):
     """Test filtering stocks with average volume exactly equal to a value"""
     mock_get_stocks.return_value = [
-        {
+        Stock({
             'symbol': 'EXACT_VOL',
             'shortName': 'Exact Volume Stock',
             'averageVolume': 5000000,
             'regularMarketPrice': 100.0
-        }
+        })
     ]
     
     filters = [
@@ -206,20 +207,20 @@ def test_average_volume_equal_to(mock_get_stocks, api_client):
     response_data = response.json()
     assert 'stocks' in response_data
     assert response_data['count'] == 1
-    assert response_data['stocks'][0]['symbol'] == 'EXACT_VOL'
+    assert response_data['stocks']['quotes'][0]['symbol'] == 'EXACT_VOL'
 
 
 @patch.object(StockGetter, 'get_stocks')
 def test_average_volume_combined_with_sector(mock_get_stocks, api_client):
     """Test combining average volume filter with sector filter"""
     mock_get_stocks.return_value = [
-        {
+        Stock({
             'symbol': 'TECH_HIGH_VOL',
             'shortName': 'Tech High Volume Stock',
             'sector': 'Technology',
             'averageVolume': 10000000,
             'regularMarketPrice': 200.0
-        }
+        })
     ]
     
     filters = [
@@ -247,25 +248,25 @@ def test_average_volume_combined_with_sector(mock_get_stocks, api_client):
     response_data = response.json()
     assert 'stocks' in response_data
     assert response_data['count'] == 1
-    assert response_data['stocks'][0]['symbol'] == 'TECH_HIGH_VOL'
+    assert response_data['stocks']['quotes'][0]['symbol'] == 'TECH_HIGH_VOL'
 
 
 @patch.object(StockGetter, 'get_stocks')
 def test_average_volume_range_filter(mock_get_stocks, api_client):
     """Test filtering stocks within an average volume range (min and max)"""
     mock_get_stocks.return_value = [
-        {
+        Stock({
             'symbol': 'MID_VOL1',
             'shortName': 'Mid Volume Stock 1',
             'averageVolume': 2500000,
             'regularMarketPrice': 75.0
-        },
-        {
+        }),
+        Stock({
             'symbol': 'MID_VOL2',
             'shortName': 'Mid Volume Stock 2',
             'averageVolume': 3500000,
             'regularMarketPrice': 85.0
-        }
+        })
     ]
     
     filters = [
@@ -396,18 +397,18 @@ def test_empty_filter_array(mock_get_stocks, api_client):
 def test_average_volume_with_zero_value(mock_get_stocks, api_client):
     """Test filtering stocks with average volume greater than zero"""
     mock_get_stocks.return_value = [
-        {
+        Stock({
             'symbol': 'ACTIVE1',
             'shortName': 'Active Stock 1',
             'averageVolume': 1000,
             'regularMarketPrice': 50.0
-        },
-        {
+        }),
+        Stock({
             'symbol': 'ACTIVE2',
             'shortName': 'Active Stock 2',
             'averageVolume': 500,
             'regularMarketPrice': 30.0
-        }
+        })
     ]
     
     filters = [
@@ -435,12 +436,12 @@ def test_average_volume_with_zero_value(mock_get_stocks, api_client):
 def test_average_volume_high_threshold(mock_get_stocks, api_client):
     """Test filtering with a very high average volume threshold"""
     mock_get_stocks.return_value = [
-        {
+        Stock({
             'symbol': 'MEGAVOL',
             'shortName': 'Mega Volume Stock',
             'averageVolume': 100000000,
             'regularMarketPrice': 150.0
-        }
+        })
     ]
     
     filters = [
@@ -462,19 +463,19 @@ def test_average_volume_high_threshold(mock_get_stocks, api_client):
     response_data = response.json()
     assert 'stocks' in response_data
     assert response_data['count'] >= 1
-    assert response_data['stocks'][0]['symbol'] == 'MEGAVOL'
+    assert response_data['stocks']['quotes'][0]['symbol'] == 'MEGAVOL'
 
 
 @patch.object(StockGetter, 'get_stocks')
 def test_multiple_numeric_filters(mock_get_stocks, api_client):
     """Test combining multiple numeric filters (average volume + price)"""
     mock_get_stocks.return_value = [
-        {
+        Stock({
             'symbol': 'FILTERED1',
             'shortName': 'Filtered Stock 1',
             'averageVolume': 5000000,
             'regularMarketPrice': 100.0
-        }
+        })
     ]
     
     filters = [

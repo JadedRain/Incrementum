@@ -8,8 +8,8 @@ class FakeLeafQuery:
         self.operator = operator
         self.payload = payload
     def get_stocks(self):
-        # Single leaf query returns one stock
-        return [{"symbol": "STK0", "filters_applied": 1}]
+        # Single leaf query returns one stock with US region
+        return [{"symbol": "STK0", "filters_applied": 1, "region": "us"}]
     def __repr__(self):
         return f"FakeLeafQuery({self.operator}, {self.payload})"
 
@@ -19,7 +19,7 @@ class FakeAndQuery:
         self.subqueries = subqueries
     def get_stocks(self):
         return [
-            {"symbol": f"STK{i}", "filters_applied": len(self.subqueries)}
+            {"symbol": f"STK{i}", "filters_applied": len(self.subqueries), "region": "us"}
             for i in range(len(self.subqueries))
         ]
     def __repr__(self):
@@ -31,43 +31,40 @@ class FakeEquityQuery:
             return FakeAndQuery(operator, payload)
         return FakeLeafQuery(operator, payload)
 
-def fake_screen(query, offset, size):
+def fake_screen(query, sortAsc = None, sortField = None, offset=0, size=25):
     if hasattr(query, 'get_stocks'):
-        return query.get_stocks()
-    return []
+        stocks = query.get_stocks()
+        # Return in the format expected by screener_constructor (dictionary with 'quotes' key)
+        return {'quotes': stocks}
+    return {'quotes': []}
 
 @pytest.mark.parametrize("filters, expected_symbols", [
-    ([], []),
-    ([FilterData('eq', 'sector', 'categoric', 'Tech')], ["STK0"]),
+    ([], ["STK0"]),  # Empty user filters, but region filter is applied, so returns stock
+    ([FilterData('eq', 'sector', 'categoric', 'Tech')], ["STK0", "STK1"]),  # 1 user filter + 1 region filter = 2 total
     ([
         FilterData('eq', 'sector', 'categoric', 'Tech'),
         FilterData('gt', 'avgdailyvol3m', 'numeric', 1000000)
-    ], ["STK0", "STK1"]),
+    ], ["STK0", "STK1", "STK2"]),  # 2 user filters + 1 region filter = 3 total
 ])
 @patch('Screeners.screener_constructor.screen', side_effect=fake_screen)
 def test_apply_screening(mock_screen, filters, expected_symbols):
     constructor = ScreenerConstructor(filters, Eq=FakeEquityQuery)
     stocks = constructor.apply_screening()
-    if not filters:
-        assert stocks == []
-    else:
-        returned_symbols = [s["symbol"] for s in stocks]
-        assert returned_symbols == expected_symbols
 
-        for s in stocks:
-            assert s["filters_applied"] == len(filters)
+    returned_symbols = [s.symbol for s in stocks]
+    assert returned_symbols == expected_symbols
 
 
 # --- Enhanced filtering semantics test ---
 
 class DatasetFilteringLeafQuery(FakeLeafQuery):
     def get_stocks(self):
-        # Simulated underlying dataset
+        # Simulated underlying dataset - all stocks are in US region
         data = [
-            {"symbol": "AAA", "sector": "Tech", "avgdailyvol3m": 2_000_000},
-            {"symbol": "BBB", "sector": "Finance", "avgdailyvol3m": 5_000_000},
-            {"symbol": "CCC", "sector": "Tech", "avgdailyvol3m": 500_000},
-            {"symbol": "DDD", "sector": "Energy", "avgdailyvol3m": 3_500_000},
+            {"symbol": "AAA", "sector": "Tech", "avgdailyvol3m": 2_000_000, "region": "us"},
+            {"symbol": "BBB", "sector": "Finance", "avgdailyvol3m": 5_000_000, "region": "us"},
+            {"symbol": "CCC", "sector": "Tech", "avgdailyvol3m": 500_000, "region": "us"},
+            {"symbol": "DDD", "sector": "Energy", "avgdailyvol3m": 3_500_000, "region": "us"},
         ]
         # Apply single leaf condition
         op = self.operator.lower()
@@ -86,12 +83,12 @@ class DatasetFilteringLeafQuery(FakeLeafQuery):
 
 class DatasetFilteringAndQuery(FakeAndQuery):
     def get_stocks(self):
-        # Simulated underlying dataset
+        # Simulated underlying dataset - all stocks are in US region
         data = [
-            {"symbol": "AAA", "sector": "Tech", "avgdailyvol3m": 2_000_000},
-            {"symbol": "BBB", "sector": "Finance", "avgdailyvol3m": 5_000_000},
-            {"symbol": "CCC", "sector": "Tech", "avgdailyvol3m": 500_000},
-            {"symbol": "DDD", "sector": "Energy", "avgdailyvol3m": 3_500_000},
+            {"symbol": "AAA", "sector": "Tech", "avgdailyvol3m": 2_000_000, "region": "us"},
+            {"symbol": "BBB", "sector": "Finance", "avgdailyvol3m": 5_000_000, "region": "us"},
+            {"symbol": "CCC", "sector": "Tech", "avgdailyvol3m": 500_000, "region": "us"},
+            {"symbol": "DDD", "sector": "Energy", "avgdailyvol3m": 3_500_000, "region": "us"},
         ]
         # Reduce dataset by applying all subquery leaf conditions (AND semantics)
         filtered = data
@@ -144,5 +141,5 @@ class DatasetFilteringEquityQuery(FakeEquityQuery):
 def test_apply_screening_filters_data(mock_screen, filters, expected):
     constructor = ScreenerConstructor(filters, Eq=DatasetFilteringEquityQuery)
     results = constructor.apply_screening()
-    symbols = {r['symbol'] for r in results}
+    symbols = {r.symbol for r in results}
     assert symbols == expected
