@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 
-type Account = { name: string; email: string; phone_number: string } | null;
+type Account = { 
+  name: string; 
+  email: string; 
+  phone_number: string;
+  is_keycloak_user: boolean;
+} | null;
 
 export default function useAccount(apiKey?: string) {
   const [account, setAccount] = useState<Account>(null);

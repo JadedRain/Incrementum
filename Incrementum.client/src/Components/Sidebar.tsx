@@ -9,32 +9,38 @@ import PercentChangeFilter from './FilterComponents/PercentChangeFilter';
 import RegionFilter from './FilterComponents/RegionFilter';
 import { useFilterData } from '../Context/FilterDataContext';
 import { useAuth } from '../Context/AuthContext';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 interface SidebarProps {
   screenerName?: string;
   screenerInWatchlist?: boolean;
   pendingScreener?: boolean;
   onToggleScreenerWatchlist?: () => void;
+  onShowToast?: (message: string) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ 
   screenerName: screenerNameProp, 
   screenerInWatchlist, 
   pendingScreener,
-  onToggleScreenerWatchlist 
+  onToggleScreenerWatchlist,
+  onShowToast
 }) => {
   // Save screener results -> custom collection UI
   const { stocks, filterDataDict } = useFilterData();
   const auth = useAuth();
   const apiKey = auth?.apiKey;
   const navigate = useNavigate();
+  const location = useLocation();
   const { id: screenerId } = useParams<{ id: string }>();
   const [collections, setCollections] = useState<string[]>([]);
   const [selectedCollection, setSelectedCollection] = useState<string>('');
   const [savingScreener, setSavingScreener] = useState(false);
   const [screenerName, setScreenerName] = useState<string>('');
   const [screenerError, setScreenerError] = useState<string>('');
+
+  const isPrebuiltScreener = screenerId && isNaN(Number(screenerId));
+  const isCreatePage = location.pathname.includes('/create');
 
   useEffect(() => {
     // load collections from localStorage for client-side demo
@@ -49,7 +55,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   const onSaveToCollection = async () => {
     const symbols = (stocks || []).map((s: any) => s.symbol).filter(Boolean);
     if (!symbols.length) {
-      alert('No stocks to save. Run the screener to get results first.');
+      if (onShowToast) {
+        onShowToast('No stocks to save. Run the screener to get results first.');
+      } else {
+        alert('No stocks to save. Run the screener to get results first.');
+      }
       return;
     }
     if (selectedCollection === 'new') {
@@ -58,7 +68,11 @@ const Sidebar: React.FC<SidebarProps> = ({
       return;
     }
     if (!selectedCollection) {
-      alert('Please select a collection or choose Create New.');
+      if (onShowToast) {
+        onShowToast('Please select a collection or choose Create New.');
+      } else {
+        alert('Please select a collection or choose Create New.');
+      }
       return;
     }
 
@@ -72,8 +86,20 @@ const Sidebar: React.FC<SidebarProps> = ({
         body: JSON.stringify({ collection: selectedCollection, symbols }),
       });
       if (!res.ok) throw new Error(`Save failed: ${res.status}`);
+      
+      // Get the response data to show actual number of stocks added
+      const responseData = await res.json();
+      const actualCount = responseData.added_count ?? responseData.count ?? symbols.length;
+      
+      // Show success toast with actual count
+      if (onShowToast) {
+        onShowToast(`Successfully saved ${actualCount} stock${actualCount !== 1 ? 's' : ''} to ${selectedCollection}`);
+      }
     } catch (err: any) {
       console.error('Save to collection error', err);
+      if (onShowToast) {
+        onShowToast('Failed to save to collection. Please try again.');
+      }
     }
   };
 
@@ -161,8 +187,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside className="sidebar">
       <Keywords />
-      {/* Watchlist button for the screener */}
-      {onToggleScreenerWatchlist && (
+      {/* Watchlist button for the screener - only show for custom screeners */}
+      {onToggleScreenerWatchlist && (!isCreatePage && !isPrebuiltScreener) && (
         <div className="mb-4 pb-4 border-b-2" style={{ borderBottomColor: 'rgba(0, 0, 0, 0.1)' }}>
           {screenerNameProp && (
             <h3 className="text-lg font-semibold mb-2 text-[hsl(40,62%,18%)]">
@@ -188,7 +214,8 @@ const Sidebar: React.FC<SidebarProps> = ({
           </button>
         </div>
       )}
-      {apiKey && (
+      {/* Save screener section - only show for custom screeners */}
+      {apiKey && (isCreatePage || !isPrebuiltScreener) && (
         <div className="sidebar-section p-2">
           <label className="block text-sm font-medium mb-1">
             {screenerId && !isNaN(Number(screenerId)) ? 'Update screener' : 'Save screener'}

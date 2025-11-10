@@ -2,7 +2,7 @@ from django.db import models
 from .models_user import Account
 
 class StockModel(models.Model):
-    symbol = models.CharField(max_length=5, primary_key=True)
+    symbol = models.CharField(max_length=20, primary_key=True)
     company_name = models.CharField(max_length=100)
 
     class Meta:

@@ -10,7 +10,7 @@ from Incrementum.models_user import Account
 
 
 @csrf_exempt
-@require_http_methods(["GET", "POST", "DELETE"])
+@require_http_methods(["GET", "POST", "DELETE", "PUT"])
 def custom_collection(request):
     try:
         import json
@@ -50,11 +50,11 @@ def custom_collection(request):
                     symbols = list(symbols_field)
             
             try:
-                custom_collection.add_stocks(api_key, collection_name, symbols, desc)
+                added_count = custom_collection.add_stocks(api_key, collection_name, symbols, desc)
             except ValueError as e:
                 return JsonResponse({'error': str(e)}, status=400)
  
-            return JsonResponse({'status': 'ok'}, status=200)
+            return JsonResponse({'status': 'ok', 'added_count': added_count}, status=200)
 
         elif request.method == "DELETE":
             symbols_field = data.get('symbols') or request.META.get('HTTP_X_SYMBOLS')
@@ -74,6 +74,32 @@ def custom_collection(request):
             except ValueError as e:
                 return JsonResponse({'error': str(e)}, status=400)
             return JsonResponse({'status': 'ok'}, status=200)
+
+        elif request.method == "PUT":
+            # Update collection name and/or description
+            new_name = data.get('new_name')
+            new_desc = data.get('new_desc')
+            
+            if not new_name and new_desc is None:
+                return JsonResponse({'error': 'new_name or new_desc is required for update'}, status=400)
+            
+            try:
+                updated_collection = custom_collection.update_collection(
+                    api_key, 
+                    collection_name, 
+                    new_name=new_name,
+                    new_desc=new_desc
+                )
+                return JsonResponse({
+                    'status': 'ok',
+                    'collection': {
+                        'id': updated_collection.id,
+                        'name': updated_collection.collection_name,
+                        'desc': updated_collection.c_desc
+                    }
+                }, status=200)
+            except ValueError as e:
+                return JsonResponse({'error': str(e)}, status=400)
 
     except Exception as e:
         logging.exception("Unhandled error in custom_collection endpoint")

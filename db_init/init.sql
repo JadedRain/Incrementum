@@ -20,14 +20,14 @@ create table incrementum.watchlist (
 );
 
 create table incrementum.stock (
-    symbol varchar(5) primary key,
+    symbol varchar(10) primary key,
     company_name varchar(100) not null
 );
 
 create table incrementum.watchlist_stock (
     id int primary key generated always as identity,
     watchlist_id int not null references incrementum.watchlist(id),
-    stock_symbol varchar(5) not null references incrementum.stock(symbol)
+    stock_symbol varchar(10) not null references incrementum.stock(symbol)
 );
     
 create table incrementum.screener (
@@ -64,7 +64,7 @@ create table incrementum.custom_collection (
 
 create table incrementum.custom_collection_stock (
     collection_id int not null references incrementum.custom_collection(id),
-    stock_symbol varchar(5) not null references incrementum.stock(symbol)
+    stock_symbol varchar(10) not null references incrementum.stock(symbol)
 );
 
 alter table incrementum.custom_collection_stock
