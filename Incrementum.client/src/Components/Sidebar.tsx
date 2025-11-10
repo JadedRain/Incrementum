@@ -83,9 +83,13 @@ const Sidebar: React.FC<SidebarProps> = ({
       });
       if (!res.ok) throw new Error(`Save failed: ${res.status}`);
       
-      // Show success toast
+      // Get the response data to show actual number of stocks added
+      const responseData = await res.json();
+      const actualCount = responseData.added_count ?? responseData.count ?? symbols.length;
+      
+      // Show success toast with actual count
       if (onShowToast) {
-        onShowToast(`Successfully saved ${symbols.length} stock${symbols.length > 1 ? 's' : ''} to ${selectedCollection}`);
+        onShowToast(`Successfully saved ${actualCount} stock${actualCount !== 1 ? 's' : ''} to ${selectedCollection}`);
       }
     } catch (err: any) {
       console.error('Save to collection error', err);
