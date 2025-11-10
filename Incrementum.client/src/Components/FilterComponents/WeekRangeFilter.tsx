@@ -56,7 +56,7 @@ const WeekRangeFilter: React.FC = () => {
   return (
     <ExpandableSidebarItem title="52-Week Range">
       <div style={{ marginBottom: '0.5rem' }}>
-        <div style={{ fontWeight: 600 }}>52-Week High</div>
+        <div style={{ fontWeight: 600 }}>52-Week High Value</div>
         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
           <input
             type="number"
@@ -77,7 +77,7 @@ const WeekRangeFilter: React.FC = () => {
         </div>
       </div>
       <div>
-        <div style={{ fontWeight: 600 }}>52-Week Low</div>
+        <div style={{ fontWeight: 600 }}>52-Week Low Value</div>
         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
           <input
             type="number"

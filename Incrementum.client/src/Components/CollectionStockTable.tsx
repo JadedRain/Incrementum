@@ -25,6 +25,8 @@ const CollectionStockTable: React.FC<CollectionStockTableProps> = ({
         <div className="StockTable-header-row" style={{ flexShrink: 0 }}>
           <div className="StockTable-header">Symbol</div>
           <div className="StockTable-header">Price</div>
+          <div className="StockTable-header">52W High</div>
+          <div className="StockTable-header">52W Low</div>
           <div className="StockTable-header">1 Day % Chg.</div>
           <div className="StockTable-header">Vol.</div>
           <div className="StockTable-header">Mkt. Cap</div>

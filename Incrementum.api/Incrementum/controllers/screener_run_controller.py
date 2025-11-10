@@ -41,6 +41,9 @@ def run_screener(request):
 
         getter = StockGetter()
         stocks = getter.get_stocks(filters)
-        return JsonResponse({"stocks": stocks, "count": len(stocks)}, status=200)
+        # Convert Stock objects to dictionaries for JSON response
+        stocks_dict = [s.to_dict() if hasattr(s, 'to_dict') else s for s in stocks]
+        # Return in the format expected by frontend: { stocks: { quotes: [...] } }
+        return JsonResponse({"stocks": {"quotes": stocks_dict}, "count": len(stocks_dict)}, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)

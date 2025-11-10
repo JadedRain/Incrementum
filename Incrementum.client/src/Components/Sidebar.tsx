@@ -236,13 +236,9 @@ const Sidebar: React.FC<SidebarProps> = ({
         </div>
       )}
       <nav className="sidebar-nav">
-        {/* {showCustomScreenerSection && (
-          <SaveCustomScreener
-            filters={filters}
-            apiKey={apiKey}
-          />
-        )} */}
-        <RegionFilter />
+        {/* Region now defaults to us*/}
+        {/* <RegionFilter /> */}
+
         <SectorFilter />
         
         {/* industry not working */}
@@ -253,6 +249,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* avgvolume.max */}
         {/* todayvolume.max */}
         <VolumeFilter />
+        
           {/* lastclose52weekhigh.min */}
           {/* lastclose52weekhigh.max  */}
         <WeekRangeFilter />
