@@ -248,6 +248,7 @@ function IndividualScreenPageContent() {
           />
         </div>
       </div>
+    </div>
   );
 }
 
