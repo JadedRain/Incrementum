@@ -3,44 +3,53 @@ import ExpandableSidebarItem from '../ExpandableSidebarItem';
 import { useFilterData } from '../../Context/FilterDataContext';
 
 const WeekRangeFilter: React.FC = () => {
-  const { addFilter, removeFilter, fetchInit } = useFilterData();
-  const initHigh = fetchInit("weekhigh") ?? {min: null, max: null}
-  const initLow = fetchInit("weeklow") ?? {min: null, max: null}
-  const [highMin, setHighMin] = useState<number | null>(initHigh.min);
-  const [highMax, setHighMax] = useState<number | null>(initHigh.max);
-  const [lowMin, setLowMin] = useState<number | null>(initLow.min);
-  const [lowMax, setLowMax] = useState<number | null>(initLow.max);
-
-  // Using unique keys for the filter dictionary
-  const highMinKey = '52weekhigh_min';
-  const highMaxKey = '52weekhigh_max';
-  const lowMinKey = '52weeklow_min';
-  const lowMaxKey = '52weeklow_max';
-  
-  // The actual yfinance field names
-  const operandHighKey = 'lastclose52weekhigh.lasttwelvemonths';
-  const operandLowKey = 'lastclose52weeklow.lasttwelvemonths';
-  
+  const { addFilter, removeFilter, fetchInit, initDict } = useFilterData();
+  const [highMax, setHighMax] = useState<number | null>(null);
+  const [highMin, setHighMin] = useState<number | null>(null);
+  const [lowMin, setLowMin] = useState<number | null>(null);
+  const [lowMax, setLowMax] = useState<number | null>(null);
+              useEffect(() => {
+              console.log(initDict)
+              const init = fetchInit("weekhigh");
+              console.log(init)
+              if (init) {
+                setHighMin(init.low ?? null);
+                setHighMax(init.high ?? null);
+              }
+            }, [initDict]);
+                          useEffect(() => {
+              console.log(initDict)
+              const init = fetchInit("weeklow");
+              console.log(init)
+              if (init) {
+                setLowMax(init.high ?? null);
+                setLowMin(init.low ?? null);
+              }
+            }, [initDict]);
+  const highMinKey = 'lastclose52weekhigh.lasttwelvemonths';
+  const highMaxKey = 'lastclose52weekhigh.lasttwelvemonths';
+  const lowMinKey = 'lastclose52weeklow.lasttwelvemonths';
+  const lowMaxKey = 'lastclose52weeklow.lasttwelvemonths';
   const showHighWarning = highMin !== null && highMax !== null && highMin > highMax;
   const showLowWarning = lowMin !== null && lowMax !== null && lowMin > lowMax;
 
   useEffect(() => {
-    if (highMin !== null) addFilter(highMinKey, { operand: operandHighKey, operator: 'gt', filter_type: 'numeric', value_high: null, value_low: null, value: highMin });
+    if (highMin !== null) addFilter(highMinKey, { operand: highMinKey, operator: 'gte', filter_type: 'numeric', value_high: null, value_low: null, value: highMin });
     else removeFilter(highMinKey);
   }, [highMin, addFilter, removeFilter]);
 
   useEffect(() => {
-    if (highMax !== null) addFilter(highMaxKey, { operand: operandHighKey, operator: 'lt', filter_type: 'numeric', value_high: null, value_low: null, value: highMax });
+    if (highMax !== null) addFilter(highMaxKey, { operand: highMaxKey, operator: 'lte', filter_type: 'numeric', value_high: null, value_low: null, value: highMax });
     else removeFilter(highMaxKey);
   }, [highMax, addFilter, removeFilter]);
 
   useEffect(() => {
-    if (lowMin !== null) addFilter(lowMinKey, { operand: operandLowKey, operator: 'gt', filter_type: 'numeric', value_high: null, value_low: null, value: lowMin });
+    if (lowMin !== null) addFilter(lowMinKey, { operand: lowMinKey, operator: 'gte', filter_type: 'numeric', value_high: null, value_low: null, value: lowMin });
     else removeFilter(lowMinKey);
   }, [lowMin, addFilter, removeFilter]);
 
   useEffect(() => {
-    if (lowMax !== null) addFilter(lowMaxKey, { operand: operandLowKey, operator: 'lt', filter_type: 'numeric', value_high: null, value_low: null, value: lowMax });
+    if (lowMax !== null) addFilter(lowMaxKey, { operand: lowMaxKey, operator: 'lte', filter_type: 'numeric', value_high: null, value_low: null, value: lowMax });
     else removeFilter(lowMaxKey);
   }, [lowMax, addFilter, removeFilter]);
 
@@ -99,7 +108,7 @@ const WeekRangeFilter: React.FC = () => {
         </div>
       )}
       <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#2b2b2b' }}>
-        Filter stocks by their 52-week high/low price values. Example: Set 52-Week High Min=$10 to find stocks whose 52-week high was above $10.
+        (Min filter uses &gt;=, Max filter uses &lt;=. Empty inputs remove the filter.)
       </div>
     </ExpandableSidebarItem>
   );
