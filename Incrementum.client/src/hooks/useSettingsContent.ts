@@ -1,6 +1,11 @@
 import { useMemo } from "react";
 
-type Account = { name: string; email: string; phone_number: string } | null;
+type Account = { 
+  name: string; 
+  email: string; 
+  phone_number: string;
+  keycloak_id?: string | null;
+} | null;
 
 type Row = { label: string; value: any };
 type Section = { title?: string; rows: Row[] };
@@ -8,14 +13,22 @@ type Section = { title?: string; rows: Row[] };
 export default function useSettingsContent(active: "account" | "notification" | "customize", account: Account) {
   return useMemo(() => {
     if (active === "account") {
+      const isKeycloakUser = !!account?.keycloak_id;
+      
+      const accountRows: Row[] = [
+        { label: "Name", value: account?.name ?? "—" },
+        { label: "Email", value: account?.email ?? "—" },
+      ];
+      
+      // Only show phone number if not a Keycloak user
+      if (!isKeycloakUser) {
+        accountRows.push({ label: "Phone Number", value: account?.phone_number ?? "—" });
+      }
+      
       const sections: Section[] = [
         {
           title: "Account Info",
-          rows: [
-            { label: "Name", value: account?.name ?? "—" },
-            { label: "Email", value: account?.email ?? "—" },
-            { label: "Phone Number", value: account?.phone_number ?? "—" },
-          ],
+          rows: accountRows,
         },
       ];
       return { title: "Account Settings", sections };

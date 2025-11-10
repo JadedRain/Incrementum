@@ -38,9 +38,9 @@ def update_stocks_in_db_from_finnhub(stock_data):
         if symbol:
             company_name = description.title()
             # Skip stocks violating table rules
-            if len(symbol) > 4:
-                print(f"Skipping symbol '{symbol}' (length > 4)")
-                continue
+            # if len(symbol) > 4:
+            #     print(f"Skipping symbol '{symbol}' (length > 4)")
+            #     continue
             StockModel.objects.update_or_create(
                 symbol=symbol,
                 defaults={'company_name': company_name}
