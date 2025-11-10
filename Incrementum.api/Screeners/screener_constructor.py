@@ -6,7 +6,9 @@ from Screeners.moving_average_52 import fifty_two_high, fifty_two_low
 from Screeners.numeric_screeners import NumericScreeners
 
 class ScreenerConstructor:
-    def __init__(self, filters: list[FilterData], Eq = EquityQuery):
+    def __init__(self, filters: list[FilterData], value: str = None, bool: bool = None, Eq = EquityQuery):
+        self.value = value
+        self.bool = bool
         self.EquityQuery = Eq
         self.screeners = []  # Screener classes to apply after yfinance
         
@@ -63,7 +65,7 @@ class ScreenerConstructor:
         
         # Handle empty filters case
         if not categoric and not self.filters_numeric:
-            result = screen(region_filter, size=250)
+            result = screen(region_filter, size=250, sortAsc = self.value, sortField=self.value)
         else:
             # Combine all filters with the region filter
             all_filters = categoric + self.filters_numeric + [region_filter]

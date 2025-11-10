@@ -38,10 +38,18 @@ def run_screener(request):
                 if not (isinstance(value, (list, tuple)) and len(value) == 2):
                     return JsonResponse({"error": f"Between operator requires a 2-element value at index {index}"}, status=400)
             filters.append(FilterData(operator, operand, filter_type, value))
+        sort_value = request.META.get("HTTP_SORTVALUE")
+        sort_bool = request.META.get("HTTP_SORTBOOL") == "true" 
+        if request.META.get("HTTP_SORTBOOL") == None:
+            sort_bool = None
 
         getter = StockGetter()
+        if sort_value is None or sort_bool is None:
+            print("No sorting headers provided — skipping sort.")
+            getter.addSort(sort_value, sort_bool)
+        else:
+            print(f"Sorting by {sort_value}, ascending: {sort_bool}")
         stocks = getter.get_stocks(filters)
-        # Convert Stock objects to dictionaries for JSON response
         stocks_dict = [s.to_dict() if hasattr(s, 'to_dict') else s for s in stocks]
         # Return in the format expected by frontend: { stocks: { quotes: [...] } }
         return JsonResponse({"stocks": {"quotes": stocks_dict}, "count": len(stocks_dict)}, status=200)
