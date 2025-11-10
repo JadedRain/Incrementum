@@ -37,6 +37,6 @@ class ScreenerConstructor:
             return []
         
         if not self.filters_numeric:
-            return screen(self.EquityQuery("and", categoric) if len(categoric) > 1 else categoric[0])
+            return screen(self.EquityQuery("and", categoric) if len(categoric) > 1 else categoric[0], offset=0, size=250)
         both = categoric + self.filters_numeric
-        return screen(self.EquityQuery('and', self.filters_numeric + categoric) if len(both) > 1 else both[0])
+        return screen(self.EquityQuery('and', self.filters_numeric + categoric) if len(both) > 1 else both[0], offset=0, size=250)
