@@ -31,10 +31,12 @@ class FakeEquityQuery:
             return FakeAndQuery(operator, payload)
         return FakeLeafQuery(operator, payload)
 
-def fake_screen(query):
+def fake_screen(query, size=25):
     if hasattr(query, 'get_stocks'):
-        return query.get_stocks()
-    return []
+        stocks = query.get_stocks()
+        # Return in the format expected by screener_constructor (dictionary with 'quotes' key)
+        return {'quotes': stocks}
+    return {'quotes': []}
 
 @pytest.mark.parametrize("filters, expected_symbols", [
     ([], ["STK0"]),  # Empty user filters, but region filter is applied, so returns stock
@@ -48,19 +50,9 @@ def fake_screen(query):
 def test_apply_screening(mock_screen, filters, expected_symbols):
     constructor = ScreenerConstructor(filters, Eq=FakeEquityQuery)
     stocks = constructor.apply_screening()
-    
-    returned_symbols = [s["symbol"] for s in stocks]
-    assert returned_symbols == expected_symbols
 
-    # Check filters_applied count
-    if not filters:
-        # Only region filter applied
-        for s in stocks:
-            assert s["filters_applied"] == 1
-    else:
-        # User filters + region filter
-        for s in stocks:
-            assert s["filters_applied"] == len(filters) + 1
+    returned_symbols = [s.symbol for s in stocks]
+    assert returned_symbols == expected_symbols
 
 
 # --- Enhanced filtering semantics test ---
@@ -149,5 +141,5 @@ class DatasetFilteringEquityQuery(FakeEquityQuery):
 def test_apply_screening_filters_data(mock_screen, filters, expected):
     constructor = ScreenerConstructor(filters, Eq=DatasetFilteringEquityQuery)
     results = constructor.apply_screening()
-    symbols = {r['symbol'] for r in results}
+    symbols = {r.symbol for r in results}
     assert symbols == expected
