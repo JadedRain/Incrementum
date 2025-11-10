@@ -37,6 +37,21 @@
   @apply gap-2;
 }
 
+@media (max-width: 1200px) {
+  .WatchlistPage-main-content {
+    @apply ml-8;
+    @apply px-4;
+  }
+}
+
+@media (max-width: 768px) {
+  .WatchlistPage-main-content {
+    @apply ml-0;
+    @apply pt-24;
+    @apply px-2;
+  }
+}
+
 .WatchlistPage-Sidebar {
   @apply w-[200px];
   @apply ml-8;
@@ -81,13 +96,46 @@
   z-index: 100;
 }
 
+@media (max-width: 1600px) {
+  .WatchlistPage-right-sidebar {
+    width: 280px;
+    right: 20px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .WatchlistPage-right-sidebar {
+    display: none;
+  }
+}
+
 .WatchlistPage-card-grid {
   display: grid;
-  grid-template-columns: repeat(3, 325px);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 325px));
   gap: 2.5rem;
   row-gap: 2.5rem;
   justify-content: start;
   flex: 1;
+}
+
+@media (max-width: 1400px) {
+  .WatchlistPage-card-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 325px));
+  }
+}
+
+@media (max-width: 1200px) {
+  .WatchlistPage-card-grid {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .WatchlistPage-card-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 0 1rem;
+  }
 }
 
 .Add-screener-button {
@@ -98,13 +146,23 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  width: auto;
-  min-width: 64px;
-  padding: 0.35rem 0.9rem;
-  border-radius: 0.3rem;
-  background-color: hsl(40,63%,63%);
-  color: hsl(40,46%,36%);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.35);
-  border: 1px solid rgba(40,40,40,0.4);
-  backdrop-filter: blur(4px);
+  @apply bg-[hsl(40,63%,63%)];
+  @apply text-[hsl(40,46%,36%)];
+  @apply px-4;
+  @apply py-2;
+  @apply rounded;
+  @apply shadow-lg;
+  font-family: "Newsreader", serif;
+}
+
+@media (max-width: 1600px) {
+  .Add-screener-button {
+    right: 20px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .Add-screener-button {
+    display: none;
+  }
 }

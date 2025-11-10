@@ -40,10 +40,22 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
-      '/custom-collection/': {
+      '/custom-collections/': {
         target: 'http://api:8000',
         changeOrigin: true,
         secure: false,
+      },
+      '/custom-collection': {
+        target: 'http://api:8000',
+        changeOrigin: true,
+        secure: false,
+        bypass: (req) => {
+          const path = req.url || '';
+          if (/^\/custom-collection\/\d+\/?$/.test(path) && !req.headers['x-user-id']) {
+            return '/index.html';
+          }
+          return null;
+        }
       },
       '/stocks/getfilteredstocks': {
         target: 'http://api:8000',
