@@ -26,6 +26,8 @@ interface FilterDataContextType {
   isInit: boolean;
   setIsInit: React.Dispatch<React.SetStateAction<boolean>>;
   initDict: Record<string, any>;
+  setSortValue: React.Dispatch<React.SetStateAction<string | null>>;
+  setSortBool: React.Dispatch<React.SetStateAction<string | null>>;
 
 }
 
@@ -50,6 +52,8 @@ export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
   const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
   const [stocks, setStocks] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [sortValue, setSortValue] = useState<string | null>(null);
+  const [sortBool, setSortBool] =  useState<string| null>(null);
   const [error, setError] = useState<string | null>(null);
     const addFilter = useCallback((key: string, filter: FilterData) => {
     setFilterDataDict((prev) => ({ ...prev, [key]: filter }));
@@ -79,9 +83,16 @@ export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
       try {
         const jsonData = JSON.stringify(filtersList)
         console.log(jsonData)
+              const headerlist: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+        if(sortValue != null && sortBool != null){
+          headerlist["sortValue"] = sortValue;
+          headerlist["sortBool"] = sortBool;
+        }
         const response = await fetch("/stocks/getfilteredstocks", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: headerlist,
           body: jsonData, // send as list of values
         });
 
@@ -105,6 +116,8 @@ export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
   return (
     <FilterDataContext.Provider
       value={{
+        setSortBool,
+        setSortValue,
         initDict,
         setIsInit,
         isInit,
