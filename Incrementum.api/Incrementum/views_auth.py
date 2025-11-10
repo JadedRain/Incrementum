@@ -147,6 +147,6 @@ def account_info(request):
             'name': account.name,
             'email': account.email,
             'phone_number': account.phone_number,
-            'keycloak_id': account.keycloak_id
+            'is_keycloak_user': bool(account.keycloak_id)
         })
     return JsonResponse({'error': 'Invalid method'}, status=405)

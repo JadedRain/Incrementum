@@ -4,7 +4,7 @@ type Account = {
   name: string; 
   email: string; 
   phone_number: string;
-  keycloak_id?: string | null;
+  is_keycloak_user: boolean;
 } | null;
 
 export default function useAccount(apiKey?: string) {

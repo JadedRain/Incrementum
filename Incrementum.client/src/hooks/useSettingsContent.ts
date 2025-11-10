@@ -4,7 +4,7 @@ type Account = {
   name: string; 
   email: string; 
   phone_number: string;
-  keycloak_id?: string | null;
+  is_keycloak_user: boolean;
 } | null;
 
 type Row = { label: string; value: any };
@@ -13,7 +13,7 @@ type Section = { title?: string; rows: Row[] };
 export default function useSettingsContent(active: "account" | "notification" | "customize", account: Account) {
   return useMemo(() => {
     if (active === "account") {
-      const isKeycloakUser = !!account?.keycloak_id;
+      const isKeycloakUser = account?.is_keycloak_user ?? false;
       
       const accountRows: Row[] = [
         { label: "Name", value: account?.name ?? "—" },

@@ -70,10 +70,6 @@ function ScreenerPage() {
                     </div>
                 </div>
                 
-                {/* Independent sidebar positioned outside container */}
-                <div className="ScreenerPage-right-sidebar">
-                    {/* Empty sidebar - content can be added later */}
-                </div>
             </div>
         </div>
     );

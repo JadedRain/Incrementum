@@ -16,13 +16,15 @@ interface SidebarProps {
   screenerInWatchlist?: boolean;
   pendingScreener?: boolean;
   onToggleScreenerWatchlist?: () => void;
+  onShowToast?: (message: string) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ 
   screenerName: screenerNameProp, 
   screenerInWatchlist, 
   pendingScreener,
-  onToggleScreenerWatchlist 
+  onToggleScreenerWatchlist,
+  onShowToast
 }) => {
   // Save screener results -> custom collection UI
   const { stocks, filterDataDict } = useFilterData();
@@ -49,7 +51,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   const onSaveToCollection = async () => {
     const symbols = (stocks || []).map((s: any) => s.symbol).filter(Boolean);
     if (!symbols.length) {
-      alert('No stocks to save. Run the screener to get results first.');
+      if (onShowToast) {
+        onShowToast('No stocks to save. Run the screener to get results first.');
+      } else {
+        alert('No stocks to save. Run the screener to get results first.');
+      }
       return;
     }
     if (selectedCollection === 'new') {
@@ -58,7 +64,11 @@ const Sidebar: React.FC<SidebarProps> = ({
       return;
     }
     if (!selectedCollection) {
-      alert('Please select a collection or choose Create New.');
+      if (onShowToast) {
+        onShowToast('Please select a collection or choose Create New.');
+      } else {
+        alert('Please select a collection or choose Create New.');
+      }
       return;
     }
 
@@ -72,8 +82,16 @@ const Sidebar: React.FC<SidebarProps> = ({
         body: JSON.stringify({ collection: selectedCollection, symbols }),
       });
       if (!res.ok) throw new Error(`Save failed: ${res.status}`);
+      
+      // Show success toast
+      if (onShowToast) {
+        onShowToast(`Successfully saved ${symbols.length} stock${symbols.length > 1 ? 's' : ''} to ${selectedCollection}`);
+      }
     } catch (err: any) {
       console.error('Save to collection error', err);
+      if (onShowToast) {
+        onShowToast('Failed to save to collection. Please try again.');
+      }
     }
   };
 

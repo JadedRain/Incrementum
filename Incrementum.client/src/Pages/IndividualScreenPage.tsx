@@ -28,6 +28,11 @@ function IndividualScreenPageContent() {
   const { watchlistScreenerIds, setWatchlistScreenerIds } = useWatchlistScreeners(apiKey);
 
   const { id } = useParams<{ id: string }>();
+  
+  const showToast = (message: string) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 3000);
+  };
 
   const { data: screenerData } = useQuery<CustomScreener>({
     queryKey: ["customScreener", id],
@@ -202,13 +207,14 @@ function IndividualScreenPageContent() {
                 pendingSymbol={pending}
               />
             </div>
-            <Sidebar />
+            <Sidebar onShowToast={showToast} />
           </div>
           <Sidebar 
             screenerName={screenerData?.screener_name}
             screenerInWatchlist={screenerInWatchlist}
             pendingScreener={pendingScreener}
             onToggleScreenerWatchlist={apiKey ? handleToggleScreenerWatchlist : undefined}
+            onShowToast={showToast}
           />
         </div>
       </div>
