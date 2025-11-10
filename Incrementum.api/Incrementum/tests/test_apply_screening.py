@@ -31,7 +31,7 @@ class FakeEquityQuery:
             return FakeAndQuery(operator, payload)
         return FakeLeafQuery(operator, payload)
 
-def fake_screen(query, offset, size):
+def fake_screen(query, offset, size=25):
     if hasattr(query, 'get_stocks'):
         stocks = query.get_stocks()
         # Return in the format expected by screener_constructor (dictionary with 'quotes' key)
