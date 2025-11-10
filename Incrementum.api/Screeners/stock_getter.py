@@ -6,7 +6,7 @@ class StockGetter:
     def __init__(self):
         self.value = None
         self.bool = None
-    def addsort(self, sortValue: str, sortBool: bool):
+    def addSort(self, sortValue: str, sortBool: bool):
         self.value = sortValue
         self.bool = sortBool
     def get_stocks(self, filters: FilterData) -> list[Stock]:

@@ -6,7 +6,7 @@ from Screeners.moving_average_52 import fifty_two_high, fifty_two_low
 from Screeners.numeric_screeners import NumericScreeners
 
 class ScreenerConstructor:
-    def __init__(self, filters: list[FilterData], value: str, bool: bool, Eq = EquityQuery):
+    def __init__(self, filters: list[FilterData], value: str = None, bool: bool = None, Eq = EquityQuery):
         self.value = value
         self.bool = bool
         self.EquityQuery = Eq
