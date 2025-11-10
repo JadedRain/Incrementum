@@ -25,3 +25,15 @@
   @apply text-center; 
   @apply tracking-wide;
 }
+
+@media (max-width: 768px) {
+  .CustomCollectionsPage-h1 {
+    @apply text-2xl;
+  }
+}
+
+@media (max-width: 480px) {
+  .CustomCollectionsPage-h1 {
+    @apply text-xl;
+  }
+}

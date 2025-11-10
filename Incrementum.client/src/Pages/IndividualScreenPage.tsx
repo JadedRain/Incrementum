@@ -219,6 +219,13 @@ function IndividualScreenPageContent() {
         <Toast message={toast} />
         <div className="main-content">
           <div className="pt-32 px-8 ScreenerPage-main-layout">
+            {/* Sidebar appears first on smaller screens, will stack above table */}
+            <Sidebar 
+              screenerName={screenerData?.screener_name}
+              screenerInWatchlist={screenerInWatchlist}
+              pendingScreener={pendingScreener}
+              onToggleScreenerWatchlist={apiKey ? handleToggleScreenerWatchlist : undefined}
+            />
             <div className="w-full flex">
               <StockTable
                 onRowClick={(symbol: string) => navigate(`/stock/${symbol}`)}
@@ -227,14 +234,7 @@ function IndividualScreenPageContent() {
                 pendingSymbol={pending}
               />
             </div>
-            <Sidebar />
           </div>
-          <Sidebar 
-            screenerName={screenerData?.screener_name}
-            screenerInWatchlist={screenerInWatchlist}
-            pendingScreener={pendingScreener}
-            onToggleScreenerWatchlist={apiKey ? handleToggleScreenerWatchlist : undefined}
-          />
         </div>
       </div>
   );

@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap");
 @import "tailwindcss";
+@import "./styles/responsive.css";
 
 .text-red-500 {
   @apply text-red-600;
@@ -46,6 +47,13 @@
     @apply shadow-md;
   }
 
+@media (max-width: 768px) {
+  .ScreenerPage-header {
+    @apply h-16;
+    @apply py-2;
+  }
+}
+
 .ScreenerPage-button {
     @apply ml-4;
     @apply px-4;
@@ -67,8 +75,21 @@
   @apply tracking-wide;
 }
 
+@media (max-width: 768px) {
+  .ScreenerPage-h1 {
+    @apply text-2xl;
+  }
+}
+
+@media (max-width: 480px) {
+  .ScreenerPage-h1 {
+    @apply text-xl;
+  }
+}
+
 .ScreenerPage-card {
-  @apply w-[325px];
+  @apply w-full;
+  @apply max-w-[325px];
   @apply bg-[hsl(40,63%,63%)];
   @apply rounded-sm;
   @apply p-0;
@@ -83,6 +104,14 @@
   @apply overflow-hidden;
   box-shadow: 4px 8px 6px rgba(0, 0, 0, 0.5);
   height: 357px !important;
+}
+
+@media (max-width: 768px) {
+  .ScreenerPage-card {
+    max-width: 100%;
+    height: auto !important;
+    min-height: 280px;
+  }
 }
 
 .ScreenerPage-card-image {
@@ -108,7 +137,8 @@
 }
 
 .ScreenerPage-card-custom {
-  @apply w-[325px];
+  @apply w-full;
+  @apply max-w-[325px];
   @apply h-[357px];
   @apply bg-[hsl(40,63%,63%)];
   @apply text-[hsl(41,61%,9%)];
@@ -127,6 +157,14 @@
   @apply border-dotted; 
   @apply border-[hsl(40,10%,17%)];
   @apply overflow-hidden;
+}
+
+@media (max-width: 768px) {
+  .ScreenerPage-card-custom {
+    max-width: 100%;
+    height: auto;
+    min-height: 280px;
+  }
 }
 
 .ScreenerPage-card-title {
@@ -170,11 +208,34 @@
 
 .ScreenerPage-card-grid {
   display: grid;
-  grid-template-columns: repeat(4, 325px);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 325px));
   gap: 2rem;
   row-gap: 2.5rem;
   justify-content: center;
   flex: 1;
+  width: 100%;
+  max-width: calc(100vw - 400px);
+}
+
+@media (max-width: 1600px) {
+  .ScreenerPage-card-grid {
+    max-width: calc(100vw - 100px);
+  }
+}
+
+@media (max-width: 1200px) {
+  .ScreenerPage-card-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 325px));
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .ScreenerPage-card-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 0 1rem;
+  }
 }
 
 .ScreenerPage-container {
@@ -185,6 +246,20 @@
   @apply justify-center;
   @apply items-start;
   @apply gap-2;
+}
+
+@media (max-width: 1200px) {
+  .ScreenerPage-container {
+    @apply px-4;
+  }
+}
+
+@media (max-width: 768px) {
+  .ScreenerPage-container {
+    @apply pt-24;
+    @apply px-2;
+    @apply flex-col;
+  }
 }
 
 .ScreenerPage-right-sidebar {
@@ -198,6 +273,19 @@
   top: calc(var(--header-height) + 40px);
   right: 50px;
   z-index: 100;
+}
+
+@media (max-width: 1600px) {
+  .ScreenerPage-right-sidebar {
+    right: 20px;
+    width: 280px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .ScreenerPage-right-sidebar {
+    display: none;
+  }
 }
 
 .newsreader-font {
@@ -229,6 +317,21 @@
 body { padding-top: var(--header-height); background-color: hsl(40,13%,53%);}
 
 /* IndividualScreenPage specific StockTable styling */
+.ScreenerPage-main-layout {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  position: relative;
+}
+
+/* On smaller screens, stack vertically */
+@media (max-width: 1400px) {
+  .ScreenerPage-main-layout {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
 .ScreenerPage-main-layout .StockTable-container {
   position: fixed;
   top: calc(var(--header-height) + 40px);
@@ -237,4 +340,22 @@ body { padding-top: var(--header-height); background-color: hsl(40,13%,53%);}
   max-width: 1400px;
   height: calc(100vh - var(--header-height) - 80px);
   overflow-y: auto;
+}
+
+@media (max-width: 1600px) {
+  .ScreenerPage-main-layout .StockTable-container {
+    left: 40px;
+    width: calc(100vw - 360px);
+  }
+}
+
+@media (max-width: 1400px) {
+  .ScreenerPage-main-layout .StockTable-container {
+    position: static;
+    left: auto;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: calc(100vh - 300px);
+  }
 }
