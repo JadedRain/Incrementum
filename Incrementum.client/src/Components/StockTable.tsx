@@ -52,19 +52,14 @@ export default function StockTable({ onRowClick, watchlistSymbols, onToggleWatch
   return (
     <div className="StockTable-container">
       <div className="StockTable-header-row">
-           <div className="StockTable-header">Symbol</div>
-           <div className="StockTable-header">Price</div>
-           <div className="StockTable-header">52W High</div>
-           <div className="StockTable-header">52W Low</div>
-           <div className="StockTable-header">1 Day % Chg.</div>
-           <div className="StockTable-header">Vol.</div>
-           <div className="StockTable-header">Mkt. Cap</div>
            <div className="StockTable-header sortable" onClick={() => handleHeaderClick('name')}>
              Symbol{getSortIndicator('name')}
            </div>
            <div className="StockTable-header sortable" onClick={() => handleHeaderClick('price')}>
              Price{getSortIndicator('price')}
            </div>
+           <div className="StockTable-header">52W High</div>
+           <div className="StockTable-header">52W Low</div>
            <div className="StockTable-header sortable" onClick={() => handleHeaderClick('percentChange')}>
              1 Day % Chg.{getSortIndicator('percentChange')}
            </div>
