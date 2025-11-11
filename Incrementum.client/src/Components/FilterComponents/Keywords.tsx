@@ -40,9 +40,9 @@ const Keywords: React.FC = () => {
           let displayText = '';
           if (filter.filter_type === 'numeric') {
             if (filter.value_low !== null && filter.value_high !== null) {
-              displayText = `${filter.operand.split(".")[0]}: ${operator_translator[filter.operator]} - ${filter.value_high}`;
+              displayText = `${filter.operand.split(".")[0]}: ${operator_translator[filter.operator]} ${filter.value_high}`;
             } else if (filter.value !== null) {
-              displayText = `${filter.operand.split(".")[0]} ${operator_translator[filter.operator]}: ${filter.value}`;
+              displayText = `${filter.operand.split(".")[0]}: ${operator_translator[filter.operator]} ${filter.value}`;
             }
           } else if (filter.filter_type === 'categoric') {
             displayText = `${filter.operand.split(".")[0]} : ${filter.value}`;
