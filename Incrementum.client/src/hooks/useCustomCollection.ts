@@ -104,7 +104,7 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
   const updateCollectionName = async (newName: string, newDesc?: string) => {
     if (!newName.trim()) {
       setError("Collection name cannot be empty");
-      return;
+      return false;
     }
 
     const oldName = collectionName;
@@ -158,6 +158,7 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
             }
           }
         }
+        return true;
       } catch (err: any) {
         setCollectionName(oldName);
         setCollectionDesc(oldDesc);
@@ -171,6 +172,7 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
           }
         }
         setError("Failed to update collection name: " + err.message);
+        return false;
       }
     }
   };

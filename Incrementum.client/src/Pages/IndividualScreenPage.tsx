@@ -16,6 +16,7 @@ import { FilterDataProvider, useFilterData } from '../Context/FilterDataContext'
 import { getDefaultFilterDict } from './DefaultScreenerHelper';
 import type {RangeFilter} from "./DefaultScreenerHelper"
 import FilterList from '../Components/FilterList';
+
 function IndividualScreenPageContent() {
   const navigate = useNavigate();
   const { apiKey } = useAuth();
