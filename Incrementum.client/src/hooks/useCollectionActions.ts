@@ -25,7 +25,6 @@ export const useCollectionActions = ({
     if (!symbol) return;
 
     if (!id) {
-      try {
         const up = symbol.toUpperCase();
         const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
         const idx = collections.findIndex((c: any) => String(c.name) === String(collectionName) || String(c.collection_name) === String(collectionName));
@@ -41,9 +40,6 @@ export const useCollectionActions = ({
           setTokens(collections[idx].stocks);
         }
         onClearSearch();
-      } catch (e) {
-        // ignore localStorage errors
-      }
       return;
     }
 
