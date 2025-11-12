@@ -1,230 +1,232 @@
 import '../styles/SearchBar.css'
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import '../styles/Collections/CreateCustomCollectionsPage.css'
+import { useState} from 'react';
 import { useAuth } from '../Context/AuthContext';
-import BackButton from '../Components/BackButton';
+import NavigationBar from '../Components/NavigationBar';
+import StockSearchPanel from '../Components/StockSearchPanel';
+import CollectionNameEditor from '../Components/CollectionNameEditor';
+import { useCollectionActions } from '../hooks/useCollectionActions';
+import { useStockDetails } from '../hooks/useStockDetails';
+import { useCustomCollection } from '../hooks/useCustomCollection';
+import { useNavigate, useParams } from 'react-router-dom';
+import CreateCustomCollectionStockTable from '../Components/CreateCustomCollectionStockTable';
+
 
 const CreateCustomCollectionPage = () => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [newToken, setNewToken] = useState('');
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const { apiKey } = useAuth();
+
+  const [editNameMode, setEditNameMode] = useState(false);
+  const [pendingName, setPendingName] = useState("");
+  const [pendingDescription, setPendingDescription] = useState("");
+  const [newToken, setNewToken] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searching, setSearching] = useState(false);
-  const [selectedStocks, setSelectedStocks] = useState<string[]>([]);
-  const [defaultNameNumber, setDefaultNameNumber] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
-  const auth = useAuth();
-  const apiKeyFromContext = auth?.apiKey;
 
-  // TODO: Replace with real authentication check
-  const isAuthenticated = true;
-
-  useEffect(() => {
-    // Get the next default name number from localStorage
-    const storedNum = localStorage.getItem('customCollectionNameNumber');
-    let num = 1;
-    if (storedNum) {
-      num = parseInt(storedNum, 10);
-      if (isNaN(num) || num < 1) num = 1;
+  const handleSaveCollection = async () => {
+    const nameToUse = (collectionName && collectionName.trim()) || (pendingName && pendingName.trim());
+    const descToUse = pendingDescription || '';
+    if (!nameToUse) {
+      setError('Collection name is required');
+      return;
     }
-    setDefaultNameNumber(num);
-  }, []);
 
-  // Prefill selected stocks if navigation state provided
-  const location = useLocation();
-  useEffect(() => {
-    const state: any = location.state as any;
-    if (state && Array.isArray(state.selectedStocks) && state.selectedStocks.length > 0) {
-      setSelectedStocks(state.selectedStocks.map((s: any) => String(s)));
+    if (!tokens || tokens.length === 0) {
+      setError('Please add at least one stock to the collection before saving.');
+      return;
     }
-  }, [location]);
+
+    if (!apiKey) {
+      try {
+        const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
+        const newCollection = { id: Date.now(), name: nameToUse, stocks: tokens, c_desc: descToUse };
+        collections.push(newCollection);
+        localStorage.setItem('customCollections', JSON.stringify(collections));
+
+        setTokens([]);
+        setPendingName('');
+        setPendingDescription('');
+        setNewToken('');
+        setSearchResults([]);
+        setEditNameMode(false);
+        setError('');
+
+        navigate('/custom-collections');
+      } catch (e: unknown) {
+        setError('Save: ' + String(e));
+      }
+      return;
+    }
+
+    try {
+      const res = await fetch('/custom-collection/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': apiKey
+        },
+        body: JSON.stringify({ collection: nameToUse, symbols: tokens, desc: descToUse })
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        try {
+          const errObj = JSON.parse(text);
+          setError(errObj.error || `Failed to create collection: ${res.status}`);
+        } catch {
+          setError(`Failed to create collection: ${res.status}`);
+        }
+        return;
+      }
+
+      const data = await res.json();
+      try {
+        const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
+        const newCollection = { id: data.id || Date.now(), name: nameToUse, stocks: tokens, c_desc: descToUse };
+        collections.push(newCollection);
+        localStorage.setItem('customCollections', JSON.stringify(collections));
+      } catch {
+        void 0; // ignore localStorage errors
+      }
 
 
-  // Search for stocks by symbol or name
+      setTokens([]);
+      setPendingName('');
+      setPendingDescription('');
+      setNewToken('');
+      setSearchResults([]);
+      setEditNameMode(false);
+      setError('');
+
+      navigate('/custom-collections');
+    } catch (err: unknown) {
+      setError('Save: ' + String(err));
+    }
+  };
+
+  const { tokens, setTokens, collectionName, collectionDesc, updateCollectionName, error, setError, refreshCollection } =
+    useCustomCollection({ id, apiKey });
+
+  const { stocksData, loadingStocks } = useStockDetails(tokens);
+
   const searchStocks = async () => {
-    if (!newToken.trim()) return;
+    if (!newToken) return;
     setSearching(true);
     setSearchResults([]);
     try {
-      // Use your backend search endpoint, adjust as needed
       const res = await fetch(`http://localhost:8000/searchStocks/${encodeURIComponent(newToken)}/0/`);
       if (!res.ok) throw new Error("Failed to search stocks");
       const data = await res.json();
       setSearchResults(data.results || data || []);
-    } catch (err: any) {
-      setError("Search: " + err.message);
+    } catch (err: unknown) {
+      setError("Search: " + String(err));
+    } finally {
+      setSearching(false);
     }
-    setSearching(false);
   };
 
-  // Add selected stock symbol to collection
-  const addToken = (symbol: string) => {
-    if (!selectedStocks.includes(symbol)) {
-      setSelectedStocks([...selectedStocks, symbol]);
-    }
+  const clearSearch = () => {
+    setNewToken("");
     setSearchResults([]);
-    setNewToken('');
   };
 
+  const { addStock, removeStock, pendingSymbol } = useCollectionActions({
+    collectionName,
+    apiKey,
+    onRefresh: refreshCollection,
+    onError: setError,
+    onClearSearch: clearSearch,
+    id,
+    setTokens
+  });
 
-  const handleStockRemove = (symbol: string) => {
-    setSelectedStocks(selectedStocks.filter(s => s !== symbol));
+  const handleSaveName = async (name?: string, desc?: string) => {
+    await updateCollectionName(name ?? pendingName, desc ?? pendingDescription);
+    setEditNameMode(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-    let finalName = name.trim() || `name ${defaultNameNumber}`;
-    if (selectedStocks.length === 0) {
-      setError('Please select at least one stock.');
-      setLoading(false);
-      return;
-    }
-    try {
-      const apiKey = apiKeyFromContext;
-      
-      if (!apiKey) {
-        setError('You must be logged in to save a collection.');
-        setLoading(false);
-        return;
-      }
-
-      const res = await fetch(`/custom-collection/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': apiKey,
-        },
-        body: JSON.stringify({ collection: finalName, symbols: selectedStocks, desc: description }),
-      });
-      if (!res.ok) {
-        const text = await res.text();
-        let errorData;
-        try {
-          errorData = JSON.parse(text);
-        } catch {
-          throw new Error(text || `Server returned ${res.status}`);
-        }
-        
-        // Check if it's an authentication error
-        if (errorData.error && (errorData.error.includes('does not exist') || errorData.error.includes('Invalid or expired session'))) {
-          auth?.signOut();
-          setError('Your session has expired. Please log in again.');
-          setLoading(false);
-          setTimeout(() => navigate('/login'), 2000);
-          return;
-        }
-        
-        throw new Error(errorData.error || `Server returned ${res.status}`);
-      }
-
-      // After successful creation, fetch the updated collections list from backend
-      try {
-        const collectionsRes = await fetch('/custom-collections/', {
-          headers: {
-            'X-User-Id': apiKey,
-          }
-        });
-        if (collectionsRes.ok) {
-          const collectionsData = await collectionsRes.json();
-          localStorage.setItem('customCollections', JSON.stringify(collectionsData.collections || []));
-        }
-      } catch (err) {
-        console.warn('Failed to sync collections from server, using local data', err);
-        // Fallback to local storage update
-        const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
-        const newCollection = { id: Date.now(), name: finalName, description, stocks: selectedStocks };
-        localStorage.setItem('customCollections', JSON.stringify([...collections, newCollection]));
-      }
-      
-      localStorage.setItem('customCollectionNameNumber', String(defaultNameNumber + 1));
-      setDefaultNameNumber(defaultNameNumber + 1);
-
-      setLoading(false);
-      navigate('/custom-collections');
-    } catch (err: any) {
-      setError('Save failed: ' + (err.message || err));
-      setLoading(false);
-    }
+  const handleCancelEdit = () => {
+    setPendingName(collectionName);
+    setEditNameMode(false);
+    setError("");
   };
 
-  if (!isAuthenticated) {
-    // TODO: Redirect to login or show message
-    return <div>Please log in to create a custom collection.</div>;
-  }
-
+  const handleEditName = () => {
+    setPendingName(collectionName);
+    setPendingDescription(collectionDesc || '');
+    setEditNameMode(true);
+    setError("");
+  };
 
   return (
-    <div className="max-w-xl mx-auto p-4">
-      <header className="WatchlistPage-header flex items-center justify-center py-6 ">
-        <BackButton onClick={() => navigate(-1)} />
-        <h1 className="WatchlistPage-h1">
-          Create Custom Collection
-        </h1>
-      </header>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block font-medium">Name</label>
-          <input
-            className="search-bar"
-            value={name}
-            onChange={e => setName(e.target.value)}
-            placeholder={`name ${defaultNameNumber}`}
-          />
+    <div className="min-h-screen bg-[hsl(40,13%,53%)] pb-8">
+      <NavigationBar />
+      {error && (
+        <div className="w-full max-w-[1800px] mx-auto px-8 pt-4">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <span className="block sm:inline">{error}</span>
+            <button
+              className="absolute top-0 bottom-0 right-0 px-4 py-3"
+              onClick={() => setError("")}
+            >
+              <span className="text-xl">&times;</span>
+            </button>
+          </div>
         </div>
-        <div>
-          <label className="block font-medium">Description</label>
-          <textarea
-            className="search-bar"
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            placeholder="Describe your collection..."
-          />
-        </div>
-        <div>
-          <label className="block font-medium">Add Stocks</label>
-          <div className="flex mb-2">
-            <input
-              className="search-bar newsreader-font flex-1"
-              type="text"
-              placeholder="Search by symbol or name"
-              value={newToken}
-              onChange={e => setNewToken(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') searchStocks(); }}
+      )}
+      <div className="w-full max-w-[1800px] mx-auto px-8 flex gap-6 pt-24" style={{ height: 'calc(100vh - 200px)' }}>
+        <div className="w-80 flex-shrink-0 flex flex-col gap-4" style={{ height: '100%' }}>
+          <div className="bg-[hsl(40,63%,63%)] shadow-[5px_5px_5px_#3F3A30] p-6 flex-shrink-0" style={{ borderRadius: '2px' }}>
+            <CollectionNameEditor
+              collectionName={collectionName}
+              description={collectionDesc}
+              editMode={editNameMode}
+              pendingName={pendingName}
+              pendingDescription={pendingDescription}
+              onPendingNameChange={setPendingName}
+              onPendingDescChange={setPendingDescription}
+              onSave={handleSaveName}
+              onCancel={handleCancelEdit}
+              onEdit={handleEditName}
             />
-            <button className="ScreenerPage-button ml-2" type="button" onClick={searchStocks} disabled={searching}>Search</button>
           </div>
-          {searchResults.length > 0 && (
-            <ul className="bg-white rounded shadow p-2 mb-2 max-h-40 overflow-y-auto">
-              {searchResults.map((stock, idx) => (
-                <li key={stock.symbol || idx} className="flex justify-between items-center py-1 border-b last:border-b-0">
-                  <span>{stock.symbol} - {stock.name || stock.longName || ''}</span>
-                  <button className="px-2 py-1 bg-green-500 text-white rounded" type="button" onClick={() => addToken(stock.symbol)}>Add</button>
-                </li>
-              ))}
-            </ul>
-          )}
-          <div className="mt-2">
-            {selectedStocks.map(symbol => (
-              <span key={symbol} className="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded mr-2 mb-2">
-                {symbol}
-                <button type="button" className="ml-1 text-red-500" onClick={() => handleStockRemove(symbol)}>&times;</button>
-              </span>
-            ))}
+
+          <div className="bg-[hsl(40,63%,63%)] shadow-[5px_5px_5px_#3F3A30] p-4 flex-1 overflow-hidden flex flex-col" style={{ borderRadius: '2px' }}>
+            <StockSearchPanel
+              searchQuery={newToken}
+              onSearchQueryChange={setNewToken}
+              onSearch={searchStocks}
+              searching={searching}
+              searchResults={searchResults}
+              onAddStock={addStock}
+            />
+            <div className="buttons-container">
+              <button className='buttons primary' onClick={handleSaveCollection}>
+                Save Collection
+              </button>
+              <button
+                className='buttons'
+                onClick={() => {
+                  setError('');
+                  navigate('/custom-collections');
+                }}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
-        {error && <div className="text-red-600">{error}</div>}
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
-          disabled={loading || selectedStocks.length === 0}
-        >
-          {loading ? 'Saving...' : 'Save Collection'}
-        </button>
-      </form>
+
+        <CreateCustomCollectionStockTable
+          stocksData={stocksData}
+          loadingStocks={loadingStocks}
+          tokens={tokens}
+          onStockClick={(symbol) => navigate(`/stock/${symbol}`)}
+          onRemoveStock={removeStock}
+          pendingSymbol={pendingSymbol}
+        />
+      </div>
     </div>
   );
 };

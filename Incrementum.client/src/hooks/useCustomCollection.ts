@@ -8,25 +8,31 @@ interface UseCustomCollectionProps {
 export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) => {
   const [tokens, setTokens] = useState<string[]>([]);
   const [collectionName, setCollectionName] = useState<string>("");
+  const [collectionDesc, setCollectionDesc] = useState<string>("");
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
     const fetchCollection = async () => {
+      if (!id) {
+        setTokens([]);
+        setCollectionName("");
+        setCollectionDesc("");
+        return;
+      }
+
       let collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
-      let collection = id 
-        ? collections.find((c: any) => String(c.id) === String(id))
-        : collections[collections.length - 1];
+      const collection = collections.find((c: any) => String(c.id) === String(id));
       
       if (collection) {
         setTokens(collection.stocks || []);
-        // Check both 'name' and 'collection_name' fields for compatibility
         const actualName = collection.name || collection.collection_name || `Collection ${collections.length}`;
+        const actualDesc = collection.c_desc || collection.desc || '';
         setCollectionName(actualName);
+        setCollectionDesc(actualDesc);
       }
-      
-      if (!id || !apiKey) return;
 
-      // Get collection name from localStorage to use in API call
+      if (!apiKey) return;
+
       const collectionNameForApi = collection?.name || collection?.collection_name;
       if (!collectionNameForApi) {
         setError('Collection name not found');
@@ -62,7 +68,9 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
           collections[idx].stocks = symbols;
           localStorage.setItem('customCollections', JSON.stringify(collections));
           const actualName = collections[idx].name || collections[idx].collection_name || `Collection ${idx + 1}`;
+          const actualDesc = collections[idx].c_desc || collections[idx].desc || '';
           setCollectionName(actualName);
+          setCollectionDesc(actualDesc);
         }
       } catch (err: any) {
         setError("Failed to fetch collection: " + err.message);
@@ -93,28 +101,28 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
     }
   };
 
-  const updateCollectionName = async (newName: string) => {
+  const updateCollectionName = async (newName: string, newDesc?: string) => {
     if (!newName.trim()) {
       setError("Collection name cannot be empty");
       return;
     }
 
     const oldName = collectionName;
+    const oldDesc = collectionDesc;
     
-    // Optimistically update UI
     setCollectionName(newName);
+    if (typeof newDesc === 'string') setCollectionDesc(newDesc);
     
-    // Update localStorage
     const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
     if (id) {
       const idx = collections.findIndex((c: any) => String(c.id) === String(id));
       if (idx !== -1) {
         collections[idx].name = newName;
+        if (typeof newDesc === 'string') collections[idx].c_desc = newDesc;
         localStorage.setItem('customCollections', JSON.stringify(collections));
       }
     }
 
-    // Persist to backend if we have apiKey and collection name
     if (apiKey && oldName) {
       try {
         const res = await fetch('/custom-collection/', {
@@ -125,7 +133,8 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
           },
           body: JSON.stringify({
             collection: oldName,
-            new_name: newName
+            new_name: newName,
+            new_desc: typeof newDesc === 'string' ? newDesc : undefined
           })
         });
 
@@ -135,28 +144,29 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
         }
 
         const data = await res.json();
-        // Update with the actual name from server response
         if (data.collection?.name) {
           setCollectionName(data.collection.name);
+          if (data.collection?.desc) setCollectionDesc(data.collection.desc || '');
           
-          // Update localStorage with server response
           const updatedCollections = JSON.parse(localStorage.getItem('customCollections') || '[]');
           if (id) {
             const idx = updatedCollections.findIndex((c: any) => String(c.id) === String(id));
             if (idx !== -1) {
               updatedCollections[idx].name = data.collection.name;
+              if (typeof data.collection.desc !== 'undefined') updatedCollections[idx].c_desc = data.collection.desc;
               localStorage.setItem('customCollections', JSON.stringify(updatedCollections));
             }
           }
         }
       } catch (err: any) {
-        // Revert on error
         setCollectionName(oldName);
+        setCollectionDesc(oldDesc);
         const revertCollections = JSON.parse(localStorage.getItem('customCollections') || '[]');
         if (id) {
           const idx = revertCollections.findIndex((c: any) => String(c.id) === String(id));
           if (idx !== -1) {
             revertCollections[idx].name = oldName;
+            if (typeof oldDesc !== 'undefined') revertCollections[idx].c_desc = oldDesc;
             localStorage.setItem('customCollections', JSON.stringify(revertCollections));
           }
         }
@@ -165,5 +175,5 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
     }
   };
 
-  return { tokens, setTokens, collectionName, updateCollectionName, error, setError, refreshCollection };
+  return { tokens, setTokens, collectionName, collectionDesc, updateCollectionName, error, setError, refreshCollection };
 };

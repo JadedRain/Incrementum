@@ -4,8 +4,11 @@ interface CollectionNameEditorProps {
   collectionName: string;
   editMode: boolean;
   pendingName: string;
+  pendingDescription?: string;
+  description?: string;
   onPendingNameChange: (name: string) => void;
-  onSave: () => void;
+  onPendingDescChange?: (desc: string) => void;
+  onSave: (newName?: string, newDesc?: string) => void;
   onCancel: () => void;
   onEdit: () => void;
 }
@@ -14,7 +17,10 @@ const CollectionNameEditor: React.FC<CollectionNameEditorProps> = ({
   collectionName,
   editMode,
   pendingName,
+  pendingDescription,
+  description,
   onPendingNameChange,
+  onPendingDescChange,
   onSave,
   onCancel,
   onEdit
@@ -28,11 +34,17 @@ const CollectionNameEditor: React.FC<CollectionNameEditorProps> = ({
           onChange={e => onPendingNameChange(e.target.value)}
           autoFocus
         />
+        <textarea
+          className="search-bar newsreader-font w-full mb-2 h-20"
+          value={pendingDescription || ''}
+          onChange={e => onPendingDescChange && onPendingDescChange(e.target.value)}
+          placeholder="Description"
+        />
         <div className="flex gap-2">
-          <button className="IndividualCustomCollectionPage-button flex-1" onClick={onSave}>
+          <button className="buttons primary flex-1" onClick={() => onSave(pendingName, pendingDescription)}>
             Save
           </button>
-          <button className="IndividualCustomCollectionPage-button flex-1" onClick={onCancel}>
+          <button className="buttons flex-1" onClick={onCancel}>
             Cancel
           </button>
         </div>
@@ -42,10 +54,10 @@ const CollectionNameEditor: React.FC<CollectionNameEditorProps> = ({
 
   return (
     <>
-      <h2 className="text-2xl font-bold text-[hsl(40,62%,20%)] mb-2">{collectionName}</h2>
-      <p className="text-sm text-[hsl(40,62%,30%)] mb-4">Description</p>
-      <button className="IndividualCustomCollectionPage-button w-full" onClick={onEdit}>
-        Edit Name
+      <h2 className="text-2xl font-bold text-[hsl(40,62%,20%)] mb-2">{collectionName || 'Name'}</h2>
+      <p className="text-sm text-[hsl(40,62%,30%)] mb-4">{description || pendingDescription || 'Description'}</p>
+      <button className="keyword-tag" onClick={onEdit}>
+        Edit
       </button>
     </>
   );

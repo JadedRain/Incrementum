@@ -18,11 +18,12 @@ const IndividualCustomCollectionPage: React.FC = () => {
   
   const [editNameMode, setEditNameMode] = useState(false);
   const [pendingName, setPendingName] = useState("");
+  const [pendingDescription, setPendingDescription] = useState("");
   const [newToken, setNewToken] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searching, setSearching] = useState(false);
   
-  const { tokens, setTokens, collectionName, updateCollectionName, error, setError, refreshCollection } = 
+  const { tokens, setTokens, collectionName, collectionDesc, updateCollectionName, error, setError, refreshCollection } = 
     useCustomCollection({ id, apiKey });
   
   const { stocksData, loadingStocks } = useStockDetails(tokens);
@@ -58,21 +59,22 @@ const IndividualCustomCollectionPage: React.FC = () => {
     setTokens
   });
   
-  const handleSaveName = async () => {
-    await updateCollectionName(pendingName);
+  const handleSaveName = async (name?: string, desc?: string) => {
+    await updateCollectionName(name ?? pendingName, desc ?? pendingDescription);
     setEditNameMode(false);
   };
   
   const handleCancelEdit = () => {
     setPendingName(collectionName);
     setEditNameMode(false);
-    setError(""); // Clear any errors when canceling
+    setError("");
   };
   
   const handleEditName = () => {
     setPendingName(collectionName);
+    setPendingDescription(collectionDesc || '');
     setEditNameMode(true);
-    setError(""); // Clear any errors when starting to edit
+    setError("");
   };
 
   return (
@@ -96,9 +98,12 @@ const IndividualCustomCollectionPage: React.FC = () => {
           <div className="bg-[hsl(40,63%,63%)] shadow-[5px_5px_5px_#3F3A30] p-6 flex-shrink-0" style={{ borderRadius: '2px' }}>
             <CollectionNameEditor
               collectionName={collectionName}
+              description={collectionDesc}
               editMode={editNameMode}
               pendingName={pendingName}
+              pendingDescription={pendingDescription}
               onPendingNameChange={setPendingName}
+              onPendingDescChange={setPendingDescription}
               onSave={handleSaveName}
               onCancel={handleCancelEdit}
               onEdit={handleEditName}
