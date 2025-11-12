@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+.buttons {
+    @apply bg-[hsl(40,62%,26%)];
+    @apply text-[hsl(40,65%,74%)];
+    @apply px-3;
+    @apply py-1;
+    @apply rounded-sm;
+    @apply shadow-sm;
+    font-family: "Newsreader", serif;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 120px;
+    height: 36px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    border: 1px solid rgba(0,0,0,0.08);
+    transition: transform 140ms ease, box-shadow 140ms ease, background-color 120ms ease;
+}
+
+.buttons.primary {
+    @apply bg-[hsl(40,62%,26%)];
+    @apply text-[hsl(40,65%,74%)];
+}
+
+.buttons:focus,
+.buttons:focus-visible {
+    outline: 3px solid rgba(59,130,246,0.35);
+    outline-offset: 2px;
+}
+
+.buttons-container {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    align-items: center;
+}
+
+.buttons:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.28);
+}
+
+.buttons.primary:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.28);
+}
+
+.keyword-tag {
+  @apply inline-flex;
+  @apply items-center;
+  @apply gap-2;
+  @apply px-3;
+  @apply py-1.5;
+  @apply rounded;
+  @apply bg-[#E8CB92];
+  color: hsl(40, 62%, 18%);
+  @apply text-sm;
+  @apply font-medium;
+  @apply transition-all;
+  @apply duration-200;
+}

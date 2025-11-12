@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 interface UseCollectionActionsProps {
   collectionName: string;
@@ -7,7 +7,7 @@ interface UseCollectionActionsProps {
   onError: (message: string) => void;
   onClearSearch: () => void;
   id?: string;
-  setTokens: (tokens: string[]) => void;
+  setTokens: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 export const useCollectionActions = ({ 
@@ -22,7 +22,32 @@ export const useCollectionActions = ({
   const [pendingSymbol, setPendingSymbol] = useState<string | null>(null);
 
   const addStock = async (symbol: string) => {
-    if (!symbol || !apiKey) return;
+    if (!symbol) return;
+
+    if (!id) {
+        const up = symbol.toUpperCase();
+        const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
+        const idx = collections.findIndex((c: any) => String(c.name) === String(collectionName) || String(c.collection_name) === String(collectionName));
+        if (idx === -1) {
+          const newCollection = { id: Date.now(), name: collectionName || `Collection ${Date.now()}`, stocks: [up] };
+          collections.push(newCollection);
+          localStorage.setItem('customCollections', JSON.stringify(collections));
+          setTokens(newCollection.stocks);
+        } else {
+          collections[idx].stocks = collections[idx].stocks || [];
+          if (!collections[idx].stocks.includes(up)) collections[idx].stocks.push(up);
+          localStorage.setItem('customCollections', JSON.stringify(collections));
+          setTokens(collections[idx].stocks);
+        }
+        onClearSearch();
+      return;
+    }
+
+    if (!apiKey) {
+      onError('You must be logged in to add to an existing collection');
+      return;
+    }
+
     try {
       const res = await fetch("/custom-collection/", {
         method: "POST",
@@ -49,9 +74,35 @@ export const useCollectionActions = ({
   };
 
   const removeStock = async (symbol: string) => {
-    if (!apiKey) return;
+    if (!symbol) return;
     setPendingSymbol(symbol);
-    
+
+    if (!id) {
+      try {
+        const up = String(symbol).toUpperCase();
+        const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
+        const idx = collections.findIndex((c: any) => String(c.name) === String(collectionName) || String(c.collection_name) === String(collectionName));
+        if (idx !== -1) {
+          collections[idx].stocks = (collections[idx].stocks || []).filter((s: string) => String(s).toUpperCase() !== up);
+          localStorage.setItem('customCollections', JSON.stringify(collections));
+          setTokens(collections[idx].stocks || []);
+        } else {
+          setTokens((prev) => Array.isArray(prev) ? prev.filter(s => String(s).toUpperCase() !== up) : []);
+        }
+      } catch (e) {
+        setTokens((prev) => Array.isArray(prev) ? prev.filter(s => String(s).toUpperCase() !== String(symbol).toUpperCase()) : []);
+      } finally {
+        setPendingSymbol(null);
+      }
+      return;
+    }
+
+    if (!apiKey) {
+      onError('You must be logged in to remove from an existing collection');
+      setPendingSymbol(null);
+      return;
+    }
+
     try {
       const res = await fetch("/custom-collection/", {
         method: "DELETE",
