@@ -4,8 +4,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from Incrementum.watchlist_service import WatchlistService
 from django.http import JsonResponse
-        
+
 watchlist_service = WatchlistService()
+
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -43,6 +44,7 @@ def remove_from_watchlist(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_watchlist(request):
@@ -55,6 +57,7 @@ def get_watchlist(request):
         return JsonResponse({'watchlist': wl})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
 
 @csrf_exempt
 @require_http_methods(["GET"])
@@ -70,6 +73,7 @@ def search_stocks_watchlist(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_sorted_watchlist(request):
@@ -83,8 +87,10 @@ def get_sorted_watchlist(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+
 def get_user_from_request(request):
     return request.headers.get('X-User-Id')
+
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -114,6 +120,8 @@ def add_custom_screener_to_watchlist(request):
         logging.exception("Error in add_custom_screener_to_watchlist")
         # Include error message in response to aid fast debugging in CI/test runs
         return JsonResponse({"error": str(e)}, status=500)
+
+
 @csrf_exempt
 @require_http_methods(["DELETE"])
 def remove_custom_screener_from_watchlist(request):
@@ -139,6 +147,8 @@ def remove_custom_screener_from_watchlist(request):
         return JsonResponse({"error": "Invalid JSON"}, status=400)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_all_watchlist_screeners(request):

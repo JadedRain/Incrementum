@@ -7,6 +7,7 @@ from Screeners.stock_getter import StockGetter
 
 REQUIRED_KEYS = {"operator", "operand", "filter_type", "value"}
 
+
 @csrf_exempt
 @require_http_methods(["POST"])
 def run_screener(request):
@@ -39,8 +40,8 @@ def run_screener(request):
                     return JsonResponse({"error": f"Between operator requires a 2-element value at index {index}"}, status=400)
             filters.append(FilterData(operator, operand, filter_type, value))
         sort_value = request.META.get("HTTP_SORTVALUE")
-        sort_bool = request.META.get("HTTP_SORTBOOL") == "true" 
-        if request.META.get("HTTP_SORTBOOL") == None:
+        sort_bool = request.META.get("HTTP_SORTBOOL") == "true"
+        if request.META.get("HTTP_SORTBOOL") is None:
             sort_bool = None
 
         getter = StockGetter()
