@@ -32,7 +32,6 @@ const CreateCustomCollectionPage = () => {
     searchResults,
     searching,
     searchStocks,
-    clearSearch,
     resetForm,
   } = useCreateCollectionForm({ onError: setError });
 
@@ -56,7 +55,6 @@ const CreateCustomCollectionPage = () => {
     apiKey,
     onRefresh: refreshCollection,
     onError: setError,
-    onClearSearch: clearSearch,
     id,
     setTokens
   });
