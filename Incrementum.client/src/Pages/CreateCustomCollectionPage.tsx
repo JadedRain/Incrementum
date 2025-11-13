@@ -1,6 +1,6 @@
 import '../styles/SearchBar.css'
 import '../styles/Collections/CreateCustomCollectionsPage.css'
-import { useState} from 'react';
+import { useState, useEffect } from 'react';
 import useCreateCollectionForm from '../hooks/useCreateCollectionForm';
 import useSaveCollection from '../hooks/useSaveCollection';
 import { useAuth } from '../Context/AuthContext';
@@ -9,7 +9,7 @@ import CreateCollectionLeftPanel from '../Components/CreateCollectionLeftPanel';
 import { useCollectionActions } from '../hooks/useCollectionActions';
 import { useStockDetails } from '../hooks/useStockDetails';
 import { useCustomCollection } from '../hooks/useCustomCollection';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import CreateCustomCollectionStockTable from '../Components/CreateCustomCollectionStockTable';
 
 
@@ -17,6 +17,7 @@ const CreateCustomCollectionPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { apiKey } = useAuth();
+  const location = useLocation();
 
   const [editNameMode, setEditNameMode] = useState(false);
   const { tokens, setTokens, collectionName, collectionDesc, updateCollectionName, error, setError, refreshCollection } =
@@ -50,6 +51,15 @@ const CreateCustomCollectionPage = () => {
   };
 
   const { stocksData, loadingStocks } = useStockDetails(tokens);
+
+  useEffect(() => {
+    if (id) return;
+    const navState: any = (location && (location as any).state) || {};
+    const selectedFromNav: string[] | undefined = navState.selectedStocks;
+    if (selectedFromNav && selectedFromNav.length > 0 && (tokens || []).length === 0) {
+      setTokens(selectedFromNav);
+    }
+  }, [id, location, setTokens, tokens.length]);
 
   const { addStock, removeStock, pendingSymbol } = useCollectionActions({
     collectionName,
