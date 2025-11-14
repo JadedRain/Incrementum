@@ -6,7 +6,6 @@ from django.views.decorators.http import require_http_methods
 from .services.custom_collection_service import CustomCollectionService
 from .graph_utils import generate_overlay_graph
 from django.views.decorators.http import require_GET
-from Incrementum.models_user import Account
 
 
 @csrf_exempt
@@ -21,7 +20,10 @@ def custom_collection(request):
 
         collection_name = None
         if request.method == "GET":
-            collection_name = request.GET.get('collection') or request.META.get('HTTP_X_COLLECTION_NAME')
+            collection_name = (
+                request.GET.get('collection')
+                or request.META.get('HTTP_X_COLLECTION_NAME')
+            )
         else:
             try:
                 data = json.loads(request.body)
@@ -30,7 +32,11 @@ def custom_collection(request):
             collection_name = data.get('collection') or request.META.get('HTTP_X_COLLECTION_NAME')
 
         if not collection_name:
-            return JsonResponse({'error': 'collection name is required (query param or JSON body key "collection" or header X-Collection-Name)'}, status=400)
+            return JsonResponse(
+                {'error': 'collection name is required (query param or JSON body key "collection" '
+                          'or header X-Collection-Name)'},
+                status=400
+            )
 
         if request.method == "GET":
             try:
@@ -48,12 +54,12 @@ def custom_collection(request):
                     symbols = [s.strip().upper() for s in symbols_field.split(',') if s.strip()]
                 else:
                     symbols = list(symbols_field)
-            
+
             try:
                 added_count = custom_collection.add_stocks(api_key, collection_name, symbols, desc)
             except ValueError as e:
                 return JsonResponse({'error': str(e)}, status=400)
- 
+
             return JsonResponse({'status': 'ok', 'added_count': added_count}, status=200)
 
         elif request.method == "DELETE":
@@ -79,14 +85,17 @@ def custom_collection(request):
             # Update collection name and/or description
             new_name = data.get('new_name')
             new_desc = data.get('new_desc')
-            
+
             if not new_name and new_desc is None:
-                return JsonResponse({'error': 'new_name or new_desc is required for update'}, status=400)
-            
+                return JsonResponse(
+                    {'error': 'new_name or new_desc is required for update'},
+                    status=400
+                )
+
             try:
                 updated_collection = custom_collection.update_collection(
-                    api_key, 
-                    collection_name, 
+                    api_key,
+                    collection_name,
                     new_name=new_name,
                     new_desc=new_desc
                 )
@@ -105,6 +114,7 @@ def custom_collection(request):
         logging.exception("Unhandled error in custom_collection endpoint")
         return JsonResponse({'error': str(e)}, status=500)
 
+
 @csrf_exempt
 @require_http_methods(["GET"])
 def custom_collection_aggregate(request):
@@ -113,9 +123,16 @@ def custom_collection_aggregate(request):
         if not api_key:
             return JsonResponse({'error': 'User id header X-User-Id required'}, status=401)
         # collection name comes from query param or header
-        collection_name = request.GET.get('collection') or request.META.get('HTTP_X_COLLECTION_NAME')
+        collection_name = (
+            request.GET.get('collection')
+            or request.META.get('HTTP_X_COLLECTION_NAME')
+        )
         if not collection_name:
-            return JsonResponse({'error': 'collection name is required (query param "collection" or header X-Collection-Name)'}, status=400)
+            return JsonResponse(
+                {'error': 'collection name required (query param "collection"'
+                 ' or header X-Collection-Name)'},
+                status=400
+            )
         custom_collection = CustomCollectionService()
         try:
             data = custom_collection.aggregate_data(api_key, collection_name)
@@ -124,7 +141,8 @@ def custom_collection_aggregate(request):
         return JsonResponse(data, safe=False)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-    
+
+
 @csrf_exempt
 @require_http_methods(["GET"])
 def custom_collection_aggregate_graph(request):
@@ -132,12 +150,20 @@ def custom_collection_aggregate_graph(request):
         api_key = request.META.get('HTTP_X_USER_ID')
         if not api_key:
             return JsonResponse({'error': 'User id header X-User-Id required'}, status=401)
-        collection_name = request.GET.get('collection') or request.META.get('HTTP_X_COLLECTION_NAME')
+        collection_name = (
+            request.GET.get('collection')
+            or request.META.get('HTTP_X_COLLECTION_NAME')
+        )
         if not collection_name:
-            return JsonResponse({'error': 'collection name is required (query param "collection" or header X-Collection-Name)'}, status=400)
+            return JsonResponse(
+                {'error': 'collection name is required (query param "collection"'
+                 'or header X-Collection-Name)'},
+                status=400
+            )
         custom_collection = CustomCollectionService()
         try:
-            tokens = [t.get('symbol') for t in custom_collection.get_stocks(api_key, collection_name)]
+            stocks = custom_collection.get_stocks(api_key, collection_name)
+            tokens = [t.get('symbol') for t in stocks]
         except ValueError as e:
             return JsonResponse({'error': str(e)}, status=400)
         logger = logging.getLogger("django")
@@ -159,6 +185,7 @@ def custom_collection_aggregate_graph(request):
         logger.exception("Error generating aggregate graph")
         return JsonResponse({"error": f"Error generating graph: {str(e)}"}, status=500)
 
+
 @csrf_exempt
 @require_http_methods(["GET"])
 def custom_collection_overlay_graph(request):
@@ -166,12 +193,20 @@ def custom_collection_overlay_graph(request):
         api_key = request.META.get('HTTP_X_USER_ID')
         if not api_key:
             return JsonResponse({'error': 'User id header X-User-Id required'}, status=401)
-        collection_name = request.GET.get('collection') or request.META.get('HTTP_X_COLLECTION_NAME')
+        collection_name = (
+            request.GET.get('collection')
+            or request.META.get('HTTP_X_COLLECTION_NAME')
+        )
         if not collection_name:
-            return JsonResponse({'error': 'collection name is required (query param "collection" or header X-Collection-Name)'}, status=400)
+            return JsonResponse(
+                {'error': 'collection name is required (query param "collection"'
+                 'or header X-Collection-Name)'},
+                status=400
+            )
         custom_collection = CustomCollectionService()
         try:
-            tokens = [t.get('symbol') for t in custom_collection.get_stocks(api_key, collection_name)]
+            stocks = custom_collection.get_stocks(api_key, collection_name)
+            tokens = [t.get('symbol') for t in stocks]
         except ValueError as e:
             return JsonResponse({'error': str(e)}, status=400)
         img_bytes, error = generate_overlay_graph(tokens)
@@ -207,35 +242,45 @@ def custom_collection_by_id(request, collection_id):
         api_key = request.META.get('HTTP_X_USER_ID')
         if not api_key:
             return JsonResponse({'error': 'User id header X-User-Id required'}, status=401)
-        
+
         from .models import CustomCollection
         from .models_user import Account
-        
+
         # Get the account for this API key
         try:
             account = Account.objects.get(api_key=api_key)
         except Account.DoesNotExist:
             return JsonResponse({'error': 'Invalid or expired session'}, status=401)
-        
+
         # Get the collection by ID and ensure it belongs to this user
         try:
             collection = CustomCollection.objects.get(id=collection_id, account=account)
         except CustomCollection.DoesNotExist:
-            return JsonResponse({'error': f'Collection with ID {collection_id} does not exist or does not belong to this user'}, status=404)
-        
+            return JsonResponse(
+                {'error': f'Collection with ID {collection_id}'
+                 'does not exist or does not belong to this user'},
+                status=404
+            )
+
         # Get the stocks in this collection
         stocks = collection.stocks.all()
         tokens = [{'symbol': stock.symbol, 'company_name': stock.company_name} for stock in stocks]
-        
+
+        date_created = (
+            collection.date_created.isoformat()
+            if collection.date_created
+            else None
+        )
+
         return JsonResponse({
             'id': collection.id,
             'collection_name': collection.collection_name,
             'name': collection.collection_name,  # for frontend compatibility
             'description': collection.c_desc,
-            'date_created': collection.date_created.isoformat() if collection.date_created else None,
+            'date_created': date_created,
             'tokens': tokens
         })
-        
+
     except Exception as e:
         logging.exception(f'Unhandled error getting collection by ID {collection_id}')
         return JsonResponse({'error': str(e)}, status=500)

@@ -26,6 +26,7 @@ def add_to_watchlist(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+
 @csrf_exempt
 @require_http_methods(["DELETE"])
 def remove_from_watchlist(request):
