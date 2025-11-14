@@ -24,8 +24,7 @@ jobs:
         run: python -m pip install flake8
 
       - name: Run flake8
-        run: flake8 . --max-line-length=100 --
-          exclude=migrations,/migrations/,**/migrations/*,pycache,build,dist,node_modules
+        run: flake8 . --max-line-length=100 --exclude=migrations,*/migrations/*,**/migrations/*,__pycache__,build,dist,node_modules
   
   react-lint:
     name: React Lint
