@@ -8,7 +8,13 @@ class ScreenerService:
     def __init__(self):
         pass
 
-    def create_custom_screener(self, user_id, name=None, numeric_filters=None, categorical_filters=None):
+    def create_custom_screener(
+        self,
+        user_id,
+        name=None,
+        numeric_filters=None,
+        categorical_filters=None,
+    ):
         try:
             account = Account.objects.get(api_key=user_id)
         except Account.DoesNotExist:
@@ -83,8 +89,15 @@ class ScreenerService:
         account = Account.objects.get(api_key=user_id)
         custom_screener = CustomScreener.objects.get(id=screener_id, account=account)
 
-        numeric_filters = [f for f in (custom_screener.filters or []) if f.get('filter_type') == 'numeric']
-        categorical_filters = [f for f in (custom_screener.filters or []) if f.get('filter_type') == 'categorical']
+        filters = custom_screener.filters or []
+        numeric_filters = [
+            f for f in filters
+            if f.get('filter_type') == 'numeric'
+        ]
+        categorical_filters = [
+            f for f in filters
+            if f.get('filter_type') == 'categorical'
+        ]
 
         return {
             'id': custom_screener.id,
@@ -123,7 +136,13 @@ class ScreenerService:
         logging.info(f"Deleted custom screener {screener_id} for user {user_id}")
         return True
 
-    def update_custom_screener(self, user_id, screener_id, numeric_filters=None, categorical_filters=None):
+    def update_custom_screener(
+        self,
+        user_id,
+        screener_id,
+        numeric_filters=None,
+        categorical_filters=None,
+    ):
         account = Account.objects.get(api_key=user_id)
         custom_screener = CustomScreener.objects.get(id=screener_id, account=account)
 

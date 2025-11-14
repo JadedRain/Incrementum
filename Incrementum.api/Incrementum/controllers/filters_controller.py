@@ -1,9 +1,9 @@
 import json
-from pathlib import Path
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from Incrementum.utils import get_unique_sectors, get_unique_industries
+
 
 @csrf_exempt
 @require_http_methods(["GET"])
@@ -13,7 +13,7 @@ def get_sectors(request):
         return JsonResponse({'sectors': sectors})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-    
+
 
 @csrf_exempt
 @require_http_methods(["POST"])

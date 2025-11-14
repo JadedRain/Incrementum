@@ -3,11 +3,8 @@ import io
 import logging
 import yfinance as yf
 
+
 def generate_overlay_graph(tokens, period="1y"):
-    """
-    Generate a PNG overlay graph for the given stock tokens.
-    Returns PNG bytes or None if no valid data.
-    """
     logger = logging.getLogger("django")
     if not tokens:
         return None, "No stocks in collection"
