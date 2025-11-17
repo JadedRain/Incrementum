@@ -11,6 +11,13 @@ import { useCustomCollection } from "../hooks/useCustomCollection";
 import { useStockDetails } from "../hooks/useStockDetails";
 import { useCollectionActions } from "../hooks/useCollectionActions";
 
+interface StockItem {
+  symbol: string;
+  name?: string;
+  exchange?: string;
+  [key: string]: unknown;
+}
+
 const IndividualCustomCollectionPage: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -20,7 +27,7 @@ const IndividualCustomCollectionPage: React.FC = () => {
   const [pendingName, setPendingName] = useState("");
   const [pendingDescription, setPendingDescription] = useState("");
   const [newToken, setNewToken] = useState("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<StockItem[]>([]);
   const [searching, setSearching] = useState(false);
   
   const { tokens, setTokens, collectionName, collectionDesc, updateCollectionName, error, setError, refreshCollection } = 
@@ -36,9 +43,13 @@ const IndividualCustomCollectionPage: React.FC = () => {
       const res = await fetch(`http://localhost:8000/searchStocks/${encodeURIComponent(newToken)}/0/`);
       if (!res.ok) throw new Error("Failed to search stocks");
       const data = await res.json();
-      setSearchResults(data.results || data || []);
-    } catch (err: any) {
-      setError("Search: " + err.message);
+      setSearchResults((data.results || data || []) as StockItem[]);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError("Search: " + err.message);
+      } else {
+        setError("Search: " + String(err));
+      }
     } finally {
       setSearching(false);
     }

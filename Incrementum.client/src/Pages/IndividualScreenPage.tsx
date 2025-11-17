@@ -15,7 +15,6 @@ import type { CustomScreener } from '../Types/ScreenerTypes';
 import { FilterDataProvider, useFilterData } from '../Context/FilterDataContext';
 import { getDefaultFilterDict } from './DefaultScreenerHelper';
 import type {RangeFilter} from "./DefaultScreenerHelper"
-import FilterList from '../Components/FilterList';
 
 function IndividualScreenPageContent() {
   const navigate = useNavigate();
@@ -46,7 +45,7 @@ function IndividualScreenPageContent() {
   useEffect(() => {
     const numid = Number(id);
     if (isNaN(numid)) {
-      const base = getDefaultFilterDict(id!);
+      const base = getDefaultFilterDict(id!) as (Record<string, unknown> & { notimplemented?: string[]; sortValue?: unknown; sortBool?: unknown }) | null;
       setIsInit(true);
       console.log(base)
       if(base != null && Object.hasOwn(base, "sortValue"))
@@ -56,12 +55,12 @@ function IndividualScreenPageContent() {
         setSortValue(val)
         setSortBool(bol)
       }
-      if (base != null && Object.hasOwn(base, "notimplemented")) {
-        const list = (base as any).notimplemented; // or define a type for base
+      if (base != null && Array.isArray(base.notimplemented)) {
+        const list = base.notimplemented;
 
         if (Array.isArray(list)) {
           for (const item of list) {
-            const minmaxData = base[item] as RangeFilter
+            const minmaxData = base[item as string] as RangeFilter
             if(minmaxData.high != null)
             {
               addFilter(item + "high", { operand: item, operator: "lt", filter_type: "numeric", value_high: null, value_low: null, value: minmaxData.high,})
@@ -78,7 +77,7 @@ function IndividualScreenPageContent() {
         return base!});
       console.log(initDict)
     }
-  }, []);
+  }, [addFilter, id, initDict, setInitDict, setIsInit, setSortBool, setSortValue]);
   // Load filters when screener data is fetched
   useEffect(() => {
     if (screenerData) {
@@ -86,9 +85,25 @@ function IndividualScreenPageContent() {
       
       const sectorsToLoad: string[] = [];
       
+      type NumericFilter = {
+        operand?: string;
+        filter_name?: string;
+        operator?: string;
+        value_high?: number | null;
+        value_low?: number | null;
+        value?: number | null;
+      };
+
+      type CategoricalFilter = {
+        operand?: string;
+        filter_name?: string;
+        operator?: string;
+        value?: string | number | null;
+      };
+
       // Load numeric filters
       if (screenerData.numeric_filters) {
-        screenerData.numeric_filters.forEach((filter: any, index: number) => {
+        (screenerData.numeric_filters as NumericFilter[]).forEach((filter: NumericFilter, index: number) => {
           const key = `numeric_${filter.operand || filter.filter_name}_${index}`;
           const filterData = {
             operand: filter.operand || filter.filter_name || '',
@@ -105,7 +120,7 @@ function IndividualScreenPageContent() {
 
       // Load categorical filters
       if (screenerData.categorical_filters) {
-        screenerData.categorical_filters.forEach((filter: any, index: number) => {
+        (screenerData.categorical_filters as CategoricalFilter[]).forEach((filter: CategoricalFilter, index: number) => {
           // Use sector-specific key format for sector filters to match Sectors.tsx
           const isSectorFilter = filter.operand === 'sector' || filter.filter_name === 'sector';
           const key = isSectorFilter 
@@ -123,8 +138,8 @@ function IndividualScreenPageContent() {
           console.log('Adding categorical filter:', key, filterData);
           addFilter(key, filterData);
           
-          if (isSectorFilter && filter.value) {
-            sectorsToLoad.push(filter.value);
+          if (isSectorFilter && filter.value != null) {
+            sectorsToLoad.push(String(filter.value));
           }
         });
       }

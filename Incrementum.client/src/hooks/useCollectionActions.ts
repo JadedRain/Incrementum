@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
 
+interface Collection {
+  id: string | number;
+  name?: string;
+  collection_name?: string;
+  stocks?: string[];
+}
+
 interface UseCollectionActionsProps {
   collectionName: string;
   apiKey: string | null;
@@ -26,13 +33,13 @@ export const useCollectionActions = ({
 
     if (!id) {
         const up = symbol.toUpperCase();
-        const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
-        const idx = collections.findIndex((c: any) => String(c.name) === String(collectionName) || String(c.collection_name) === String(collectionName));
+        const collections: Collection[] = JSON.parse(localStorage.getItem('customCollections') || '[]');
+        const idx = collections.findIndex((c: Collection) => String(c.name) === String(collectionName) || String(c.collection_name) === String(collectionName));
         if (idx === -1) {
-          const newCollection = { id: Date.now(), name: collectionName || `Collection ${Date.now()}`, stocks: [up] };
+          const newCollection: Collection = { id: Date.now(), name: collectionName || `Collection ${Date.now()}`, stocks: [up] };
           collections.push(newCollection);
           localStorage.setItem('customCollections', JSON.stringify(collections));
-          setTokens(newCollection.stocks);
+          setTokens(newCollection.stocks || []);
         } else {
           collections[idx].stocks = collections[idx].stocks || [];
           if (!collections[idx].stocks.includes(up)) collections[idx].stocks.push(up);
@@ -68,8 +75,9 @@ export const useCollectionActions = ({
       
       onClearSearch();
       await onRefresh();
-    } catch (err: any) {
-      onError("Add: " + err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      onError("Add: " + message);
     }
   };
 
@@ -80,8 +88,8 @@ export const useCollectionActions = ({
     if (!id) {
       try {
         const up = String(symbol).toUpperCase();
-        const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
-        const idx = collections.findIndex((c: any) => String(c.name) === String(collectionName) || String(c.collection_name) === String(collectionName));
+        const collections: Collection[] = JSON.parse(localStorage.getItem('customCollections') || '[]');
+        const idx = collections.findIndex((c: Collection) => String(c.name) === String(collectionName) || String(c.collection_name) === String(collectionName));
         if (idx !== -1) {
           collections[idx].stocks = (collections[idx].stocks || []).filter((s: string) => String(s).toUpperCase() !== up);
           localStorage.setItem('customCollections', JSON.stringify(collections));
@@ -89,7 +97,7 @@ export const useCollectionActions = ({
         } else {
           setTokens((prev) => Array.isArray(prev) ? prev.filter(s => String(s).toUpperCase() !== up) : []);
         }
-      } catch (e) {
+      } catch {
         setTokens((prev) => Array.isArray(prev) ? prev.filter(s => String(s).toUpperCase() !== String(symbol).toUpperCase()) : []);
       } finally {
         setPendingSymbol(null);
@@ -115,25 +123,25 @@ export const useCollectionActions = ({
           symbols: [symbol.toUpperCase()]
         })
       });
-      
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.error || "Failed to remove stock");
       }
       
-      const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
+      const collections: Collection[] = JSON.parse(localStorage.getItem('customCollections') || '[]');
       if (id) {
-        const idx = collections.findIndex((c: any) => String(c.id) === String(id));
+        const idx = collections.findIndex((c: Collection) => String(c.id) === String(id));
         if (idx !== -1) {
-          collections[idx].stocks = collections[idx].stocks.filter((s: string) => s !== symbol);
+          collections[idx].stocks = (collections[idx].stocks || []).filter((s: string) => s !== symbol);
           localStorage.setItem('customCollections', JSON.stringify(collections));
-          setTokens(collections[idx].stocks);
+          setTokens(collections[idx].stocks || []);
         }
       }
       
       await onRefresh();
-    } catch (err: any) {
-      onError("Remove: " + err.message);
+      } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      onError("Remove: " + message);
     } finally {
       setPendingSymbol(null);
     }
