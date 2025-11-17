@@ -18,7 +18,10 @@ class WatchlistService:
             account=account,
             defaults={"name": f"{account.name}'s Watchlist"},
         )
-        stock, _ = StockModel.objects.get_or_create(symbol=symbol, defaults={"company_name": symbol})
+        stock, _ = StockModel.objects.get_or_create(
+            symbol=symbol,
+            defaults={"company_name": symbol},
+        )
         WatchlistStock.objects.get_or_create(watchlist=watchlist, stock=stock)
         logging.info(f"Added {symbol} to user {user_id} watchlist.")
         return self.get(user_id)

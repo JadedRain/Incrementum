@@ -3,27 +3,34 @@ from unittest.mock import patch
 from Incrementum.DTOs.ifilterdata import FilterData
 from Screeners.screener_constructor import ScreenerConstructor
 
+
 class FakeLeafQuery:
     def __init__(self, operator, payload):
         self.operator = operator
         self.payload = payload
+
     def get_stocks(self):
         # Single leaf query returns one stock with US region
         return [{"symbol": "STK0", "filters_applied": 1, "region": "us"}]
+
     def __repr__(self):
         return f"FakeLeafQuery({self.operator}, {self.payload})"
+
 
 class FakeAndQuery:
     def __init__(self, operator, subqueries):
         self.operator = operator
         self.subqueries = subqueries
+
     def get_stocks(self):
         return [
             {"symbol": f"STK{i}", "filters_applied": len(self.subqueries), "region": "us"}
             for i in range(len(self.subqueries))
         ]
+
     def __repr__(self):
         return f"FakeAndQuery(and, {self.subqueries!r})"
+
 
 class FakeEquityQuery:
     def __new__(cls, operator=None, payload=None):
@@ -31,16 +38,19 @@ class FakeEquityQuery:
             return FakeAndQuery(operator, payload)
         return FakeLeafQuery(operator, payload)
 
-def fake_screen(query, sortAsc = None, sortField = None, offset=0, size=25):
+
+def fake_screen(query, sortAsc=None, sortField=None, offset=0, size=25):
     if hasattr(query, 'get_stocks'):
         stocks = query.get_stocks()
         # Return in the format expected by screener_constructor (dictionary with 'quotes' key)
         return {'quotes': stocks}
     return {'quotes': []}
 
+
 @pytest.mark.parametrize("filters, expected_symbols", [
     ([], ["STK0"]),  # Empty user filters, but region filter is applied, so returns stock
-    ([FilterData('eq', 'sector', 'categoric', 'Tech')], ["STK0", "STK1"]),  # 1 user filter + 1 region filter = 2 total
+    # 1 user filter + 1 region filter = 2 total
+    ([FilterData('eq', 'sector', 'categoric', 'Tech')], ["STK0", "STK1"]),
     ([
         FilterData('eq', 'sector', 'categoric', 'Tech'),
         FilterData('gt', 'avgdailyvol3m', 'numeric', 1000000)
@@ -81,6 +91,7 @@ class DatasetFilteringLeafQuery(FakeLeafQuery):
             return [r for r in data if r.get(field, 0) <= value]
         return data
 
+
 class DatasetFilteringAndQuery(FakeAndQuery):
     def get_stocks(self):
         # Simulated underlying dataset - all stocks are in US region
@@ -107,11 +118,13 @@ class DatasetFilteringAndQuery(FakeAndQuery):
                 filtered = [r for r in filtered if r.get(field, 0) <= value]
         return filtered
 
+
 class DatasetFilteringEquityQuery(FakeEquityQuery):
     def __new__(cls, operator=None, payload=None):
         if operator == 'and':
             return DatasetFilteringAndQuery(operator, payload)
         return DatasetFilteringLeafQuery(operator, payload)
+
 
 @pytest.mark.parametrize(
     "filters,expected",

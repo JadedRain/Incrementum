@@ -47,7 +47,7 @@ class CustomCollectionService:
                         CustomCollectionStock.objects.create(collection=collection, stock=stock)
                     except Exception as e:
                         msg = str(e) or ''
-                        if ('custom_collection_stock.id' in msg or 'RETURNING' in msg 
+                        if ('custom_collection_stock.id' in msg or 'RETURNING' in msg
                                 or 'UndefinedColumn' in msg):
                             try:
                                 sql = """
@@ -105,7 +105,10 @@ class CustomCollectionService:
                 stock = StockModel.objects.get(symbol=sym)
             except StockModel.DoesNotExist:
                 continue
-            if not CustomCollectionStock.objects.filter(collection=collection, stock=stock).exists():
+            if not CustomCollectionStock.objects.filter(
+                    collection=collection,
+                    stock=stock
+            ).exists():
                 try:
                     CustomCollectionStock.objects.create(collection=collection, stock=stock)
                     added_count += 1
