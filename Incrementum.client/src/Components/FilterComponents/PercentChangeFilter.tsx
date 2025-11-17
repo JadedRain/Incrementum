@@ -15,7 +15,7 @@ const PercentChangeFilter: React.FC = () => {
           if (init) {
             setThreshold(init)
           }
-        }, [initDict]);
+        }, [fetchInit, initDict]);
 
   const key = 'percentchange';
 

@@ -2,8 +2,13 @@ import React from 'react';
 import Loading from './Loading';
 import CollectionStockRow from './CollectionStockRow';
 
+interface Stock {
+  symbol: string;
+  [key: string]: unknown;
+}
+
 interface CollectionStockTableProps {
-  stocksData: any[];
+  stocksData: Stock[];
   loadingStocks: boolean;
   tokens: string[];
   onStockClick: (symbol: string) => void;

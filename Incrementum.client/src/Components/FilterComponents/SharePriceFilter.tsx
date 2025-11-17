@@ -18,7 +18,7 @@ const SharePriceFilter: React.FC = () => {
             setMaxPrice(init.high ?? null);
             setMaxPrice(init.low ?? null);
           }
-        }, [initDict]);
+        }, [fetchInit, initDict]);
 
   const showWarning = minPrice !== null && maxPrice !== null && minPrice > maxPrice;
 

@@ -1,5 +1,16 @@
+type Stock = {
+  symbol?: string | null;
+  regularMarketChangePercent?: number | null;
+  currentPrice?: number | null;
+  fiftyTwoWeekHigh?: number | null;
+  fiftyTwoWeekLow?: number | null;
+  marketCap?: number | null;
+  volume?: number | null;
+  averageVolume?: number | null;
+};
+
 type Props = {
-  stock: any;
+  stock: Stock;
   onClick?: () => void;
   onRemove?: (symbol: string) => void;
   isPending?: boolean;
