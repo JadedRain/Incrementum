@@ -1,7 +1,6 @@
 import React from 'react';
 import type { StockData } from '../StockData';
-import { BiPlus } from "react-icons/bi";
-import { BiMinus } from "react-icons/bi";
+import { BiPlus, BiMinus } from "react-icons/bi";
 
 interface StockInfoSidebarProps {
   results: StockData;
