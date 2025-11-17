@@ -9,6 +9,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const KEYCLOAK_REALM_URL = 'https://auth-dev.snowse.io/realms/incrementum';
 export const KEYCLOAK_CLIENT_ID = 'incrementum-client';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const getKeycloakRegistrationUrl = () => {
   return `${KEYCLOAK_REALM_URL}/protocol/openid-connect/registrations?client_id=${KEYCLOAK_CLIENT_ID}&response_type=code&scope=openid&redirect_uri=${window.location.origin}/`;
 };

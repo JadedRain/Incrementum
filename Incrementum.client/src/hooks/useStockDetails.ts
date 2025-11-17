@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react';
 
+interface CollectionStock {
+  symbol: string;
+  price?: number;
+}
+
 export const useStockDetails = (tokens: string[]) => {
-  const [stocksData, setStocksData] = useState<unknown[]>([]);
+  const [stocksData, setStocksData] = useState<CollectionStock[]>([]);
   const [loadingStocks, setLoadingStocks] = useState<boolean>(false);
 
   useEffect(() => {

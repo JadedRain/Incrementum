@@ -56,6 +56,7 @@ export const ScreenerProvider = ({ children }: { children: ReactNode }) => {
 };
 
 // Hook for consuming the context
+// eslint-disable-next-line react-refresh/only-export-components
 export const useScreener = () => {
   const context = useContext(ScreenerContext);
   if (!context) throw new Error("useScreener must be used within a ScreenerProvider");

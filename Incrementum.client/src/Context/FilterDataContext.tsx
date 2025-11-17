@@ -143,6 +143,7 @@ export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
 };
 
 // Custom hook
+// eslint-disable-next-line react-refresh/only-export-components
 export const useFilterData = (): FilterDataContextType => {
   const context = useContext(FilterDataContext);
   if (!context)
