@@ -1,7 +1,7 @@
 import pytest
 from django.test import Client
 from unittest.mock import patch, MagicMock
-from Incrementum.models import CustomCollection, StockModel
+from Incrementum.models import CustomCollection
 from Incrementum.models_user import Account
 
 
@@ -12,7 +12,7 @@ def client():
 
 @pytest.fixture
 def mock_account():
-    """Create a mock account for testing."""
+    # mock account for testing.
     account = MagicMock(spec=Account)
     account.api_key = 'test-api-key-123'
     account.id = 1
@@ -21,7 +21,7 @@ def mock_account():
 
 @pytest.fixture
 def mock_collection(mock_account):
-    """Create a mock collection for testing."""
+    # mock account for testing.
     collection = MagicMock(spec=CustomCollection)
     collection.id = 1
     collection.collection_name = 'Original Collection'
@@ -33,11 +33,8 @@ def mock_collection(mock_account):
 
 @pytest.mark.django_db
 class TestCustomCollectionUpdate:
-    """Tests for updating custom collection name and description."""
-
     @patch('Incrementum.custom_collection_controller.CustomCollectionService')
     def test_update_collection_name(self, mock_service, client, mock_collection):
-        """Test updating only the collection name."""
         mock_instance = mock_service.return_value
         mock_instance.update_collection.return_value = mock_collection
         mock_collection.collection_name = 'New Collection Name'
@@ -65,7 +62,6 @@ class TestCustomCollectionUpdate:
 
     @patch('Incrementum.custom_collection_controller.CustomCollectionService')
     def test_update_collection_description(self, mock_service, client, mock_collection):
-        """Test updating only the collection description."""
         mock_instance = mock_service.return_value
         mock_instance.update_collection.return_value = mock_collection
         mock_collection.c_desc = 'New description here'
@@ -93,7 +89,6 @@ class TestCustomCollectionUpdate:
 
     @patch('Incrementum.custom_collection_controller.CustomCollectionService')
     def test_update_collection_name_and_description(self, mock_service, client, mock_collection):
-        """Test updating both name and description."""
         mock_instance = mock_service.return_value
         mock_instance.update_collection.return_value = mock_collection
         mock_collection.collection_name = 'Updated Collection'
@@ -124,9 +119,10 @@ class TestCustomCollectionUpdate:
 
     @patch('Incrementum.custom_collection_controller.CustomCollectionService')
     def test_update_nonexistent_collection(self, mock_service, client):
-        """Test updating a collection that doesn't exist."""
         mock_instance = mock_service.return_value
-        mock_instance.update_collection.side_effect = ValueError("Collection 'Nonexistent' not found")
+        mock_instance.update_collection.side_effect = ValueError(
+            "Collection 'Nonexistent' not found"
+        )
 
         response = client.put(
             '/custom-collection/',
@@ -145,9 +141,10 @@ class TestCustomCollectionUpdate:
 
     @patch('Incrementum.custom_collection_controller.CustomCollectionService')
     def test_update_to_existing_name(self, mock_service, client):
-        """Test updating to a name that already exists."""
         mock_instance = mock_service.return_value
-        mock_instance.update_collection.side_effect = ValueError("Collection 'Existing Collection' already exists")
+        mock_instance.update_collection.side_effect = ValueError(
+            "Collection 'Existing Collection' already exists"
+        )
 
         response = client.put(
             '/custom-collection/',
@@ -166,7 +163,6 @@ class TestCustomCollectionUpdate:
 
     @patch('Incrementum.custom_collection_controller.CustomCollectionService')
     def test_update_without_parameters(self, mock_service, client):
-        """Test update request without new_name or new_desc."""
         response = client.put(
             '/custom-collection/',
             data={
@@ -183,7 +179,6 @@ class TestCustomCollectionUpdate:
 
     @patch('Incrementum.custom_collection_controller.CustomCollectionService')
     def test_update_without_api_key(self, mock_service, client):
-        """Test update request without API key."""
         response = client.put(
             '/custom-collection/',
             data={
@@ -200,7 +195,6 @@ class TestCustomCollectionUpdate:
 
     @patch('Incrementum.custom_collection_controller.CustomCollectionService')
     def test_update_without_collection_name(self, mock_service, client):
-        """Test update request without collection name."""
         response = client.put(
             '/custom-collection/',
             data={
@@ -217,7 +211,6 @@ class TestCustomCollectionUpdate:
 
     @patch('Incrementum.custom_collection_controller.CustomCollectionService')
     def test_update_collection_clear_description(self, mock_service, client, mock_collection):
-        """Test clearing the description by setting it to empty string."""
         mock_instance = mock_service.return_value
         mock_instance.update_collection.return_value = mock_collection
         mock_collection.c_desc = ''
