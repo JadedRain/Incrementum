@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .models_user import Account
 from .keycloak_service import verify_keycloak_token, get_token_with_password
 
+
 @csrf_exempt
 def signup(request):
     if request.method == 'POST':
@@ -16,14 +17,14 @@ def signup(request):
         password = data.get('password')
         if not name or not phone_number or not email or not password:
             return JsonResponse({'error': 'All fields required'}, status=400)
-        
+
         existing = Account.objects.filter(email=email).first()
         if existing:
             return JsonResponse({'error': 'Email already exists'}, status=400)
-        
+
         if Account.objects.filter(phone_number=phone_number).exists():
             return JsonResponse({'error': 'Phone number already exists'}, status=400)
-        
+
         # Create user in database only
         password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
         api_key = str(uuid.uuid4())
@@ -35,9 +36,10 @@ def signup(request):
             api_key=api_key,
             keycloak_id=None  # Legacy users have no Keycloak ID
         )
-        
+
         return JsonResponse({'api_key': account.api_key})
     return JsonResponse({'error': 'Invalid method'}, status=405)
+
 
 @csrf_exempt
 def login(request):
@@ -51,43 +53,46 @@ def login(request):
             account = Account.objects.get(email=email)
         except Account.DoesNotExist:
             return JsonResponse({'error': 'Invalid credentials'}, status=401)
-        
+
         if account.keycloak_id and not account.password_hash:
             return JsonResponse({'error': 'Please use Keycloak login'}, status=401)
-        
-        if account.password_hash and bcrypt.checkpw(password.encode(), account.password_hash.encode()):
+
+        if account.password_hash and bcrypt.checkpw(
+            password.encode(), account.password_hash.encode()
+        ):
             return JsonResponse({'api_key': account.api_key})
         else:
             return JsonResponse({'error': 'Invalid credentials'}, status=401)
     return JsonResponse({'error': 'Invalid method'}, status=405)
+
 
 @csrf_exempt
 def sync_keycloak_user(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         token = data.get('token')
-        
+
         if not token:
             return JsonResponse({'error': 'Token required'}, status=400)
-        
+
         # Verify token and get user info
         token_info = verify_keycloak_token(token)
         if not token_info:
             return JsonResponse({'error': 'Invalid token'}, status=401)
-        
+
         email = token_info.get('email')
         keycloak_id = token_info.get('sub')
         preferred_username = token_info.get('preferred_username', email)
-        
+
         if not email or not keycloak_id:
             return JsonResponse({'error': 'Invalid token data'}, status=400)
-        
+
         # Check if user already exists by keycloak_id
         account = Account.objects.filter(keycloak_id=keycloak_id).first()
-        
+
         if account:
             return JsonResponse({'api_key': account.api_key, 'user_id': account.id})
-        
+
         # Check if user exists by email (legacy user converting to Keycloak)
         account = Account.objects.filter(email=email).first()
         if account:
@@ -95,10 +100,10 @@ def sync_keycloak_user(request):
             account.keycloak_id = keycloak_id
             account.save()
             return JsonResponse({'api_key': account.api_key, 'user_id': account.id})
-        
+
         # Create new account for Keycloak user
         name = token_info.get('name', preferred_username)
-        
+
         api_key = str(uuid.uuid4())
         account = Account.objects.create(
             name=name or email.split('@')[0],
@@ -108,10 +113,11 @@ def sync_keycloak_user(request):
             api_key=api_key,
             keycloak_id=keycloak_id
         )
-        
+
         return JsonResponse({'api_key': account.api_key, 'user_id': account.id})
-    
+
     return JsonResponse({'error': 'Invalid method'}, status=405)
+
 
 @csrf_exempt
 def keycloak_login(request):
@@ -119,18 +125,19 @@ def keycloak_login(request):
         data = json.loads(request.body)
         username = data.get('username')
         password = data.get('password')
-        
+
         if not username or not password:
             return JsonResponse({'error': 'Username and password required'}, status=400)
-        
+
         access_token = get_token_with_password(username, password)
-        
+
         if access_token:
             return JsonResponse({'access_token': access_token})
         else:
             return JsonResponse({'error': 'Invalid credentials'}, status=401)
-    
+
     return JsonResponse({'error': 'Invalid method'}, status=405)
+
 
 @csrf_exempt
 def account_info(request):
