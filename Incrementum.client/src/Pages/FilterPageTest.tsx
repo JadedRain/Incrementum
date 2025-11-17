@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import LastCloseFilter from "../Components/FilterComponents/52whighlow";
 import MarketFilter from "../Components/FilterComponents/MarketFilter";
 import { FilterDataProvider, useFilterData } from "../Context/FilterDataContext";
@@ -18,7 +17,7 @@ const FilterList: React.FC = () => {
         <ul>
           {Object.entries(filterDataDict).map(([key, f]) => (
             <li key={key} style={{ marginBottom: "0.5rem" }}>
-              <strong>{key}</strong>: {f.operand} {f.operee} ({f.type}) [High:{" "}
+              <strong>{key}</strong>: {f.operand} {f.operator} [High:{" "}
               {f.value_high ?? "-"}, Low: {f.value_low ?? "-"}, Value:{" "}
               {f.value ?? "-"}]
             </li>
@@ -31,8 +30,6 @@ const FilterList: React.FC = () => {
 
 
 const FilterPage: React.FC = () => {
-  const [selectedFilter, setSelectedFilter] = useState<string>("marketcap");
-
 
   return (
     <FilterDataProvider>

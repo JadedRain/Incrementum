@@ -16,9 +16,9 @@ function WatchlistPage() {
   const { apiKey } = useAuth();
   const user_id = apiKey || undefined;
   const [selectedStock, setSelectedStock] = useState<StockC | null>(null);
-  const [sortBy, _setSortBy] = useState('default');
-  const [toast, _setToast] = useState<string | null>(null);
-  const watchlistState = apiKey ? useSortedWatchlist(sortBy, user_id) : { watchlist: [], setWatchlist: () => { }, loading: false };
+  const [sortBy] = useState('default');
+  const [toast] = useState<string | null>(null);
+  const watchlistState = useSortedWatchlist(sortBy, user_id);
   const { watchlist, loading } = watchlistState;
   const { watchlistScreeners, loading: screenersLoading } = useWatchlistScreenersData(apiKey);
 
@@ -26,7 +26,7 @@ function WatchlistPage() {
     if (!apiKey) {
       navigate('/');
     }
-  }, [apiKey]);
+  }, [apiKey, navigate]);
 
   useEffect(() => {
     if (watchlist.length > 0 && (!selectedStock || !watchlist.find(s => s.symbol === selectedStock.symbol))) {

@@ -1,20 +1,27 @@
 import logging
 from Incrementum.get_stock_info import fetch_stock_data
 from Incrementum.models import Watchlist, StockModel, WatchlistStock
-from django.db import transaction
 from Incrementum.models_user import Account
+
 
 class WatchlistService:
     def __init__(self, fetch_stock_data_func=fetch_stock_data):
         self.fetch_stock_data_func = fetch_stock_data_func
+
     def add(self, user_id, symbol):
         try:
             account = Account.objects.get(api_key=user_id)
         except Account.DoesNotExist:
             logging.error(f"Account with api_key {user_id} does not exist.")
             return []
-        watchlist, _ = Watchlist.objects.get_or_create(account=account, defaults={"name": f"{account.name}'s Watchlist"})
-        stock, _ = StockModel.objects.get_or_create(symbol=symbol, defaults={"company_name": symbol})
+        watchlist, _ = Watchlist.objects.get_or_create(
+            account=account,
+            defaults={"name": f"{account.name}'s Watchlist"},
+        )
+        stock, _ = StockModel.objects.get_or_create(
+            symbol=symbol,
+            defaults={"company_name": symbol},
+        )
         WatchlistStock.objects.get_or_create(watchlist=watchlist, stock=stock)
         logging.info(f"Added {symbol} to user {user_id} watchlist.")
         return self.get(user_id)

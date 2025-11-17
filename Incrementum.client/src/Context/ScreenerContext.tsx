@@ -1,6 +1,26 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, type Dispatch, type SetStateAction } from "react";
 import type { ReactNode } from "react";
-const ScreenerContext = createContext<any>(null);
+
+type ChangePeriod = "daily" | "weekly" | "monthly";
+
+interface ScreenerContextType {
+  selectedSectors: string[];
+  onSelectedSectorsChange: Dispatch<SetStateAction<string[]>>;
+  selectedIndustries: string[];
+  onSelectedIndustriesChange: Dispatch<SetStateAction<string[]>>;
+  percentThreshold: string;
+  onPercentThresholdChange: Dispatch<SetStateAction<string>>;
+  changePeriod: ChangePeriod;
+  onChangePeriod: Dispatch<SetStateAction<ChangePeriod>>;
+  percentChangeFilter: string;
+  onPercentChangeFilter: Dispatch<SetStateAction<string>>;
+  showCustomScreenerSection: boolean;
+  setShowCustomScreenerSection: Dispatch<SetStateAction<boolean>>;
+  apiKey: string;
+  setApiKey: Dispatch<SetStateAction<string>>;
+}
+
+const ScreenerContext = createContext<ScreenerContextType | null>(null);
 
 export const ScreenerProvider = ({ children }: { children: ReactNode }) => {
   const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
@@ -36,6 +56,7 @@ export const ScreenerProvider = ({ children }: { children: ReactNode }) => {
 };
 
 // Hook for consuming the context
+// eslint-disable-next-line react-refresh/only-export-components
 export const useScreener = () => {
   const context = useContext(ScreenerContext);
   if (!context) throw new Error("useScreener must be used within a ScreenerProvider");

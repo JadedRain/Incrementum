@@ -1,7 +1,6 @@
-import pytest
 from Incrementum.stocks_class import Stock
-import pandas as pd
 from Screeners.moving_average_52 import fifty_two_high
+
 
 def values():
     sample_stocks = [
@@ -82,6 +81,8 @@ def values():
     for stock in sample_stocks:
         stocks.append(Stock(stock))
     return stocks
+
+
 def test_52high():
     stocks = values()
     screener = fifty_two_high(490)

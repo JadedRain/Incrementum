@@ -1,5 +1,3 @@
-import type { CustomScreener } from "../Types/ScreenerTypes";
-
 const API_BASE = "http://localhost:8000"; // backend host + port
 
 export const fetchCustomScreener = async (id: string, user: string | null) => {

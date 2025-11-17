@@ -9,7 +9,7 @@ interface  CategoryFilterProps {
     displayName: string | null;
 }
 const CategoryFilter: React.FC<CategoryFilterProps> = (_props) => {
-  const { addFilter, removeFilter, fetchInit} = useFilterData();
+  const { addFilter, removeFilter} = useFilterData();
   // const init = fetchInit(_props.category) ?? []
 
   const [selectedCategorys, setSelectedCategorys] = useState<string[]>([])
@@ -35,7 +35,7 @@ const CategoryFilter: React.FC<CategoryFilterProps> = (_props) => {
         };
         addFilter(key, filter);
       });
-    }, [selectedCategorys]);
+    }, [addFilter, categore, categorys, removeFilter, selectedCategorys]);
   
   const handleCheckboxChange = (category: string, event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedCategorys((prev) =>

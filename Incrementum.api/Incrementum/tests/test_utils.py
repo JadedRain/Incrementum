@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from Incrementum.utils import get_unique_sectors
 
 

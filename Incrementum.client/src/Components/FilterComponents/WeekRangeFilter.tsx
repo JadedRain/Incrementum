@@ -16,7 +16,7 @@ const WeekRangeFilter: React.FC = () => {
                 setHighMin(init.low ?? null);
                 setHighMax(init.high ?? null);
               }
-            }, [initDict]);
+            }, [fetchInit, initDict]);
                           useEffect(() => {
               console.log(initDict)
               const init = fetchInit("weeklow");
@@ -25,7 +25,7 @@ const WeekRangeFilter: React.FC = () => {
                 setLowMax(init.high ?? null);
                 setLowMin(init.low ?? null);
               }
-            }, [initDict]);
+            }, [fetchInit, initDict]);
   const highMinKey = 'lastclose52weekhigh.lasttwelvemonths';
   const highMaxKey = 'lastclose52weekhigh.lasttwelvemonths';
   const lowMinKey = 'lastclose52weeklow.lasttwelvemonths';

@@ -31,7 +31,7 @@ export async function addToWatchlist(
   if (!symbol || !user_id) return;
   try {
     // Set pending state - use symbol for string version, true for boolean version
-    (setPending as any)(setWatchlistSymbols ? symbol : true);
+    (setPending as (v: boolean | string | null) => void)(setWatchlistSymbols ? symbol : true);
     
     const res = await fetch('/watchlist/add/', {
       method: 'POST',
@@ -67,7 +67,7 @@ export async function addToWatchlist(
     setTimeout(() => setToast(null), 2500);
   } finally {
     // Reset pending state - use null for string version, false for boolean version
-    (setPending as any)(setWatchlistSymbols ? null : false);
+    (setPending as (v: boolean | string | null) => void)(setWatchlistSymbols ? null : false);
   }
 }
 
@@ -102,7 +102,7 @@ export async function removeFromWatchlist(
   if (!symbol || !user_id) return;
   try {
     // Set pending state - use symbol for string version, true for boolean version
-    (setPending as any)(setWatchlistSymbols ? symbol : true);
+    (setPending as (v: boolean | string | null) => void)(setWatchlistSymbols ? symbol : true);
     
     const res = await fetch('/watchlist/remove/', {
       method: 'DELETE',
@@ -142,6 +142,6 @@ export async function removeFromWatchlist(
     setTimeout(() => setToast(null), 2500);
   } finally {
     // Reset pending state - use null for string version, false for boolean version
-    (setPending as any)(setWatchlistSymbols ? null : false);
+    (setPending as (v: boolean | string | null) => void)(setWatchlistSymbols ? null : false);
   }
 }

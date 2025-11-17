@@ -18,7 +18,13 @@ export function useFetchWatchlist(apiKey: string | null) {
       });
       if (!res.ok) return;
       const data = await res.json();
-      const symbols = new Set<string>((data.watchlist || []).map((s: any) => s.symbol).filter((s: any) => typeof s === 'string'));
+      type WatchlistItem = { symbol?: unknown };
+      const rawList = Array.isArray(data.watchlist) ? data.watchlist : [];
+      const symbols = new Set<string>(
+        rawList
+          .map((s: unknown) => (s as WatchlistItem).symbol)
+          .filter((s: unknown): s is string => typeof s === 'string')
+      );
       setWatchlistSymbols(symbols);
     };
     fetchWatchlist();

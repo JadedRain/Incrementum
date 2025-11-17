@@ -21,9 +21,16 @@ export function sortStocks(stocks: StockInfo[], field: SortField, direction: 'as
         return stock.regularMarketPrice;
       case 'percentChange':
         return stock.regularMarketChangePercent;
-      case 'volume':
-        // Use volume or averageVolume as fallback, and cast to access any potential fields
-        return (stock as any).regularMarketVolume ?? (stock as any).averageDailyVolume3Month ?? stock.averageVolume ?? stock.volume;
+      case 'volume': {
+        // Create a typed fallback object for optional numeric fields that might not be declared on StockInfo
+        const extra = stock as unknown as {
+          regularMarketVolume?: number;
+          averageDailyVolume3Month?: number;
+          averageVolume?: number;
+          volume?: number;
+        };
+        return extra.regularMarketVolume ?? extra.averageDailyVolume3Month ?? extra.averageVolume ?? extra.volume;
+      }
       case 'marketCap':
         return stock.marketCap;
       default:

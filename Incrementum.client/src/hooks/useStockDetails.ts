@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react';
 
+interface CollectionStock {
+  symbol: string;
+  price?: number;
+}
+
 export const useStockDetails = (tokens: string[]) => {
-  const [stocksData, setStocksData] = useState<any[]>([]);
+  const [stocksData, setStocksData] = useState<CollectionStock[]>([]);
   const [loadingStocks, setLoadingStocks] = useState<boolean>(false);
 
   useEffect(() => {
@@ -20,8 +25,12 @@ export const useStockDetails = (tokens: string[]) => {
         );
         const results = await Promise.all(promises);
         setStocksData(results.filter(r => r !== null));
-      } catch (err: any) {
-        console.error("Failed to fetch stock details:", err.message);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          console.error("Failed to fetch stock details:", err.message);
+        } else {
+          console.error("Failed to fetch stock details:", String(err));
+        }
       } finally {
         setLoadingStocks(false);
       }

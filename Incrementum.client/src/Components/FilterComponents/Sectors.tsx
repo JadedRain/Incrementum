@@ -19,7 +19,7 @@ const SectorFilter: React.FC = () => {
   useEffect(() => {
     if (!initialized && Object.keys(filterDataDict).length > 0) {
       const existingSectors: string[] = [];
-      Object.entries(filterDataDict).forEach(([_key, filter]) => {
+      Object.entries(filterDataDict).forEach(([, filter]) => {
         if (filter.operand === 'sector' && filter.value && typeof filter.value === 'string') {
           existingSectors.push(filter.value);
         }
@@ -39,13 +39,14 @@ const SectorFilter: React.FC = () => {
         const data = await response.json();
 
         const sectorNames = Array.isArray(data.sectors)
-            ? (typeof data.sectors[0] === "string" ? data.sectors : data.sectors.map((s: any) => s.name))
+            ? (typeof data.sectors[0] === "string" ? data.sectors : (data.sectors as { name: string }[]).map((s) => s.name))
             : [];
         console.log(sectorNames)
         setSectors(sectorNames);
-        } catch (err: any) {
+        } catch (err: unknown) {
         console.error("Failed to fetch sectors:", err);
-        setError(err.message || "Failed to load sectors");
+        const message = err instanceof Error ? err.message : String(err);
+        setError(message || "Failed to load sectors");
         } finally {
         setLoading(false);
         }
@@ -75,7 +76,7 @@ const SectorFilter: React.FC = () => {
       };
       addFilter(key, filter);
     });
-  }, [selectedSectors, sectors]);
+  }, [selectedSectors, sectors, removeFilter, addFilter]);
 
   const handleCheckboxChange = (sector: string) => {
     setSelectedSectors((prev) =>
