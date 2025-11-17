@@ -12,7 +12,6 @@ interface UseCollectionActionsProps {
   apiKey: string | null;
   onRefresh: () => Promise<void>;
   onError: (message: string) => void;
-  onClearSearch: () => void;
   id?: string;
   setTokens: React.Dispatch<React.SetStateAction<string[]>>;
 }
@@ -22,7 +21,6 @@ export const useCollectionActions = ({
   apiKey, 
   onRefresh, 
   onError,
-  onClearSearch,
   id,
   setTokens
 }: UseCollectionActionsProps) => {
@@ -46,7 +44,6 @@ export const useCollectionActions = ({
           localStorage.setItem('customCollections', JSON.stringify(collections));
           setTokens(collections[idx].stocks);
         }
-        onClearSearch();
       return;
     }
 
@@ -73,7 +70,6 @@ export const useCollectionActions = ({
         throw new Error(errorData.error || "Failed to add stock");
       }
       
-      onClearSearch();
       await onRefresh();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);

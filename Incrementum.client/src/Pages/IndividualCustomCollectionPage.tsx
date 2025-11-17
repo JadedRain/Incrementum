@@ -134,7 +134,7 @@ const IndividualCustomCollectionPage: React.FC = () => {
         </div>
 
         <CollectionStockTable
-          stocksData={stocksData}
+          stocksData={stocksData as StockItem[]}
           loadingStocks={loadingStocks}
           tokens={tokens}
           onStockClick={(symbol) => navigate(`/stock/${symbol}`)}
