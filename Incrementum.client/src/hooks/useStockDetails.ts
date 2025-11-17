@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 export const useStockDetails = (tokens: string[]) => {
-  const [stocksData, setStocksData] = useState<any[]>([]);
+  const [stocksData, setStocksData] = useState<unknown[]>([]);
   const [loadingStocks, setLoadingStocks] = useState<boolean>(false);
 
   useEffect(() => {
@@ -20,8 +20,12 @@ export const useStockDetails = (tokens: string[]) => {
         );
         const results = await Promise.all(promises);
         setStocksData(results.filter(r => r !== null));
-      } catch (err: any) {
-        console.error("Failed to fetch stock details:", err.message);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          console.error("Failed to fetch stock details:", err.message);
+        } else {
+          console.error("Failed to fetch stock details:", String(err));
+        }
       } finally {
         setLoadingStocks(false);
       }
