@@ -102,7 +102,7 @@ def list_custom_screeners(request):
 
 
 @csrf_exempt
-@require_http_methods(["PUT"])  
+@require_http_methods(["PUT"])
 def update_custom_screener(request, screener_id):
     try:
         api_key = get_user_from_request(request)
