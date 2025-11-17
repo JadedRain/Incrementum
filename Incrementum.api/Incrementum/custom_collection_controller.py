@@ -59,8 +59,15 @@ def custom_collection(request):
                 added_count = custom_collection.add_stocks(api_key, collection_name, symbols, desc)
             except ValueError as e:
                 return JsonResponse({'error': str(e)}, status=400)
-
-            return JsonResponse({'status': 'ok', 'added_count': added_count}, status=200)
+            collections = custom_collection.get_all_collections(api_key)
+            return JsonResponse(
+                {
+                    'status': 'ok',
+                    'added_count': added_count,
+                    'collections': collections,
+                },
+                status=200,
+            )
 
         elif request.method == "DELETE":
             symbols_field = data.get('symbols') or request.META.get('HTTP_X_SYMBOLS')
