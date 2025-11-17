@@ -1,6 +1,6 @@
 import json
 import uuid
-import bcrypt   
+import bcrypt
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models_user import Account

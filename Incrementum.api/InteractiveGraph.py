@@ -1,4 +1,4 @@
-from dash import Dash, html, dcc, callback, Output, Input, State
+from dash import Dash, html, dcc, callback, Output, Input
 import plotly.express as px
 import pandas as pd
 import requests
@@ -7,17 +7,18 @@ import json
 
 API_BASE = 'http://api:8000'
 
+
 def fetch_data_from_api():
-     api_url = f"{API_BASE}/getStocks/"
-     
-     try:
-         response = requests.get(api_url)
-         response.raise_for_status()
-         data = response.json()
-         return html.Pre(json.dumps(data, indent=2))
-     except requests.exceptions.RequestException as e:
-         return f"Error fetching data: {e}"
-     
+    api_url = f"{API_BASE}/getStocks/"
+    try:
+        response = requests.get(api_url)
+        response.raise_for_status()
+        data = response.json()
+        return html.Pre(json.dumps(data, indent=2))
+    except requests.exceptions.RequestException as e:
+        return f"Error fetching data: {e}"
+
+
 app = Dash()
 
 app.layout = html.Div([
@@ -28,28 +29,144 @@ app.layout = html.Div([
             [
                 html.Div(
                     [
-                        html.H1(id="ticker-title", children="TICKER", style={"fontSize": "36px", "fontWeight": "700", "margin": 0}),
-                        html.Div(id="price-display", children="", style={"fontSize": "24px", "marginTop": "6px"}),
+                        html.H1(
+                            id="ticker-title",
+                            children="TICKER",
+                            style={"fontSize": "36px", "fontWeight": "700", "margin": 0}
+                        ),
+                        html.Div(
+                            id="price-display",
+                            children="",
+                            style={"fontSize": "24px", "marginTop": "6px"}
+                        ),
                     ],
                     style={"textAlign": "left", "padding": "6px 10px", "marginRight": "auto"},
                 ),
-               dcc.Tabs(
+                dcc.Tabs(
                     id="period-tabs",
                     value="ytd",
                     persistence=True,
-                    style={"borderBottom": "1px solid rgba(0,0,0,0.06)", "paddingBottom": "6px", "backgroundColor": "transparent"},
+                    style={
+                        "borderBottom": "1px solid rgba(0,0,0,0.06)",
+                        "paddingBottom": "6px",
+                        "backgroundColor": "transparent"
+                    },
                     children=[
-                        dcc.Tab(label="1D", value="1d", style={"padding":"2px 6px","fontSize":"11px","color":"#251C09","border":"none","minWidth":"28px","lineHeight":"1","textAlign":"center"}, selected_style={"color":"#16A34A","border":"none","borderBottom":"2px solid #16A34A","fontWeight":"600"}),
-                        dcc.Tab(label="1W", value="1wk", style={"padding":"4px 8px","fontSize":"12px","color":"#251C09","border":"none","minWidth":"34px","textAlign":"center"}, selected_style={"color":"#16A34A","border":"none","borderBottom":"3px solid #16A34A","fontWeight":"600"}),
-                        dcc.Tab(label="1M", value="1mo", style={"padding":"4px 8px","fontSize":"12px","color":"#251C09","border":"none","minWidth":"34px","textAlign":"center"}, selected_style={"color":"#16A34A","border":"none","borderBottom":"3px solid #16A34A","fontWeight":"600"}),
-                        dcc.Tab(label="3M", value="3mo", style={"padding":"4px 8px","fontSize":"12px","color":"#251C09","border":"none","minWidth":"34px","textAlign":"center"}, selected_style={"color":"#16A34A","border":"none","borderBottom":"3px solid #16A34A","fontWeight":"600"}),
-                        dcc.Tab(label="YTD", value="ytd", style={"padding":"4px 8px","fontSize":"12px","color":"#251C09","border":"none","minWidth":"34px","textAlign":"center"}, selected_style={"color":"#16A34A","border":"none","borderBottom":"3px solid #16A34A","fontWeight":"600"}),
-                        dcc.Tab(label="1Y", value="1Y", style={"padding":"4px 8px","fontSize":"12px","color":"#251C09","border":"none","minWidth":"34px","textAlign":"center"}, selected_style={"color":"#16A34A","border":"none","borderBottom":"3px solid #16A34A","fontWeight":"600"})
+                        dcc.Tab(
+                            label="1D",
+                            value="1d",
+                            style={
+                                "padding": "2px 6px",
+                                "fontSize": "11px",
+                                "color": "#251C09",
+                                "border": "none",
+                                "minWidth": "28px",
+                                "lineHeight": "1",
+                                "textAlign": "center"
+                            },
+                            selected_style={
+                                "color": "#16A34A",
+                                "border": "none",
+                                "borderBottom": "2px solid #16A34A",
+                                "fontWeight": "600"
+                            }),
+                        dcc.Tab(
+                            label="1W",
+                            value="1wk",
+                            style={
+                                "padding": "4px 8px",
+                                "fontSize": "12px",
+                                "color": "#251C09",
+                                "border": "none",
+                                "minWidth": "34px",
+                                "textAlign": "center"
+                            },
+                            selected_style={
+                                "color": "#16A34A",
+                                "border": "none",
+                                "borderBottom": "3px solid #16A34A",
+                                "fontWeight": "600"
+                            }),
+                        dcc.Tab(
+                            label="1M",
+                            value="1mo",
+                            style={
+                                "padding": "4px 8px",
+                                "fontSize": "12px",
+                                "color": "#251C09",
+                                "border": "none",
+                                "minWidth": "34px",
+                                "textAlign": "center"
+                            },
+                            selected_style={
+                                "color": "#16A34A",
+                                "border": "none",
+                                "borderBottom": "3px solid #16A34A",
+                                "fontWeight": "600"
+                            }),
+                        dcc.Tab(
+                            label="3M",
+                            value="3mo",
+                            style={
+                                "padding": "4px 8px",
+                                "fontSize": "12px",
+                                "color": "#251C09",
+                                "border": "none",
+                                "minWidth": "34px",
+                                "textAlign": "center"
+                            },
+                            selected_style={
+                                "color": "#16A34A",
+                                "border": "none",
+                                "borderBottom": "3px solid #16A34A",
+                                "fontWeight": "600"
+                            }),
+                        dcc.Tab(
+                            label="YTD",
+                            value="ytd",
+                            style={
+                                "padding": "4px 8px",
+                                "fontSize": "12px",
+                                "color": "#251C09",
+                                "border": "none",
+                                "minWidth": "34px",
+                                "textAlign": "center"
+                            },
+                            selected_style={
+                                "color": "#16A34A",
+                                "border": "none",
+                                "borderBottom": "3px solid #16A34A",
+                                "fontWeight": "600"
+                            }),
+                        dcc.Tab(
+                            label="1Y",
+                            value="1Y",
+                            style={
+                                "padding": "4px 8px",
+                                "fontSize": "12px",
+                                "color": "#251C09",
+                                "border": "none",
+                                "minWidth": "34px",
+                                "textAlign": "center"
+                            },
+                            selected_style={
+                                "color": "#16A34A",
+                                "border": "none",
+                                "borderBottom": "3px solid #16A34A",
+                                "fontWeight": "600"
+                            })
                     ],
                 ),
                 dcc.Input(id="interval-dropdown", type="hidden", value="1d"),
             ],
-            style={"display": "flex", "alignItems": "center", "gap": "8px", "justifyContent": "flex-start", "paddingRight": "32px", "marginLeft":"12px"},
+            style={
+                "display": "flex",
+                "alignItems": "center",
+                "gap": "8px",
+                "justifyContent": "flex-start",
+                "paddingRight": "32px",
+                "marginLeft": "12px"
+            },
         ),
         dcc.Graph(id="graph-content", config={"displayModeBar": False}, style={"width": "100%"}),
     ], style={"marginLeft": "250px", "width": "calc(100% - 250px)"}),
@@ -78,7 +195,9 @@ def set_ticker_from_search(search):
 )
 def update_graph(ticker, period, interval):
     if not ticker:
-        return px.line(pd.DataFrame({"x": [], "y": []}), x="x", y="y").update_layout(title="No ticker provided")
+        empty_df = pd.DataFrame({"x": [], "y": []})
+        fig = px.line(empty_df, x="x", y="y")
+        return fig.update_layout(title="No ticker provided")
 
     try:
         intervals_to_try = [interval]
@@ -108,7 +227,9 @@ def update_graph(ticker, period, interval):
                 resp.raise_for_status()
                 data = resp.json()
             except Exception as e:
-                return px.line(pd.DataFrame({"x": [], "y": []}), x="x", y="y").update_layout(title=f"Error: {e}")
+                empty_fig = px.line(pd.DataFrame({"x": [], "y": []}), x="x", y="y")
+                title = f"Error: {e}"
+                return empty_fig.update_layout(title=title)
 
         dates = pd.to_datetime(data.get("dates", []))
         close = data.get("close", []) or []
@@ -116,19 +237,43 @@ def update_graph(ticker, period, interval):
         if df.empty:
             return px.line(df, x="date", y="close").update_layout(title=f"No data for {ticker}")
         # show axis titles and tick labels so the user can see Date and Price
-        fig = px.line(df, x="date", y="close", color_discrete_sequence=["#251C09"], labels={"date": "Date", "close": "Price"})
+        fig = px.line(
+            df,
+            x="date",
+            y="close",
+            color_discrete_sequence=["#251C09"],
+            labels={"date": "Date", "close": "Price"},
+        )
         fig.update_layout(
-            xaxis=dict(showticklabels=True, showgrid=False, zeroline=False, showline=True, title="Date", tickfont={"color": "#251C09"}),
-            yaxis=dict(showticklabels=True, showgrid=False, zeroline=False, showline=True, title="Price $", tickfont={"color": "#251C09"}),
+            xaxis=dict(
+                showticklabels=True,
+                showgrid=False,
+                zeroline=False,
+                showline=True,
+                title="Date",
+                tickfont={"color": "#251C09"},
+            ),
+            yaxis=dict(
+                showticklabels=True,
+                showgrid=False,
+                zeroline=False,
+                showline=True,
+                title="Price $",
+                tickfont={"color": "#251C09"},
+            ),
             paper_bgcolor="#DCB465",
             plot_bgcolor="#DCB465",
-            font_color="#251C09"
+            font_color="#251C09",
         )
         if fig.data:
             fig.data[0].update(hovertemplate="$%{y:.2f}<extra></extra>")
         return fig
     except Exception as e:
-        return px.line(pd.DataFrame({"x": [], "y": []}), x="x", y="y").update_layout(title=f"Error: {e}")
+        empty_fig = px.line(pd.DataFrame({"x": [], "y": []}), x="x", y="y")
+        return empty_fig.update_layout(
+            title=f"Error: {e}"
+        )
+
 
 @callback(
     Output("price-display", "children"),
@@ -165,10 +310,12 @@ def update_price_display(hoverData, figure, ticker, period, interval):
                 continue
     return ""
 
+
 @callback(Output("ticker-title", "children"), Input("ticker-input", "value"))
 def update_title_from_input(ticker_value):
     # show the ticker or fallback text; format as you like
     return (ticker_value or "TICKER").upper()
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8050, debug=False)

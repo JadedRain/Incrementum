@@ -126,7 +126,7 @@ urlpatterns = [
     path('filters/categorical/', get_categorical_filter_types, name='get_categorical_filter_types'),
     path('filters/numeric/', get_numeric_filter_types, name='get_numeric_filter_types'),
     path('sectors/', get_sectors, name='sectors'),
-    path('industries/', get_industries, name='industries'),    
+    path('industries/', get_industries, name='industries'),
     # Dynamic screener run endpoint
     path('stocks/getfilteredstocks', run_screener, name='get_filtered_stocks'),
 ]
