@@ -1,6 +1,7 @@
 import React from 'react';
 import type { StockData } from '../StockData';
 import { BiPlus } from "react-icons/bi";
+import { BiMinus } from "react-icons/bi";
 
 interface StockInfoSidebarProps {
   results: StockData;
@@ -111,7 +112,8 @@ const StockInfoSidebar: React.FC<StockInfoSidebarProps> = ({
               }}
               aria-label={`${inWatchlist ? 'Remove' : 'Add'} ${results.symbol} ${inWatchlist ? 'from' : 'to'} watchlist`}
             >
-              <BiPlus size={32} style={{ color: 'hsl(40, 63%, 42%)', marginRight: '8px' }} />
+              {!inWatchlist && <BiPlus size={32} style={{ color: 'hsl(40, 63%, 42%)', marginRight: '8px' }} />}
+              {inWatchlist && <BiMinus size={32} style={{ color: 'hsl(40, 63%, 42%)', marginRight: '8px' }} />}
               <span>{inWatchlist ? 'Remove' : 'Watch'}</span>
             </button>
           </div>
