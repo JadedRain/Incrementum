@@ -6,10 +6,10 @@ import { getAuthFromStorage, setAuthToStorage } from "./authStorage";
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Keycloak configuration
-export const KEYCLOAK_REALM_URL = 'https://auth-dev.snowse.io/realms/incrementum';
-export const KEYCLOAK_CLIENT_ID = 'incrementum-client';
+const KEYCLOAK_REALM_URL = 'https://auth-dev.snowse.io/realms/incrementum';
+const KEYCLOAK_CLIENT_ID = 'incrementum-client';
 
-export const getKeycloakRegistrationUrl = () => {
+const getKeycloakRegistrationUrl = () => {
   return `${KEYCLOAK_REALM_URL}/protocol/openid-connect/registrations?client_id=${KEYCLOAK_CLIENT_ID}&response_type=code&scope=openid&redirect_uri=${window.location.origin}/`;
 };
 
@@ -100,7 +100,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error("useAuth must be used within AuthProvider");

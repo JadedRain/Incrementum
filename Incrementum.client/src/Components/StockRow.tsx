@@ -1,5 +1,20 @@
+import React from 'react';
+
+type Stock = {
+  symbol?: string;
+  regularMarketChangePercent?: number;
+  regularMarketPrice?: number;
+  fiftyTwoWeekHigh?: number;
+  fiftyTwoWeekLow?: number;
+  marketCap?: number;
+  regularMarketVolume?: number;
+  averageDailyVolume3Month?: number;
+  averageVolume?: number;
+  volume?: number;
+};
+
 type Props = {
-  stock: any;
+  stock: Stock;
   onClick?: () => void;
   idx?: number;
   inWatchlist?: boolean;
@@ -25,7 +40,7 @@ export default function StockRow({ stock, onClick, inWatchlist = false, onToggle
     return v.toString();
   };
 
-  const handleWatchlistClick = (e: React.MouseEvent) => {
+  const handleWatchlistClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     if (!isPending && onToggleWatchlist && stock.symbol) {
       onToggleWatchlist(stock.symbol, inWatchlist);

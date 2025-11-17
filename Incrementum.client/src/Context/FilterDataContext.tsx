@@ -18,14 +18,14 @@ interface FilterDataContextType {
   removeFilter: (key: string) => void;
   selectedSectors: string[];
   setSelectedSectors: React.Dispatch<React.SetStateAction<string[]>>;
-  stocks: any[];               // fetched stock data
+  stocks: unknown[];               // fetched stock data
   isLoading: boolean;          // loading indicator
   error: string | null; 
-  fetchInit: (key: string) => any | null;
-  setInitDict:React.Dispatch<React.SetStateAction<Record<string, any | null>>>;
+  fetchInit: (key: string) => unknown | null;
+  setInitDict: React.Dispatch<React.SetStateAction<Record<string, unknown | null>>>;
   isInit: boolean;
   setIsInit: React.Dispatch<React.SetStateAction<boolean>>;
-  initDict: Record<string, any>;
+  initDict: Record<string, unknown | null>;
   setSortValue: React.Dispatch<React.SetStateAction<string | null>>;
   setSortBool: React.Dispatch<React.SetStateAction<string | null>>;
 
@@ -38,7 +38,7 @@ const FilterDataContext = createContext<FilterDataContextType | undefined>(
 
 // Provider
 export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
-  const [initDict, setInitDict] = useState<Record<string, any>>({})
+  const [initDict, setInitDict] = useState<Record<string, unknown | null>>({})
   const fetchInit =  (key: string)=> {
     if(initDict != null && Object.hasOwn(initDict, key))
       {
@@ -50,7 +50,7 @@ export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
   const [isInit, setIsInit] = useState(false);
   const [filterDataDict, setFilterDataDict] = useState<Record<string, FilterData>>({});
   const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
-  const [stocks, setStocks] = useState<any[]>([]);
+  const [stocks, setStocks] = useState<unknown[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [sortValue, setSortValue] = useState<string | null>(null);
   const [sortBool, setSortBool] =  useState<string| null>(null);
@@ -103,16 +103,20 @@ export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
         const data = await response.json();
         console.log("Fetched stocks:", data.stocks.quotes);
         setStocks(data.stocks.quotes || []);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Error fetching stocks:", err);
-        setError(err.message ?? "Unknown error");
+        if (err instanceof Error) {
+          setError(err.message ?? "Unknown error");
+        } else {
+          setError(String(err) || "Unknown error");
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchFilteredStocks();
-  }, [filterDataDict]);
+  }, [filterDataDict, sortBool, sortValue]);
   return (
     <FilterDataContext.Provider
       value={{
