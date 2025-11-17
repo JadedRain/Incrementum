@@ -2,6 +2,7 @@ from typing import List
 from Incrementum.stocks_class import Stock
 from .screener_interface import IScreener
 
+
 class fifty_two_high(IScreener):
     def __init__(self, min_value=None, max_value=None):
         if min_value is None or (isinstance(min_value, str) and min_value.strip() == ""):
@@ -27,7 +28,7 @@ class fifty_two_high(IScreener):
                 continue  # skip incomplete data
 
             high = stock.price_52w_high
-            
+
             min_val = getattr(self, 'min_value', getattr(self, 'value', 0))
             max_val = getattr(self, 'max_value', None)
 
@@ -41,6 +42,7 @@ class fifty_two_high(IScreener):
             result.append(stock)
 
         return result
+
 
 class fifty_two_low(IScreener):
     def __init__(self, min_value=None, max_value=None):
@@ -67,7 +69,7 @@ class fifty_two_low(IScreener):
                 continue  # skip incomplete data
 
             low = stock.price_52w_low
-            
+
             min_val = getattr(self, 'min_value', getattr(self, 'value', 0))
             max_val = getattr(self, 'max_value', None)
 
@@ -81,4 +83,3 @@ class fifty_two_low(IScreener):
             result.append(stock)
 
         return result
-
