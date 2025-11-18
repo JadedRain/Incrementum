@@ -180,8 +180,6 @@ app.layout = html.Div([
 })
 
 
-
-# Parse ticker and type from URL
 @callback(
     Output("ticker-input", "value"),
     Output("type-input", "value"),
@@ -247,10 +245,13 @@ def update_graph(ticker, period, interval, graph_type):
         low = data.get("low", []) or []
         close = data.get("close", []) or []
 
-        # Ensure all arrays are the same length
         n = min(len(dates), len(open_), len(high), len(low), len(close))
         if n == 0:
-            return px.line(pd.DataFrame({"x": [], "y": []}), x="x", y="y").update_layout(title=f"No data for {ticker}")
+            return px.line(
+                pd.DataFrame({"x": [], "y": []}), x="x", y="y"
+            ).update_layout(
+                title=f"No data for {ticker}"
+            )
 
         df = pd.DataFrame({
             "date": dates[:n],
@@ -274,8 +275,22 @@ def update_graph(ticker, period, interval, graph_type):
                 title=f"Candlestick Chart: {ticker}",
                 xaxis_title="Date",
                 yaxis_title="Price $",
-                xaxis=dict(showticklabels=True, showgrid=False, zeroline=False, showline=True, title="Date", tickfont={"color": "#251C09"}),
-                yaxis=dict(showticklabels=True, showgrid=False, zeroline=False, showline=True, title="Price $", tickfont={"color": "#251C09"}),
+                xaxis=dict(
+                    showticklabels=True,
+                    showgrid=False,
+                    zeroline=False,
+                    showline=True,
+                    title="Date",
+                    tickfont={"color": "#251C09"},
+                ),
+                yaxis=dict(
+                    showticklabels=True,
+                    showgrid=False,
+                    zeroline=False,
+                    showline=True,
+                    title="Price $",
+                    tickfont={"color": "#251C09"},
+                ),
                 paper_bgcolor="#DCB465",
                 plot_bgcolor="#DCB465",
                 font_color="#251C09",
@@ -316,31 +331,6 @@ def update_graph(ticker, period, interval, graph_type):
     except Exception as e:
         empty_fig = px.line(pd.DataFrame({"x": [], "y": []}), x="x", y="y")
         return empty_fig.update_layout(title=f"Error: {e}")
-    if hoverData and "points" in hoverData and len(hoverData["points"]) > 0:
-        y = hoverData["points"][0].get("y")
-        try:
-            return f"${float(y):,.2f}"
-        except Exception:
-            return str(y)
-
-    if figure and "data" in figure and len(figure["data"]) > 0:
-        intervals_to_try = [interval]
-        if (period or "").lower() == "1d" and interval not in ("1h", "60m", "30m", "15m"):
-            intervals_to_try = ["1h", "60m", "30m", "15m", "5m", interval]
-        for itv in intervals_to_try:
-            try:
-                url = f"{API_BASE}/getStocks/{ticker}/"
-                params = {"period": period or "1y", "interval": itv, "format": "json"}
-                resp = requests.get(url, params=params, timeout=6)
-                resp.raise_for_status()
-                data = resp.json()
-                close = data.get("close", []) or []
-                if close:
-                    last = close[-1]
-                    return f"${float(last):,.2f}"
-            except Exception:
-                continue
-    return ""
 
 
 @callback(Output("ticker-title", "children"), Input("ticker-input", "value"))

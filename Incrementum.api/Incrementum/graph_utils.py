@@ -43,10 +43,16 @@ def generate_overlay_graph(tokens, period="1y"):
             stock = yf.Ticker(ticker)
             history = stock.history(period=period)
             if history is not None and not history.empty:
-                # mplfinance expects columns: Open, High, Low, Close
-                mpf.plot(history, type='candle', style='charles', title=f"Candlestick: {ticker}", ylabel='Price', savefig=buf_candle)
+                mpf.plot(
+                    history,
+                    type='candle',
+                    style='charles',
+                    title=f"Candlestick: {ticker}",
+                    ylabel='Price',
+                    savefig=buf_candle
+                )
                 candle_found = True
-                break  # Only plot the first valid ticker for candlestick
+                break
         except Exception as e:
             logger.error(f"Error generating candlestick for {ticker}: {str(e)}")
     if not candle_found:
