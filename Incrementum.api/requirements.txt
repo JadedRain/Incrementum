@@ -31,6 +31,7 @@ djangorestframework
 django-cors-headers
 psycopg2-binary
 matplotlib
+mplfinance
 python-keycloak
 dash
 plotly
