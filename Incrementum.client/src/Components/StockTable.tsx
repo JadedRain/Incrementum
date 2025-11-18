@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Loading from './Loading';
 import StockRow from './StockRow';
+import StockColumn, { StockTableContext } from './StockColumn';
 
 import { useFilterData } from '../Context/FilterDataContext';
 import { sortStocks, getNextSortDirection, type SortField, type SortDirection } from '../utils/sortingUtils';
@@ -49,15 +50,28 @@ export default function StockTable({ onRowClick, watchlistSymbols, onToggleWatch
   
   const showWatchlist = !!onToggleWatchlist;
   
+  // Adapter so StockColumn's setSort can map column variable names to our SortField
+  const isSortField = (c: string): c is SortField => {
+    return ['name', 'price', 'percentChange', 'volume', 'marketCap'].includes(c);
+  };
+
+  const tableSetSort = (col: string) => {
+    // Map the StockColumn variableName to the SortField used by this table
+    if (col === 'regularMarketPrice') {
+      handleHeaderClick('price');
+    } else if (isSortField(col)) {
+      handleHeaderClick(col);
+    } 
+  };
+
   return (
-    <div className="StockTable-container">
-      <div className="StockTable-header-row">
+    <StockTableContext.Provider value={{ sortBy: sortField, sortDir: sortDirection, setSort: tableSetSort }}>
+      <div className="StockTable-container">
+        <div className="StockTable-header-row">
            <div className="StockTable-header sortable" onClick={() => handleHeaderClick('name')}>
              Symbol{getSortIndicator('name')}
            </div>
-           <div className="StockTable-header sortable" onClick={() => handleHeaderClick('price')}>
-             Price{getSortIndicator('price')}
-           </div>
+           <StockColumn variableName="regularMarketPrice" displayName={`Price${getSortIndicator('price')}`} />
            <div className="StockTable-header">52W High</div>
            <div className="StockTable-header">52W Low</div>
            <div className="StockTable-header sortable" onClick={() => handleHeaderClick('percentChange')}>
@@ -83,6 +97,7 @@ export default function StockTable({ onRowClick, watchlistSymbols, onToggleWatch
           isPending={pendingSymbol === s.symbol}
         />
       ))}
-    </div>
+      </div>
+    </StockTableContext.Provider>
   );
 }
