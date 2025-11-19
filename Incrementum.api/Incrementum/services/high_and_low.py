@@ -28,7 +28,8 @@ def local_low_opens(values: pd.DataFrame):
     pf = "Date" if "Date" in values.columns else "Datetime"
 
     # Build list of (date, open)
-    rows = [(values.loc[value, pf], values.loc[value, "Open"]) for value in range(len(values))]
+    rows = [(values.loc[value, pf], values.loc[value, "Open"]) for value
+            in range(len(values))]
 
     islow = True
     lows = []
