@@ -108,10 +108,19 @@ def get_stock_graph(request, ticker):
             # fallback if index not datetime
             dates = [str(i) for i in history.index]
 
-        close = [
-            None if (pd.isna(v)) else float(v)
-            for v in history["Close"].tolist()
-        ]
+        close = [None if (pd.isna(v)) else float(v) for v in history["Close"].tolist()]
+        open_ = (
+            [None if (pd.isna(v)) else float(v) for v in history["Open"].tolist()]
+            if "Open" in history else [None] * len(dates)
+        )
+        high = (
+            [None if (pd.isna(v)) else float(v) for v in history["High"].tolist()]
+            if "High" in history else [None] * len(dates)
+        )
+        low = (
+            [None if (pd.isna(v)) else float(v) for v in history["Low"].tolist()]
+            if "Low" in history else [None] * len(dates)
+        )
 
         graphdata = {
             "period": period,
@@ -119,6 +128,9 @@ def get_stock_graph(request, ticker):
             "count": len(dates),
             "dates": dates,
             "close": close,
+            "open": open_,
+            "high": high,
+            "low": low,
         }
 
         logging.info("Returning JSON for %s (%d points)", ticker, len(dates))

@@ -1,5 +1,6 @@
 from dash import Dash, html, dcc, callback, Output, Input
 import plotly.express as px
+import plotly.graph_objects as go
 import pandas as pd
 import requests
 from urllib.parse import parse_qs
@@ -25,6 +26,7 @@ app.layout = html.Div([
     html.Div([
         dcc.Location(id="url", refresh=False),
         dcc.Input(id="ticker-input", type="text", value="", style={"display": "none"}),
+        dcc.Input(id="type-input", type="hidden", value="line"),
         html.Div(
             [
                 html.Div(
@@ -178,13 +180,18 @@ app.layout = html.Div([
 })
 
 
-@callback(Output("ticker-input", "value"), Input("url", "search"))
-def set_ticker_from_search(search):
-    # read ?ticker=... from iframe query string and populate input
+@callback(
+    Output("ticker-input", "value"),
+    Output("type-input", "value"),
+    Input("url", "search")
+)
+def set_ticker_and_type_from_search(search):
     if not search:
-        return ""
+        return "", "line"
     qs = parse_qs(search.lstrip("?"))
-    return qs.get("ticker", [""])[0]
+    ticker = qs.get("ticker", [""])[0]
+    graph_type = qs.get("type", ["line"])[0]
+    return ticker, graph_type
 
 
 @callback(
@@ -192,8 +199,9 @@ def set_ticker_from_search(search):
     Input("ticker-input", "value"),
     Input("period-tabs", "value"),
     Input("interval-dropdown", "value"),
+    Input("type-input", "value"),
 )
-def update_graph(ticker, period, interval):
+def update_graph(ticker, period, interval, graph_type):
     if not ticker:
         empty_df = pd.DataFrame({"x": [], "y": []})
         fig = px.line(empty_df, x="x", y="y")
@@ -232,83 +240,97 @@ def update_graph(ticker, period, interval):
                 return empty_fig.update_layout(title=title)
 
         dates = pd.to_datetime(data.get("dates", []))
+        open_ = data.get("open", []) or []
+        high = data.get("high", []) or []
+        low = data.get("low", []) or []
         close = data.get("close", []) or []
-        df = pd.DataFrame({"date": dates, "close": close})
-        if df.empty:
-            return px.line(df, x="date", y="close").update_layout(title=f"No data for {ticker}")
-        # show axis titles and tick labels so the user can see Date and Price
-        fig = px.line(
-            df,
-            x="date",
-            y="close",
-            color_discrete_sequence=["#251C09"],
-            labels={"date": "Date", "close": "Price"},
-        )
-        fig.update_layout(
-            xaxis=dict(
-                showticklabels=True,
-                showgrid=False,
-                zeroline=False,
-                showline=True,
-                title="Date",
-                tickfont={"color": "#251C09"},
-            ),
-            yaxis=dict(
-                showticklabels=True,
-                showgrid=False,
-                zeroline=False,
-                showline=True,
-                title="Price $",
-                tickfont={"color": "#251C09"},
-            ),
-            paper_bgcolor="#DCB465",
-            plot_bgcolor="#DCB465",
-            font_color="#251C09",
-        )
-        if fig.data:
-            fig.data[0].update(hovertemplate="$%{y:.2f}<extra></extra>")
-        return fig
+
+        n = min(len(dates), len(open_), len(high), len(low), len(close))
+        if n == 0:
+            return px.line(
+                pd.DataFrame({"x": [], "y": []}), x="x", y="y"
+            ).update_layout(
+                title=f"No data for {ticker}"
+            )
+
+        df = pd.DataFrame({
+            "date": dates[:n],
+            "open": open_[:n],
+            "high": high[:n],
+            "low": low[:n],
+            "close": close[:n]
+        })
+
+        if graph_type == "candle":
+            fig = go.Figure(data=[go.Candlestick(
+                x=df["date"],
+                open=df["open"],
+                high=df["high"],
+                low=df["low"],
+                close=df["close"],
+                increasing_line_color="#16A34A",  # green
+                decreasing_line_color="#B91C1C",  # red
+            )])
+            fig.update_layout(
+                title=f"Candlestick Chart: {ticker}",
+                xaxis_title="Date",
+                yaxis_title="Price $",
+                xaxis=dict(
+                    showticklabels=True,
+                    showgrid=False,
+                    zeroline=False,
+                    showline=True,
+                    title="Date",
+                    tickfont={"color": "#251C09"},
+                ),
+                yaxis=dict(
+                    showticklabels=True,
+                    showgrid=False,
+                    zeroline=False,
+                    showline=True,
+                    title="Price $",
+                    tickfont={"color": "#251C09"},
+                ),
+                paper_bgcolor="#DCB465",
+                plot_bgcolor="#DCB465",
+                font_color="#251C09",
+            )
+            return fig
+        else:
+            fig = px.line(
+                df,
+                x="date",
+                y="close",
+                color_discrete_sequence=["#251C09"],
+                labels={"date": "Date", "close": "Price"},
+            )
+            fig.update_layout(
+                xaxis=dict(
+                    showticklabels=True,
+                    showgrid=False,
+                    zeroline=False,
+                    showline=True,
+                    title="Date",
+                    tickfont={"color": "#251C09"},
+                ),
+                yaxis=dict(
+                    showticklabels=True,
+                    showgrid=False,
+                    zeroline=False,
+                    showline=True,
+                    title="Price $",
+                    tickfont={"color": "#251C09"},
+                ),
+                paper_bgcolor="#DCB465",
+                plot_bgcolor="#DCB465",
+                font_color="#251C09",
+            )
+            if fig.data:
+                fig.data[0].update(hovertemplate="$%{y:.2f}<extra></extra>")
+            return fig
     except Exception as e:
         empty_fig = px.line(pd.DataFrame({"x": [], "y": []}), x="x", y="y")
-        return empty_fig.update_layout(
-            title=f"Error: {e}"
-        )
-
-
-@callback(
-    Output("price-display", "children"),
-    Input("graph-content", "hoverData"),
-    Input("graph-content", "figure"),
-    Input("ticker-input", "value"),
-    Input("period-tabs", "value"),
-    Input("interval-dropdown", "value"),
-)
-def update_price_display(hoverData, figure, ticker, period, interval):
-    if hoverData and "points" in hoverData and len(hoverData["points"]) > 0:
-        y = hoverData["points"][0].get("y")
-        try:
-            return f"${float(y):,.2f}"
-        except Exception:
-            return str(y)
-
-    if figure and "data" in figure and len(figure["data"]) > 0:
-        intervals_to_try = [interval]
-        if (period or "").lower() == "1d" and interval not in ("1h", "60m", "30m", "15m"):
-            intervals_to_try = ["1h", "60m", "30m", "15m", "5m", interval]
-        for itv in intervals_to_try:
-            try:
-                url = f"{API_BASE}/getStocks/{ticker}/"
-                params = {"period": period or "1y", "interval": itv, "format": "json"}
-                resp = requests.get(url, params=params, timeout=6)
-                resp.raise_for_status()
-                data = resp.json()
-                close = data.get("close", []) or []
-                if close:
-                    last = close[-1]
-                    return f"${float(last):,.2f}"
-            except Exception:
-                continue
-    return ""
+        return empty_fig.update_layout(title=f"Error: {e}")
 
 
 @callback(Output("ticker-title", "children"), Input("ticker-input", "value"))
