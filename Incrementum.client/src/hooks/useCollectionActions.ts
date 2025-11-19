@@ -130,11 +130,18 @@ export const useCollectionActions = ({
         if (idx !== -1) {
           collections[idx].stocks = (collections[idx].stocks || []).filter((s: string) => s !== symbol);
           localStorage.setItem('customCollections', JSON.stringify(collections));
+          // Update tokens locally to avoid reloading the entire collection UI
           setTokens(collections[idx].stocks || []);
+        } else {
+          // Fallback: remove from current tokens state
+          setTokens((prev) => Array.isArray(prev) ? prev.filter(s => String(s).toUpperCase() !== String(symbol).toUpperCase()) : []);
         }
+      } else {
+        // If no id (edge cases), just update tokens locally
+        setTokens((prev) => Array.isArray(prev) ? prev.filter(s => String(s).toUpperCase() !== String(symbol).toUpperCase()) : []);
       }
-      
-      await onRefresh();
+
+      // Do not await a full refresh here — updating tokens is sufficient for table UI.
       } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       onError("Remove: " + message);
