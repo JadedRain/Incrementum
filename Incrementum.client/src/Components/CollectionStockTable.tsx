@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Loading from './Loading';
 import CollectionStockRow from './CollectionStockRow';
+import StockColumn, { StockTableContext } from './StockColumn';
+import { getNextSortDirection, type SortDirection, type SortField } from '../utils/sortingUtils';
+import Stock from '../Pages/Stock';
 
 interface Stock {
   symbol: string;
@@ -16,6 +19,35 @@ interface CollectionStockTableProps {
   pendingSymbol: string | null;
 }
 
+export default function CollectionStockTable() {
+    const [sortField, setSortField] = useState<SortField | null>(null);
+    const [sortDirection, setSortDirection] = useState<SortDirection>(null);
+
+  const isSortField = (c: string): c is SortField => {
+    return ['name', 'price', 'percentChange', 'volume', 'marketCap'].includes(c);
+  };
+
+  const getSortIndicator = (field: SortField) => {
+    if (sortField !== field) return '';
+    if (sortDirection === 'asc') return ' ▲';
+    if (sortDirection === 'desc') return ' ▼';
+    return '';
+  };
+
+  const handleHeaderClick = (field: SortField) => {
+      const nextDirection = getNextSortDirection(sortField, field, sortDirection);
+      setSortField(nextDirection === null ? null : field);
+      setSortDirection(nextDirection);
+    };
+    
+  const tableSetSort = (col: string) => {
+    if (col === 'regularMarketPrice') {
+      handleHeaderClick('price');
+    } else if (isSortField(col)) {
+      handleHeaderClick(col);
+    } 
+  };
+
 const CollectionStockTable: React.FC<CollectionStockTableProps> = ({
   stocksData,
   loadingStocks,
@@ -25,38 +57,39 @@ const CollectionStockTable: React.FC<CollectionStockTableProps> = ({
   pendingSymbol
 }) => {
   return (
-    <div className="flex-1" style={{ height: '100%' }}>
-      <div className="StockTable-container" style={{ height: '100%', display: 'flex', flexDirection: 'column', boxShadow: '5px 5px 5px #3F3A30' }}>
-        <div className="StockTable-header-row" style={{ flexShrink: 0 }}>
-          <div className="StockTable-header">Symbol</div>
-          <div className="StockTable-header">Price</div>
-          <div className="StockTable-header">52W High</div>
-          <div className="StockTable-header">52W Low</div>
-          <div className="StockTable-header">1 Day % Chg.</div>
-          <div className="StockTable-header">Vol.</div>
-          <div className="StockTable-header">Mkt. Cap</div>
-          <div className="StockTable-header">Remove</div>
-        </div>
-        <div style={{ flex: 1, overflowY: 'auto' }}>
-          {loadingStocks && <Loading loading={true} />}
-          {!loadingStocks && tokens.length === 0 && (
-            <div className="StockTable-row">
-              <div className="StockTable-cell text-gray-500 col-span-6">No stocks in collection.</div>
-            </div>
-          )}
-          {!loadingStocks && stocksData.map((stock) => (
-            <CollectionStockRow
+    <StockTableContext.Provider value={{ sortBy: sortField, sortDir: sortDirection, setSort: tableSetSort }}>
+      <div className="flex-1" style={{ height: '100%' }}>
+        <div className="StockTable-container" style={{ height: '100%', display: 'flex', flexDirection: 'column', boxShadow: '5px 5px 5px #3F3A30' }}>
+          <div className="StockTable-header-row" style={{ flexShrink: 0 }}>
+            <StockColumn variableName="name" displayName={`Symbol${getSortIndicator('name')}`} />
+            <StockColumn variableName="regularMarketPrice" displayName={`Price${getSortIndicator('price')}`} />
+            <div className="StockTable-header">52W High</div>
+            <div className="StockTable-header">52W Low</div>
+            <div className="StockTable-header">1 Day % Chg.</div>
+            <div className="StockTable-header">Vol.</div>
+            <div className="StockTable-header">Mkt. Cap</div>
+            <div className="StockTable-header">Remove</div>
+          </div>
+          <div style={{ flex: 1, overflowY: 'auto' }}>
+            {loadingStocks && <Loading loading={true} />}
+            {!loadingStocks && tokens.length === 0 && (
+              <div className="StockTable-row">
+                <div className="StockTable-cell text-gray-500 col-span-6">No stocks in collection.</div>
+              </div>
+            )}
+            {!loadingStocks && stocksData.map((stock) => (
+              <CollectionStockRow
               key={stock.symbol}
               stock={stock}
               onClick={() => onStockClick(stock.symbol)}
               onRemove={onRemoveStock}
               isPending={pendingSymbol === stock.symbol}
-            />
-          ))}
+              />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+  </StockTableContext.Provider>
   );
+}
 };
-
-export default CollectionStockTable;

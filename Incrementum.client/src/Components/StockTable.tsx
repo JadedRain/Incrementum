@@ -43,20 +43,17 @@ export default function StockTable({ onRowClick, watchlistSymbols, onToggleWatch
            volume != null && !Number.isNaN(volume);
   });
   
-  // Apply sorting if a sort field is selected
   const displayStocks = sortField && sortDirection 
     ? sortStocks(filteredStocks, sortField, sortDirection)
     : filteredStocks;
   
   const showWatchlist = !!onToggleWatchlist;
   
-  // Adapter so StockColumn's setSort can map column variable names to our SortField
   const isSortField = (c: string): c is SortField => {
     return ['name', 'price', 'percentChange', 'volume', 'marketCap'].includes(c);
   };
 
   const tableSetSort = (col: string) => {
-    // Map the StockColumn variableName to the SortField used by this table
     if (col === 'regularMarketPrice') {
       handleHeaderClick('price');
     } else if (isSortField(col)) {
@@ -68,21 +65,13 @@ export default function StockTable({ onRowClick, watchlistSymbols, onToggleWatch
     <StockTableContext.Provider value={{ sortBy: sortField, sortDir: sortDirection, setSort: tableSetSort }}>
       <div className="StockTable-container">
         <div className="StockTable-header-row">
-           <div className="StockTable-header sortable" onClick={() => handleHeaderClick('name')}>
-             Symbol{getSortIndicator('name')}
-           </div>
+           <StockColumn variableName="name" displayName={`Symbol${getSortIndicator('name')}`} />
            <StockColumn variableName="regularMarketPrice" displayName={`Price${getSortIndicator('price')}`} />
            <div className="StockTable-header">52W High</div>
            <div className="StockTable-header">52W Low</div>
-           <div className="StockTable-header sortable" onClick={() => handleHeaderClick('percentChange')}>
-             1 Day % Chg.{getSortIndicator('percentChange')}
-           </div>
-           <div className="StockTable-header sortable" onClick={() => handleHeaderClick('volume')}>
-             Vol.{getSortIndicator('volume')}
-           </div>
-           <div className="StockTable-header sortable" onClick={() => handleHeaderClick('marketCap')}>
-             Mkt. Cap{getSortIndicator('marketCap')}
-           </div>
+           <StockColumn variableName="percentChange" displayName={`1 Day % Chg.${getSortIndicator('percentChange')}`} />
+           <StockColumn variableName="volume" displayName={`Vol.${getSortIndicator('volume')}`} />
+           <StockColumn variableName="marketCap" displayName={`Mkt. Cap${getSortIndicator('marketCap')}`} />
            {showWatchlist && <div className="StockTable-header">Add to Watchlist</div>}
       </div>
       <Loading loading={isLoading} />
