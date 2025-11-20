@@ -4,7 +4,19 @@ import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import CollectionNameEditor from "../Components/CollectionNameEditor";
 import StockSearchPanel from "../Components/StockSearchPanel";
-import CollectionStockTable from "../Components/CollectionStockTable";
+import CollectionStockTableImport from "../Components/CollectionStockTable";
+
+type CollectionStockTableProps = {
+  stocksData: StockItem[];
+  loadingStocks: boolean;
+  tokens: string[];
+  onStockClick: (symbol: string) => void;
+  onRemoveStock: (symbol: string) => void | Promise<void>;
+  pendingSymbol?: string | null;
+};
+
+const CollectionStockTable = CollectionStockTableImport as unknown as React.ComponentType<CollectionStockTableProps>;
+
 import { useAuth } from "../Context/AuthContext";
 import NavigationBar from "../Components/NavigationBar";
 import { useCustomCollection } from "../hooks/useCustomCollection";
