@@ -1,3 +1,5 @@
+import { useColumnVisibility } from '../Context/useColumnVisibility';
+
 type Stock = {
   symbol?: string | null;
   regularMarketChangePercent?: number | null;
@@ -17,6 +19,7 @@ type Props = {
 };
 
 export default function CollectionStockRow({ stock, onClick, onRemove, isPending = false }: Props) {
+  const { visibleColumns, columnOrder } = useColumnVisibility();
   const symbol = (stock.symbol || 'N/A').toUpperCase();
   const percent = stock.regularMarketChangePercent as number | undefined;
   const price = stock.currentPrice as number | undefined;
@@ -43,26 +46,40 @@ export default function CollectionStockRow({ stock, onClick, onRemove, isPending
 
   return (
     <div className="StockTable-row" onClick={onClick}>
-      <div className="StockTable-cell font-mono text-sm uppercase tracking-wider">{symbol}</div>
-      <div className="StockTable-cell font-medium">{price != null ? `$${price.toFixed(2)}` : 'N/A'}</div>
-      <div className="StockTable-cell text-sm">{fiftyTwoWeekHigh != null ? `$${fiftyTwoWeekHigh.toFixed(2)}` : 'N/A'}</div>
-      <div className="StockTable-cell text-sm">{fiftyTwoWeekLow != null ? `$${fiftyTwoWeekLow.toFixed(2)}` : 'N/A'}</div>
-      <div className={`StockTable-cell ${percent != null && percent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-        {percent != null ? (percent >= 0 ? `+${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`) : 'N/A'}
-      </div>
-      <div className="StockTable-cell">{formatLarge(volume)}</div>
-      <div className="StockTable-cell">{formatLarge(marketCap)}</div>
-      <div className="StockTable-cell">
-        <button
-          aria-label={`Remove ${symbol} from collection`}
-          onClick={handleRemoveClick}
-          className='watch-btn'
-          disabled={isPending}
-          style={{ opacity: isPending ? 0.5 : 1 }}
-        >
-          −
-        </button>
-      </div>
+      {columnOrder.map((k) => {
+        if (!visibleColumns[k]) return null;
+        switch (k) {
+          case 'symbol':
+            return <div key={k} className="StockTable-cell font-mono text-sm uppercase tracking-wider">{symbol}</div>;
+          case 'price':
+            return <div key={k} className="StockTable-cell font-medium">{price != null ? `$${price.toFixed(2)}` : 'N/A'}</div>;
+          case 'high52':
+            return <div key={k} className="StockTable-cell text-sm">{fiftyTwoWeekHigh != null ? `$${fiftyTwoWeekHigh.toFixed(2)}` : 'N/A'}</div>;
+          case 'low52':
+            return <div key={k} className="StockTable-cell text-sm">{fiftyTwoWeekLow != null ? `$${fiftyTwoWeekLow.toFixed(2)}` : 'N/A'}</div>;
+          case 'percentChange':
+            return <div key={k} className={`StockTable-cell ${percent != null && percent >= 0 ? 'text-green-500' : 'text-red-500'}`}>{percent != null ? (percent >= 0 ? `+${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`) : 'N/A'}</div>;
+          case 'volume':
+            return <div key={k} className="StockTable-cell">{formatLarge(volume)}</div>;
+          case 'marketCap':
+            return <div key={k} className="StockTable-cell">{formatLarge(marketCap)}</div>;
+          case 'watchlist':
+            return onRemove ? (
+              <div key={k} className="StockTable-cell">
+                <button
+                  aria-label={`Remove ${symbol} from collection`}
+                  onClick={handleRemoveClick}
+                  className={`watch-btn ${isPending ? 'opacity-50' : 'opacity-100'}`}
+                  disabled={isPending}
+                >
+                  −
+                </button>
+              </div>
+            ) : null;
+          default:
+            return null;
+        }
+      })}
     </div>
   );
 }

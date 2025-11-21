@@ -1,88 +1,123 @@
-import { useState } from 'react';
+// React import not required with new JSX transform
 import Loading from './Loading';
 import StockRow from './StockRow';
-
 import { useFilterData } from '../Context/FilterDataContext';
-import { sortStocks, getNextSortDirection, type SortField, type SortDirection } from '../utils/sortingUtils';
+import ColumnVisibilityProvider from '../Context/ColumnVisibilityContext';
+import { useColumnVisibility } from '../Context/useColumnVisibility';
+import '../styles/stock-table-extras.css';
 
-type Props = {
-  onRowClick?: (symbol: string) => void;
-  watchlistSymbols?: Set<string>;
-  onToggleWatchlist?: (symbol: string, inWatchlist: boolean) => void;
-  pendingSymbol?: string | null;
+type Stock = {
+  symbol?: string;
+  regularMarketChangePercent?: number;
+  regularMarketPrice?: number;
+  fiftyTwoWeekHigh?: number;
+  fiftyTwoWeekLow?: number;
+  marketCap?: number;
+  regularMarketVolume?: number;
+  averageDailyVolume3Month?: number;
+  averageVolume?: number;
+  volume?: number;
 };
 
-export default function StockTable({ onRowClick, watchlistSymbols, onToggleWatchlist, pendingSymbol  }: Props) {
-  const {stocks, isLoading, filterDataDict} = useFilterData();
-  const [sortField, setSortField] = useState<SortField | null>(null);
-  const [sortDirection, setSortDirection] = useState<SortDirection>(null);
-  
-  const handleHeaderClick = (field: SortField) => {
-    const nextDirection = getNextSortDirection(sortField, field, sortDirection);
-    setSortField(nextDirection === null ? null : field);
-    setSortDirection(nextDirection);
-  };
-  
-  const getSortIndicator = (field: SortField) => {
-    if (sortField !== field) return '';
-    if (sortDirection === 'asc') return ' ▲';
-    if (sortDirection === 'desc') return ' ▼';
-    return '';
-  };
-  
-  const filteredStocks = stocks.filter((s) => {
-    const price = s.regularMarketPrice as number | undefined;
-    const percent = s.regularMarketChangePercent as number | undefined;
-    const marketCap = s.marketCap as number | undefined;
-    const volume = (s.regularMarketVolume ?? s.averageDailyVolume3Month ?? s.averageVolume ?? s.volume) as number | undefined;
-    
-    return price != null && !Number.isNaN(price) &&
-           percent != null && !Number.isNaN(percent) &&
-           marketCap != null && !Number.isNaN(marketCap) &&
-           volume != null && !Number.isNaN(volume);
-  });
-  
-  // Apply sorting if a sort field is selected
-  const displayStocks = sortField && sortDirection 
-    ? sortStocks(filteredStocks, sortField, sortDirection)
-    : filteredStocks;
-  
-  const showWatchlist = !!onToggleWatchlist;
-  
+type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'marketCap' | 'watchlist';
+type Col = { k: ColKey; l: string };
+
+type Props = { onRowClick?: (s: string) => void; watchlistSymbols?: Set<string>; onToggleWatchlist?: (s: string, inW: boolean) => void; pendingSymbol?: string | null };
+
+export default function StockTable({ onRowClick, watchlistSymbols, onToggleWatchlist, pendingSymbol }: Props) {
+  const { stocks, isLoading, filterDataDict } = useFilterData();
+  const showWatch = !!onToggleWatchlist;
+
+  const cols: Col[] = [
+    { k: 'symbol', l: 'Symbol' },
+    { k: 'price', l: 'Price' },
+    { k: 'high52', l: '52W High' },
+    { k: 'low52', l: '52W Low' },
+    { k: 'percentChange', l: '1 Day % Chg.' },
+    { k: 'volume', l: 'Vol.' },
+    { k: 'marketCap', l: 'Mkt. Cap' },
+  ];
+
   return (
-    <div className="StockTable-container">
-      <div className="StockTable-header-row">
-           <div className="StockTable-header sortable" onClick={() => handleHeaderClick('name')}>
-             Symbol{getSortIndicator('name')}
-           </div>
-           <div className="StockTable-header sortable" onClick={() => handleHeaderClick('price')}>
-             Price{getSortIndicator('price')}
-           </div>
-           <div className="StockTable-header">52W High</div>
-           <div className="StockTable-header">52W Low</div>
-           <div className="StockTable-header sortable" onClick={() => handleHeaderClick('percentChange')}>
-             1 Day % Chg.{getSortIndicator('percentChange')}
-           </div>
-           <div className="StockTable-header sortable" onClick={() => handleHeaderClick('volume')}>
-             Vol.{getSortIndicator('volume')}
-           </div>
-           <div className="StockTable-header sortable" onClick={() => handleHeaderClick('marketCap')}>
-             Mkt. Cap{getSortIndicator('marketCap')}
-           </div>
-           {showWatchlist && <div className="StockTable-header">Add to Watchlist</div>}
+    <ColumnVisibilityProvider showWatchlist={showWatch}>
+      <InnerStockTable onRowClick={onRowClick} watchlistSymbols={watchlistSymbols} onToggleWatchlist={onToggleWatchlist} pendingSymbol={pendingSymbol} cols={cols} stocks={stocks} isLoading={isLoading} filterDataDict={filterDataDict} />
+    </ColumnVisibilityProvider>
+  );
+}
+
+function InnerStockTable({ onRowClick, watchlistSymbols, onToggleWatchlist, pendingSymbol, cols, stocks, isLoading, filterDataDict }: {
+  onRowClick?: (s: string) => void;
+  watchlistSymbols?: Set<string>;
+  onToggleWatchlist?: (s: string, inW: boolean) => void;
+  pendingSymbol?: string | null;
+  cols: Col[];
+  stocks: Stock[] | unknown;
+  isLoading: boolean;
+  filterDataDict: Record<string, unknown>;
+}) {
+  const { visibleColumns, toggleColumn, menuOpen, setMenuOpen, menuRef, btnRef, columnOrder, moveColumn } = useColumnVisibility();
+  const btnStyle = 'bg-transparent border-none cursor-pointer p-1';
+  const menuStyle = 'absolute right-0 mt-1 bg-[#e6c884] rounded-lg shadow-lg p-3 min-w-[240px]';
+
+  return (
+    <div className="StockTable-container stocktable-flex">
+      <div className="StockTable-header-row relative">
+        <div className="absolute right-2 top-1 z-10">
+          <button ref={btnRef} aria-label="Columns" onClick={() => setMenuOpen(!menuOpen)} className={btnStyle}><span className="text-[20px]">⋮</span></button>
+          {menuOpen && (
+            <div ref={menuRef} className={menuStyle}>
+              <div className="font-bold mb-2 text-[15px] text-[#3f2a10]">Columns</div>
+              {cols.filter(c => c.k !== 'symbol' && c.k !== 'watchlist').map((c: Col) => (
+                <label key={c.k} className="flex items-center gap-3 mb-2">
+                  <input className="transform scale-125 accent-[#6b4c1b]" type="checkbox" checked={!!visibleColumns[c.k]} onChange={() => toggleColumn(c.k)} />
+                  <span className="text-[15px] text-[#3f2a10]">{c.l}</span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {columnOrder.map((k, idx) => {
+          // determine label for key
+          const labelMap: Record<string, string> = Object.fromEntries(cols.map(c => [c.k, c.l]));
+          labelMap.watchlist = 'Add to Watchlist';
+          if (!visibleColumns[k]) return null;
+          const isWatch = k === 'watchlist';
+          const draggable = !isWatch; // watchlist must be non-draggable
+          return (
+            <div
+              key={k}
+              className={`StockTable-header ${draggable ? 'cursor-grab' : 'cursor-default'}`}
+              draggable={draggable}
+              data-index={idx}
+              onDragStart={(e) => {
+                if (!draggable) return;
+                e.dataTransfer?.setData('text/plain', String(idx));
+                e.dataTransfer!.effectAllowed = 'move';
+              }}
+              onDragOver={(e) => { if (draggable) e.preventDefault(); }}
+              onDrop={(e) => {
+                if (!draggable) return;
+                const from = Number(e.dataTransfer?.getData('text/plain'));
+                const to = idx;
+                if (!Number.isNaN(from) && from !== to) moveColumn(from, to);
+              }}
+              style={{ cursor: draggable ? 'grab' : 'default' }}
+            >
+              {labelMap[k] ?? k}
+            </div>
+          );
+        })}
       </div>
       <Loading loading={isLoading} />
       {Object.keys(filterDataDict).length == 0 && <div>Select some filters to get started!</div>}
-      {!isLoading && displayStocks.map((s, idx) => (
-        <StockRow 
-          key={s.symbol ?? idx} 
-          stock={s} 
-          onClick={() => onRowClick?.(s.symbol ?? '')}
-          inWatchlist={watchlistSymbols?.has(s.symbol ?? '') ?? false}
-          onToggleWatchlist={showWatchlist ? onToggleWatchlist : undefined}
-          isPending={pendingSymbol === s.symbol}
-        />
-      ))}
+      {!isLoading && (() => {
+        const items: Stock[] = Array.isArray(stocks) ? (stocks as Stock[]) : [];
+        return items.map((s: Stock, idx: number) => (
+          <StockRow key={s.symbol ?? idx} stock={s} onClick={() => onRowClick?.(s.symbol ?? '')} inWatchlist={watchlistSymbols?.has(s.symbol ?? '') ?? false} onToggleWatchlist={onToggleWatchlist} isPending={pendingSymbol === s.symbol} />
+        ));
+      })()}
     </div>
   );
 }
+
