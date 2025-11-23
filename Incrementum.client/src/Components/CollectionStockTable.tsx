@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import Loading from './Loading';
 import CollectionStockRow from './CollectionStockRow';
-import StockColumn, { StockTableContext } from './StockColumn';
-import { getNextSortDirection, type SortDirection, type SortField, sortStocks } from '../utils/sortingUtils';
-import type { StockInfo } from '../Types/StockInfoTypes';
-import Stock from '../Pages/Stock';
+import ColumnVisibilityProvider from '../Context/ColumnVisibilityContext';
+import { useColumnVisibility } from '../Context/useColumnVisibility';
+import { getNextSortDirection, sortStocks, type SortField, type SortDirection } from '../utils/sortingUtils';
+import '../styles/stock-table-extras.css';
 
 interface Stock {
   symbol: string;
@@ -27,11 +27,54 @@ export default function CollectionStockTable({
   onRemoveStock,
   pendingSymbol
 }: CollectionStockTableProps) {
+
+  return (
+    <div className="flex-1 h-full">
+      <ColumnVisibilityProvider showWatchlist={true}>
+        <InnerCollectionStockTable
+          stocksData={stocksData}
+          loadingStocks={loadingStocks}
+          tokens={tokens}
+          onStockClick={onStockClick}
+          onRemoveStock={onRemoveStock}
+          pendingSymbol={pendingSymbol}
+        />
+      </ColumnVisibilityProvider>
+    </div>
+  );
+};
+
+function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockClick, onRemoveStock, pendingSymbol }: CollectionStockTableProps) {
+  const { visibleColumns, toggleColumn, menuOpen, setMenuOpen, menuRef, btnRef, columnOrder, moveColumn } = useColumnVisibility();
+
+  const cols = [
+    { k: 'symbol', l: 'Symbol' },
+    { k: 'price', l: 'Price' },
+    { k: 'high52', l: '52W High' },
+    { k: 'low52', l: '52W Low' },
+    { k: 'percentChange', l: '1 Day % Chg.' },
+    { k: 'volume', l: 'Vol.' },
+    { k: 'marketCap', l: 'Mkt. Cap' },
+  ];
+
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
 
-  const isSortField = (c: string): c is SortField => {
-    return ['name', 'price', 'percentChange', 'volume', 'marketCap'].includes(c);
+  const colToSortField = (k: string): SortField | null => {
+    switch (k) {
+      case 'symbol':
+        return 'name';
+      case 'price':
+        return 'price';
+      case 'percentChange':
+        return 'percentChange';
+      case 'volume':
+        return 'volume';
+      case 'marketCap':
+        return 'marketCap';
+      default:
+        return null;
+    }
   };
 
   const getSortIndicator = (field: SortField) => {
@@ -47,52 +90,79 @@ export default function CollectionStockTable({
     setSortDirection(nextDirection);
   };
 
-  const tableSetSort = (col: string) => {
-    if (col === 'regularMarketPrice') {
-      handleHeaderClick('price');
-    } else if (isSortField(col)) {
-      handleHeaderClick(col);
-    }
-  };
-
   return (
-    <StockTableContext.Provider value={{ sortBy: sortField, sortDir: sortDirection, setSort: tableSetSort }}>
-      <div className="flex-1" style={{ height: '100%' }}>
-        <div className="StockTable-container" style={{ height: '100%', display: 'flex', flexDirection: 'column', boxShadow: '5px 5px 5px #3F3A30' }}>
-          <div className="StockTable-header-row" style={{ flexShrink: 0 }}>
-            <StockColumn variableName="name" displayName={`Symbol${getSortIndicator('name')}`} />
-            <StockColumn variableName="regularMarketPrice" displayName={`Price${getSortIndicator('price')}`} />
-            <div className="StockTable-header">52W High</div>
-            <div className="StockTable-header">52W Low</div>
-            <StockColumn variableName="percentChange" displayName={`1 Day % Chg.${getSortIndicator('percentChange')}`} />
-            <StockColumn variableName="volume" displayName={`Vol.${getSortIndicator('volume')}`} />
-            <StockColumn variableName="marketCap" displayName={`Mkt. Cap${getSortIndicator('marketCap')}`} />
-            <div className="StockTable-header">Remove</div>
-          </div>
-          <div style={{ flex: 1, overflowY: 'auto' }}>
-            {loadingStocks && !(sortField && sortDirection) && <Loading loading={true} />}
-            {!loadingStocks && tokens.length === 0 && (
-              <div className="StockTable-row">
-                <div className="StockTable-cell text-gray-500 col-span-6">No stocks in collection.</div>
-              </div>
-            )}
-            {!loadingStocks && (() => {
-              const displayStocks: StockInfo[] = (sortField && sortDirection)
-                ? sortStocks(stocksData as unknown as StockInfo[], sortField, sortDirection)
-                : (stocksData as unknown as StockInfo[]);
-              return displayStocks.map((stock) => (
-              <CollectionStockRow
-                key={stock.symbol}
-                stock={stock}
-                onClick={() => onStockClick(stock.symbol ?? '')}
-                onRemove={onRemoveStock}
-                isPending={pendingSymbol === stock.symbol}
-              />
-              ));
-            })()}
-          </div>
+    <div className="StockTable-container stocktable-flex">
+      <div className="StockTable-header-row stocktable-header-row-relative">
+        <div className="absolute right-2 top-1 z-10">
+          <button ref={btnRef} aria-label="Columns" onClick={() => setMenuOpen(!menuOpen)} className="kebab-btn"><span className="kebab-icon">⋮</span></button>
+          {menuOpen && (
+            <div ref={menuRef} className="kebab-menu">
+              <div className="kebab-title">Columns</div>
+              {cols.filter(c => c.k !== 'symbol' && c.k !== 'watchlist').map((c) => (
+                <label key={c.k} className="column-label">
+                  <input className="column-checkbox" type="checkbox" checked={!!visibleColumns[c.k]} onChange={() => toggleColumn(c.k)} />
+                  <span className="text-[15px] text-[#3f2a10]">{c.l}</span>
+                </label>
+              ))}
+            </div>
+          )}
         </div>
+
+        {columnOrder.map((k, idx) => {
+          const labelMap: Record<string, string> = Object.fromEntries(cols.map(c => [c.k, c.l]));
+          labelMap.watchlist = 'Remove';
+          if (!visibleColumns[k]) return null;
+          const isRemove = k === 'watchlist';
+          const draggable = !isRemove;
+          const sortableField = colToSortField(k);
+          return (
+            <div
+              key={k}
+              className={`StockTable-header ${draggable ? 'header-draggable' : 'header-default'}`}
+              draggable={draggable}
+              data-index={idx}
+              onDragStart={(e) => {
+                if (!draggable) return;
+                e.dataTransfer?.setData('text/plain', String(idx));
+                e.dataTransfer!.effectAllowed = 'move';
+              }}
+              onDragOver={(e) => { if (draggable) e.preventDefault(); }}
+              onDrop={(e) => {
+                if (!draggable) return;
+                const from = Number(e.dataTransfer?.getData('text/plain'));
+                const to = idx;
+                if (!Number.isNaN(from) && from !== to) moveColumn(from, to);
+              }}
+              onClick={() => { if (sortableField) handleHeaderClick(sortableField); }}
+              role={sortableField ? 'button' : undefined}
+              style={{ cursor: sortableField ? 'pointer' : draggable ? 'grab' : 'default' }}
+            >
+              {(labelMap[k] ?? k) + (sortableField ? getSortIndicator(sortableField) : '')}
+            </div>
+          );
+        })}
       </div>
-    </StockTableContext.Provider>
+
+      <div className="stocktable-scroll">
+        {loadingStocks && <Loading loading={true} />}
+        {!loadingStocks && tokens.length === 0 && (
+          <div className="StockTable-row">
+            <div className="StockTable-cell text-gray-500 col-span-6">No stocks in collection.</div>
+          </div>
+        )}
+        {!loadingStocks && (() => {
+          const displayStocks = (sortField && sortDirection) ? sortStocks(stocksData as unknown as Stock[], sortField, sortDirection) : (stocksData as Stock[]);
+          return displayStocks.map((stock) => (
+           <CollectionStockRow
+             key={stock.symbol}
+             stock={stock}
+             onClick={() => onStockClick(stock.symbol ?? '')}
+            onRemove={onRemoveStock}
+            isPending={pendingSymbol === stock.symbol}
+          />
+          ));
+        })()}
+      </div>
+    </div>
   );
 }
