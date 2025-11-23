@@ -34,7 +34,7 @@ export const useCollectionActions = ({
         
         if (idx === -1) {
           const uniqueName = collectionName
-          const newCollection = { id: 'Untitled Collection', name: uniqueName, stocks: [up] };
+          const newCollection = { id: uniqueName, name: uniqueName, stocks: [up] };
           collections.push(newCollection);
           console.log(collections)
           localStorage.setItem('customCollections', JSON.stringify(collections));
