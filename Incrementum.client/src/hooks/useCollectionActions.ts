@@ -25,10 +25,18 @@ export const useCollectionActions = ({
     if (!id) {
         const up = symbol.toUpperCase();
         const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
-        const idx = collections.findIndex((c: any) => String(c.name) === String(collectionName) || String(c.collection_name) === String(collectionName));
+        console.log(collectionName)
+
+        const idx = collections.findIndex((c: any) => 
+          String(c.name) === String(collectionName) || 
+          String(c.collection_name) === String(collectionName)
+        );
+        
         if (idx === -1) {
-          const newCollection = { id: Date.now(), name: collectionName || `Collection ${Date.now()}`, stocks: [up] };
+          const uniqueName = collectionName
+          const newCollection = { id: 'Untitled Collection', name: uniqueName, stocks: [up] };
           collections.push(newCollection);
+          console.log(collections)
           localStorage.setItem('customCollections', JSON.stringify(collections));
           setTokens(newCollection.stocks);
         } else {

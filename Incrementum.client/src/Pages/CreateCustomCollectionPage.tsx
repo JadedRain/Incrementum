@@ -61,7 +61,7 @@ const CreateCustomCollectionPage = () => {
   }, [id, location, setTokens, tokens.length]);
 
   const { addStock, removeStock, pendingSymbol } = useCollectionActions({
-    collectionName,
+    collectionName: collectionName || 'Untitled Collection',
     apiKey,
     onRefresh: refreshCollection,
     onError: setError,
