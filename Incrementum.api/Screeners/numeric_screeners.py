@@ -2,6 +2,7 @@ from Incrementum.stocks_class import Stock
 from typing import List
 from .screener_interface import IScreener
 
+
 class NumericScreeners:
     def __init__(self,  screeners: List[IScreener] = None):
         self.screeners = screeners or []

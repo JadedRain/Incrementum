@@ -1,11 +1,9 @@
 import pytest
-pytestmark = pytest.mark.django_db
-
 import json
+from Incrementum.models_user import Account
 from django.urls import reverse
 from rest_framework.test import APIClient
-
-from Incrementum.models_user import Account
+pytestmark = pytest.mark.django_db
 
 
 def test_create_and_get_custom_screener_api():
@@ -31,8 +29,16 @@ def test_create_and_get_custom_screener_api():
         ]
     }
 
-    response = client.post(url, data=json.dumps(payload), content_type='application/json', HTTP_X_USER_ID=account.api_key)
-    assert response.status_code == 201, f"Unexpected status: {response.status_code}, body: {response.content}"
+    response = client.post(
+        url,
+        data=json.dumps(payload),
+        content_type='application/json',
+        HTTP_X_USER_ID=account.api_key
+    )
+    assert response.status_code == 201, (
+        f"Unexpected status: {response.status_code}, "
+        f"body: {response.content}"
+    )
     data = response.json()
     assert 'id' in data
     screener_id = data['id']
@@ -81,7 +87,12 @@ def test_update_custom_screener_api():
         ]
     }
 
-    resp = client.post(url, data=json.dumps(payload), content_type='application/json', HTTP_X_USER_ID=account.api_key)
+    resp = client.post(
+        url,
+        data=json.dumps(payload),
+        content_type='application/json',
+        HTTP_X_USER_ID=account.api_key
+    )
     assert resp.status_code == 201
     screener_id = resp.json()['id']
 
@@ -95,7 +106,12 @@ def test_update_custom_screener_api():
         ]
     }
 
-    put_resp = client.put(update_url, data=json.dumps(update_payload), content_type='application/json', HTTP_X_USER_ID=account.api_key)
+    put_resp = client.put(
+        update_url,
+        data=json.dumps(update_payload),
+        content_type='application/json',
+        HTTP_X_USER_ID=account.api_key
+    )
     assert put_resp.status_code == 200, f"Update failed: {put_resp.content}"
 
     get_url = reverse('get_custom_screener', args=[screener_id])
@@ -133,8 +149,16 @@ def test_create_custom_screener_with_range_filter_api():
         ]
     }
 
-    response = client.post(url, data=json.dumps(payload), content_type='application/json', HTTP_X_USER_ID=account.api_key)
-    assert response.status_code == 201, f"Unexpected status: {response.status_code}, body: {response.content}"
+    response = client.post(
+        url,
+        data=json.dumps(payload),
+        content_type='application/json',
+        HTTP_X_USER_ID=account.api_key
+    )
+    assert response.status_code == 201, (
+        f"Unexpected status: {response.status_code}, "
+        f"body: {response.content}"
+    )
     screener_id = response.json()['id']
 
     get_url = reverse('get_custom_screener', args=[screener_id])

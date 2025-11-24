@@ -5,6 +5,21 @@ interface UseCustomCollectionProps {
   apiKey: string | null;
 }
 
+interface CustomCollectionItem {
+  id?: string | number;
+  name?: string;
+  collection_name?: string;
+  c_desc?: string;
+  desc?: string;
+  stocks?: string[];
+  [key: string]: unknown;
+}
+
+interface ApiToken {
+  symbol?: string;
+  [key: string]: unknown;
+}
+
 export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) => {
   const [tokens, setTokens] = useState<string[]>([]);
   const [collectionName, setCollectionName] = useState<string>("");
@@ -20,8 +35,8 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
         return;
       }
 
-      let collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
-      const collection = collections.find((c: any) => String(c.id) === String(id));
+      let collections = JSON.parse(localStorage.getItem('customCollections') || '[]') as CustomCollectionItem[];
+      const collection = collections.find((c: CustomCollectionItem) => String(c.id) === String(id));
       
       if (collection) {
         setTokens(collection.stocks || []);
@@ -47,8 +62,8 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
         if (!res.ok) {
           const text = await res.text();
           try {
-            const errorData = JSON.parse(text);
-            if (errorData.error?.includes('does not exist') || errorData.error?.includes('Invalid or expired session')) {
+            const errorData = JSON.parse(text) as { error?: string };
+            if (errorData.error && (errorData.error.includes('does not exist') || errorData.error.includes('Invalid or expired session'))) {
               setError('Your session has expired. Please log in again.');
               return;
             }
@@ -58,12 +73,12 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
           throw new Error(`Failed to fetch collection: ${res.status}`);
         }
         
-        const data = await res.json();
-        const symbols = data.tokens?.map((t: any) => t.symbol) || [];
+        const data = await res.json() as { tokens?: ApiToken[] };
+        const symbols = (data.tokens?.map((t: ApiToken) => t.symbol).filter(Boolean) as string[]) || [];
         setTokens(symbols);
         
-        collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
-        const idx = collections.findIndex((c: any) => String(c.id) === String(id));
+        collections = JSON.parse(localStorage.getItem('customCollections') || '[]') as CustomCollectionItem[];
+        const idx = collections.findIndex((c: CustomCollectionItem) => String(c.id) === String(id));
         if (idx !== -1) {
           collections[idx].stocks = symbols;
           localStorage.setItem('customCollections', JSON.stringify(collections));
@@ -72,8 +87,9 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
           setCollectionName(actualName);
           setCollectionDesc(actualDesc);
         }
-      } catch (err: any) {
-        setError("Failed to fetch collection: " + err.message);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        setError("Failed to fetch collection: " + message);
       }
     };
 
@@ -86,18 +102,19 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
       const res = await fetch(`/custom-collection/?collection=${encodeURIComponent(collectionName)}`, {
         headers: { 'X-User-Id': apiKey }
       });
-      const data = await res.json();
-      const symbols = data.tokens?.map((t: any) => t.symbol) || [];
+      const data = await res.json() as { tokens?: ApiToken[] };
+      const symbols = (data.tokens?.map((t: ApiToken) => t.symbol).filter(Boolean) as string[]) || [];
       setTokens(symbols);
       
-      const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
-      const idx = collections.findIndex((c: any) => String(c.id) === String(id));
+      const collections = JSON.parse(localStorage.getItem('customCollections') || '[]') as CustomCollectionItem[];
+      const idx = collections.findIndex((c: CustomCollectionItem) => String(c.id) === String(id));
       if (idx !== -1) {
         collections[idx].stocks = symbols;
         localStorage.setItem('customCollections', JSON.stringify(collections));
       }
-    } catch (err: any) {
-      setError("Refresh: " + err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError("Refresh: " + message);
     }
   };
 
@@ -113,9 +130,9 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
     setCollectionName(newName);
     if (typeof newDesc === 'string') setCollectionDesc(newDesc);
     
-    const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
+    const collections = JSON.parse(localStorage.getItem('customCollections') || '[]') as CustomCollectionItem[];
     if (id) {
-      const idx = collections.findIndex((c: any) => String(c.id) === String(id));
+      const idx = collections.findIndex((c: CustomCollectionItem) => String(c.id) === String(id));
       if (idx !== -1) {
         collections[idx].name = newName;
         if (typeof newDesc === 'string') collections[idx].c_desc = newDesc;
@@ -139,18 +156,18 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
         });
 
         if (!res.ok) {
-          const errorData = await res.json();
+          const errorData = await res.json() as { error?: string };
           throw new Error(errorData.error || 'Failed to update collection name');
         }
 
-        const data = await res.json();
+        const data = await res.json() as { collection?: { name?: string; desc?: string } };
         if (data.collection?.name) {
           setCollectionName(data.collection.name);
           if (data.collection?.desc) setCollectionDesc(data.collection.desc || '');
           
-          const updatedCollections = JSON.parse(localStorage.getItem('customCollections') || '[]');
+          const updatedCollections = JSON.parse(localStorage.getItem('customCollections') || '[]') as CustomCollectionItem[];
           if (id) {
-            const idx = updatedCollections.findIndex((c: any) => String(c.id) === String(id));
+            const idx = updatedCollections.findIndex((c: CustomCollectionItem) => String(c.id) === String(id));
             if (idx !== -1) {
               updatedCollections[idx].name = data.collection.name;
               if (typeof data.collection.desc !== 'undefined') updatedCollections[idx].c_desc = data.collection.desc;
@@ -159,19 +176,20 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
           }
         }
         return true;
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
         setCollectionName(oldName);
         setCollectionDesc(oldDesc);
-        const revertCollections = JSON.parse(localStorage.getItem('customCollections') || '[]');
+        const revertCollections = JSON.parse(localStorage.getItem('customCollections') || '[]') as CustomCollectionItem[];
         if (id) {
-          const idx = revertCollections.findIndex((c: any) => String(c.id) === String(id));
+          const idx = revertCollections.findIndex((c: CustomCollectionItem) => String(c.id) === String(id));
           if (idx !== -1) {
             revertCollections[idx].name = oldName;
             if (typeof oldDesc !== 'undefined') revertCollections[idx].c_desc = oldDesc;
             localStorage.setItem('customCollections', JSON.stringify(revertCollections));
           }
         }
-        setError("Failed to update collection name: " + err.message);
+        setError("Failed to update collection name: " + message);
         return false;
       }
     }

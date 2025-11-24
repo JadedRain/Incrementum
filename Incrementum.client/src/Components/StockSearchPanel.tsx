@@ -1,11 +1,18 @@
 import React from 'react';
 
+interface StockItem {
+  symbol: string;
+  name?: string;
+  longName?: string;
+  [key: string]: unknown;
+}
+
 interface StockSearchPanelProps {
   searchQuery: string;
   onSearchQueryChange: (query: string) => void;
   onSearch: () => void;
   searching: boolean;
-  searchResults: any[];
+  searchResults: StockItem[];
   onAddStock: (symbol: string) => void;
 }
 

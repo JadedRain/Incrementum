@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import Any, Iterable, Sequence, Tuple
+from typing import Any, Sequence, Tuple
+
 
 class MockEquityQuery:
     __slots__ = ("operator", "operand", "subqueries")
@@ -25,7 +26,13 @@ class MockEquityQuery:
     def to_tuple(self) -> Tuple:
         if self.is_composite():
             return (self.operator, tuple(q.to_tuple() for q in self.subqueries))
-        return (self.operator, tuple(self.operand) if isinstance(self.operand, Sequence) and not isinstance(self.operand, (str, bytes)) else self.operand)
+        return (
+            self.operator,
+            tuple(self.operand)
+            if isinstance(self.operand, Sequence)
+            and not isinstance(self.operand, (str, bytes))
+            else self.operand,
+        )
 
     # Structural equality
     def __eq__(self, other: object) -> bool:
@@ -57,5 +64,6 @@ class MockEquityQuery:
         if isinstance(operand, (list, tuple)) and len(operand) == 2:
             return (op, tuple(operand))
         return (op, tuple(operand) if isinstance(operand, (list, tuple)) else operand)
+
 
 __all__ = ["MockEquityQuery"]

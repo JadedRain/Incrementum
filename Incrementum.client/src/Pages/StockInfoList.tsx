@@ -1,5 +1,5 @@
 import '../styles/Stocks/StockInfoList.css'
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../Context/AuthContext';
 import { addToWatchlist, removeFromWatchlist } from '../utils/watchlistActions';
 import { useFetchStocks } from '../useFetchStocks';
@@ -7,14 +7,6 @@ import { useFetchWatchlist } from '../useFetchWatchlist';
 import Toast from '../Components/Toast';
 import { FilterDataProvider } from '../Context/FilterDataContext';
 
-interface StockInfo {
-  [key: string]: any;
-    displayName?: string;
-    longName?: string;
-    shortName?: string;
-    symbol?: string;
-    
-}
 
 const StockInfoList: React.FC = () => {
     const { apiKey } = useAuth();

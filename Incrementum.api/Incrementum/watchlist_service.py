@@ -1,9 +1,8 @@
 import logging
-from .models import CustomScreener, WatchlistCustomScreener
 from .get_stock_info import fetch_stock_data
 from .models import Watchlist, StockModel, WatchlistStock, Screener, WatchlistScreener
-from django.db import transaction
 from .models_user import Account
+
 
 class WatchlistService:
     def __init__(self, fetch_stock_data_func=fetch_stock_data):
@@ -11,8 +10,14 @@ class WatchlistService:
 
     def add(self, user_id, symbol):
         account = Account.objects.get(api_key=user_id)
-        watchlist, _ = Watchlist.objects.get_or_create(account=account, defaults={"name": f"{account.name}'s Watchlist"})
-        stock, _ = StockModel.objects.get_or_create(symbol=symbol, defaults={"company_name": symbol})
+        watchlist, _ = Watchlist.objects.get_or_create(
+            account=account,
+            defaults={"name": f"{account.name}'s Watchlist"},
+        )
+        stock, _ = StockModel.objects.get_or_create(
+            symbol=symbol,
+            defaults={"company_name": symbol}
+        )
         WatchlistStock.objects.get_or_create(watchlist=watchlist, stock=stock)
         logging.info(f"Added {symbol} to user {user_id} watchlist.")
         return self.get(user_id)
@@ -50,29 +55,29 @@ class WatchlistService:
         account = Account.objects.get(api_key=user_id)
         watchlist = Watchlist.objects.get(account=account)
         screener = Screener.objects.get(id=screener_id)
-        
+
         _, created = WatchlistScreener.objects.get_or_create(
             watchlist=watchlist,
             screener=screener
         )
-        
+
         if created:
             logging.info(f"Added screener '{screener.name}' to user {user_id} watchlist.")
         else:
             logging.info(f"Screener '{screener.name}' already in user {user_id} watchlist.")
-        
+
         return True
 
     def remove_screener(self, user_id, screener_id):
         account = Account.objects.get(api_key=user_id)
         watchlist = Watchlist.objects.get(account=account)
         screener = Screener.objects.get(id=screener_id)
-        
+
         deleted_count, _ = WatchlistScreener.objects.filter(
             watchlist=watchlist,
             screener=screener
         ).delete()
-        
+
         if deleted_count > 0:
             logging.info(f"Removed screener '{screener.name}' from user {user_id} watchlist.")
             return True
@@ -83,7 +88,7 @@ class WatchlistService:
     def get_screeners(self, user_id):
         account = Account.objects.get(api_key=user_id)
         watchlist = Watchlist.objects.get(account=account)
-        
+
         screeners = []
         for ws in WatchlistScreener.objects.filter(watchlist=watchlist):
             screeners.append({
@@ -92,66 +97,79 @@ class WatchlistService:
                 'description': ws.screener.description,
                 'type': 'prebuilt'
             })
-        
+
         return screeners
 
     def add_custom_screener(self, user_id, custom_screener_id):
         from .models import CustomScreener, WatchlistCustomScreener
-        
+
         try:
             account = Account.objects.get(api_key=user_id)
             watchlist, _ = Watchlist.objects.get_or_create(
-                account=account, 
+                account=account,
                 defaults={"name": f"{account.name}'s Watchlist"}
             )
-            
+
             # Verify the custom screener belongs to this user
             custom_screener = CustomScreener.objects.get(
-                id=custom_screener_id, 
+                id=custom_screener_id,
                 account=account
             )
-            
+
             _, created = WatchlistCustomScreener.objects.get_or_create(
                 watchlist=watchlist,
                 custom_screener=custom_screener
             )
-            
+
             if created:
-                logging.info(f"Added custom screener {custom_screener_id} to user {user_id} watchlist.")
+                logging.info(
+                    f"Added custom screener {custom_screener_id} to user {user_id} watchlist."
+                )
             else:
-                logging.info(f"Custom screener {custom_screener_id} already in user {user_id} watchlist.")
-            
+                logging.info(
+                    f"Custom screener {custom_screener_id} already in user {user_id} watchlist."
+                )
+
             return True
-            
+
         except (Account.DoesNotExist, CustomScreener.DoesNotExist):
-            logging.error(f"Failed to add custom screener {custom_screener_id} to user {user_id} watchlist.")
+            logging.error(
+                f"Failed to add custom screener {custom_screener_id} to user {user_id} watchlist."
+            )
             return False
 
     def remove_custom_screener(self, user_id, custom_screener_id):
         from .models import CustomScreener, WatchlistCustomScreener
-        
+
         try:
             account = Account.objects.get(api_key=user_id)
             watchlist = Watchlist.objects.get(account=account)
             custom_screener = CustomScreener.objects.get(
-                id=custom_screener_id, 
+                id=custom_screener_id,
                 account=account
             )
-            
+
             deleted_count, _ = WatchlistCustomScreener.objects.filter(
                 watchlist=watchlist,
                 custom_screener=custom_screener
             ).delete()
-            
+
             if deleted_count > 0:
-                logging.info(f"Removed custom screener {custom_screener_id} from user {user_id} watchlist.")
+                logging.info(
+                    f"Removed custom screener {custom_screener_id} from user {user_id} watchlist."
+                )
                 return True
             else:
-                logging.info(f"Custom screener {custom_screener_id} was not in user {user_id} watchlist.")
+                logging.info(
+                    f"Custom screener {custom_screener_id} was not in user {user_id} watchlist."
+                )
                 return False
-                
+
         except (Account.DoesNotExist, Watchlist.DoesNotExist, CustomScreener.DoesNotExist):
-            logging.error(f"Failed to remove custom screener {custom_screener_id} from user {user_id} watchlist.")
+            logging.error(
+                f"Failed to remove custom screener {custom_screener_id} from user "
+                f"{user_id} watchlist."
+            )
             return False
 
     def get_custom_screeners(self, user_id):
@@ -159,7 +177,7 @@ class WatchlistService:
         try:
             account = Account.objects.get(api_key=user_id)
             watchlist = Watchlist.objects.get(account=account)
-            
+
             custom_screeners = []
             for wcs in WatchlistCustomScreener.objects.filter(watchlist=watchlist):
                 filters_list = wcs.custom_screener.filters or []
@@ -171,7 +189,7 @@ class WatchlistService:
                     'type': 'custom'
                 })
         except (Account.DoesNotExist, Watchlist.DoesNotExist):
-            custom_screeners = []            
+            custom_screeners = []
 
         return custom_screeners
 

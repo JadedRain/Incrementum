@@ -26,6 +26,7 @@ export function useCustomScreeners(apiKey?: string) {
           setCustomScreeners(data.screeners || []);
         }
       } catch (error) {
+        console.error(error);
         setCustomScreeners([]);
       } finally {
         setLoading(false);

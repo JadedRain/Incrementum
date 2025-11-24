@@ -14,7 +14,6 @@ def api_client():
 
 @patch.object(StockGetter, 'get_stocks')
 def test_average_volume_greater_than(mock_get_stocks, api_client):
-    """Test filtering stocks with average volume greater than a threshold"""
     mock_get_stocks.return_value = [
         Stock({
             'symbol': 'HIGH_VOL1',
@@ -29,7 +28,7 @@ def test_average_volume_greater_than(mock_get_stocks, api_client):
             'regularMarketPrice': 85.0
         })
     ]
-    
+
     filters = [
         {
             'operator': 'gt',
@@ -38,18 +37,18 @@ def test_average_volume_greater_than(mock_get_stocks, api_client):
             'value': 10000000
         }
     ]
-    
+
     response = api_client.post(
         '/stocks/getfilteredstocks',
         filters,
         format='json'
     )
-    
+
     assert response.status_code == 200
     response_data = response.json()
     assert 'stocks' in response_data
     assert response_data['count'] == 2
-    
+
     symbols = [stock['symbol'] for stock in response_data['stocks']['quotes']]
     assert 'HIGH_VOL1' in symbols
     assert 'HIGH_VOL2' in symbols
@@ -57,7 +56,6 @@ def test_average_volume_greater_than(mock_get_stocks, api_client):
 
 @patch.object(StockGetter, 'get_stocks')
 def test_average_volume_less_than(mock_get_stocks, api_client):
-    """Test filtering stocks with average volume less than a threshold"""
     mock_get_stocks.return_value = [
         Stock({
             'symbol': 'LOW_VOL1',
@@ -72,7 +70,7 @@ def test_average_volume_less_than(mock_get_stocks, api_client):
             'regularMarketPrice': 30.0
         })
     ]
-    
+
     filters = [
         {
             'operator': 'lt',
@@ -81,18 +79,18 @@ def test_average_volume_less_than(mock_get_stocks, api_client):
             'value': 1000000
         }
     ]
-    
+
     response = api_client.post(
         '/stocks/getfilteredstocks',
         filters,
         format='json'
     )
-    
+
     assert response.status_code == 200
     response_data = response.json()
     assert 'stocks' in response_data
     assert response_data['count'] == 2
-    
+
     symbols = [stock['symbol'] for stock in response_data['stocks']['quotes']]
     assert 'LOW_VOL1' in symbols
     assert 'LOW_VOL2' in symbols
@@ -100,7 +98,6 @@ def test_average_volume_less_than(mock_get_stocks, api_client):
 
 @patch.object(StockGetter, 'get_stocks')
 def test_average_volume_greater_than_or_equal(mock_get_stocks, api_client):
-    """Test filtering stocks with average volume greater than or equal to a threshold"""
     mock_get_stocks.return_value = [
         Stock({
             'symbol': 'GTE_VOL1',
@@ -115,7 +112,7 @@ def test_average_volume_greater_than_or_equal(mock_get_stocks, api_client):
             'regularMarketPrice': 140.0
         })
     ]
-    
+
     filters = [
         {
             'operator': 'gte',
@@ -124,13 +121,13 @@ def test_average_volume_greater_than_or_equal(mock_get_stocks, api_client):
             'value': 5000000
         }
     ]
-    
+
     response = api_client.post(
         '/stocks/getfilteredstocks',
         filters,
         format='json'
     )
-    
+
     assert response.status_code == 200
     response_data = response.json()
     assert 'stocks' in response_data
@@ -139,7 +136,6 @@ def test_average_volume_greater_than_or_equal(mock_get_stocks, api_client):
 
 @patch.object(StockGetter, 'get_stocks')
 def test_average_volume_less_than_or_equal(mock_get_stocks, api_client):
-    """Test filtering stocks with average volume less than or equal to a threshold"""
     mock_get_stocks.return_value = [
         Stock({
             'symbol': 'LTE_VOL1',
@@ -154,7 +150,7 @@ def test_average_volume_less_than_or_equal(mock_get_stocks, api_client):
             'regularMarketPrice': 55.0
         })
     ]
-    
+
     filters = [
         {
             'operator': 'lte',
@@ -163,13 +159,13 @@ def test_average_volume_less_than_or_equal(mock_get_stocks, api_client):
             'value': 3000000
         }
     ]
-    
+
     response = api_client.post(
         '/stocks/getfilteredstocks',
         filters,
         format='json'
     )
-    
+
     assert response.status_code == 200
     response_data = response.json()
     assert 'stocks' in response_data
@@ -178,7 +174,6 @@ def test_average_volume_less_than_or_equal(mock_get_stocks, api_client):
 
 @patch.object(StockGetter, 'get_stocks')
 def test_average_volume_equal_to(mock_get_stocks, api_client):
-    """Test filtering stocks with average volume exactly equal to a value"""
     mock_get_stocks.return_value = [
         Stock({
             'symbol': 'EXACT_VOL',
@@ -187,7 +182,7 @@ def test_average_volume_equal_to(mock_get_stocks, api_client):
             'regularMarketPrice': 100.0
         })
     ]
-    
+
     filters = [
         {
             'operator': 'eq',
@@ -196,13 +191,13 @@ def test_average_volume_equal_to(mock_get_stocks, api_client):
             'value': 5000000
         }
     ]
-    
+
     response = api_client.post(
         '/stocks/getfilteredstocks',
         filters,
         format='json'
     )
-    
+
     assert response.status_code == 200
     response_data = response.json()
     assert 'stocks' in response_data
@@ -212,7 +207,6 @@ def test_average_volume_equal_to(mock_get_stocks, api_client):
 
 @patch.object(StockGetter, 'get_stocks')
 def test_average_volume_combined_with_sector(mock_get_stocks, api_client):
-    """Test combining average volume filter with sector filter"""
     mock_get_stocks.return_value = [
         Stock({
             'symbol': 'TECH_HIGH_VOL',
@@ -222,7 +216,7 @@ def test_average_volume_combined_with_sector(mock_get_stocks, api_client):
             'regularMarketPrice': 200.0
         })
     ]
-    
+
     filters = [
         {
             'operator': 'gt',
@@ -237,13 +231,13 @@ def test_average_volume_combined_with_sector(mock_get_stocks, api_client):
             'value': 'Technology'
         }
     ]
-    
+
     response = api_client.post(
         '/stocks/getfilteredstocks',
         filters,
         format='json'
     )
-    
+
     assert response.status_code == 200
     response_data = response.json()
     assert 'stocks' in response_data
@@ -253,7 +247,6 @@ def test_average_volume_combined_with_sector(mock_get_stocks, api_client):
 
 @patch.object(StockGetter, 'get_stocks')
 def test_average_volume_range_filter(mock_get_stocks, api_client):
-    """Test filtering stocks within an average volume range (min and max)"""
     mock_get_stocks.return_value = [
         Stock({
             'symbol': 'MID_VOL1',
@@ -268,7 +261,7 @@ def test_average_volume_range_filter(mock_get_stocks, api_client):
             'regularMarketPrice': 85.0
         })
     ]
-    
+
     filters = [
         {
             'operator': 'gte',
@@ -283,13 +276,13 @@ def test_average_volume_range_filter(mock_get_stocks, api_client):
             'value': 4000000
         }
     ]
-    
+
     response = api_client.post(
         '/stocks/getfilteredstocks',
         filters,
         format='json'
     )
-    
+
     assert response.status_code == 200
     response_data = response.json()
     assert 'stocks' in response_data
@@ -297,7 +290,6 @@ def test_average_volume_range_filter(mock_get_stocks, api_client):
 
 
 def test_invalid_filter_type(api_client):
-    """Test that invalid filter_type returns appropriate error"""
     filters = [
         {
             'operator': 'gt',
@@ -306,13 +298,13 @@ def test_invalid_filter_type(api_client):
             'value': 5000000
         }
     ]
-    
+
     response = api_client.post(
         '/stocks/getfilteredstocks',
         filters,
         format='json'
     )
-    
+
     assert response.status_code == 400
     response_data = response.json()
     assert 'error' in response_data
@@ -327,13 +319,13 @@ def test_missing_required_keys(api_client):
             # Missing 'filter_type' and 'value'
         }
     ]
-    
+
     response = api_client.post(
         '/stocks/getfilteredstocks',
         filters,
         format='json'
     )
-    
+
     assert response.status_code == 400
     response_data = response.json()
     assert 'error' in response_data
@@ -341,33 +333,31 @@ def test_missing_required_keys(api_client):
 
 
 def test_invalid_json(api_client):
-    """Test that invalid JSON returns appropriate error"""
     response = api_client.post(
         '/stocks/getfilteredstocks',
         'invalid json',
         content_type='application/json'
     )
-    
+
     assert response.status_code == 400
     response_data = response.json()
     assert 'error' in response_data
 
 
 def test_non_array_payload(api_client):
-    """Test that non-array payload returns appropriate error"""
     filters = {
         'operator': 'gt',
         'operand': 'avgdailyvol3m',
         'filter_type': 'numeric',
         'value': 5000000
     }
-    
+
     response = api_client.post(
         '/stocks/getfilteredstocks',
         filters,
         format='json'
     )
-    
+
     assert response.status_code == 400
     response_data = response.json()
     assert 'error' in response_data
@@ -376,17 +366,16 @@ def test_non_array_payload(api_client):
 
 @patch.object(StockGetter, 'get_stocks')
 def test_empty_filter_array(mock_get_stocks, api_client):
-    """Test that empty filter array is handled properly"""
     mock_get_stocks.return_value = []
-    
+
     filters = []
-    
+
     response = api_client.post(
         '/stocks/getfilteredstocks',
         filters,
         format='json'
     )
-    
+
     assert response.status_code == 200
     response_data = response.json()
     assert 'stocks' in response_data
@@ -395,7 +384,6 @@ def test_empty_filter_array(mock_get_stocks, api_client):
 
 @patch.object(StockGetter, 'get_stocks')
 def test_average_volume_with_zero_value(mock_get_stocks, api_client):
-    """Test filtering stocks with average volume greater than zero"""
     mock_get_stocks.return_value = [
         Stock({
             'symbol': 'ACTIVE1',
@@ -410,7 +398,7 @@ def test_average_volume_with_zero_value(mock_get_stocks, api_client):
             'regularMarketPrice': 30.0
         })
     ]
-    
+
     filters = [
         {
             'operator': 'gt',
@@ -419,13 +407,13 @@ def test_average_volume_with_zero_value(mock_get_stocks, api_client):
             'value': 0
         }
     ]
-    
+
     response = api_client.post(
         '/stocks/getfilteredstocks',
         filters,
         format='json'
     )
-    
+
     assert response.status_code == 200
     response_data = response.json()
     assert 'stocks' in response_data
@@ -434,7 +422,6 @@ def test_average_volume_with_zero_value(mock_get_stocks, api_client):
 
 @patch.object(StockGetter, 'get_stocks')
 def test_average_volume_high_threshold(mock_get_stocks, api_client):
-    """Test filtering with a very high average volume threshold"""
     mock_get_stocks.return_value = [
         Stock({
             'symbol': 'MEGAVOL',
@@ -443,7 +430,7 @@ def test_average_volume_high_threshold(mock_get_stocks, api_client):
             'regularMarketPrice': 150.0
         })
     ]
-    
+
     filters = [
         {
             'operator': 'gt',
@@ -452,13 +439,13 @@ def test_average_volume_high_threshold(mock_get_stocks, api_client):
             'value': 50000000
         }
     ]
-    
+
     response = api_client.post(
         '/stocks/getfilteredstocks',
         filters,
         format='json'
     )
-    
+
     assert response.status_code == 200
     response_data = response.json()
     assert 'stocks' in response_data
@@ -468,7 +455,6 @@ def test_average_volume_high_threshold(mock_get_stocks, api_client):
 
 @patch.object(StockGetter, 'get_stocks')
 def test_multiple_numeric_filters(mock_get_stocks, api_client):
-    """Test combining multiple numeric filters (average volume + price)"""
     mock_get_stocks.return_value = [
         Stock({
             'symbol': 'FILTERED1',
@@ -477,7 +463,7 @@ def test_multiple_numeric_filters(mock_get_stocks, api_client):
             'regularMarketPrice': 100.0
         })
     ]
-    
+
     filters = [
         {
             'operator': 'gt',
@@ -492,13 +478,13 @@ def test_multiple_numeric_filters(mock_get_stocks, api_client):
             'value': 50.0
         }
     ]
-    
+
     response = api_client.post(
         '/stocks/getfilteredstocks',
         filters,
         format='json'
     )
-    
+
     assert response.status_code == 200
     response_data = response.json()
     assert 'stocks' in response_data

@@ -1,9 +1,9 @@
 import pytest
-pytestmark = pytest.mark.django_db
 from django.test import TestCase
-from Incrementum.models import StockModel, Watchlist, WatchlistStock
 from Incrementum.models_user import Account
 from Incrementum.services.watchlist_service import WatchlistService
+pytestmark = pytest.mark.django_db
+
 
 class WatchlistServiceTest(TestCase):
     def setUp(self):

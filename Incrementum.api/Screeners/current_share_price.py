@@ -1,6 +1,8 @@
 from typing import List
 from Incrementum.stocks_class import Stock
 from .screener_interface import IScreener
+
+
 class current_share_price(IScreener):
     def __init__(self, min_value=None, max_value=None):
         if min_value is None or (isinstance(min_value, str) and min_value.strip() == ""):
@@ -26,7 +28,7 @@ class current_share_price(IScreener):
                 continue  # skip incomplete data
 
             price = stock.currentPrice
-            
+
             min_val = getattr(self, 'min_value', getattr(self, 'value', 0))
             max_val = getattr(self, 'max_value', None)
 

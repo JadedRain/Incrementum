@@ -2,8 +2,14 @@ import React from 'react';
 import Loading from './Loading';
 import CreateCollectionStockRow from './CreateCollectionStockRow';
 
+interface CollectionStock {
+  symbol: string;
+  price?: number;
+  // add other known fields here as needed
+}
+
 interface CollectionStockTableProps {
-  stocksData: any[];
+  stocksData: CollectionStock[];
   loadingStocks: boolean;
   tokens: string[];
   onStockClick: (symbol: string) => void;

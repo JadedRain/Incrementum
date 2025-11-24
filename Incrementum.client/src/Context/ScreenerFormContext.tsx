@@ -112,6 +112,7 @@ export const ScreenerFormProvider: React.FC<ScreenerFormProviderProps> = ({ chil
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useScreenerForm = (): ScreenerFormContextValue => {
   const context = useContext(ScreenerFormContext);
   if (context === undefined) {

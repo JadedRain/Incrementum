@@ -6,7 +6,6 @@ import WeekRangeFilter from './FilterComponents/WeekRangeFilter';
 import SharePriceFilter from './FilterComponents/SharePriceFilter';
 import MarketCapFilter from './FilterComponents/MarketCapFilter';
 import PercentChangeFilter from './FilterComponents/PercentChangeFilter';
-import RegionFilter from './FilterComponents/RegionFilter';
 import { useFilterData } from '../Context/FilterDataContext';
 import { useAuth } from '../Context/AuthContext';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
@@ -45,15 +44,27 @@ const Sidebar: React.FC<SidebarProps> = ({
   useEffect(() => {
     // load collections from localStorage for client-side demo
     try {
-      const cols = JSON.parse(localStorage.getItem('customCollections') || '[]');
-      setCollections(cols.map((c: any) => c.name));
-    } catch (e) {
+      type CustomCollection = { name: string };
+      const raw = localStorage.getItem('customCollections') || '[]';
+      const parsed = JSON.parse(raw) as unknown;
+
+      if (Array.isArray(parsed)) {
+        const cols = parsed as CustomCollection[];
+        setCollections(cols.map((c) => c.name));
+      } else {
+        setCollections([]);
+      }
+    } catch {
       setCollections([]);
     }
   }, []);
 
   const onSaveToCollection = async () => {
-    const symbols = (stocks || []).map((s: any) => s.symbol).filter(Boolean);
+    // Ensure proper typing for stock items and filter out empty/undefined symbols
+    const symbols: string[] = (stocks || [])
+      .map((s: { symbol?: string | null } | null | undefined) => s?.symbol)
+      .filter((sym): sym is string => typeof sym === 'string' && sym.length > 0);
+
     if (!symbols.length) {
       if (onShowToast) {
         onShowToast('No stocks to save. Run the screener to get results first.');
@@ -95,10 +106,11 @@ const Sidebar: React.FC<SidebarProps> = ({
       if (onShowToast) {
         onShowToast(`Successfully saved ${actualCount} stock${actualCount !== 1 ? 's' : ''} to ${selectedCollection}`);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Save to collection error', err);
+      const message = err instanceof Error ? err.message : 'Failed to save to collection. Please try again.';
       if (onShowToast) {
-        onShowToast('Failed to save to collection. Please try again.');
+        onShowToast(message);
       }
     }
   };

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 interface StockInfo {
-  [key: string]: any;
+  [key: string]: unknown;
   displayName?: string;
   longName?: string;
   shortName?: string;

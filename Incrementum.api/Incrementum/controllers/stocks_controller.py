@@ -2,13 +2,13 @@ import json
 import logging
 import pandas as pd
 import yfinance as yf
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from Incrementum.models import StockModel
-from Incrementum.stocks_class import Stock
 from Incrementum.serializers import StockSerializer
 from Incrementum.get_stock_info import get_stock_info, search_stocks, get_stock_by_ticker
+
 
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
@@ -18,21 +18,22 @@ def stock_list_create(request):
             stocks = StockModel.objects.all()
             serializer = StockSerializer(stocks, many=True)
             return JsonResponse({'stocks': serializer.data})
-        
+
         elif request.method == "POST":
             try:
                 data = json.loads(request.body)
             except json.JSONDecodeError:
                 return JsonResponse({'error': 'Invalid JSON'}, status=400)
-            
+
             serializer = StockSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
                 return JsonResponse(serializer.data, status=201)
             return JsonResponse({'errors': serializer.errors}, status=400)
-            
+
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
 
 @csrf_exempt
 @require_http_methods(["GET"])
@@ -42,13 +43,14 @@ def search_stocks_controller(request, query, page):
             level=logging.INFO,
             format="%(asctime)s - %(levelname)s - %(message)s"
         )
-        
+
         results = search_stocks(query, page)
         logging.info(f"results: {results}")
         return JsonResponse(results, safe=False)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-    
+
+
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_stocks_info(request):
@@ -76,7 +78,8 @@ def get_stocks_info(request):
             return JsonResponse({'error': str(e)}, status=500)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-    
+
+
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_stock_info_controller(request, ticker):
@@ -85,6 +88,7 @@ def get_stock_info_controller(request, ticker):
         return JsonResponse(stock_data.to_dict(), status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
 
 @csrf_exempt
 @require_http_methods(["GET"])
@@ -104,10 +108,19 @@ def get_stock_graph(request, ticker):
             # fallback if index not datetime
             dates = [str(i) for i in history.index]
 
-        close = [
-            None if (pd.isna(v)) else float(v)
-            for v in history["Close"].tolist()
-        ]
+        close = [None if (pd.isna(v)) else float(v) for v in history["Close"].tolist()]
+        open_ = (
+            [None if (pd.isna(v)) else float(v) for v in history["Open"].tolist()]
+            if "Open" in history else [None] * len(dates)
+        )
+        high = (
+            [None if (pd.isna(v)) else float(v) for v in history["High"].tolist()]
+            if "High" in history else [None] * len(dates)
+        )
+        low = (
+            [None if (pd.isna(v)) else float(v) for v in history["Low"].tolist()]
+            if "Low" in history else [None] * len(dates)
+        )
 
         graphdata = {
             "period": period,
@@ -115,6 +128,9 @@ def get_stock_graph(request, ticker):
             "count": len(dates),
             "dates": dates,
             "close": close,
+            "open": open_,
+            "high": high,
+            "low": low,
         }
 
         logging.info("Returning JSON for %s (%d points)", ticker, len(dates))
@@ -123,6 +139,7 @@ def get_stock_graph(request, ticker):
     except Exception as e:
         logging.exception("Error in get_stock_graph for %s", ticker)
         return JsonResponse({'error': str(e)}, status=500)
+
 
 @csrf_exempt
 @require_http_methods(["GET"])

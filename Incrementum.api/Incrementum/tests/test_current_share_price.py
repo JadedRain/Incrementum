@@ -1,8 +1,8 @@
 import pytest
-import pandas as pd
 from Incrementum.stocks_class import Stock
 from Screeners.current_share_price import current_share_price
 from Screeners.moving_average_52 import fifty_two_high
+
 
 def values():
     sample_stocks = [
@@ -84,11 +84,13 @@ def values():
         stocks.append(Stock(stock))
     return stocks
 
+
 def test_current_share_price_both_max_and_min():
     stocks = values()
     screener = current_share_price(min_value=0, max_value=200)
     assert len(screener.screen(stocks)) == 1
     assert screener.screen(stocks)[0].symbol == "AAPL"
+
 
 def test_current_share_price_just_min():
     stocks = values()
@@ -98,17 +100,20 @@ def test_current_share_price_just_min():
     assert screener.screen(stocks)[0].symbol == "MSFT"
     assert screener.screen(stocks)[2].symbol == "NVDA"
 
+
 def test_current_share_price_just_max():
     stocks = values()
     screener = current_share_price(max_value=200)
     assert len(screener.screen(stocks)) == 1
     assert screener.screen(stocks)[0].symbol == "AAPL"
 
+
 def test_current_share_price_wrong_input():
     with pytest.raises(ValueError):
         current_share_price(min_value="abc", max_value=200)
     with pytest.raises(ValueError):
         current_share_price(min_value=100, max_value="xyz")
+
 
 def test_current_share_price_with_other_filters():
     stocks = values()
@@ -117,7 +122,7 @@ def test_current_share_price_with_other_filters():
     assert screener.screen(stocks)[0].symbol == "MSFT"
     assert screener.screen(stocks)[1].symbol == "TSLA"
     assert screener.screen(stocks)[2].symbol == "NVDA"
-    
+
     filtered_stocks = screener.screen(stocks)
     filtered_stocks = fifty_two_high(490).screen(filtered_stocks)
     assert len(filtered_stocks) == 1
