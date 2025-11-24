@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { fetchWrapper } from "./Context/FetchingHelper";
 
 export function useFetchWatchlist(apiKey: string | null) {
   const [watchlistSymbols, setWatchlistSymbols] = useState<Set<string>>(new Set());
@@ -10,12 +11,12 @@ export function useFetchWatchlist(apiKey: string | null) {
         return;
       }
       
-      const res = await fetch('/watchlist/', { 
+      const res = await fetchWrapper(fetch('/watchlist/', { 
         credentials: 'include',
         headers: {
           'X-User-Id': apiKey,
         }
-      });
+      }));
       if (!res.ok) return;
       const data = await res.json();
       type WatchlistItem = { symbol?: unknown };

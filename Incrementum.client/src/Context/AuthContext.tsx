@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, useMemo, useCallback } from
 import type { AuthContextType } from "./AuthContext.types";
 import { signInApi, signUpApi } from "./authApi";
 import { getAuthFromStorage, setAuthToStorage } from "./authStorage";
-
+import { fetchWrapper } from "./FetchingHelper";
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Keycloak configuration
@@ -16,11 +16,12 @@ export const getKeycloakRegistrationUrl = () => {
 
 const keycloakLogin = async (username: string, password: string) => {
   try {
-    const res = await fetch('/api/keycloak-login', {
+    // replace 
+    const res = await fetchWrapper(fetch('/api/keycloak-login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
-    });
+    }));
     
     if (res.ok) {
       const data = await res.json();
@@ -49,11 +50,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (keycloakToken) {
       // Sync Keycloak user to database
       try {
-        const syncResponse = await fetch('/api/sync-keycloak-user', {
+        const syncResponse = await fetchWrapper(fetch('/api/sync-keycloak-user', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: keycloakToken }),
-        });
+        }));
         if (syncResponse.ok) {
           const syncData = await syncResponse.json();
           // Use database API key for consistency with rest of app

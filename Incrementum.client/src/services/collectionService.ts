@@ -1,4 +1,5 @@
 import type { CollectionCreatePayload, SaveResult, LocalCollection } from '../Types/collections';
+import { fetchWrapper } from "../Context/FetchingHelper";
 
 async function createLocalCollection(payload: CollectionCreatePayload): Promise<SaveResult> {
     try {
@@ -23,14 +24,14 @@ export async function saveCollection(payload: CollectionCreatePayload & { apiKey
     }
 
     try {
-        const res = await fetch('/custom-collection/', {
+        const res = await fetchWrapper(fetch('/custom-collection/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-User-Id': apiKey
             },
             body: JSON.stringify({ collection, symbols, desc })
-        });
+        }));
 
         if (!res.ok) {
             const text = await res.text();

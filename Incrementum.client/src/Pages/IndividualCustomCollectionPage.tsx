@@ -22,6 +22,7 @@ import NavigationBar from "../Components/NavigationBar";
 import { useCustomCollection } from "../hooks/useCustomCollection";
 import { useStockDetails } from "../hooks/useStockDetails";
 import { useCollectionActions } from "../hooks/useCollectionActions";
+import { fetchWrapper } from "../Context/FetchingHelper";
 
 interface StockItem {
   symbol: string;
@@ -52,7 +53,7 @@ const IndividualCustomCollectionPage: React.FC = () => {
     setSearching(true);
     setSearchResults([]);
     try {
-      const res = await fetch(`http://localhost:8000/searchStocks/${encodeURIComponent(newToken)}/0/`);
+      const res = await fetchWrapper(fetch(`http://localhost:8000/searchStocks/${encodeURIComponent(newToken)}/0/`));
       if (!res.ok) throw new Error("Failed to search stocks");
       const data = await res.json();
       setSearchResults((data.results || data || []) as StockItem[]);

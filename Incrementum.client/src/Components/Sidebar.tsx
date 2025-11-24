@@ -9,7 +9,7 @@ import PercentChangeFilter from './FilterComponents/PercentChangeFilter';
 import { useFilterData } from '../Context/FilterDataContext';
 import { useAuth } from '../Context/AuthContext';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-
+import { fetchWrapper } from "../Context/FetchingHelper";
 interface SidebarProps {
   screenerName?: string;
   screenerInWatchlist?: boolean;
@@ -88,14 +88,14 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
 
     try {
-        const res = await fetch('/custom-collection/', {
+        const res = await fetchWrapper(fetch('/custom-collection/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(apiKey ? { 'X-User-Id': apiKey } : {}),
         },
         body: JSON.stringify({ collection: selectedCollection, symbols }),
-      });
+      }));
       if (!res.ok) throw new Error(`Save failed: ${res.status}`);
       
       // Get the response data to show actual number of stocks added
@@ -147,7 +147,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       
       if (isUpdate) {
         // Update existing screener
-        response = await fetch(`http://localhost:8000/screeners/custom/${screenerId}/update/`, {
+        response = await fetchWrapper(fetch(`http://localhost:8000/screeners/custom/${screenerId}/update/`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -157,10 +157,10 @@ const Sidebar: React.FC<SidebarProps> = ({
             numeric_filters: numeric_filters,
             categorical_filters: categorical_filters
           })
-        });
+        }));
       } else {
         // Create new screener
-        response = await fetch('http://localhost:8000/custom-screeners/', {
+        response = await fetchWrapper(fetch('http://localhost:8000/custom-screeners/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -171,7 +171,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             numeric_filters: numeric_filters,
             categorical_filters: categorical_filters
           })
-        });
+        }));
       }
 
       if (response.ok) {
