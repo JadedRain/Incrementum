@@ -16,13 +16,6 @@ interface UseCollectionActionsProps {
   setTokens: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-type Collection = {
-  id: string;
-  name: string;
-  collection_name: string;
-  stocks: string[];
-}
-
 export const useCollectionActions = ({ 
   collectionName, 
   apiKey, 
