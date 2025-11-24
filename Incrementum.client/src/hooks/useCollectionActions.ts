@@ -31,11 +31,19 @@ export const useCollectionActions = ({
 
     if (!id) {
         const up = symbol.toUpperCase();
-        const collections: Collection[] = JSON.parse(localStorage.getItem('customCollections') || '[]');
-        const idx = collections.findIndex((c: Collection) => String(c.name) === String(collectionName) || String(c.collection_name) === String(collectionName));
+        const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
+        console.log(collectionName)
+
+        const idx = collections.findIndex((c: Collection) => 
+          String(c.name) === String(collectionName) || 
+          String(c.collection_name) === String(collectionName)
+        );
+        
         if (idx === -1) {
-          const newCollection: Collection = { id: Date.now(), name: collectionName || `Collection ${Date.now()}`, stocks: [up] };
+          const uniqueName = collectionName
+          const newCollection = { id: uniqueName, name: uniqueName, stocks: [up] };
           collections.push(newCollection);
+          console.log(collections)
           localStorage.setItem('customCollections', JSON.stringify(collections));
           setTokens(newCollection.stocks || []);
         } else {
