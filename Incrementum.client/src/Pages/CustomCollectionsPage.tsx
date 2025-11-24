@@ -5,6 +5,7 @@ import { CreateCollectionButton } from '../Components/CreateCollectionButton';
 import { useCustomCollections } from '../hooks/useCustomCollections';
 import { useAuth } from '../Context/AuthContext';
 import { CollectionCard } from '../Components/CollectionCard';
+import { fetchWrapper } from "../Context/FetchingHelper";
 
 
 const CustomCollectionsPage: React.FC = () => {
@@ -66,14 +67,14 @@ const CustomCollectionsPage: React.FC = () => {
         setRemoving(true);
         try {
             if (apiKey && collectionName) {
-                const res = await fetch('/custom-collection/', {
+                const res = await fetchWrapper(fetch('/custom-collection/', {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-User-Id': apiKey,
                     },
                     body: JSON.stringify({ collection: collectionName }),
-                });
+                }));
                 if (!res.ok) {
                     // If server deletion failed, fall back to local removal but surface a console warning
                     console.warn('Server delete failed', res.status, await res.text());

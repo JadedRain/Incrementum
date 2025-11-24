@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import { fetchWrapper } from "../Context/FetchingHelper";
 interface Collection {
   id: string | number;
   name?: string;
@@ -53,7 +53,7 @@ export const useCollectionActions = ({
     }
 
     try {
-      const res = await fetch("/custom-collection/", {
+      const res = await fetchWrapper(fetch("/custom-collection/", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -63,7 +63,7 @@ export const useCollectionActions = ({
           collection: collectionName,
           symbols: [symbol.toUpperCase()]
         })
-      });
+      }));
       
       if (!res.ok) {
         const errorData = await res.json();
@@ -108,7 +108,7 @@ export const useCollectionActions = ({
     }
 
     try {
-      const res = await fetch("/custom-collection/", {
+      const res = await fetchWrapper(fetch("/custom-collection/", {
         method: "DELETE",
         headers: { 
           "Content-Type": "application/json",
@@ -118,7 +118,7 @@ export const useCollectionActions = ({
           collection: collectionName,
           symbols: [symbol.toUpperCase()]
         })
-      });
+      }));
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.error || "Failed to remove stock");

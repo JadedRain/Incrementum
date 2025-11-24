@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
-
+import { fetchWrapper } from "./FetchingHelper";
 interface ScreenerFormState {
   screenerName: string;
   saving: boolean;
@@ -59,7 +59,8 @@ export const ScreenerFormProvider: React.FC<ScreenerFormProviderProps> = ({ chil
     clearMessages();
 
     try {
-      const response = await fetch('http://localhost:8000/custom-screeners/', {
+      // replace
+      const response = await fetchWrapper(fetch('http://localhost:8000/custom-screeners/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -70,7 +71,7 @@ export const ScreenerFormProvider: React.FC<ScreenerFormProviderProps> = ({ chil
           numeric_filters: [],
           categorical_filters: []
         })
-      });
+      }));
 
       if (response.ok) {
         const data = await response.json();

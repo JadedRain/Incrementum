@@ -1,0 +1,14 @@
+import toast from "react-hot-toast";
+
+export async function fetchWrapper(func: Promise<Response>): Promise<Response> {
+    try {
+        const response = await func;
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }   
+        return response;
+    } catch (error) {
+        toast.error(`Fetch error: ${(error as Error).message}`);
+        throw error;
+    }
+}
