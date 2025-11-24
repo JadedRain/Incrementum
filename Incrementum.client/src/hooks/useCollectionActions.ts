@@ -31,11 +31,19 @@ export const useCollectionActions = ({
 
     if (!id) {
         const up = symbol.toUpperCase();
-        const collections: Collection[] = JSON.parse(localStorage.getItem('customCollections') || '[]');
-        const idx = collections.findIndex((c: Collection) => String(c.name) === String(collectionName) || String(c.collection_name) === String(collectionName));
+        const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
+        console.log(collectionName)
+
+        const idx = collections.findIndex((c: Collection) => 
+          String(c.name) === String(collectionName) || 
+          String(c.collection_name) === String(collectionName)
+        );
+        
         if (idx === -1) {
-          const newCollection: Collection = { id: Date.now(), name: collectionName || `Collection ${Date.now()}`, stocks: [up] };
+          const uniqueName = collectionName
+          const newCollection = { id: uniqueName, name: uniqueName, stocks: [up] };
           collections.push(newCollection);
+          console.log(collections)
           localStorage.setItem('customCollections', JSON.stringify(collections));
           setTokens(newCollection.stocks || []);
         } else {
@@ -130,11 +138,18 @@ export const useCollectionActions = ({
         if (idx !== -1) {
           collections[idx].stocks = (collections[idx].stocks || []).filter((s: string) => s !== symbol);
           localStorage.setItem('customCollections', JSON.stringify(collections));
+          // Update tokens locally to avoid reloading the entire collection UI
           setTokens(collections[idx].stocks || []);
+        } else {
+          // Fallback: remove from current tokens state
+          setTokens((prev) => Array.isArray(prev) ? prev.filter(s => String(s).toUpperCase() !== String(symbol).toUpperCase()) : []);
         }
+      } else {
+        // If no id (edge cases), just update tokens locally
+        setTokens((prev) => Array.isArray(prev) ? prev.filter(s => String(s).toUpperCase() !== String(symbol).toUpperCase()) : []);
       }
-      
-      await onRefresh();
+
+      // Do not await a full refresh here — updating tokens is sufficient for table UI.
       } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       onError("Remove: " + message);
