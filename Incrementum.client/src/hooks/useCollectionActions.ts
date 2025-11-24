@@ -9,6 +9,13 @@ interface UseCollectionActionsProps {
   setTokens: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
+type Collection = {
+  id: string;
+  name: string;
+  collection_name: string;
+  stocks: string[];
+}
+
 export const useCollectionActions = ({ 
   collectionName, 
   apiKey, 
@@ -27,7 +34,7 @@ export const useCollectionActions = ({
         const collections = JSON.parse(localStorage.getItem('customCollections') || '[]');
         console.log(collectionName)
 
-        const idx = collections.findIndex((c: any) => 
+        const idx = collections.findIndex((c: Collection) => 
           String(c.name) === String(collectionName) || 
           String(c.collection_name) === String(collectionName)
         );
