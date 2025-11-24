@@ -7,7 +7,7 @@ from django.views.decorators.http import require_http_methods
 from .models import StockModel
 from .serializers import StockSerializer
 from .get_stock_info import get_stock_info, search_stocks, get_stock_by_ticker, generate_stock_graph
-from Incrementum.models import StockModel
+
 
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
@@ -17,21 +17,22 @@ def stock_list_create(request):
             stocks = StockModel.objects.all()
             serializer = StockSerializer(stocks, many=True)
             return JsonResponse({'stocks': serializer.data})
-        
+
         elif request.method == "POST":
             try:
                 data = json.loads(request.body)
             except json.JSONDecodeError:
                 return JsonResponse({'error': 'Invalid JSON'}, status=400)
-            
+
             serializer = StockSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
                 return JsonResponse(serializer.data, status=201)
             return JsonResponse({'errors': serializer.errors}, status=400)
-            
+
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
 
 @csrf_exempt
 @require_http_methods(["GET"])
@@ -41,13 +42,14 @@ def search_stocks_controller(request, query, page):
             level=logging.INFO,
             format="%(asctime)s - %(levelname)s - %(message)s"
         )
-        
+
         results = search_stocks(query, page)
         logging.info(f"results: {results}")
         return JsonResponse(results, safe=False)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-    
+
+
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_stocks_info(request):
@@ -75,7 +77,8 @@ def get_stocks_info(request):
             return JsonResponse({'error': str(e)}, status=500)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-    
+
+
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_stock_info_controller(request, ticker):
@@ -87,6 +90,7 @@ def get_stock_info_controller(request, ticker):
     except Exception as e:
         logging.error(f"Error fetching stock {ticker}: {str(e)}")
         return JsonResponse({'error': str(e)}, status=500)
+
 
 @csrf_exempt
 @require_http_methods(["GET"])
@@ -102,9 +106,10 @@ def get_stock_graph(request, ticker):
             }, status=404)
         png_bytes = generate_stock_graph(history, ticker, f"{period}, {interval}")
         return HttpResponse(png_bytes, content_type="image/png")
-        
+
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
 
 @csrf_exempt
 @require_http_methods(["GET"])

@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../Context/AuthContext";
 
+type WatchlistItem = {
+  symbol?: string | null;
+};
+
 export function useWatchlistStatus(token: string | undefined) {
   const { apiKey } = useAuth();
   const [inWatchlist, setInWatchlist] = useState(false);
@@ -13,8 +17,8 @@ export function useWatchlistStatus(token: string | undefined) {
       });
       if (!res.ok) return;
       const data = await res.json();
-      const list = Array.isArray(data.watchlist) ? data.watchlist : [];
-      const present = list.some((it: any) => (it?.symbol || '').toUpperCase() === token.toUpperCase());
+      const list = Array.isArray(data.watchlist) ? (data.watchlist as WatchlistItem[]) : [];
+      const present = list.some((it: WatchlistItem) => ((it?.symbol ?? '').toUpperCase() === token.toUpperCase()));
       setInWatchlist(present);
     };
     checkWatchlist();

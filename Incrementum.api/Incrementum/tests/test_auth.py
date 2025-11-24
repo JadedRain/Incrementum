@@ -56,11 +56,11 @@ class TestSignup:
             data=json.dumps(data),
             content_type='application/json'
         )
-        
+
         assert response.status_code == 200
         response_data = json.loads(response.content)
         assert 'api_key' in response_data
-        
+
         user = Account.objects.get(email='newuser@example.com')
         assert user.name == 'New User'
         assert user.keycloak_id is None
@@ -77,7 +77,7 @@ class TestSignup:
             data=json.dumps(data),
             content_type='application/json'
         )
-        
+
         assert response.status_code == 400
         response_data = json.loads(response.content)
         assert 'Email already exists' in response_data['error']
@@ -94,7 +94,7 @@ class TestLogin:
             data=json.dumps(data),
             content_type='application/json'
         )
-        
+
         assert response.status_code == 200
         response_data = json.loads(response.content)
         assert 'api_key' in response_data
@@ -110,7 +110,7 @@ class TestLogin:
             data=json.dumps(data),
             content_type='application/json'
         )
-        
+
         assert response.status_code == 401
         response_data = json.loads(response.content)
         assert 'Invalid credentials' in response_data['error']
@@ -125,7 +125,7 @@ class TestLogin:
             data=json.dumps(data),
             content_type='application/json'
         )
-        
+
         assert response.status_code == 401
         response_data = json.loads(response.content)
         assert 'Keycloak' in response_data['error']
@@ -135,7 +135,7 @@ class TestKeycloakLogin:
     @patch('Incrementum.views_auth.get_token_with_password')
     def test_successful_keycloak_login(self, mock_get_token, client):
         mock_get_token.return_value = 'fake-access-token-123'
-        
+
         data = {
             'username': 'testuser',
             'password': 'password123'
@@ -145,7 +145,7 @@ class TestKeycloakLogin:
             data=json.dumps(data),
             content_type='application/json'
         )
-        
+
         assert response.status_code == 200
         response_data = json.loads(response.content)
         assert 'access_token' in response_data
@@ -154,7 +154,7 @@ class TestKeycloakLogin:
     @patch('Incrementum.views_auth.get_token_with_password')
     def test_keycloak_login_invalid_credentials(self, mock_get_token, client):
         mock_get_token.return_value = None
-        
+
         data = {
             'username': 'testuser',
             'password': 'wrongpassword'
@@ -164,7 +164,7 @@ class TestKeycloakLogin:
             data=json.dumps(data),
             content_type='application/json'
         )
-        
+
         assert response.status_code == 401
 
 
@@ -177,18 +177,18 @@ class TestSyncKeycloakUser:
             'preferred_username': 'newuser',
             'name': 'New Keycloak User'
         }
-        
+
         data = {'token': 'fake-jwt-token'}
         response = client.post(
             '/api/sync-keycloak-user',
             data=json.dumps(data),
             content_type='application/json'
         )
-        
+
         assert response.status_code == 200
         response_data = json.loads(response.content)
         assert 'api_key' in response_data
-        
+
         user = Account.objects.get(keycloak_id='keycloak-id-new')
         assert user.email == 'newkeycloak@example.com'
         assert user.password_hash == ''
@@ -196,12 +196,12 @@ class TestSyncKeycloakUser:
     @patch('Incrementum.views_auth.verify_keycloak_token')
     def test_sync_invalid_token(self, mock_verify, client):
         mock_verify.return_value = None
-        
+
         data = {'token': 'invalid-token'}
         response = client.post(
             '/api/sync-keycloak-user',
             data=json.dumps(data),
             content_type='application/json'
         )
-        
+
         assert response.status_code == 401

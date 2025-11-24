@@ -1,4 +1,3 @@
-import pytest
 import json
 from django.test import TestCase, Client
 from django.urls import reverse
@@ -21,7 +20,7 @@ class WatchlistCustomScreenerTest(TestCase):
 
         self.screener_service = ScreenerService()
         self.watchlist_service = WatchlistService()
-        
+
         self.custom_screener = self.screener_service.create_custom_screener(
             self.account.api_key,
             numeric_filters=[{"filter_name": "market_cap", "value": 1000000000}],
@@ -33,9 +32,9 @@ class WatchlistCustomScreenerTest(TestCase):
             self.account.api_key,
             self.custom_screener.id
         )
-        
-        assert result == True
-        
+
+        assert result is True
+
         screeners = self.watchlist_service.get_custom_screeners(self.account.api_key)
         assert len(screeners) == 1
         assert screeners[0]['id'] == self.custom_screener.id
@@ -44,14 +43,14 @@ class WatchlistCustomScreenerTest(TestCase):
     def test_add_custom_screener_to_watchlist_api(self):
         url = reverse('add_custom_screener_to_watchlist')
         data = {"custom_screener_id": self.custom_screener.id}
-        
+
         response = self.client.post(
             url,
             data=json.dumps(data),
             content_type='application/json',
             **self.headers
         )
-        
+
         assert response.status_code == 200
         response_data = response.json()
         assert response_data['message'] == "Custom screener added to watchlist successfully"
@@ -67,8 +66,8 @@ class WatchlistCustomScreenerTest(TestCase):
             self.account.api_key,
             self.custom_screener.id
         )
-        
-        assert result == True
+
+        assert result is True
 
         screeners = self.watchlist_service.get_custom_screeners(self.account.api_key)
         assert len(screeners) == 0
@@ -81,14 +80,14 @@ class WatchlistCustomScreenerTest(TestCase):
 
         url = reverse('remove_custom_screener_from_watchlist')
         data = {"custom_screener_id": self.custom_screener.id}
-        
+
         response = self.client.delete(
             url,
             data=json.dumps(data),
             content_type='application/json',
             **self.headers
         )
-        
+
         assert response.status_code == 200
         response_data = response.json()
         assert response_data['message'] == "Custom screener removed from watchlist successfully"
@@ -98,10 +97,10 @@ class WatchlistCustomScreenerTest(TestCase):
             self.account.api_key,
             self.custom_screener.id
         )
-        
+
         url = reverse('get_all_watchlist_screeners')
         response = self.client.get(url, **self.headers)
-        
+
         assert response.status_code == 200
         response_data = response.json()
         assert 'prebuilt_screeners' in response_data
@@ -113,14 +112,14 @@ class WatchlistCustomScreenerTest(TestCase):
             self.account.api_key,
             self.custom_screener.id
         )
-        
+
         result2 = self.watchlist_service.add_custom_screener(
             self.account.api_key,
             self.custom_screener.id
         )
-        
-        assert result1 == True
-        assert result2 == True
+
+        assert result1 is True
+        assert result2 is True
 
         screeners = self.watchlist_service.get_custom_screeners(self.account.api_key)
         assert len(screeners) == 1
@@ -130,8 +129,8 @@ class WatchlistCustomScreenerTest(TestCase):
             self.account.api_key,
             99999
         )
-        
-        assert result == False
+
+        assert result is False
 
     def test_add_other_users_custom_screener_to_watchlist(self):
         other_account = Account.objects.create(
@@ -141,28 +140,28 @@ class WatchlistCustomScreenerTest(TestCase):
             password_hash="hashed",
             api_key="othertestapikey"
         )
-        
+
         other_screener = self.screener_service.create_custom_screener(
             other_account.api_key,
             numeric_filters=[{"filter_name": "pe_ratio", "value": 20}]
         )
-        
+
         result = self.watchlist_service.add_custom_screener(
             self.account.api_key,
             other_screener.id
         )
-        
-        assert result == False
+
+        assert result is False
 
     def test_missing_auth_header_in_api(self):
         url = reverse('add_custom_screener_to_watchlist')
         data = {"custom_screener_id": self.custom_screener.id}
-        
+
         response = self.client.post(
             url,
             data=json.dumps(data),
             content_type='application/json'
         )
-        
+
         assert response.status_code == 400
         assert response.json()['error'] == "X-User-Id header required"

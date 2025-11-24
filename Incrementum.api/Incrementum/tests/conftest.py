@@ -9,9 +9,11 @@ except Exception:
     _HAS_CONSTRUCTOR = False
     _SC = None
 
+
 @pytest.fixture
 def mock_equity_query_cls():
     return MockEquityQuery
+
 
 @pytest.fixture
 def inject_mock_equity_query(monkeypatch):
@@ -20,6 +22,7 @@ def inject_mock_equity_query(monkeypatch):
     import Screeners.screener_constructor as sc_mod
     monkeypatch.setattr(sc_mod, 'EquityQuery', MockEquityQuery)
     return MockEquityQuery
+
 
 @pytest.fixture
 def screener_constructor_with_mock(inject_mock_equity_query):  # depends on monkeypatch fixture
@@ -33,13 +36,21 @@ def screener_constructor_with_mock(inject_mock_equity_query):  # depends on monk
 
     return _builder
 
+
 def test_combo(screener_constructor_with_mock):
     build = screener_constructor_with_mock
     c = build([
-        {'operator': 'eq', 'operand': 'sector', 'filter_type': 'categorical', 'value': 'Technology'},
-        {'operator': 'gt', 'operand': 'avgvolume3m', 'filter_type': 'numeric', 'value': 1000000},
+        {
+            'operator': 'eq',
+            'operand': 'sector',
+            'filter_type': 'categorical',
+            'value': 'Technology',
+        },
+        {
+            'operator': 'gt',
+            'operand': 'avgvolume3m',
+            'filter_type': 'numeric',
+            'value': 1000000,
+        },
     ])
     assert [q.operator for q in c.filters] == ['eq', 'gt']
-
-
-# Seed common StockModel rows so API tests that expect existing stocks don't create missing stocks

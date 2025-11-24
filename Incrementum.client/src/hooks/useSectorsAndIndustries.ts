@@ -29,7 +29,7 @@ export const useSectorsAndIndustries = ({
       const fetched: string[] = Array.isArray(data.sectors) ? data.sectors : [];
       if (!mounted) return;
 
-      setSectorChecks(_prev => {
+      setSectorChecks(() => {
         const next: { [k: string]: boolean } = {};
         fetched.forEach(s => {
           const isSelected = selectedSectors?.includes(s) || false;
@@ -46,7 +46,7 @@ export const useSectorsAndIndustries = ({
       const fetched: string[] = Array.isArray(data.industries) ? data.industries : [];
       if (!mounted) return;
 
-      setIndustryChecks(_prev => {
+      setIndustryChecks(() => {
         const next: { [k: string]: boolean } = {};
         fetched.forEach(s => {
           const isSelected = selectedIndustries?.includes(s) || false;

@@ -1,14 +1,10 @@
 from Incrementum.get_stock_info import fetch_stock_data
 from Incrementum.models import StockModel, CustomCollection, CustomCollectionStock
 from django.db import connection
-from django.db.utils import ProgrammingError, IntegrityError
+from django.db.utils import IntegrityError
 
 
 class CustomCollectionService:
-    """DB-backed custom collection service.
-
-    Collection is user-specific; callers must pass account_api_key into each method.
-    """
     def _get_account(self, account_api_key: str):
         from Incrementum.models_user import Account
         if not account_api_key:
@@ -18,7 +14,12 @@ class CustomCollectionService:
         except Account.DoesNotExist:
             raise ValueError(f"Account with api_key {account_api_key} does not exist")
 
-    def _get_or_create_collection_for_account(self, collection_name, account, desc=None, symbols=None):
+    def _get_or_create_collection_for_account(
+            self,
+            collection_name,
+            account,
+            desc=None,
+            symbols=None):
         defaults = {}
         if desc is not None:
             defaults['c_desc'] = desc
@@ -33,13 +34,21 @@ class CustomCollectionService:
             if not isinstance(symbols, (list, tuple)) or len(symbols) == 0:
                 raise ValueError("symbols must be a non-empty list when creating a collection")
             for sym in symbols:
-                stock, _ = StockModel.objects.get_or_create(symbol=sym, defaults={'company_name': sym})
-                if not CustomCollectionStock.objects.filter(collection=collection, stock=stock).exists():
+                stock, _ = StockModel.objects.get_or_create(
+                    symbol=sym,
+                    defaults={'company_name': sym}
+                )
+                qs = CustomCollectionStock.objects.filter(
+                    collection=collection,
+                    stock=stock
+                )
+                if not qs.exists():
                     try:
                         CustomCollectionStock.objects.create(collection=collection, stock=stock)
                     except Exception as e:
                         msg = str(e) or ''
-                        if 'custom_collection_stock.id' in msg or 'RETURNING' in msg or 'UndefinedColumn' in msg:
+                        if ('custom_collection_stock.id' in msg or 'RETURNING' in msg
+                                or 'UndefinedColumn' in msg):
                             try:
                                 sql = """
                                 INSERT INTO custom_collection_stock (collection_id, stock_symbol)
@@ -77,24 +86,36 @@ class CustomCollectionService:
                 stocks.append({'symbol': symbol, 'company_name': stock_obj.company_name})
         return stocks
 
-    def add_stocks(self, account_api_key: str, collection_name: str = 'default', symbols=None, desc=None) -> int:
+    def add_stocks(
+            self,
+            account_api_key: str,
+            collection_name: str = 'default',
+            symbols=None,
+            desc=None) -> int:
         if not symbols:
             return 0
         account = self._get_account(account_api_key)
-        collection = self._get_or_create_collection_for_account(collection_name, account, desc, symbols)
+        collection = self._get_or_create_collection_for_account(
+            collection_name,
+            account, desc,
+            symbols)
         added_count = 0
         for sym in symbols:
             try:
                 stock = StockModel.objects.get(symbol=sym)
             except StockModel.DoesNotExist:
                 continue
-            if not CustomCollectionStock.objects.filter(collection=collection, stock=stock).exists():
+            if not CustomCollectionStock.objects.filter(
+                    collection=collection,
+                    stock=stock
+            ).exists():
                 try:
                     CustomCollectionStock.objects.create(collection=collection, stock=stock)
                     added_count += 1
                 except Exception as e:
                     msg = str(e) or ''
-                    if 'custom_collection_stock.id' in msg or 'RETURNING' in msg or 'UndefinedColumn' in msg:
+                    if ('custom_collection_stock.id' in msg or 'RETURNING' in msg
+                            or 'UndefinedColumn' in msg):
                         sql = """
                         INSERT INTO custom_collection_stock (collection_id, stock_symbol)
                         VALUES (%s, %s)
@@ -112,7 +133,11 @@ class CustomCollectionService:
                         raise
         return added_count
 
-    def remove_stocks(self, symbols, account_api_key: str, collection_name: str = 'default') -> None:
+    def remove_stocks(
+            self,
+            symbols,
+            account_api_key: str,
+            collection_name: str = 'default') -> None:
         if not symbols:
             return
         # normalize to list if a single symbol string was passed
@@ -121,7 +146,9 @@ class CustomCollectionService:
 
         account = self._get_account(account_api_key)
         try:
-            collection = CustomCollection.objects.get(collection_name=collection_name, account=account)
+            collection = CustomCollection.objects.get(
+                collection_name=collection_name,
+                account=account)
         except CustomCollection.DoesNotExist:
             return
         for sym in symbols:
@@ -130,7 +157,7 @@ class CustomCollectionService:
             except StockModel.DoesNotExist:
                 continue
             CustomCollectionStock.objects.filter(collection=collection, stock=stock).delete()
-            
+
     def get_all_collections(self, api_key):
         account = self._get_account(api_key)
         collections = []
@@ -143,34 +170,37 @@ class CustomCollectionService:
                 'date_created': c.date_created
             })
         return collections
-    
+
     def delete_collection(self, api_key, collection_name):
         account = self._get_account(api_key)
         try:
-            collection = CustomCollection.objects.get(collection_name=collection_name, account=account)
+            collection = CustomCollection.objects.get(
+                collection_name=collection_name,
+                account=account)
         except CustomCollection.DoesNotExist:
             return
         CustomCollectionStock.objects.filter(collection=collection).delete()
         CustomCollection.objects.filter(collection_name=collection_name).delete()
 
     def update_collection(self, api_key, collection_name, new_name=None, new_desc=None):
-        """Update a collection's name and/or description."""
         account = self._get_account(api_key)
         try:
-            collection = CustomCollection.objects.get(collection_name=collection_name, account=account)
+            collection = CustomCollection.objects.get(
+                collection_name=collection_name,
+                account=account)
         except CustomCollection.DoesNotExist:
             raise ValueError(f"Collection '{collection_name}' not found")
-        
+
         # Check if new name already exists (if changing name)
         if new_name and new_name != collection_name:
             if CustomCollection.objects.filter(collection_name=new_name, account=account).exists():
                 raise ValueError(f"Collection '{new_name}' already exists")
             collection.collection_name = new_name
-        
+
         # Update description if provided
         if new_desc is not None:
             collection.c_desc = new_desc
-        
+
         collection.save()
         return collection
 
@@ -183,5 +213,8 @@ class CustomCollectionService:
             aggregate['names'] = [s.get('shortName') or s.get('company_name') for s in stock_objs]
             market_caps = [s.get('marketCap') for s in stock_objs if s.get('marketCap') is not None]
             aggregate['marketCaps'] = market_caps
-            aggregate['avgMarketCap'] = (sum(market_caps) / len(market_caps)) if market_caps else None
+            avg_market_cap = None
+            if market_caps:
+                avg_market_cap = sum(market_caps) / len(market_caps)
+            aggregate['avgMarketCap'] = avg_market_cap
         return {"tokens": stock_objs, "aggregate": aggregate}

@@ -13,7 +13,7 @@ const Keywords: React.FC = () => {
   };
   const operator_translator: Record<string, string> = {"gte": "≥", "lte": "≤"}
   // Get all non-sector filters for display
-  const otherFilters = Object.entries(filterDataDict).filter(([_key, filter]) => {
+  const otherFilters = Object.entries(filterDataDict).filter(([, filter]) => {
     return filter.operand !== 'sector';
   });
 

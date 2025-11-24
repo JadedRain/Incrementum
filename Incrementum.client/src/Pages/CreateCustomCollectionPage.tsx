@@ -12,7 +12,6 @@ import { useCustomCollection } from '../hooks/useCustomCollection';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import CreateCustomCollectionStockTable from '../Components/CreateCustomCollectionStockTable';
 
-
 const CreateCustomCollectionPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -53,12 +52,12 @@ const CreateCustomCollectionPage = () => {
 
   useEffect(() => {
     if (id) return;
-    const navState: any = (location && (location as any).state) || {};
+    const navState = (location?.state as { ticker?: string; selectedStocks?: string[] } | undefined) || {};
     const selectedFromNav: string[] | undefined = navState.selectedStocks;
     if (selectedFromNav && selectedFromNav.length > 0 && (tokens || []).length === 0) {
       setTokens(selectedFromNav);
     }
-  }, [id, location, setTokens, tokens.length]);
+  }, [id, location, setTokens, tokens, tokens.length]);
 
   const { addStock, removeStock, pendingSymbol } = useCollectionActions({
     collectionName: collectionName || 'Untitled Collection',

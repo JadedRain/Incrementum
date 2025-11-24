@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 
 type Account = { 
   name: string; 
@@ -7,7 +7,7 @@ type Account = {
   is_keycloak_user: boolean;
 } | null;
 
-type Row = { label: string; value: any };
+type Row = { label: string; value: ReactNode };
 type Section = { title?: string; rows: Row[] };
 
 export default function useSettingsContent(active: "account" | "notification" | "customize", account: Account) {

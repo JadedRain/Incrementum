@@ -1,12 +1,13 @@
 from django.test import TestCase
-import pytest
 from Incrementum.get_stock_info import search_stocks
+
 
 class SearchStocksTests(TestCase):
     def setUp(self):
         from Incrementum.models import StockModel
         StockModel.objects.all().delete()
         StockModel.objects.create(symbol='AAPL', company_name='Apple')
+
     def test_search_stocks_found(self):
         query = "APPL"
         results = search_stocks(query, 0)
@@ -22,8 +23,8 @@ class SearchStocksTests(TestCase):
         query = "App"
         results = search_stocks(query, 0)
         self.assertTrue(any("Apple" in stock['name'] for stock in results))
-    
-    def test_search_stocks_partial_match(self): 
+
+    def test_search_stocks_partial_match(self):
         query = "APP"
         results = search_stocks(query, 0)
         self.assertTrue(any("Apple" in stock['name'] for stock in results))

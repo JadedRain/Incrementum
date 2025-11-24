@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class Watchlist(ABC):
     @abstractmethod
     def add_item(self, item):
@@ -16,6 +17,7 @@ class Watchlist(ABC):
         """Retrieve all items in the watchlist."""
         pass
 
+
 class SimpleWatchlist(Watchlist):
     def __init__(self):
         self.items = []
@@ -30,6 +32,3 @@ class SimpleWatchlist(Watchlist):
 
     def get_items(self):
         return self.items
-    
-
-    

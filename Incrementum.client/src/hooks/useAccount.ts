@@ -27,9 +27,13 @@ export default function useAccount(apiKey?: string) {
       if (!res.ok) throw new Error("Could not fetch account");
       const data = await res.json();
       setAccount(data);
-    } catch (err: any) {
-      if (err && err.name === "AbortError") return;
-      setError(err?.message ?? String(err));
+    } catch (err: unknown) {
+      if (typeof err === "object" && err !== null && "name" in err && (err as { name?: string }).name === "AbortError") return;
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(String(err));
+      }
     } finally {
       setLoading(false);
     }

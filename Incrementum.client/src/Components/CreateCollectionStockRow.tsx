@@ -1,5 +1,10 @@
+type Stock = {
+  symbol?: string | null;
+  currentPrice?: number | null;
+};
+
 type Props = {
-  stock: any;
+  stock: Stock;
   onClick?: () => void;
   onRemove?: (symbol: string) => void;
   isPending?: boolean;

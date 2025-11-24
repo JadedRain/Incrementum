@@ -33,7 +33,6 @@ const CustomCollectionsPage: React.FC = () => {
 
     if (loading) return <div style={{ textAlign: 'center', margin: '2rem' }}>Loading...</div>;
     // debug: show state in console
-    // eslint-disable-next-line no-console
     console.debug('CustomCollectionsPage: loading=', loading, 'collections=', collections);
 
     const displayCollections = collections.length === 0
@@ -55,7 +54,13 @@ const CustomCollectionsPage: React.FC = () => {
             return;
         }
 
-        const collectionName = (target as any).name || (target as any).collection_name || null;
+        type CustomCollection = {
+            id: number;
+            name?: string;
+            collection_name?: string;
+        };
+        const typedTarget = target as unknown as CustomCollection;
+        const collectionName = typedTarget.name ?? typedTarget.collection_name ?? null;
         // If authenticated, attempt server-side delete
         const apiKey = auth?.apiKey;
         setRemoving(true);

@@ -22,16 +22,18 @@ class Stock:
         self.regularMarketChangePercent = json.get('regularMarketChangePercent')
         self.marketCap = json.get('marketCap')
         self.volume = json.get('volume') or json.get('regularMarketVolume')
-        self.averageVolume = json.get('averageVolume') or json.get('averageDailyVolume3Month') or json.get('avgDailyVolume3Month')
-        
+        self.averageVolume = (
+            json.get('averageVolume')
+            or json.get('averageDailyVolume3Month')
+            or json.get('avgDailyVolume3Month')
+        )
+
         # Frontend expects these yfinance field names
         self.regularMarketPrice = json.get('regularMarketPrice')
         self.fiftyTwoWeekHigh = json.get('fiftyTwoWeekHigh')
         self.fiftyTwoWeekLow = json.get('fiftyTwoWeekLow')
         self.regularMarketVolume = json.get('regularMarketVolume')
-        self.averageDailyVolume3Month = json.get('averageDailyVolume3Month')    
+        self.averageDailyVolume3Month = json.get('averageDailyVolume3Month')
 
     def to_dict(self):
         return self.__dict__
-    
-
