@@ -1,4 +1,6 @@
+import React from 'react';
 import { useColumnVisibility } from '../Context/useColumnVisibility';
+import StockColumn, { StockRowContext } from './StockColumn';
 
 type Stock = {
   symbol?: string | null;
@@ -21,21 +23,8 @@ type Props = {
 export default function CollectionStockRow({ stock, onClick, onRemove, isPending = false }: Props) {
   const { visibleColumns, columnOrder } = useColumnVisibility();
   const symbol = (stock.symbol || 'N/A').toUpperCase();
-  const percent = stock.regularMarketChangePercent as number | undefined;
-  const price = stock.currentPrice as number | undefined;
   const fiftyTwoWeekHigh = stock.fiftyTwoWeekHigh as number | undefined;
   const fiftyTwoWeekLow = stock.fiftyTwoWeekLow as number | undefined;
-  const marketCap = stock.marketCap as number | undefined;
-  const volume = (stock.volume ?? stock.averageVolume) as number | undefined;
-
-  const formatLarge = (v?: number) => {
-    if (v == null || Number.isNaN(v)) return 'N/A';
-    const abs = Math.abs(v);
-    if (abs >= 1_000_000_000) return `${(v / 1_000_000_000).toFixed(2)}B`;
-    if (abs >= 1_000_000) return `${(v / 1_000_000).toFixed(2)}M`;
-    if (abs >= 1_000) return `${(v / 1_000).toFixed(2)}K`;
-    return v.toString();
-  };
 
   const handleRemoveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -45,24 +34,31 @@ export default function CollectionStockRow({ stock, onClick, onRemove, isPending
   };
 
   return (
-    <div className="StockTable-row" onClick={onClick}>
-      {columnOrder.map((k) => {
+    <StockRowContext.Provider value={stock}>
+      <div className="StockTable-row" onClick={onClick}>
+        {columnOrder.map((k) => {
         if (!visibleColumns[k]) return null;
         switch (k) {
           case 'symbol':
-            return <div key={k} className="StockTable-cell font-mono text-sm uppercase tracking-wider">{symbol}</div>;
+            return <StockColumn key={k} variableName="symbol" displayName="Symbol" />;
           case 'price':
-            return <div key={k} className="StockTable-cell font-medium">{price != null ? `$${price.toFixed(2)}` : 'N/A'}</div>;
+            return <StockColumn key={k} variableName="regularMarketPrice" displayName="Price" />;
           case 'high52':
             return <div key={k} className="StockTable-cell text-sm">{fiftyTwoWeekHigh != null ? `$${fiftyTwoWeekHigh.toFixed(2)}` : 'N/A'}</div>;
           case 'low52':
             return <div key={k} className="StockTable-cell text-sm">{fiftyTwoWeekLow != null ? `$${fiftyTwoWeekLow.toFixed(2)}` : 'N/A'}</div>;
-          case 'percentChange':
-            return <div key={k} className={`StockTable-cell ${percent != null && percent >= 0 ? 'text-green-500' : 'text-red-500'}`}>{percent != null ? (percent >= 0 ? `+${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`) : 'N/A'}</div>;
+          case 'percentChange': {
+            const percent = stock.regularMarketChangePercent as number | undefined;
+            const pctText = percent == null || Number.isNaN(percent)
+              ? 'N/A'
+              : (percent >= 0 ? `+${percent.toFixed(2)}%` : `${percent.toFixed(2)}%`);
+            const pctClass = percent == null || Number.isNaN(percent) ? '' : (percent >= 0 ? 'text-green-500' : 'text-red-500');
+            return <div key={k} className={`StockTable-cell ${pctClass}`}>{pctText}</div>;
+          }
           case 'volume':
-            return <div key={k} className="StockTable-cell">{formatLarge(volume)}</div>;
+            return <StockColumn key={k} variableName="volume" displayName="Vol." />;
           case 'marketCap':
-            return <div key={k} className="StockTable-cell">{formatLarge(marketCap)}</div>;
+            return <StockColumn key={k} variableName="marketCap" displayName="Mkt. Cap" />;
           case 'watchlist':
             return onRemove ? (
               <div key={k} className="StockTable-cell">
@@ -79,7 +75,8 @@ export default function CollectionStockRow({ stock, onClick, onRemove, isPending
           default:
             return null;
         }
-      })}
-    </div>
+        })}
+      </div>
+    </StockRowContext.Provider>
   );
 }

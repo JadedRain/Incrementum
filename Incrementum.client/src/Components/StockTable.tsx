@@ -1,9 +1,10 @@
-// React import not required with new JSX transform
+import { useState } from 'react';
 import Loading from './Loading';
 import StockRow from './StockRow';
 import { useFilterData } from '../Context/FilterDataContext';
 import ColumnVisibilityProvider from '../Context/ColumnVisibilityContext';
 import { useColumnVisibility } from '../Context/useColumnVisibility';
+import { getNextSortDirection, sortStocks, type SortField, type SortDirection } from '../utils/sortingUtils';
 import '../styles/stock-table-extras.css';
 
 type Stock = {
@@ -56,6 +57,38 @@ function InnerStockTable({ onRowClick, watchlistSymbols, onToggleWatchlist, pend
   filterDataDict: Record<string, unknown>;
 }) {
   const { visibleColumns, toggleColumn, menuOpen, setMenuOpen, menuRef, btnRef, columnOrder, moveColumn } = useColumnVisibility();
+  const [sortField, setSortField] = useState<SortField | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>(null);
+
+  const colToSortField = (k: string): SortField | null => {
+    switch (k) {
+      case 'symbol':
+        return 'name';
+      case 'price':
+        return 'price';
+      case 'percentChange':
+        return 'percentChange';
+      case 'volume':
+        return 'volume';
+      case 'marketCap':
+        return 'marketCap';
+      default:
+        return null;
+    }
+  };
+
+  const getSortIndicator = (field: SortField) => {
+    if (sortField !== field) return '';
+    if (sortDirection === 'asc') return ' ▲';
+    if (sortDirection === 'desc') return ' ▼';
+    return '';
+  };
+
+  const handleHeaderClick = (field: SortField) => {
+    const nextDirection = getNextSortDirection(sortField, field, sortDirection);
+    setSortField(nextDirection === null ? null : field);
+    setSortDirection(nextDirection);
+  };
   const btnStyle = 'bg-transparent border-none cursor-pointer p-1';
   const menuStyle = 'absolute right-0 mt-1 bg-[#e6c884] rounded-lg shadow-lg p-3 min-w-[240px]';
 
@@ -84,6 +117,7 @@ function InnerStockTable({ onRowClick, watchlistSymbols, onToggleWatchlist, pend
           if (!visibleColumns[k]) return null;
           const isWatch = k === 'watchlist';
           const draggable = !isWatch; // watchlist must be non-draggable
+          const sortableField = colToSortField(k);
           return (
             <div
               key={k}
@@ -102,9 +136,11 @@ function InnerStockTable({ onRowClick, watchlistSymbols, onToggleWatchlist, pend
                 const to = idx;
                 if (!Number.isNaN(from) && from !== to) moveColumn(from, to);
               }}
-              style={{ cursor: draggable ? 'grab' : 'default' }}
+              onClick={() => { if (sortableField) handleHeaderClick(sortableField); }}
+              role={sortableField ? 'button' : undefined}
+              style={{ cursor: sortableField ? 'pointer' : draggable ? 'grab' : 'default' }}
             >
-              {labelMap[k] ?? k}
+              {(labelMap[k] ?? k) + (sortableField ? getSortIndicator(sortableField) : '')}
             </div>
           );
         })}
@@ -113,11 +149,11 @@ function InnerStockTable({ onRowClick, watchlistSymbols, onToggleWatchlist, pend
       {Object.keys(filterDataDict).length == 0 && <div>Select some filters to get started!</div>}
       {!isLoading && (() => {
         const items: Stock[] = Array.isArray(stocks) ? (stocks as Stock[]) : [];
-        return items.map((s: Stock, idx: number) => (
+        const displayItems = (sortField && sortDirection) ? sortStocks(items, sortField, sortDirection) : items;
+        return displayItems.map((s: Stock, idx: number) => (
           <StockRow key={s.symbol ?? idx} stock={s} onClick={() => onRowClick?.(s.symbol ?? '')} inWatchlist={watchlistSymbols?.has(s.symbol ?? '') ?? false} onToggleWatchlist={onToggleWatchlist} isPending={pendingSymbol === s.symbol} />
         ));
       })()}
     </div>
   );
 }
-
