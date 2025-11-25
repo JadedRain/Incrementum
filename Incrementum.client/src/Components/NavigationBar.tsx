@@ -61,11 +61,22 @@ export default function NavigationBar({ showAccountButton = true }: NavigationBa
           {showAccountButton && isAuthenticated && (
             <button
               type="button"
-              onClick={() => { signOut(); navigate('/'); }}
+              onClick={() => {
+                signOut();
+                setTimeout(() => navigate('/', { replace: true }), 0);
+              }}
               className={`nav-button nav-button-logout`}
             >
               Logout
             </button>
+          )}
+          {!isAuthenticated && (
+            <Link
+              to="/"
+              className={`nav-button ${location.pathname === '/' ? 'nav-button-active' : ''}`}
+            >
+              Login
+            </Link>
           )}
         </nav>
       </div>
