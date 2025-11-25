@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useState } from "react";
 import type { ReactNode } from "react";
 import {useEffect} from "react";
-import { fetchWrapper } from "./FetchingHelper";
+import { apiString, fetchWrapper } from "./FetchingHelper";
 // Define the shape of each filterData object
 export interface MinMaxData {min: null, max: null}
 export interface FilterData {
@@ -92,7 +92,7 @@ export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
           headerlist["sortBool"] = sortBool;
         }
         //replace
-        const response = await fetchWrapper(fetch("/stocks/getfilteredstocks", {
+        const response = await fetchWrapper(fetch(apiString("/stocks/getfilteredstocks"), {
           method: "POST",
           headers: headerlist,
           body: jsonData, // send as list of values

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
-import { fetchWrapper } from "./FetchingHelper";
+import { apiString, fetchWrapper } from "./FetchingHelper";
 interface ScreenerFormState {
   screenerName: string;
   saving: boolean;
@@ -60,7 +60,7 @@ export const ScreenerFormProvider: React.FC<ScreenerFormProviderProps> = ({ chil
 
     try {
       // replace
-      const response = await fetchWrapper(fetch('http://localhost:8000/custom-screeners/', {
+      const response = await fetchWrapper(fetch(apiString('/custom-screeners/'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

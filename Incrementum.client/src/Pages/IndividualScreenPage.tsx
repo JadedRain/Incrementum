@@ -15,7 +15,7 @@ import type { CustomScreener } from '../Types/ScreenerTypes';
 import { FilterDataProvider, useFilterData } from '../Context/FilterDataContext';
 import { getDefaultFilterDict } from './DefaultScreenerHelper';
 import type {RangeFilter} from "./DefaultScreenerHelper"
-import { fetchWrapper } from "../Context/FetchingHelper";
+import { apiString, fetchWrapper } from "../Context/FetchingHelper";
 
 function IndividualScreenPageContent() {
   const navigate = useNavigate();
@@ -180,7 +180,7 @@ function IndividualScreenPageContent() {
 
       console.log('Making request:', { endpoint, method, screenerId });
 
-      const res = await fetchWrapper(fetch(endpoint, {
+      const res = await fetchWrapper(fetch(apiString(endpoint), {
         method,
         headers: { 
           'Content-Type': 'application/json',

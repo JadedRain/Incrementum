@@ -9,7 +9,7 @@ import PercentChangeFilter from './FilterComponents/PercentChangeFilter';
 import { useFilterData } from '../Context/FilterDataContext';
 import { useAuth } from '../Context/AuthContext';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { fetchWrapper } from "../Context/FetchingHelper";
+import { fetchWrapper, apiString } from "../Context/FetchingHelper";
 interface SidebarProps {
   screenerName?: string;
   screenerInWatchlist?: boolean;
@@ -88,7 +88,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
 
     try {
-        const res = await fetchWrapper(fetch('/custom-collection/', {
+        const res = await fetchWrapper(fetch(apiString('/custom-collection/'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -147,7 +147,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       
       if (isUpdate) {
         // Update existing screener
-        response = await fetchWrapper(fetch(`http://localhost:8000/screeners/custom/${screenerId}/update/`, {
+        response = await fetchWrapper(fetch(apiString(`/screeners/custom/${screenerId}/update/`), {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -160,7 +160,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         }));
       } else {
         // Create new screener
-        response = await fetchWrapper(fetch('http://localhost:8000/custom-screeners/', {
+        response = await fetchWrapper(fetch(apiString('/custom-screeners/'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

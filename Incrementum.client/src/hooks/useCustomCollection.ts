@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchWrapper } from "../Context/FetchingHelper";
+import { apiString, fetchWrapper } from "../Context/FetchingHelper";
 interface UseCustomCollectionProps {
   id?: string;
   apiKey: string | null;
@@ -55,7 +55,7 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
       }
 
       try {
-        const res = await fetchWrapper(fetch(`/custom-collection/?collection=${encodeURIComponent(collectionNameForApi)}`, {
+        const res = await fetchWrapper(fetch(apiString(`/custom-collection/?collection=${encodeURIComponent(collectionNameForApi)}`), {
           headers: { 'X-User-Id': apiKey }
         }));
         
@@ -99,7 +99,7 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
   const refreshCollection = async () => {
     if (!id || !apiKey || !collectionName) return;
     try {
-      const res = await fetchWrapper(fetch(`/custom-collection/?collection=${encodeURIComponent(collectionName)}`, {
+      const res = await fetchWrapper(fetch(apiString(`/custom-collection/?collection=${encodeURIComponent(collectionName)}`), {
         headers: { 'X-User-Id': apiKey }
       }));
       const data = await res.json() as { tokens?: ApiToken[] };
@@ -142,7 +142,7 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
 
     if (apiKey && oldName) {
       try {
-        const res = await fetchWrapper(fetch('/custom-collection/', {
+        const res = await fetchWrapper(fetch(apiString('/custom-collection/'), {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

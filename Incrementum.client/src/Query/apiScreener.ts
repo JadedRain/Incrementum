@@ -1,8 +1,7 @@
-const API_BASE = "http://localhost:8000"; // backend host + port
-import { fetchWrapper } from "../Context/FetchingHelper";
+import { apiString, fetchWrapper } from "../Context/FetchingHelper";
 
 export const fetchCustomScreener = async (id: string, user: string | null) => {
-  const res = await fetchWrapper(fetch(`${API_BASE}/screeners/custom/${id}/`, {
+  const res = await fetchWrapper(fetch(apiString(`/screeners/custom/${id}/`), {
     headers: {
       "X-User-Id": user ?? "",
       "Content-Type": "application/json",

@@ -12,3 +12,8 @@ export async function fetchWrapper(func: Promise<Response>): Promise<Response> {
         throw error;
     }
 }
+
+export function apiString(endpoint: String): URL {
+    const base = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+    return new URL(`${base}${endpoint}`);
+}

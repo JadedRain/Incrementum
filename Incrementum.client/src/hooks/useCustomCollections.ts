@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../Context/AuthContext';
-import { fetchWrapper } from "../Context/FetchingHelper";
+import { apiString, fetchWrapper } from "../Context/FetchingHelper";
 export interface CustomCollection {
   id: number;
   name: string;
@@ -19,9 +19,8 @@ export function useCustomCollections() {
       console.debug('useCustomCollections: fetching collections, apiKey=', auth?.apiKey);
       try {
         const apiKey = auth?.apiKey;
-        const devBase = (typeof window !== 'undefined' && window.location && window.location.port === '5173') ? 'http://localhost:8000' : '';
         if (apiKey) {
-          const res = await fetchWrapper(fetch(`${devBase}/custom-collections/`, {
+          const res = await fetchWrapper(fetch(apiString(`/custom-collections/`), {
             headers: {
               'Content-Type': 'application/json',
               'X-User-Id': apiKey,
