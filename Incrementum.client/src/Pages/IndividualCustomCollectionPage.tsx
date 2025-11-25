@@ -53,7 +53,7 @@ const IndividualCustomCollectionPage: React.FC = () => {
     setSearching(true);
     setSearchResults([]);
     try {
-      const res = await fetchWrapper(fetch(apiString(`/searchStocks/${encodeURIComponent(newToken)}/0/`)));
+      const res = await fetchWrapper(()=>fetch(apiString(`/searchStocks/${encodeURIComponent(newToken)}/0/`)));
       if (!res.ok) throw new Error("Failed to search stocks");
       const data = await res.json();
       setSearchResults((data.results || data || []) as StockItem[]);

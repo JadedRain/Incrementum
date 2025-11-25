@@ -180,7 +180,7 @@ function IndividualScreenPageContent() {
 
       console.log('Making request:', { endpoint, method, screenerId });
 
-      const res = await fetchWrapper(fetch(apiString(endpoint), {
+      const res = await fetchWrapper(()=>fetch(apiString(endpoint), {
         method,
         headers: { 
           'Content-Type': 'application/json',

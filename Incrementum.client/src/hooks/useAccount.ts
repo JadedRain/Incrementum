@@ -17,7 +17,7 @@ export default function useAccount(apiKey?: string) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetchWrapper(fetch(apiString("/api/account"), {
+      const res = await fetchWrapper(()=>fetch(apiString("/api/account"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ api_key: apiKey }),

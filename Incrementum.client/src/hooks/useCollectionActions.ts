@@ -61,7 +61,7 @@ export const useCollectionActions = ({
     }
 
     try {
-      const res = await fetchWrapper(fetch(apiString("/custom-collection/"), {
+      const res = await fetchWrapper(()=>fetch(apiString("/custom-collection/"), {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -116,7 +116,7 @@ export const useCollectionActions = ({
     }
 
     try {
-      const res = await fetchWrapper(fetch(apiString("/custom-collection/"), {
+      const res = await fetchWrapper(()=>fetch(apiString("/custom-collection/"), {
         method: "DELETE",
         headers: { 
           "Content-Type": "application/json",

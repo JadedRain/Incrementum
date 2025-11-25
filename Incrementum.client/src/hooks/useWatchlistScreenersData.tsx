@@ -21,7 +21,7 @@ export function useWatchlistScreenersData(apiKey: string | null) {
 
       setLoading(true);
       try {
-        const res = await fetchWrapper(fetch(apiString('/watchlist/screeners/all/'), { 
+        const res = await fetchWrapper(()=>fetch(apiString('/watchlist/screeners/all/'), { 
           headers: { 'X-User-Id': apiKey } 
         }));
         

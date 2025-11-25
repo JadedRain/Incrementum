@@ -24,7 +24,7 @@ export const useSectorsAndIndustries = ({
     let mounted = true;
     
     const fetchSectors = async () => {
-      const res = await fetchWrapper(fetch(apiString('/sectors/')));
+      const res = await fetchWrapper(()=>fetch(apiString('/sectors/')));
       if (!res.ok) return;
       const data = await res.json();
       const fetched: string[] = Array.isArray(data.sectors) ? data.sectors : [];
@@ -41,7 +41,7 @@ export const useSectorsAndIndustries = ({
     };
 
     const fetchIndustries = async () => {
-      const res = await fetchWrapper(fetch(apiString('/industries/')));
+      const res = await fetchWrapper(()=>fetch(apiString('/industries/')));
       if (!res.ok) return;
       const data = await res.json();
       const fetched: string[] = Array.isArray(data.industries) ? data.industries : [];

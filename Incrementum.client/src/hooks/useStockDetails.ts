@@ -35,7 +35,7 @@ export const useStockDetails = (tokens: string[]) => {
       setLoadingStocks(true);
       try {
         const promises = tokens.map(symbol => 
-          fetchWrapper(fetch(apiString(`/stock/${symbol}/`)))
+          fetchWrapper(()=>fetch(apiString(`/stock/${symbol}/`)))
             .then(res => res.ok ? res.json() : null)
             .catch(() => null)
         );

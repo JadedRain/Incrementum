@@ -60,7 +60,7 @@ export const ScreenerFormProvider: React.FC<ScreenerFormProviderProps> = ({ chil
 
     try {
       // replace
-      const response = await fetchWrapper(fetch(apiString('/custom-screeners/'), {
+      const response = await fetchWrapper(()=>fetch(apiString('/custom-screeners/'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -17,7 +17,7 @@ export const getKeycloakRegistrationUrl = () => {
 const keycloakLogin = async (username: string, password: string) => {
   try {
     // replace 
-    const res = await fetchWrapper(fetch(apiString('/api/keycloak-login'), {
+    const res = await fetchWrapper(()=>fetch(apiString('/api/keycloak-login'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
@@ -50,7 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (keycloakToken) {
       // Sync Keycloak user to database
       try {
-        const syncResponse = await fetchWrapper(fetch(apiString('/api/sync-keycloak-user'), {
+        const syncResponse = await fetchWrapper(()=>fetch(apiString('/api/sync-keycloak-user'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: keycloakToken }),

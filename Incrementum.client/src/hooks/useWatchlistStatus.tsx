@@ -12,7 +12,7 @@ export function useWatchlistStatus(token: string | undefined) {
   useEffect(() => {
     if (!token || !apiKey) return;
     const checkWatchlist = async () => {
-      const res = await fetchWrapper(fetch(apiString('/watchlist/'), {
+      const res = await fetchWrapper(()=>fetch(apiString('/watchlist/'), {
         credentials: 'include',
         headers: { 'X-User-Id': apiKey },
       }));

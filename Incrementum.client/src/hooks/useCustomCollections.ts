@@ -20,7 +20,7 @@ export function useCustomCollections() {
       try {
         const apiKey = auth?.apiKey;
         if (apiKey) {
-          const res = await fetchWrapper(fetch(apiString(`/custom-collections/`), {
+          const res = await fetchWrapper(()=>fetch(apiString(`/custom-collections/`), {
             headers: {
               'Content-Type': 'application/json',
               'X-User-Id': apiKey,

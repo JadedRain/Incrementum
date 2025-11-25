@@ -1,6 +1,6 @@
 import { fetchWrapper, apiString } from "./FetchingHelper";
 export const signInApi = async (email: string, password: string) => {
-  const res = await fetchWrapper(fetch(apiString("/api/login"), {
+  const res = await fetchWrapper(()=>fetch(apiString("/api/login"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password })
@@ -13,7 +13,7 @@ export const signInApi = async (email: string, password: string) => {
 };
 // replace
 export const signUpApi = async (name: string, phoneNumber: string, email: string, password: string) => {
-  const res = await fetchWrapper(fetch(apiString("/api/signup"), {
+  const res = await fetchWrapper(()=>fetch(apiString("/api/signup"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name, phone_number: phoneNumber, email, password })

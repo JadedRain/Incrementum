@@ -1,8 +1,8 @@
 import toast from "react-hot-toast";
 
-export async function fetchWrapper(func: Promise<Response>): Promise<Response> {
+export async function fetchWrapper(func: () => Promise<Response>): Promise<Response> {
     try {
-        const response = await func;
+        const response = await func();
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }   

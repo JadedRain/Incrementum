@@ -92,7 +92,7 @@ export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
           headerlist["sortBool"] = sortBool;
         }
         //replace
-        const response = await fetchWrapper(fetch(apiString("/stocks/getfilteredstocks"), {
+        const response = await fetchWrapper(()=>fetch(apiString("/stocks/getfilteredstocks"), {
           method: "POST",
           headers: headerlist,
           body: jsonData, // send as list of values

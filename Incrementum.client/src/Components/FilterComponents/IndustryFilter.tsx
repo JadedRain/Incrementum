@@ -17,7 +17,7 @@ const IndustryFilter: React.FC = () => {
           return
         }
         setLoading(true);
-        const response = await fetchWrapper(fetch(apiString("/industries/"), {
+        const response = await fetchWrapper(()=>fetch(apiString("/industries/"), {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

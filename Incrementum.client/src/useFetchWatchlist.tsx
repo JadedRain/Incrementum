@@ -11,7 +11,7 @@ export function useFetchWatchlist(apiKey: string | null) {
         return;
       }
       
-      const res = await fetchWrapper(fetch(apiString('/watchlist/'), { 
+      const res = await fetchWrapper(()=>fetch(apiString('/watchlist/'), { 
         credentials: 'include',
         headers: {
           'X-User-Id': apiKey,

@@ -16,7 +16,7 @@ export function useFetchStocks() {
   useEffect(() => {
     const fetchStocks = async () => {
       try {
-        const response = await fetchWrapper(fetch(apiString('/getStockInfo/')));
+        const response = await fetchWrapper(()=>fetch(apiString('/getStockInfo/')));
         const data = await response.json();
         setStocks(data.stocks.slice(0, 11));
       } finally {

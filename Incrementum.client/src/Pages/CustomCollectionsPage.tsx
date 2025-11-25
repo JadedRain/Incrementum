@@ -67,7 +67,7 @@ const CustomCollectionsPage: React.FC = () => {
         setRemoving(true);
         try {
             if (apiKey && collectionName) {
-                const res = await fetchWrapper(fetch(apiString('/custom-collection/'), {
+                const res = await fetchWrapper(()=>fetch(apiString('/custom-collection/'), {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',

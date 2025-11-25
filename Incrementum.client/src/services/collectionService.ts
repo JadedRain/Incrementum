@@ -24,7 +24,7 @@ export async function saveCollection(payload: CollectionCreatePayload & { apiKey
     }
 
     try {
-        const res = await fetchWrapper(fetch(apiString('/custom-collection/'), {
+        const res = await fetchWrapper(()=>fetch(apiString('/custom-collection/'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
