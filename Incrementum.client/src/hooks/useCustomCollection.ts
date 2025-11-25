@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-
+import { fetchWrapper } from "../Context/FetchingHelper";
 interface UseCustomCollectionProps {
   id?: string;
   apiKey: string | null;
@@ -55,9 +55,9 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
       }
 
       try {
-        const res = await fetch(`/custom-collection/?collection=${encodeURIComponent(collectionNameForApi)}`, {
+        const res = await fetchWrapper(fetch(`/custom-collection/?collection=${encodeURIComponent(collectionNameForApi)}`, {
           headers: { 'X-User-Id': apiKey }
-        });
+        }));
         
         if (!res.ok) {
           const text = await res.text();
@@ -99,9 +99,9 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
   const refreshCollection = async () => {
     if (!id || !apiKey || !collectionName) return;
     try {
-      const res = await fetch(`/custom-collection/?collection=${encodeURIComponent(collectionName)}`, {
+      const res = await fetchWrapper(fetch(`/custom-collection/?collection=${encodeURIComponent(collectionName)}`, {
         headers: { 'X-User-Id': apiKey }
-      });
+      }));
       const data = await res.json() as { tokens?: ApiToken[] };
       const symbols = (data.tokens?.map((t: ApiToken) => t.symbol).filter(Boolean) as string[]) || [];
       setTokens(symbols);
@@ -142,7 +142,7 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
 
     if (apiKey && oldName) {
       try {
-        const res = await fetch('/custom-collection/', {
+        const res = await fetchWrapper(fetch('/custom-collection/', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -153,7 +153,7 @@ export const useCustomCollection = ({ id, apiKey }: UseCustomCollectionProps) =>
             new_name: newName,
             new_desc: typeof newDesc === 'string' ? newDesc : undefined
           })
-        });
+        }));
 
         if (!res.ok) {
           const errorData = await res.json() as { error?: string };

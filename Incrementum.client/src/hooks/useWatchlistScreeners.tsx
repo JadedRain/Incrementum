@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { fetchWrapper } from "../Context/FetchingHelper";
 
 export function useWatchlistScreeners(apiKey: string | null) {
   const [watchlistScreenerIds, setWatchlistScreenerIds] = useState<Set<number>>(new Set());
@@ -13,9 +14,9 @@ export function useWatchlistScreeners(apiKey: string | null) {
 
       setLoading(true);
       try {
-        const res = await fetch('/watchlist/screeners/all/', { 
+        const res = await fetchWrapper(fetch('/watchlist/screeners/all/', { 
           headers: { 'X-User-Id': apiKey } 
-        });
+        }));
         
         if (!res.ok) {
           throw new Error('Failed to fetch watchlist screeners');
