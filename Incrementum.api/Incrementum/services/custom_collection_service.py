@@ -31,8 +31,8 @@ class CustomCollectionService:
         if created or not collection.stocks.exists():
             if symbols is None:
                 raise ValueError("symbols list is required to create/seed a collection")
-            if not isinstance(symbols, (list, tuple)) or len(symbols) == 0:
-                raise ValueError("symbols must be a non-empty list when creating a collection")
+            if not isinstance(symbols, (list, tuple)):
+                raise ValueError("symbols must be a list when creating a collection")
             for sym in symbols:
                 stock, _ = StockModel.objects.get_or_create(
                     symbol=sym,
