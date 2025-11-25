@@ -3,7 +3,7 @@ import CategoryFilter from './CategoricFilter';
 import { useFilterData } from "../../Context/FilterDataContext";
 import {useState, useEffect} from "react"
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
-
+import { fetchWrapper } from "../../Context/FetchingHelper";
 const IndustryFilter: React.FC = () => {
   const {selectedSectors} = useFilterData()
   const [loading, setLoading] = useState<boolean>(true);
@@ -17,13 +17,13 @@ const IndustryFilter: React.FC = () => {
           return
         }
         setLoading(true);
-        const response = await fetch("/industries/", {
+        const response = await fetchWrapper(fetch("/industries/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ "sectors": selectedSectors}),
-        });
+        }));
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         SetIndustries([])
         const data = await response.json();

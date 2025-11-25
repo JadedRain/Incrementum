@@ -18,31 +18,41 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import FilterPage from "./Pages/FilterPageTest";
 import SidebarTestPage from "./Pages/SidebarTestPage";
 import { FilterDataProvider } from "./Context/FilterDataContext";
-import App from "./App";
+import {Toaster} from "react-hot-toast";
+import { ErrorBoundary } from "./ErrorBoundry";
 const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <AuthProvider>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<App />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/screener" element={<ScreenerPage />} />
-          <Route path="/search/:query" element={<SearchResults />} />
-          <Route path="/stock/:token" element={<Stock />} />
-          <Route path="/stocks" element={<StocksPage />} />
-          <Route path="/watchlist" element={<WatchlistPage />} />
-          <Route path="/screener/:id" element={<FilterDataProvider><IndividualScreenPage /></FilterDataProvider>} />
-          <Route path="/create-custom-screener" element={<CustomScreenerPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/custom-collection/:id" element={<FilterDataProvider><IndividualCustomCollectionPage /></FilterDataProvider>} />
-          <Route path="/custom-collections" element={<CustomCollectionsPage />} />
-          <Route path="/create-custom-collection" element={<CreateCustomCollectionPage />} />
-          <Route path="/filter-test" element={<FilterPage />} />
-          <Route path="/sidebar-test" element={<SidebarTestPage /> } />
-        </Routes>
-      </BrowserRouter>
-    </QueryClientProvider>
-  </AuthProvider>
+  <ErrorBoundary>
+    <AuthProvider>
+      <Toaster 
+                  position="top-right"
+                  toastOptions={{
+                    duration: 3000
+                  }}
+              />
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/screener" element={<ScreenerPage />} />
+            <Route path="/" element={<App />} />
+            <Route index element={<SignInPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/search/:query" element={<SearchResults />} />
+            <Route path="/stock/:token" element={<Stock />} />
+            <Route path="/stocks" element={<StocksPage />} />
+            <Route path="/watchlist" element={<WatchlistPage />} />
+            <Route path="/screener/:id" element={<FilterDataProvider><IndividualScreenPage /></FilterDataProvider>} />
+            <Route path="/create-custom-screener" element={<CustomScreenerPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/custom-collection/:id" element={<FilterDataProvider><IndividualCustomCollectionPage /></FilterDataProvider>} />
+            <Route path="/custom-collections" element={<CustomCollectionsPage />} />
+            <Route path="/create-custom-collection" element={<CreateCustomCollectionPage />} />
+            <Route path="/filter-test" element={<FilterPage />} />
+            <Route path="/sidebar-test" element={<SidebarTestPage /> } />
+          </Routes>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </AuthProvider>
+  </ ErrorBoundary>
 );

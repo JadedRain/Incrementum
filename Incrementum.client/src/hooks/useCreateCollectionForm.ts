@@ -1,5 +1,5 @@
 import { useState } from 'react';
-
+import { fetchWrapper } from "../Context/FetchingHelper";
 interface UseCreateCollectionFormOptions {
   initialName?: string;
   initialDesc?: string;
@@ -18,7 +18,7 @@ export const useCreateCollectionForm = (opts?: UseCreateCollectionFormOptions) =
     setSearching(true);
     setSearchResults([]);
     try {
-      const res = await fetch(`http://localhost:8000/searchStocks/${encodeURIComponent(newToken)}/0/`);
+      const res = await fetchWrapper(fetch(`http://localhost:8000/searchStocks/${encodeURIComponent(newToken)}/0/`));
       if (!res.ok) throw new Error('Failed to search stocks');
       const data = await res.json();
       setSearchResults((data && (data.results || data)) || []);

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-
+import { fetchWrapper } from "../Context/FetchingHelper";
 type Account = { 
   name: string; 
   email: string; 
@@ -17,12 +17,12 @@ export default function useAccount(apiKey?: string) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/account", {
+      const res = await fetchWrapper(fetch("/api/account", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ api_key: apiKey }),
         signal,
-      });
+      }));
 
       if (!res.ok) throw new Error("Could not fetch account");
       const data = await res.json();

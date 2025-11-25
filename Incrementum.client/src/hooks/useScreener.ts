@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import type { StockInfo } from '../Types/StockInfoTypes';
+import { fetchWrapper } from "../Context/FetchingHelper";
 
 type UseScreenerParams = {
   selectedSectors?: string[];
@@ -42,7 +43,7 @@ export function useScreener(params: UseScreenerParams) {
       }
       if (Object.keys(filters).length) params.set('filters', JSON.stringify(filters));
 
-      const resp = await fetch(`/getStockInfo/?${params.toString()}`, { signal });
+      const resp = await fetchWrapper(fetch(`/getStockInfo/?${params.toString()}`, { signal }));
       const data = await resp.json();
       const newStocks = data.stocks || [];
       setStocks(newStocks);

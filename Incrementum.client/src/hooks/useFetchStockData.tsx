@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import type { StockData } from "../StockData";
+import { fetchWrapper } from "../Context/FetchingHelper";
 
 export function useFetchStockData(token: string | undefined) {
   const [results, setResults] = useState<StockData | null>(null);
@@ -9,7 +10,7 @@ export function useFetchStockData(token: string | undefined) {
     const fetchResults = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`http://localhost:8000/stock/${token}/`);
+        const res = await fetchWrapper(fetch(`http://localhost:8000/stock/${token}/`));
         const data: StockData = await res.json();
         setResults(data);
       } catch (err) {

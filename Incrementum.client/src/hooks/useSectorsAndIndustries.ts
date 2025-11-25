@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { fetchWrapper } from "../Context/FetchingHelper";
 
 interface UseSectorsAndIndustriesReturn {
   sectorChecks: { [k: string]: boolean };
@@ -23,7 +24,7 @@ export const useSectorsAndIndustries = ({
     let mounted = true;
     
     const fetchSectors = async () => {
-      const res = await fetch('/sectors/');
+      const res = await fetchWrapper(fetch('/sectors/'));
       if (!res.ok) return;
       const data = await res.json();
       const fetched: string[] = Array.isArray(data.sectors) ? data.sectors : [];
@@ -40,7 +41,7 @@ export const useSectorsAndIndustries = ({
     };
 
     const fetchIndustries = async () => {
-      const res = await fetch('/industries/');
+      const res = await fetchWrapper(fetch('/industries/'));
       if (!res.ok) return;
       const data = await res.json();
       const fetched: string[] = Array.isArray(data.industries) ? data.industries : [];
