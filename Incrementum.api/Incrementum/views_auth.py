@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models_user import Account
 from .keycloak_service import verify_keycloak_token, get_token_with_password
+from Incrementum.services.custom_collection_service import CustomCollectionService
 
 
 @csrf_exempt
@@ -36,7 +37,12 @@ def signup(request):
             api_key=api_key,
             keycloak_id=None  # Legacy users have no Keycloak ID
         )
-
+        serv = CustomCollectionService()
+        serv._get_or_create_collection_for_account(
+            collection_name="Default Collection",
+            account=account,
+            desc="Automatically created default collection",
+            symbols=[])
         return JsonResponse({'api_key': account.api_key})
     return JsonResponse({'error': 'Invalid method'}, status=405)
 
