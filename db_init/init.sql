@@ -21,7 +21,18 @@ create table incrementum.watchlist (
 
 create table incrementum.stock (
     symbol varchar(10) primary key,
-    company_name varchar(100) not null
+    company_name varchar(100) not null,
+    updated_at timestamp not null default current_timestamp
+);
+
+create table incrementum.stock_history (
+    stock_symbol varchar(20) not null references incrementum.stock(symbol),
+    day_and_time timestamp not null,
+    open_price integer not null,
+    close_price integer not null,
+    high integer not null,
+    low integer not null,
+    volume integer not null
 );
 
 create table incrementum.watchlist_stock (
