@@ -1,4 +1,4 @@
-import { fetchWrapper } from "../Context/FetchingHelper";
+import { apiString, fetchWrapper } from "../Context/FetchingHelper";
 import { useState, useEffect, useRef } from 'react';
 
 interface CollectionStock {
@@ -35,7 +35,7 @@ export const useStockDetails = (tokens: string[]) => {
       setLoadingStocks(true);
       try {
         const promises = tokens.map(symbol => 
-          fetchWrapper(fetch(`http://localhost:8000/stock/${symbol}/`))
+          fetchWrapper(()=>fetch(apiString(`/stock/${symbol}/`)))
             .then(res => res.ok ? res.json() : null)
             .catch(() => null)
         );

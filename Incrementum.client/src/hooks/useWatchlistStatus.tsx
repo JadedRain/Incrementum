@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../Context/AuthContext";
-import { fetchWrapper } from "../Context/FetchingHelper";
+import { apiString, fetchWrapper } from "../Context/FetchingHelper";
 
 type WatchlistItem = {
   symbol?: string | null;
@@ -12,7 +12,7 @@ export function useWatchlistStatus(token: string | undefined) {
   useEffect(() => {
     if (!token || !apiKey) return;
     const checkWatchlist = async () => {
-      const res = await fetchWrapper(fetch('/watchlist/', {
+      const res = await fetchWrapper(()=>fetch(apiString('/watchlist/'), {
         credentials: 'include',
         headers: { 'X-User-Id': apiKey },
       }));

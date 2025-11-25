@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { fetchWrapper } from "../Context/FetchingHelper";
+import { apiString, fetchWrapper } from "../Context/FetchingHelper";
 
 export interface Stock {
   symbol: string;
@@ -17,7 +17,7 @@ export function useStockSearch(query: string) {
     const fetchResults = async () => {
       setLoading(true);
       try {
-        const res = await fetchWrapper(fetch(`http://localhost:8000/searchStocks/${query}/${page}`));
+        const res = await fetchWrapper(()=>fetch(apiString(`/searchStocks/${query}/${page}`)));
         const data = await res.json();
 
         const symbolMatches = data.filter(
@@ -63,7 +63,7 @@ export function useStockSearch(query: string) {
 
     try {
       const nextPage = page + 1;
-      const resNext = await fetchWrapper(fetch(`http://localhost:8000/searchStocks/${query}/${nextPage}`));
+      const resNext = await fetchWrapper(()=>fetch(apiString(`/searchStocks/${query}/${nextPage}`)));
       const dataNext = await resNext.json();
 
       const symbolMatchesNext = dataNext.filter(

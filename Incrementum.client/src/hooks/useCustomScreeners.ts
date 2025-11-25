@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { fetchWrapper } from "../Context/FetchingHelper";
+import { apiString, fetchWrapper } from "../Context/FetchingHelper";
 export interface CustomScreener {
   id: number;
   screener_name: string;
@@ -16,7 +16,7 @@ export function useCustomScreeners(apiKey?: string) {
       if (!apiKey) return;
       setLoading(true);
       try {
-        const response = await fetchWrapper(fetch('http://localhost:8000/custom-screeners/', {
+        const response = await fetchWrapper(()=>fetch(apiString('/custom-screeners/'), {
           headers: {
             'X-User-Id': apiKey,
           },

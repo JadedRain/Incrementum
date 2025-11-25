@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchWrapper } from "../Context/FetchingHelper";
+import { apiString, fetchWrapper } from "../Context/FetchingHelper";
 
 interface WatchlistScreener {
   id: number;
@@ -21,7 +21,7 @@ export function useWatchlistScreenersData(apiKey: string | null) {
 
       setLoading(true);
       try {
-        const res = await fetchWrapper(fetch('/watchlist/screeners/all/', { 
+        const res = await fetchWrapper(()=>fetch(apiString('/watchlist/screeners/all/'), { 
           headers: { 'X-User-Id': apiKey } 
         }));
         

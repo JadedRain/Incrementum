@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchWrapper } from "./Context/FetchingHelper";
+import { apiString, fetchWrapper } from "./Context/FetchingHelper";
 
 interface StockInfo {
   [key: string]: unknown;
@@ -16,7 +16,7 @@ export function useFetchStocks() {
   useEffect(() => {
     const fetchStocks = async () => {
       try {
-        const response = await fetchWrapper(fetch('/getStockInfo/'));
+        const response = await fetchWrapper(()=>fetch(apiString('/getStockInfo/')));
         const data = await response.json();
         setStocks(data.stocks.slice(0, 11));
       } finally {
