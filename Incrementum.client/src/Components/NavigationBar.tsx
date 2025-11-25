@@ -2,6 +2,7 @@ import '../styles/NavBar.css'
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import SearchBar from './SearchBar';
 import { useAuth } from '../Context/AuthContext';
+import { ADMIN_EMAIL } from '../config/admin';
 
 interface NavigationBarProps {
   showAccountButton?: boolean;
@@ -12,6 +13,8 @@ export default function NavigationBar({ showAccountButton = true }: NavigationBa
   const navigate = useNavigate();
   const { apiKey, signOut } = useAuth();
   const isAuthenticated = !!apiKey;
+  const { email } = useAuth();
+  const isAdminUser = !!email && email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
   return (
     <div className="navbar-header">
@@ -56,6 +59,14 @@ export default function NavigationBar({ showAccountButton = true }: NavigationBa
               className={`nav-button ${location.pathname === '/settings' ? 'nav-button-active' : ''}`}
             >
               Settings
+            </Link>
+          )}
+          {isAdminUser && (
+            <Link
+              to="/admin-page"
+              className={`nav-button ${location.pathname === '/admin-page' ? 'nav-button-active' : ''}`}
+            >
+              Admin
             </Link>
           )}
           {showAccountButton && isAuthenticated && (

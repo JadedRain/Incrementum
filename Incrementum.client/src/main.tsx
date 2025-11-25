@@ -1,5 +1,7 @@
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {Toaster} from "react-hot-toast";
+import App from "./App";
 import SearchResults from "./Pages/SearchResults";
 import StocksPage from './Pages/StocksPage'
 import WatchlistPage from './Pages/WatchlistPage'
@@ -11,15 +13,17 @@ import SignInPage from "./Pages/LogInPage";
 import SignupPage from "./Pages/SignupPage";
 import IndividualCustomCollectionPage from "./Pages/IndividualCustomCollectionPage";
 import CustomCollectionsPage from "./Pages/CustomCollectionsPage";
-import { AuthProvider } from "./Context/AuthContext";
 import SettingsPage from "./Pages/SettingsPage";
 import CreateCustomCollectionPage from "./Pages/CreateCustomCollectionPage";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import FilterPage from "./Pages/FilterPageTest";
 import SidebarTestPage from "./Pages/SidebarTestPage";
+import AdminPage from "./Pages/AdminPage";
+import AdminRoute from "./Components/AdminRoute";
+import { AuthProvider } from "./Context/AuthContext";
 import { FilterDataProvider } from "./Context/FilterDataContext";
-import {Toaster} from "react-hot-toast";
 import { ErrorBoundary } from "./ErrorBoundry";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -50,6 +54,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route path="/create-custom-collection" element={<CreateCustomCollectionPage />} />
             <Route path="/filter-test" element={<FilterPage />} />
             <Route path="/sidebar-test" element={<SidebarTestPage /> } />
+            <Route path="/admin-page" element={<AdminRoute><AdminPage /></AdminRoute>} />
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>
