@@ -1,10 +1,13 @@
+import datetime
 from django.db import models
+from django.utils import timezone
 from .models_user import Account
 
 
 class StockModel(models.Model):
-    symbol = models.CharField(max_length=20, primary_key=True)
+    symbol = models.CharField(max_length=10, primary_key=True)
     company_name = models.CharField(max_length=100)
+    updated_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         db_table = 'stock'
@@ -16,7 +19,29 @@ class StockModel(models.Model):
         return {
             'symbol': self.symbol,
             'company_name': self.company_name,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }
+        
+class StockHistory(models.Model):
+    stock_symbol = models.ForeignKey(
+        StockModel,
+        on_delete=models.CASCADE,
+        db_column='stock_symbol',
+        to_field='symbol'
+    )
+    day_and_time = models.DateTimeField()
+    open_price = models.IntegerField()
+    close_price = models.IntegerField()
+    high = models.IntegerField()
+    low = models.IntegerField()
+    volume = models.IntegerField()
+
+    class Meta:
+        db_table = 'stock_history'
+        managed = False
+
+    def __str__(self):
+        return f"{self.stock_symbol} - {self.day_and_time}"
 
 
 class Watchlist(models.Model):
