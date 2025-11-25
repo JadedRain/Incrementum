@@ -1,4 +1,3 @@
-import datetime
 from django.db import models
 from django.utils import timezone
 from .models_user import Account
@@ -21,7 +20,8 @@ class StockModel(models.Model):
             'company_name': self.company_name,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }
-        
+
+
 class StockHistory(models.Model):
     stock_symbol = models.ForeignKey(
         StockModel,
