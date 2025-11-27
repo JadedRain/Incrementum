@@ -12,13 +12,20 @@ from .fear_greed_service import fetch_and_save_fear_greed_csv
 
 
 def fetch_and_update_symbols():
+    token = os.environ.get('FINNHUB_TOKEN')
+    if token is None or str(token).strip() == '':
+        print('FINNHUB_TOKEN not set in environment')
+        return
+
     data = fetch_new_stocks_from_finnhub()
     update_stocks_in_db_from_finnhub(data)
 
-    try:
-        fetch_and_save_fear_greed_csv()
-    except Exception as e:
-        print(f"Error fetching Fear & Greed on startup: {e}")
+    run_fg = os.environ.get('RUN_FEAR_GREED_ON_STARTUP', '1')
+    if str(run_fg).strip() == '1':
+        try:
+            fetch_and_save_fear_greed_csv()
+        except Exception as e:
+            print(f"Error fetching Fear & Greed on startup: {e}")
 
 
 def fetch_new_stocks_from_finnhub():
