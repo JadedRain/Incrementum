@@ -1,10 +1,16 @@
 from Incrementum.views import fetch_update_and_list_stocks
 from Incrementum.views import fetch_finnhub_stocks_view
+from Incrementum.views import get_fear_greed_from_csv
 from django.urls import path
-from .views_auth import login, signup, account_info, sync_keycloak_user, keycloak_login
+from .views_auth import login, signup, account_info, sync_keycloak_user
+from .views_auth import keycloak_login
 from .screener_views import (
-    custom_screener_list_create, create_custom_screener, get_custom_screener, list_custom_screeners,
-    update_custom_screener, delete_custom_screener
+    custom_screener_list_create,
+    create_custom_screener,
+    get_custom_screener,
+    list_custom_screeners,
+    update_custom_screener,
+    delete_custom_screener
 )
 from .controllers.stocks_controller import (
     get_stocks_info, get_stock_graph,
@@ -42,14 +48,18 @@ urlpatterns = [
     path('hello_world/', hello_world, name='hello_world'),
     path('getStocks/<str:ticker>/', get_stock_graph, name='get_stocks'),
     path('getStockInfo/', get_stocks_info, name='get_stock_info'),
-    path('searchStocks/<str:query>/<int:page>/', search_stocks_controller, name='search_stocks'),
-    path('stock/<str:ticker>/', get_stock_info_controller, name='get_stocks_by_ticker'),
+    path('searchStocks/<str:query>/<int:page>/',
+         search_stocks_controller, name='search_stocks'),
+    path('stock/<str:ticker>/',
+         get_stock_info_controller, name='get_stocks_by_ticker'),
     path('stocks/', stock_list_create, name='stock_list_create'),
     path('api/signup', signup, name='signup'),
     path('api/login', login, name='login'),
     path('api/account', account_info, name='account_info'),
     path('api/keycloak-login', keycloak_login, name='keycloak_login'),
-    path('api/sync-keycloak-user', sync_keycloak_user, name='sync_keycloak_user'),
+    path(
+        'api/sync-keycloak-user',
+        sync_keycloak_user, name='sync_keycloak_user'),
     path(
         'custom-collection/<int:collection_id>/',
         custom_collection_by_id,
@@ -71,13 +81,16 @@ urlpatterns = [
         custom_collection_overlay_graph,
         name='custom_collection_overlay_graph'
         ),
-    path('custom-collections/', custom_collections_list, name='custom_collections_list'),
+    path('custom-collections/',
+         custom_collections_list, name='custom_collections_list'),
 
     # Watchlist API endpoints
     path('watchlist/', get_watchlist, name='watchlist'),
     path('watchlist/add/', add_to_watchlist, name='add_to_watchlist'),
-    path('watchlist/remove/', remove_from_watchlist, name='remove_from_watchlist'),
-    path('watchlist/search/', search_stocks_watchlist, name='watchlist_search'),
+    path('watchlist/remove/',
+         remove_from_watchlist, name='remove_from_watchlist'),
+    path(
+        'watchlist/search/', search_stocks_watchlist, name='watchlist_search'),
     path('watchlist/sorted/', get_sorted_watchlist, name='watchlist_sorted'),
 
     # Watchlist Custom Screener API endpoints
@@ -98,10 +111,14 @@ urlpatterns = [
         ),
 
     # Custom Screener API endpoints
-    path('custom-screeners/', custom_screener_list_create, name='custom_screener_list_create'),
-    path('screeners/custom/', create_custom_screener, name='create_custom_screener'),
-    path('screeners/custom/list/', list_custom_screeners, name='list_custom_screeners'),
-    path('screeners/custom/<screener_id>/', get_custom_screener, name='get_custom_screener'),
+    path('custom-screeners/',
+         custom_screener_list_create, name='custom_screener_list_create'),
+    path('screeners/custom/',
+         create_custom_screener, name='create_custom_screener'),
+    path('screeners/custom/list/',
+         list_custom_screeners, name='list_custom_screeners'),
+    path('screeners/custom/<screener_id>/',
+         get_custom_screener, name='get_custom_screener'),
     path(
         'screeners/custom/<int:screener_id>/update/',
         update_custom_screener,
@@ -114,17 +131,21 @@ urlpatterns = [
         ),
 
     # Finhub endpoints (mostly to test functionality)
-    path('fetch-finnhub-stocks/', fetch_finnhub_stocks_view, name='fetch_finnhub_stocks'),
+    path('fetch-finnhub-stocks/',
+         fetch_finnhub_stocks_view, name='fetch_finnhub_stocks'),
     path(
         'fetch-update-list-stocks/',
         fetch_update_and_list_stocks,
         name='fetch_update_list_stocks'
         ),
 
+    path('fear-greed/csv/', get_fear_greed_from_csv, name='fear_greed_csv'),
 
     # Filter Options API endpoints
-    path('filters/categorical/', get_categorical_filter_types, name='get_categorical_filter_types'),
-    path('filters/numeric/', get_numeric_filter_types, name='get_numeric_filter_types'),
+    path('filters/categorical/',
+         get_categorical_filter_types, name='get_categorical_filter_types'),
+    path('filters/numeric/',
+         get_numeric_filter_types, name='get_numeric_filter_types'),
     path('sectors/', get_sectors, name='sectors'),
     path('industries/', get_industries, name='industries'),
     # Dynamic screener run endpoint
