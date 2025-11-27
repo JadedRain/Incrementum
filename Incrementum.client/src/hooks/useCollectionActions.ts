@@ -12,6 +12,7 @@ interface UseCollectionActionsProps {
   apiKey: string | null;
   onRefresh: () => Promise<void>;
   onError: (message: string) => void;
+  onClearSearch?: () => void;
   id?: string;
   setTokens: React.Dispatch<React.SetStateAction<string[]>>;
 }

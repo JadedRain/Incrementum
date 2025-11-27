@@ -3,7 +3,7 @@ import { ColumnVisibilityContext } from './columnVisibilityCore';
 
 export function ColumnVisibilityProvider({ children, showWatchlist = false }: { children: React.ReactNode; showWatchlist?: boolean }) {
   const LS_KEY = 'stockTable.visibleColumns.v1';
-  const defaultCols = { symbol: true, price: true, high52: true, low52: true, percentChange: true, volume: true, marketCap: true, watchlist: !!showWatchlist } as Record<string, boolean>;
+  const defaultCols = { symbol: true, price: true, purchasePrice: false, high52: true, low52: true, percentChange: true, volume: true, marketCap: true, watchlist: !!showWatchlist } as Record<string, boolean>;
 
   const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>(() => {
     try {
@@ -19,9 +19,32 @@ export function ColumnVisibilityProvider({ children, showWatchlist = false }: { 
     return defaultCols;
   });
 
-  useEffect(() => { try { localStorage.setItem(LS_KEY, JSON.stringify(visibleColumns)); } catch { void 0; } }, [visibleColumns]);
-
-  const toggleColumn = (k: string) => setVisibleColumns((p) => ({ ...p, [k]: !p[k] }));
+  const toggleColumnWithOrder = (k: string) => {
+    setVisibleColumns((p) => ({ ...p, [k]: !p[k] }));
+    setColumnOrder((prev) => {
+      try {
+        const currently = prev.slice();
+        if (!currently.includes(k as import('./columnVisibilityCore').ColKey)) {
+          // try to insert after 'price' if present
+          const after = currently.indexOf('price' as import('./columnVisibilityCore').ColKey);
+          if (after >= 0) {
+            currently.splice(after + 1, 0, k as import('./columnVisibilityCore').ColKey);
+          } else {
+            currently.push(k as import('./columnVisibilityCore').ColKey);
+          }
+          // persist combined shape
+          try {
+            const raw = localStorage.getItem(LS_KEY);
+            const parsed = raw ? JSON.parse(raw) : {};
+            parsed.columnOrder = currently;
+            parsed.visibleColumns = parsed.visibleColumns || visibleColumns;
+            localStorage.setItem(LS_KEY, JSON.stringify(parsed));
+          } catch { /* ignore */ }
+        }
+        return currently;
+      } catch { return prev; }
+    });
+  };
 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -79,7 +102,7 @@ export function ColumnVisibilityProvider({ children, showWatchlist = false }: { 
   const setColumnOrderProp = (order: import('./columnVisibilityCore').ColKey[]) => setColumnOrder(order);
 
   return (
-    <ColumnVisibilityContext.Provider value={{ visibleColumns, setVisibleColumns, toggleColumn, menuOpen, setMenuOpen, menuRef, btnRef, columnOrder, moveColumn, setColumnOrder: setColumnOrderProp }}>
+    <ColumnVisibilityContext.Provider value={{ visibleColumns, setVisibleColumns, toggleColumn: toggleColumnWithOrder, menuOpen, setMenuOpen, menuRef, btnRef, columnOrder, moveColumn, setColumnOrder: setColumnOrderProp }}>
       {children}
     </ColumnVisibilityContext.Provider>
   );

@@ -13,6 +13,8 @@ type CollectionStockTableProps = {
   onStockClick: (symbol: string) => void;
   onRemoveStock: (symbol: string) => void | Promise<void>;
   pendingSymbol?: string | null;
+  collectionId?: string | undefined;
+  collectionName?: string | undefined;
 };
 
 const CollectionStockTable = CollectionStockTableImport as unknown as React.ComponentType<CollectionStockTableProps>;
@@ -153,6 +155,8 @@ const IndividualCustomCollectionPage: React.FC = () => {
           onStockClick={(symbol) => navigate(`/stock/${symbol}`)}
           onRemoveStock={removeStock}
           pendingSymbol={pendingSymbol}
+          collectionId={id}
+          collectionName={collectionName}
         />
       </div>
     </div>
