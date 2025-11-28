@@ -61,7 +61,6 @@ export default function CollectionStockRow({ stock, onClick, onRemove, isPending
 
   const savePurchasePrice = (val: string) => {
     const saveLocally = () => {
-      try {
         const raw = localStorage.getItem(storageKey);
         const parsed = raw ? JSON.parse(raw) : {};
         if (!val || val.trim() === '') {
@@ -72,7 +71,6 @@ export default function CollectionStockRow({ stock, onClick, onRemove, isPending
           setPurchasePrice(String(val));
         }
         localStorage.setItem(storageKey, JSON.stringify(parsed));
-      } catch { /* ignore */ }
     };
 
     if (apiKey && collectionName) {

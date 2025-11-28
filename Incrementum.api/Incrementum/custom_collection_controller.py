@@ -43,6 +43,10 @@ def custom_collection(request):
                 tokens = custom_collection.get_stocks(api_key, collection_name)
             except ValueError as e:
                 return JsonResponse({'error': str(e)}, status=400)
+            except Exception as e:
+                # Unexpected error while fetching stocks - return a JSON error
+                logging.exception(f'Error fetching collection stocks for {collection_name}')
+                return JsonResponse({'error': str(e)}, status=500)
             return JsonResponse({'tokens': tokens})
 
         elif request.method == "POST":
@@ -112,22 +116,15 @@ def custom_collection(request):
                 single_symbol = data.get('symbol')
                 single_price = data.get('price')
                 if purchase_prices and isinstance(purchase_prices, dict):
-                    try:
-                        # merge into existing JSON field
-                        existing = getattr(updated_collection, 'purchase_prices', {}) or {}
-                        existing.update(purchase_prices)
-                        updated_collection.purchase_prices = existing
-                        updated_collection.save()
-                    except Exception:
-                        pass
+                    existing = getattr(updated_collection, 'purchase_prices', {}) or {}
+                    existing.update(purchase_prices)
+                    updated_collection.purchase_prices = existing
+                    updated_collection.save()
                 elif single_symbol and single_price is not None:
-                    try:
-                        existing = getattr(updated_collection, 'purchase_prices', {}) or {}
-                        existing[str(single_symbol).upper()] = single_price
-                        updated_collection.purchase_prices = existing
-                        updated_collection.save()
-                    except Exception:
-                        pass
+                    existing = getattr(updated_collection, 'purchase_prices', {}) or {}
+                    existing[str(single_symbol).upper()] = single_price
+                    updated_collection.purchase_prices = existing
+                    updated_collection.save()
                 return JsonResponse({
                     'status': 'ok',
                     'collection': {
@@ -293,7 +290,11 @@ def custom_collection_by_id(request, collection_id):
 
         # Get the stocks in this collection
         stocks = collection.stocks.all()
-        purchase_prices = getattr(collection, 'purchase_prices', {}) or {}
+        try:
+            purchase_prices = getattr(collection, 'purchase_prices', {}) or {}
+        except Exception:
+            logging.exception('Unable to read purchase_prices field from CustomCollection')
+            purchase_prices = {}
         tokens = [
             {
                 'symbol': stock.symbol,
