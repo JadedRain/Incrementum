@@ -28,6 +28,8 @@ services:
     restart: unless-stopped
     depends_on:
       - db
+    volumes:
+      - ./Incrementum.api:/Incrementum.api
   client:
     build:
       context: ./Incrementum.client

@@ -3,15 +3,29 @@ import requests
 import os
 from .models import StockModel
 from Incrementum.data.sector_industry import get_sectors_industry
+from .fear_greed_service import fetch_and_save_fear_greed_csv
 # from dotenv import load_dotenv
 
-# What in the world is this doing? The only thing I've seen it do is break the tests
+# What in the world is this doing?
+# The only thing I've seen it do is break the tests
 # load_dotenv()
 
 
 def fetch_and_update_symbols():
+    token = os.environ.get('FINNHUB_TOKEN')
+    if token is None or str(token).strip() == '':
+        print('FINNHUB_TOKEN not set in environment')
+        return
+
     data = fetch_new_stocks_from_finnhub()
     update_stocks_in_db_from_finnhub(data)
+
+    run_fg = os.environ.get('RUN_FEAR_GREED_ON_STARTUP', '1')
+    if str(run_fg).strip() == '1':
+        try:
+            fetch_and_save_fear_greed_csv()
+        except Exception as e:
+            print(f"Error fetching Fear & Greed on startup: {e}")
 
 
 def fetch_new_stocks_from_finnhub():

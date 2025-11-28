@@ -69,3 +69,7 @@ GET {{host}}/stocks/
 ### 
 GET {{host}}/screeners/custom/1
 "X-User-Id": 
+
+###
+GET {{host}}/fear-greed/csv/
+Accept: application/json
