@@ -18,6 +18,8 @@ interface CollectionStockTableProps {
   onStockClick: (symbol: string) => void;
   onRemoveStock: (symbol: string) => void;
   pendingSymbol: string | null;
+  collectionId?: string | undefined;
+  collectionName?: string | undefined;
 }
 export default function CollectionStockTable({
   stocksData,
@@ -26,6 +28,7 @@ export default function CollectionStockTable({
   onStockClick,
   onRemoveStock,
   pendingSymbol
+  , collectionId, collectionName
 }: CollectionStockTableProps) {
 
   return (
@@ -38,18 +41,23 @@ export default function CollectionStockTable({
           onStockClick={onStockClick}
           onRemoveStock={onRemoveStock}
           pendingSymbol={pendingSymbol}
+          collectionId={collectionId}
+          collectionName={collectionName}
         />
       </ColumnVisibilityProvider>
     </div>
   );
 };
 
-function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockClick, onRemoveStock, pendingSymbol }: CollectionStockTableProps) {
+function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockClick, onRemoveStock, pendingSymbol, collectionId, collectionName }: CollectionStockTableProps) {
   const { visibleColumns, toggleColumn, menuOpen, setMenuOpen, menuRef, btnRef, columnOrder, moveColumn } = useColumnVisibility();
+  // Debug: log visibility/order to help diagnose missing column
+  console.debug('CollectionStockTable visibleColumns:', visibleColumns, 'columnOrder:', columnOrder);
 
   const cols = [
     { k: 'symbol', l: 'Symbol' },
     { k: 'price', l: 'Price' },
+    { k: 'purchasePrice', l: 'Buy Price' },
     { k: 'high52', l: '52W High' },
     { k: 'low52', l: '52W Low' },
     { k: 'percentChange', l: '1 Day % Chg.' },
@@ -159,6 +167,8 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
              onClick={() => onStockClick(stock.symbol ?? '')}
             onRemove={onRemoveStock}
             isPending={pendingSymbol === stock.symbol}
+            collectionId={collectionId}
+            collectionName={collectionName}
           />
           ));
         })()}
