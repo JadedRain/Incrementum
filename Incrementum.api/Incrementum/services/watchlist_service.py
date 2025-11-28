@@ -1,6 +1,6 @@
 import logging
 from Incrementum.get_stock_info import fetch_stock_data
-from Incrementum.models import Watchlist, StockModel, WatchlistStock, CustomCollection
+from Incrementum.models import StockModel, CustomCollection
 from Incrementum.models_user import Account
 from Incrementum.services.custom_collection_service import CustomCollectionService
 
@@ -12,7 +12,7 @@ class WatchlistService:
 
     def add(self, user_id, symbol):
         try:
-            account = Account.objects.get(api_key=user_id)
+            Account.objects.get(api_key=user_id)
         except Account.DoesNotExist:
             logging.error(f"Account with api_key {user_id} does not exist.")
             return []
@@ -20,10 +20,10 @@ class WatchlistService:
             symbol=symbol,
             defaults={"company_name": symbol},
         )
-        watchlist = self.serv.add_stocks(
+        self.serv.add_stocks(
             collection_name="Default Collection",
             account_api_key=user_id,
-            symbols = [symbol]
+            symbols=[symbol]
         )
         print("adding to watchlist")
         logging.info(f"Added {symbol} to user {user_id} watchlist.")
@@ -32,24 +32,21 @@ class WatchlistService:
     def get(self, user_id):
         try:
             account = Account.objects.get(api_key=user_id)
-            serv = CustomCollectionService()
             watchlist = self.serv._get_or_create_collection_for_account(
                 collection_name="Default Collection",
                 account=account
             )
-        except (Account.DoesNotExist, Watchlist.DoesNotExist):
+        except (Account.DoesNotExist):
             print("getting empty watchlist")
             return []
         symbols = watchlist.stocks.values_list('symbol', flat=True)
         return [self.fetch_stock_data_func(symbol).to_dict() for symbol in symbols]
 
     def remove(self, user_id, symbol):
-        account = Account.objects.get(api_key=user_id)
-        watchlist = self.serv.remove_stocks(
+        self.serv.remove_stocks(
             collection_name="Default Collection",
             account_api_key=user_id,
             symbols=[symbol]
-            
         )
         logging.info(f"Removed {symbol} from user {user_id} watchlist.")
         return self.get(user_id)
@@ -61,7 +58,7 @@ class WatchlistService:
                 collection_name="Default Collection",
                 account=account
             )
-        except (Account.DoesNotExist, Watchlist.DoesNotExist):
+        except (Account.DoesNotExist):
             return []
         query = query.lower()
         results = []
