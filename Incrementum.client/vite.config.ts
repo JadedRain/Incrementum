@@ -6,7 +6,7 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(),
-    tailwindcss(),
+  tailwindcss(),
   ],
   clearScreen: false,
   server: {
@@ -58,6 +58,12 @@ export default defineConfig({
         }
       },
       '/stocks/getfilteredstocks': {
+        target: 'http://api:8000',
+        changeOrigin: true,
+        secure: false,
+      }
+      ,
+      '/fear-greed/': {
         target: 'http://api:8000',
         changeOrigin: true,
         secure: false,
