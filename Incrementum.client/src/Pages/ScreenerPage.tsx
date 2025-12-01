@@ -6,6 +6,7 @@ import { useAuth } from '../Context/AuthContext';
 import NavigationBar from '../Components/NavigationBar';
 import AppCard from '../Components/AppCard';
 import Loading from '../Components/Loading';
+import FearGreedGauge from '../Components/FearGreedGauge';
 
 function ScreenerPage() {
     const navigate = useNavigate();
@@ -25,64 +26,73 @@ function ScreenerPage() {
                     Select Screener
                 </h1>
                 <div className="ScreenerPage-container pt-4">
-                    <div className="ScreenerPage-card-grid">
+                    <div className="screener-layout" style={{ display: 'flex', gap: 48, alignItems: 'flex-start' }}>
+                        <div style={{ flex: 1 }}>
+                            <div className="ScreenerPage-card-grid">
 
-                        {loading && (
-                            <div className="w-full flex items-center justify-center" style={{ height: '120px' }}>
-                                <Loading loading={true} loadingText="Loading screeners..." />
-                            </div>
-                        )}
+                                {loading && (
+                                    <div className="w-full flex items-center justify-center" style={{ height: '120px' }}>
+                                        <Loading loading={true} loadingText="Loading screeners..." />
+                                    </div>
+                                )}
 
-                        {!loading && customScreeners.length === 0 && apiKey && (
-                            <AppCard
-                                title="No custom screeners yet"
-                                subtitle="Click to create your first one!"
-                                onClick={() => navigate('/screener/create')}
-                            />
-                        )}
-
-                        {!loading && apiKey && (
-                            <>
-                                <AppCard
-                                    title="Day Gainers"
-                                    subtitle="Stocks with the highest percentage gains today"
-                                    onClick={() => navigate('/screener/day_gainers')}
-                                />
-
-                                <AppCard
-                                    title="Day Losers"
-                                    subtitle="Stocks with the largest percentage losses today"
-                                    onClick={() => navigate('/screener/day_losers')}
-                                />
-
-                                <AppCard
-                                    title="Most Actives"
-                                    subtitle="Stocks with the highest trading volume today"
-                                    onClick={() => navigate('/screener/most_actives')}
-                                />
-
-                                <AppCard
-                                    title="undervalued growth stocks"
-                                    subtitle="Stocks with the highest trading volume today"
-                                    onClick={() => navigate('/screener/undervalued_growth_stocks')}
-                                />
-
-                                <AppCard
-                                    title="Create Custom"
-                                    subtitle="Make new custom screener"
-                                    onClick={() => navigate('/screener/create')}
-                                />
-                                
-                                {customScreeners.map((screener) => (
+                                {!loading && customScreeners.length === 0 && apiKey && (
                                     <AppCard
-                                        key={screener.id}
-                                        title={screener.screener_name}
-                                        subtitle="Custom screener"
-                                        onClick={() => handleCardClick(screener.id)}
+                                        title="No custom screeners yet"
+                                        subtitle="Click to create your first one!"
+                                        onClick={() => navigate('/screener/create')}
                                     />
-                                ))}
-                            </>
-                        )}
+                                )}
+
+                                {!loading && apiKey && (
+                                    <>
+                                        <AppCard
+                                            title="Day Gainers"
+                                            subtitle="Stocks with the highest percentage gains today"
+                                            onClick={() => navigate('/screener/day_gainers')}
+                                        />
+
+                                        <AppCard
+                                            title="Day Losers"
+                                            subtitle="Stocks with the largest percentage losses today"
+                                            onClick={() => navigate('/screener/day_losers')}
+                                        />
+
+                                        <AppCard
+                                            title="Most Actives"
+                                            subtitle="Stocks with the highest trading volume today"
+                                            onClick={() => navigate('/screener/most_actives')}
+                                        />
+
+                                        <AppCard
+                                            title="undervalued growth stocks"
+                                            subtitle="Stocks with the highest trading volume today"
+                                            onClick={() => navigate('/screener/undervalued_growth_stocks')}
+                                        />
+
+                                        <AppCard
+                                            title="Create Custom"
+                                            subtitle="Make new custom screener"
+                                            onClick={() => navigate('/screener/create')}
+                                        />
+
+                                        {customScreeners.map((screener) => (
+                                            <AppCard
+                                                key={screener.id}
+                                                title={screener.screener_name}
+                                                subtitle="Custom screener"
+                                                onClick={() => handleCardClick(screener.id)}
+                                            />
+                                        ))}
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                        <aside style={{ width: 300, display: 'flex', justifyContent: 'center' }}>
+                            <div className="FearGreedBox">
+                                <FearGreedGauge />
+                            </div>
+                        </aside>
                     </div>
                 </div>
             </div>
