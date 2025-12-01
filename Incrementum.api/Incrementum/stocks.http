@@ -1,4 +1,10 @@
 @host = http://localhost:8000
+
+### Preflight test for /watchlist/
+OPTIONS {{host}}/watchlist/
+Origin: http://localhost:5173
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: Content-Type, X-User-Id
 ###
 POST  {{host}}/industries/
 Content-Type: application/json
