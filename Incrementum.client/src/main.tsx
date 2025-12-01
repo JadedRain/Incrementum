@@ -4,7 +4,6 @@ import {Toaster} from "react-hot-toast";
 import App from "./App";
 import SearchResults from "./Pages/SearchResults";
 import StocksPage from './Pages/StocksPage'
-import WatchlistPage from './Pages/WatchlistPage'
 import Stock from "./Pages/Stock";
 import ScreenerPage from "./Pages/ScreenerPage";
 import IndividualScreenPage from "./Pages/IndividualScreenPage";
@@ -45,7 +44,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route path="/search/:query" element={<SearchResults />} />
             <Route path="/stock/:token" element={<Stock />} />
             <Route path="/stocks" element={<StocksPage />} />
-            <Route path="/watchlist" element={<WatchlistPage />} />
             <Route path="/screener/:id" element={<FilterDataProvider><IndividualScreenPage /></FilterDataProvider>} />
             <Route path="/create-custom-screener" element={<CustomScreenerPage />} />
             <Route path="/settings" element={<SettingsPage />} />

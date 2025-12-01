@@ -40,12 +40,6 @@ export default function NavigationBar({ showAccountButton = true }: NavigationBa
           {isAuthenticated && (
             <>
               <Link
-                to="/watchlist"
-                className={`nav-button ${location.pathname === '/watchlist' ? 'nav-button-active' : ''}`}
-              >
-                Watchlist
-              </Link>
-              <Link
                 to="/custom-collections"
                 className={`nav-button ${location.pathname.startsWith('/custom-collections') ? 'nav-button-active' : ''}`}
               >
