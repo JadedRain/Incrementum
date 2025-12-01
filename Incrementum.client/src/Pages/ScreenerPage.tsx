@@ -26,7 +26,7 @@ function ScreenerPage() {
                     Select Screener
                 </h1>
                 <div className="ScreenerPage-container pt-4">
-                    <div className="screener-layout" style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+                    <div className="screener-layout" style={{ display: 'flex', gap: 48, alignItems: 'flex-start' }}>
                         <div style={{ flex: 1 }}>
                             <div className="ScreenerPage-card-grid">
 
@@ -88,8 +88,10 @@ function ScreenerPage() {
                                 )}
                             </div>
                         </div>
-                        <aside style={{ width: 260 }}>
-                            <FearGreedGauge />
+                        <aside style={{ width: 300, display: 'flex', justifyContent: 'center' }}>
+                            <div className="FearGreedBox">
+                                <FearGreedGauge />
+                            </div>
                         </aside>
                     </div>
                 </div>
