@@ -39,7 +39,7 @@ function IndividualScreenPageContent() {
   const { data: screenerData } = useQuery<CustomScreener>({
     queryKey: ["customScreener", id],
     queryFn: () => fetchCustomScreener(id!, apiKey),
-    enabled: !!id && !isNaN(Number(id)),
+    enabled: !!id && !isNaN(Number(id)) && !!apiKey,
   });
 
 
@@ -188,7 +188,6 @@ function IndividualScreenPageContent() {
         },
         body: JSON.stringify({ custom_screener_id: screenerId }),
       }));
-
       console.log('Response status:', res.status);
 
       if (!res.ok) {
@@ -200,7 +199,6 @@ function IndividualScreenPageContent() {
       const responseData = await res.json();
       console.log('Success response:', responseData);
 
-      // Update the watchlist state
       if (inWatchlist) {
         setWatchlistScreenerIds(prev => {
           const newSet = new Set(prev);

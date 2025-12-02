@@ -16,22 +16,23 @@ export const getKeycloakRegistrationUrl = () => {
 
 const keycloakLogin = async (username: string, password: string) => {
   try {
-    // replace 
-    const res = await fetchWrapper(()=>fetch(apiString('/api/keycloak-login'), {
+    const res = await fetch(apiString('/api/keycloak-login'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
-    }));
-    
-    if (res.ok) {
-      const data = await res.json();
-      return data.access_token;
+    });
+    if (!res.ok) {
+      const errData = await res.json();
+      if (errData.error_description?.includes('Account not found')) {
+        return { token: null, errorType: 'account-not-found' };
+      }
+      return { token: null, errorType: 'auth-failure' };
     }
-    console.error('Keycloak login failed:', res.status, await res.text());
+    const data = await res.json();
+    return { token: data.access_token, errorType: null };
   } catch (e) {
-    console.error('Keycloak login error:', e);
+    return { token: null, errorType: 'network-error' };
   }
-  return null;
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -46,18 +47,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signIn = useCallback(async (email: string, password: string) => {
-    const keycloakToken = await keycloakLogin(email, password);
-    if (keycloakToken) {
-      // Sync Keycloak user to database
+    const { token, errorType } = await keycloakLogin(email, password);
+    
+    if (token && !errorType) {
       try {
         const syncResponse = await fetchWrapper(()=>fetch(apiString('/api/sync-keycloak-user'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: keycloakToken }),
+          body: JSON.stringify({ token }),
         }));
         if (syncResponse.ok) {
           const syncData = await syncResponse.json();
-          // Use database API key for consistency with rest of app
           setUserAndPersist(syncData.api_key, email);
           return true;
         } else {
