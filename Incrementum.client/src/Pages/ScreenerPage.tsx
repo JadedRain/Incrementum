@@ -36,15 +36,7 @@ function ScreenerPage() {
                                     </div>
                                 )}
 
-                                {!loading && customScreeners.length === 0 && apiKey && (
-                                    <AppCard
-                                        title="No custom screeners yet"
-                                        subtitle="Click to create your first one!"
-                                        onClick={() => navigate('/screener/create')}
-                                    />
-                                )}
-
-                                {!loading && apiKey && (
+                                {!loading && (
                                     <>
                                         <AppCard
                                             title="Day Gainers"
@@ -71,12 +63,20 @@ function ScreenerPage() {
                                         />
 
                                         <AppCard
-                                            title="Create Custom"
-                                            subtitle="Make new custom screener"
-                                            onClick={() => navigate('/screener/create')}
+                                            title="Blank Screener"
+                                            subtitle="All stocks - no filters applied"
+                                            onClick={() => navigate('/screener/custom_temp')}
                                         />
 
-                                        {customScreeners.map((screener) => (
+                                        {apiKey && (
+                                            <AppCard
+                                                title="Create Custom"
+                                                subtitle="Make new custom screener"
+                                                onClick={() => navigate('/create-custom-screener')}
+                                            />
+                                        )}
+
+                                        {apiKey && customScreeners.map((screener) => (
                                             <AppCard
                                                 key={screener.id}
                                                 title={screener.screener_name}

@@ -252,7 +252,7 @@ function IndividualScreenPageContent() {
               <StockTable
                 onRowClick={(symbol: string) => navigate(`/stock/${symbol}`)}
                 watchlistSymbols={watchlistSymbols}
-                onToggleWatchlist={handleToggleWatchlist}
+                onToggleWatchlist={apiKey ? handleToggleWatchlist : undefined}
                 pendingSymbol={pending}
               />
             </div>

@@ -13,6 +13,8 @@ const CustomScreenerPageContent = () => {
 
   const handleSave = async () => {
     if (!apiKey) {
+      // For logged-out users, just navigate to screener results without saving
+      navigate('/screener/custom_temp');
       return;
     }
     await saveCustomScreener(apiKey);
@@ -25,6 +27,7 @@ const CustomScreenerPageContent = () => {
         <ScreenerForm
           onCancel={() => navigate('/screener')}
           onSave={handleSave}
+          showNameInput={!!apiKey}
         />
       </div>
     </div>
