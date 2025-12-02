@@ -115,6 +115,8 @@ function InnerStockTable({ onRowClick, watchlistSymbols, onToggleWatchlist, pend
           const labelMap: Record<string, string> = Object.fromEntries(cols.map(c => [c.k, c.l]));
           labelMap.watchlist = 'Add to Watchlist';
           if (!visibleColumns[k]) return null;
+          // Don't render watchlist header if onToggleWatchlist isn't provided (not logged in)
+          if (k === 'watchlist' && !onToggleWatchlist) return null;
           const isWatch = k === 'watchlist';
           const draggable = !isWatch; // watchlist must be non-draggable
           const sortableField = colToSortField(k);

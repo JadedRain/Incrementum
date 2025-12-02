@@ -18,6 +18,7 @@ import FilterPage from "./Pages/FilterPageTest";
 import SidebarTestPage from "./Pages/SidebarTestPage";
 import AdminPage from "./Pages/AdminPage";
 import AdminRoute from "./Components/AdminRoute";
+import ProtectedRoute from "./Components/ProtectedRoute";
 import { AuthProvider } from "./Context/AuthContext";
 import { FilterDataProvider } from "./Context/FilterDataContext";
 import { ErrorBoundary } from "./ErrorBoundry";
@@ -41,17 +42,17 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route path="/" element={<App />} />
             <Route index element={<SignInPage />} />
             <Route path="/signup" element={<SignupPage />} />
-            <Route path="/search/:query" element={<SearchResults />} />
-            <Route path="/stock/:token" element={<Stock />} />
-            <Route path="/stocks" element={<StocksPage />} />
+            <Route path="/search/:query" element={<ProtectedRoute><SearchResults /></ProtectedRoute>} />
+            <Route path="/stock/:token" element={<ProtectedRoute><Stock /></ProtectedRoute>} />
+            <Route path="/stocks" element={<ProtectedRoute><StocksPage /></ProtectedRoute>} />
             <Route path="/screener/:id" element={<FilterDataProvider><IndividualScreenPage /></FilterDataProvider>} />
             <Route path="/create-custom-screener" element={<CustomScreenerPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/custom-collection/:id" element={<FilterDataProvider><IndividualCustomCollectionPage /></FilterDataProvider>} />
-            <Route path="/custom-collections" element={<CustomCollectionsPage />} />
-            <Route path="/create-custom-collection" element={<CreateCustomCollectionPage />} />
-            <Route path="/filter-test" element={<FilterPage />} />
-            <Route path="/sidebar-test" element={<SidebarTestPage /> } />
+            <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+            <Route path="/custom-collection/:id" element={<ProtectedRoute><FilterDataProvider><IndividualCustomCollectionPage /></FilterDataProvider></ProtectedRoute>} />
+            <Route path="/custom-collections" element={<ProtectedRoute><CustomCollectionsPage /></ProtectedRoute>} />
+            <Route path="/create-custom-collection" element={<ProtectedRoute><CreateCustomCollectionPage /></ProtectedRoute>} />
+            <Route path="/filter-test" element={<ProtectedRoute><FilterPage /></ProtectedRoute>} />
+            <Route path="/sidebar-test" element={<ProtectedRoute><SidebarTestPage /></ProtectedRoute>} />
             <Route path="/admin-page" element={<AdminRoute><AdminPage /></AdminRoute>} />
           </Routes>
         </BrowserRouter>
