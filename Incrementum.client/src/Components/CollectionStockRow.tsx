@@ -77,7 +77,7 @@ export default function CollectionStockRow({ stock, onClick, onRemove, isPending
       (async () => {
         try {
           const body = { collection: collectionName, symbol, price: val };
-          const res = await fetchWrapper(fetch('/custom-collection/', {
+          const res = await fetchWrapper(() => fetch('/custom-collection/', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'X-User-Id': apiKey },
             body: JSON.stringify(body)
