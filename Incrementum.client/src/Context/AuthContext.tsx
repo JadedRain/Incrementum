@@ -31,6 +31,7 @@ const keycloakLogin = async (username: string, password: string) => {
     const data = await res.json();
     return { token: data.access_token, errorType: null };
   } catch (e) {
+    console.error("Network Error", e)
     return { token: null, errorType: 'network-error' };
   }
 };
