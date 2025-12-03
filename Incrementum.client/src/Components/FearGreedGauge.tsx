@@ -2,10 +2,10 @@ import React from 'react';
 import { describeArc } from '../utils/svg';
 import { useFearGreed } from '../hooks/useFearGreed';
 function valueToLabel(v: number) {
-    if (v >= 75) return 'Extreme Greed';
-    if (v >= 51) return 'Greed';
-    if (v === 50) return 'Neutral';
-    if (v >= 25) return 'Fear';
+    if (v >= 75) return 'Currently in Extreme Greed';
+    if (v >= 51) return 'Currently in Greed';
+    if (v === 50) return 'Currently in Neutral';
+    if (v >= 25) return 'Currently in Fear';
     return 'Extreme Fear';
 }
 
@@ -35,7 +35,7 @@ const FearGreedGauge: React.FC = () => {
 
     return (
         <div style={{ width: size, textAlign: 'center', fontFamily: 'Arial, sans-serif' }}>
-            <h3 style={{ color: accentColor, marginBottom: 8 }}>Fear & Greed</h3>
+            <h3 style={{ color: accentColor, marginBottom: 8 }}>Fear Greed Index</h3>
             {loading && <div>Loading gauge…</div>}
             {error && <div style={{ color: 'red' }}>{error}</div>}
             {!loading && value === null && !error && <div>No data available</div>}
