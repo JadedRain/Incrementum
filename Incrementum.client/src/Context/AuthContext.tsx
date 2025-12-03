@@ -4,7 +4,7 @@ import { signInApi, signUpApi } from "./authApi";
 import { getAuthFromStorage, setAuthToStorage } from "./authStorage";
 import { apiString, fetchWrapper } from "./FetchingHelper";
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
+const AccountNotExistError = 'account-not-found';
 // Keycloak configuration
 export const KEYCLOAK_REALM_URL = 'https://auth-dev.snowse.io/realms/incrementum';
 export const KEYCLOAK_CLIENT_ID = 'incrementum-client';
@@ -24,7 +24,7 @@ const keycloakLogin = async (username: string, password: string) => {
     if (!res.ok) {
       const errData = await res.json();
       if (errData.error_description?.includes('Account not found')) {
-        return { token: null, errorType: 'account-not-found' };
+        return { token: null, errorType: AccountNotExistError };
       }
       return { token: null, errorType: 'auth-failure' };
     }
@@ -50,7 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = useCallback(async (email: string, password: string) => {
     const { token, errorType } = await keycloakLogin(email, password);
     
-    if (token && !errorType) {
+    if (token && errorType != AccountNotExistError) {
       try {
         const syncResponse = await fetchWrapper(()=>fetch(apiString('/api/sync-keycloak-user'), {
           method: 'POST',
