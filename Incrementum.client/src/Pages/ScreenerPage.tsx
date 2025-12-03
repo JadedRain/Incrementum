@@ -22,9 +22,6 @@ function ScreenerPage() {
             <NavigationBar />
             <div className="main-content">
                 <Link to="/account" className="navbar-link">Account</Link>
-                <h1 className="text-[hsl(42,15%,70%)] text-4xl text-left ml-8 mb-0 mt-8 newsreader-font">
-                    Select Screener
-                </h1>
                 <div className="ScreenerPage-container pt-4">
                     <div className="screener-layout" style={{ display: 'flex', gap: 48, alignItems: 'flex-start' }}>
                         <div style={{ flex: 1 }}>
