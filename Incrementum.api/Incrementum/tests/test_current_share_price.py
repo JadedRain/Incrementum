@@ -1,129 +1,369 @@
 import pytest
+from rest_framework.test import APIClient
+from unittest.mock import patch
+from Screeners.stock_getter import StockGetter
 from Incrementum.stocks_class import Stock
-from Screeners.current_share_price import current_share_price
-from Screeners.moving_average_52 import fifty_two_high
+
+pytestmark = pytest.mark.django_db
 
 
-def values():
-    sample_stocks = [
+@pytest.fixture
+def api_client():
+    return APIClient()
+
+
+@patch.object(StockGetter, 'get_stocks')
+def test_current_share_price_greater_than(mock_get_stocks, api_client):
+    mock_get_stocks.return_value = [
+        Stock({
+            'symbol': 'MSFT',
+            'shortName': 'Microsoft Corp.',
+            'regularMarketPrice': 330.10
+        }),
+        Stock({
+            'symbol': 'TSLA',
+            'shortName': 'Tesla Inc.',
+            'regularMarketPrice': 245.60
+        }),
+        Stock({
+            'symbol': 'NVDA',
+            'shortName': 'NVIDIA Corporation',
+            'regularMarketPrice': 470.00
+        })
+    ]
+
+    filters = [
         {
-            "symbol": "AAPL",
-            "displayName": "Apple Inc.",
-            "sector": "Technology",
-            "sectorKey": "technology",
-            "industry": "Consumer Electronics",
-            "industryKey": "consumer_electronics",
-            "country": "USA",
-            "currentPrice": 185.32,
-            "price_52w_high": 190.12,
-            "fiftyDayAverage": 182.50,
-            "dayHigh": 186.00,
-            "dayLow": 183.40,
-            "previousClose": 184.20,
-            "exchange": "NASDAQ",
-            "fullExchangeName": "NasdaqGS",
-            "regularMarketChangePercent": 0.61,
-        },
-        {
-            "symbol": "MSFT",
-            "displayName": "Microsoft Corp.",
-            "sector": "Technology",
-            "sectorKey": "technology",
-            "industry": "Software—Infrastructure",
-            "industryKey": "software_infrastructure",
-            "country": "USA",
-            "currentPrice": 330.10,
-            "price_52w_high": 360.00,
-            "fiftyDayAverage": 325.60,
-            "dayHigh": 331.00,
-            "dayLow": 328.50,
-            "previousClose": 329.00,
-            "exchange": "NASDAQ",
-            "fullExchangeName": "NasdaqGS",
-            "regularMarketChangePercent": 0.33,
-        },
-        {
-            "symbol": "TSLA",
-            "displayName": "Tesla Inc.",
-            "sector": "Consumer Cyclical",
-            "sectorKey": "consumer_cyclical",
-            "industry": "Auto Manufacturers",
-            "industryKey": "auto_manufacturers",
-            "country": "USA",
-            "currentPrice": 245.60,
-            "price_52w_high": 300.50,
-            "fiftyDayAverage": 240.20,
-            "dayHigh": 248.00,
-            "dayLow": 243.00,
-            "previousClose": 244.10,
-            "exchange": "NASDAQ",
-            "fullExchangeName": "NasdaqGS",
-            "regularMarketChangePercent": 0.78,
-        },
-        {
-            "symbol": "NVDA",
-            "displayName": "NVIDIA Corporation",
-            "sector": "Technology",
-            "sectorKey": "technology",
-            "industry": "Semiconductors",
-            "industryKey": "semiconductors",
-            "country": "USA",
-            "currentPrice": 470.00,
-            "price_52w_high": 495.00,
-            "fiftyDayAverage": 465.20,
-            "dayHigh": 472.00,
-            "dayLow": 468.10,
-            "previousClose": 469.50,
-            "exchange": "NASDAQ",
-            "fullExchangeName": "NasdaqGS",
-            "regularMarketChangePercent": 0.12,
+            'operator': 'gt',
+            'operand': 'intradayprice',
+            'filter_type': 'numeric',
+            'value': 200
         }
     ]
-    stocks = []
-    for stock in sample_stocks:
-        stocks.append(Stock(stock))
-    return stocks
+
+    response = api_client.post(
+        '/stocks/getfilteredstocks',
+        filters,
+        format='json'
+    )
+
+    assert response.status_code == 200
+    response_data = response.json()
+    assert 'stocks' in response_data
+    assert response_data['count'] == 3
+
+    symbols = [stock['symbol'] for stock in response_data['stocks']['quotes']]
+    assert 'MSFT' in symbols
+    assert 'TSLA' in symbols
+    assert 'NVDA' in symbols
 
 
-def test_current_share_price_both_max_and_min():
-    stocks = values()
-    screener = current_share_price(min_value=0, max_value=200)
-    assert len(screener.screen(stocks)) == 1
-    assert screener.screen(stocks)[0].symbol == "AAPL"
+@patch.object(StockGetter, 'get_stocks')
+def test_current_share_price_less_than(mock_get_stocks, api_client):
+    mock_get_stocks.return_value = [
+        Stock({
+            'symbol': 'AAPL',
+            'shortName': 'Apple Inc.',
+            'regularMarketPrice': 185.32
+        })
+    ]
+
+    filters = [
+        {
+            'operator': 'lt',
+            'operand': 'intradayprice',
+            'filter_type': 'numeric',
+            'value': 200
+        }
+    ]
+
+    response = api_client.post(
+        '/stocks/getfilteredstocks',
+        filters,
+        format='json'
+    )
+
+    assert response.status_code == 200
+    response_data = response.json()
+    assert 'stocks' in response_data
+    assert response_data['count'] == 1
+    assert response_data['stocks']['quotes'][0]['symbol'] == 'AAPL'
 
 
-def test_current_share_price_just_min():
-    stocks = values()
-    screener = current_share_price(min_value=200)
-    assert len(screener.screen(stocks)) == 3
-    assert screener.screen(stocks)[1].symbol == "TSLA"
-    assert screener.screen(stocks)[0].symbol == "MSFT"
-    assert screener.screen(stocks)[2].symbol == "NVDA"
+@patch.object(StockGetter, 'get_stocks')
+def test_current_share_price_range_filter(mock_get_stocks, api_client):
+    mock_get_stocks.return_value = [
+        Stock({
+            'symbol': 'AAPL',
+            'shortName': 'Apple Inc.',
+            'regularMarketPrice': 185.32
+        })
+    ]
+
+    filters = [
+        {
+            'operator': 'gte',
+            'operand': 'intradayprice',
+            'filter_type': 'numeric',
+            'value': 200
+        },
+        {
+            'operator': 'gt',
+            'operand': 'lastclose52weekhigh.lasttwelvemonths',
+            'filter_type': 'numeric',
+            'value': 450
+        }
+    ]
+
+    response = api_client.post(
+        '/stocks/getfilteredstocks',
+        filters,
+        format='json'
+    )
+
+    assert response.status_code == 200
+    response_data = response.json()
+    assert 'stocks' in response_data
+    assert response_data['count'] == 1
+    assert response_data['stocks']['quotes'][0]['symbol'] == 'AAPL'
 
 
-def test_current_share_price_just_max():
-    stocks = values()
-    screener = current_share_price(max_value=200)
-    assert len(screener.screen(stocks)) == 1
-    assert screener.screen(stocks)[0].symbol == "AAPL"
+@patch.object(StockGetter, 'get_stocks')
+def test_current_share_price_greater_than_or_equal(mock_get_stocks, api_client):
+    mock_get_stocks.return_value = [
+        Stock({
+            'symbol': 'MID1',
+            'shortName': 'Mid Price Stock 1',
+            'regularMarketPrice': 240.00
+        }),
+        Stock({
+            'symbol': 'MID2',
+            'shortName': 'Mid Price Stock 2',
+            'regularMarketPrice': 250.00
+        })
+    ]
+
+    filters = [
+        {
+            'operator': 'gte',
+            'operand': 'intradayprice',
+            'filter_type': 'numeric',
+            'value': 240
+        }
+    ]
+
+    response = api_client.post(
+        '/stocks/getfilteredstocks',
+        filters,
+        format='json'
+    )
+
+    assert response.status_code == 200
+    response_data = response.json()
+    assert 'stocks' in response_data
+    assert response_data['count'] == 2
 
 
-def test_current_share_price_wrong_input():
-    with pytest.raises(ValueError):
-        current_share_price(min_value="abc", max_value=200)
-    with pytest.raises(ValueError):
-        current_share_price(min_value=100, max_value="xyz")
+@patch.object(StockGetter, 'get_stocks')
+def test_current_share_price_less_than_or_equal(mock_get_stocks, api_client):
+    mock_get_stocks.return_value = [
+        Stock({
+            'symbol': 'LOW1',
+            'shortName': 'Low Price Stock 1',
+            'regularMarketPrice': 50.00
+        }),
+        Stock({
+            'symbol': 'LOW2',
+            'shortName': 'Low Price Stock 2',
+            'regularMarketPrice': 75.00
+        })
+    ]
+
+    filters = [
+        {
+            'operator': 'lte',
+            'operand': 'intradayprice',
+            'filter_type': 'numeric',
+            'value': 100
+        }
+    ]
+
+    response = api_client.post(
+        '/stocks/getfilteredstocks',
+        filters,
+        format='json'
+    )
+
+    assert response.status_code == 200
+    response_data = response.json()
+    assert 'stocks' in response_data
+    assert response_data['count'] == 2
 
 
-def test_current_share_price_with_other_filters():
-    stocks = values()
-    screener = current_share_price(min_value=240, max_value=500)
-    assert len(screener.screen(stocks)) == 3
-    assert screener.screen(stocks)[0].symbol == "MSFT"
-    assert screener.screen(stocks)[1].symbol == "TSLA"
-    assert screener.screen(stocks)[2].symbol == "NVDA"
+@patch.object(StockGetter, 'get_stocks')
+def test_current_share_price_equal_to(mock_get_stocks, api_client):
+    mock_get_stocks.return_value = [
+        Stock({
+            'symbol': 'EXACT_PRICE',
+            'shortName': 'Exact Price Stock',
+            'regularMarketPrice': 100.00
+        })
+    ]
 
-    filtered_stocks = screener.screen(stocks)
-    filtered_stocks = fifty_two_high(490).screen(filtered_stocks)
-    assert len(filtered_stocks) == 1
-    assert filtered_stocks[0].symbol == "NVDA"
+    filters = [
+        {
+            'operator': 'eq',
+            'operand': 'intradayprice',
+            'filter_type': 'numeric',
+            'value': 100.00
+        }
+    ]
+
+    response = api_client.post(
+        '/stocks/getfilteredstocks',
+        filters,
+        format='json'
+    )
+
+    assert response.status_code == 200
+    response_data = response.json()
+    assert 'stocks' in response_data
+    assert response_data['count'] == 1
+    assert response_data['stocks']['quotes'][0]['symbol'] == 'EXACT_PRICE'
+
+
+@patch.object(StockGetter, 'get_stocks')
+def test_current_share_price_combined_with_52_week_high(mock_get_stocks, api_client):
+    mock_get_stocks.return_value = [
+        Stock({
+            'symbol': 'NVDA',
+            'shortName': 'NVIDIA Corporation',
+            'regularMarketPrice': 470.00,
+            'fiftyTwoWeekHigh': 495.00
+        })
+    ]
+
+    filters = [
+        {
+            'operator': 'gte',
+            'operand': 'intradayprice',
+            'filter_type': 'numeric',
+            'value': 240
+        },
+        {
+            'operator': 'lte',
+            'operand': 'intradayprice',
+            'filter_type': 'numeric',
+            'value': 500
+        },
+        {
+            'operator': 'gt',
+            'operand': '52weekhigh',
+            'filter_type': 'numeric',
+            'value': 490
+        }
+    ]
+
+    response = api_client.post(
+        '/stocks/getfilteredstocks',
+        filters,
+        format='json'
+    )
+
+    assert response.status_code == 200
+    response_data = response.json()
+    assert 'stocks' in response_data
+    assert response_data['count'] == 1
+    assert response_data['stocks']['quotes'][0]['symbol'] == 'NVDA'
+
+
+def test_invalid_filter_type(api_client):
+    filters = [
+        {
+            'operator': 'gt',
+            'operand': 'intradayprice',
+            'filter_type': 'invalid_type',
+            'value': 100
+        }
+    ]
+
+    response = api_client.post(
+        '/stocks/getfilteredstocks',
+        filters,
+        format='json'
+    )
+
+    assert response.status_code == 400
+    response_data = response.json()
+    assert 'error' in response_data
+
+
+def test_missing_required_keys(api_client):
+    filters = [
+        {
+            'operator': 'gt',
+            'operand': 'intradayprice',
+            # Missing 'filter_type' and 'value'
+        }
+    ]
+
+    response = api_client.post(
+        '/stocks/getfilteredstocks',
+        filters,
+        format='json'
+    )
+
+    assert response.status_code == 400
+    response_data = response.json()
+    assert 'error' in response_data
+    assert 'missing keys' in response_data['error'].lower()
+
+
+def test_invalid_json(api_client):
+    response = api_client.post(
+        '/stocks/getfilteredstocks',
+        'invalid json',
+        content_type='application/json'
+    )
+
+    assert response.status_code == 400
+    response_data = response.json()
+    assert 'error' in response_data
+
+
+def test_non_array_payload(api_client):
+    filters = {
+        'operator': 'gt',
+        'operand': 'intradayprice',
+        'filter_type': 'numeric',
+        'value': 100
+    }
+
+    response = api_client.post(
+        '/stocks/getfilteredstocks',
+        filters,
+        format='json'
+    )
+
+    assert response.status_code == 400
+    response_data = response.json()
+    assert 'error' in response_data
+    assert 'array' in response_data['error'].lower()
+
+
+@patch.object(StockGetter, 'get_stocks')
+def test_empty_filter_array(mock_get_stocks, api_client):
+    mock_get_stocks.return_value = []
+
+    filters = []
+
+    response = api_client.post(
+        '/stocks/getfilteredstocks',
+        filters,
+        format='json'
+    )
+
+    assert response.status_code == 200
+    response_data = response.json()
+    assert 'stocks' in response_data
+    assert response_data['count'] == 0

@@ -6,6 +6,7 @@ from Incrementum.DTOs.ifilterdata import FilterData
 from Screeners.stock_getter import StockGetter
 
 REQUIRED_KEYS = {"operator", "operand", "filter_type", "value"}
+VALID_OPERATORS = {"gt", "gte", "lt", "lte", "eq", "btwn"}
 
 
 @csrf_exempt
@@ -47,6 +48,17 @@ def run_screener(request):
             if filter_type not in ("numeric", "categoric"):
                 return JsonResponse(
                     {"error": f"Invalid filter_type '{filter_type}' at index {index}"},
+                    status=400
+                )
+
+            if operator not in VALID_OPERATORS:
+                return JsonResponse(
+                    {
+                        "error": (
+                            f"Invalid operator '{operator}' at index {index}. "
+                            f"Valid operators: {sorted(VALID_OPERATORS)}"
+                        )
+                    },
                     status=400
                 )
 
