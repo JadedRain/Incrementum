@@ -13,7 +13,7 @@
   min-height: max(560px, calc(100vh - var(--header-height) - 80px));
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   box-sizing: border-box;
   -webkit-overflow-scrolling: touch;
 }
