@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Loading from './Loading';
 import CollectionStockRow from './CollectionStockRow';
 import ColumnVisibilityProvider from '../Context/ColumnVisibilityContext';
 import { useColumnVisibility } from '../Context/useColumnVisibility';
-import { getNextSortDirection, sortStocks, type SortField, type SortDirection } from '../utils/sortingUtils';
+import { sortStocks, getNextSortDirection, type SortField, type SortDirection } from '../utils/sortingUtils';
 import '../styles/stock-table-extras.css';
 
 interface Stock {
@@ -65,46 +65,137 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
     { k: 'marketCap', l: 'Mkt. Cap' },
   ];
 
+  const sortOptions: { value: SortField; label: string }[] = [
+    { value: 'dateAdded', label: 'Date Added' },
+    { value: 'recentlyViewed', label: 'Recently Viewed' },
+  ];
+
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
 
-  const colToSortField = (k: string): SortField | null => {
-    switch (k) {
-      case 'symbol':
-        return 'name';
-      case 'price':
-        return 'price';
-      case 'percentChange':
-        return 'percentChange';
-      case 'volume':
-        return 'volume';
-      case 'marketCap':
-        return 'marketCap';
-      default:
-        return null;
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    if (value === '') {
+      setSortField(null);
+      setSortDirection(null);
+    } else {
+      const newField = value as SortField;
+      if (sortField === newField) {
+        return;
+      }
+      setSortField(newField);
+      setSortDirection(newField === 'name' ? 'asc' : 'desc');
     }
   };
 
-  const getSortIndicator = (field: SortField) => {
-    if (sortField !== field) return '';
-    if (sortDirection === 'asc') return ' ▲';
-    if (sortDirection === 'desc') return ' ▼';
-    return '';
+  const toggleSortDirection = () => {
+    if (sortDirection === 'asc') {
+      setSortDirection('desc');
+    } else if (sortDirection === 'desc') {
+      setSortDirection('asc');
+    }
   };
 
-  const handleHeaderClick = (field: SortField) => {
-    const nextDirection = getNextSortDirection(sortField, field, sortDirection);
-    setSortField(nextDirection === null ? null : field);
-    setSortDirection(nextDirection);
+  const colToSortField = (colKey: string): SortField | null => {
+    const mapping: Record<string, SortField> = {
+      symbol: 'name',
+      price: 'price',
+      percentChange: 'percentChange',
+      volume: 'volume',
+      marketCap: 'marketCap',
+    };
+    return mapping[colKey] ?? null;
   };
+
+  const getSortIndicator = (colKey: string): string => {
+    const field = colToSortField(colKey);
+    if (!field || sortField !== field || !sortDirection) return '';
+    return sortDirection === 'asc' ? ' ▲' : ' ▼';
+  };
+
+  const handleHeaderClick = (colKey: string) => {
+    const field = colToSortField(colKey);
+    if (!field) return;
+    const newDirection = getNextSortDirection(sortField, field, sortDirection);
+    setSortField(field);
+    setSortDirection(newDirection);
+  };
+
+  const handleStockClick = (symbol: string) => {
+    try {
+      const storageKey = `collection.lastViewed.v1:${collectionId ?? 'global'}`;
+      const now = Date.now();
+      const raw = localStorage.getItem(storageKey);
+      const parsed = raw ? JSON.parse(raw) : {};
+      parsed[symbol] = now;
+      localStorage.setItem(storageKey, JSON.stringify(parsed));
+    } catch (e) {
+      console.warn('Failed to track view:', e);
+    }
+    onStockClick(symbol);
+  };
+
+  useEffect(() => {
+    const enrichedStocksKey = `collection.enriched.${collectionId}`;
+      const viewStorageKey = `collection.lastViewed.v1:${collectionId ?? 'global'}`;
+      const viewRaw = localStorage.getItem(viewStorageKey);
+      const viewData = viewRaw ? JSON.parse(viewRaw) : {};
+      
+      const dateAddedKey = `collection.dateAdded.v1:${collectionId ?? 'global'}`;
+      const dateAddedRaw = localStorage.getItem(dateAddedKey);
+      const dateAddedData = dateAddedRaw ? JSON.parse(dateAddedRaw) : {};
+      
+      let updated = false;
+      const baseTime = Date.now();
+      tokens.forEach((symbol, index) => {
+        if (!dateAddedData[symbol]) {
+          dateAddedData[symbol] = baseTime + (index * 1000);
+          updated = true;
+        }
+      });
+      
+      if (updated) {
+        localStorage.setItem(dateAddedKey, JSON.stringify(dateAddedData));
+      }
+      
+      const enrichmentData = { viewData, dateAddedData };
+      sessionStorage.setItem(enrichedStocksKey, JSON.stringify(enrichmentData));
+      
+  }, [tokens, collectionId]);
 
   return (
     <div className="StockTable-container stocktable-flex">
-      <div className="StockTable-header-row stocktable-header-row-relative">
-        <div className="absolute right-2 top-1 z-10">
+      <div className="mb-3 flex justify-between items-center px-2">
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-[#3f2a10]">Sort by:</label>
+          <select
+            value={sortField ?? ''}
+            onChange={handleSortChange}
+            className="px-3 py-1.5 text-sm border border-[#3f2a10] rounded bg-[hsl(40,63%,63%)] text-[#3f2a10] cursor-pointer hover:bg-[hsl(40,63%,58%)] focus:outline-none focus:ring-2 focus:ring-[#3f2a10]"
+            aria-label="Sort by"
+          >
+            <option value="">Default Order</option>
+            {sortOptions.map(opt => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          {sortField && sortDirection && (
+            <button
+              onClick={toggleSortDirection}
+              className="px-2 py-1.5 text-sm border border-[#3f2a10] rounded bg-[hsl(40,63%,63%)] text-[#3f2a10] cursor-pointer hover:bg-[hsl(40,63%,58%)] focus:outline-none focus:ring-2 focus:ring-[#3f2a10] font-bold"
+              aria-label="Toggle sort direction"
+              title={sortDirection === 'asc' ? 'Ascending (click for descending)' : 'Descending (click for ascending)'}
+            >
+              {sortDirection === 'asc' ? '▲' : '▼'}
+            </button>
+          )}
+        </div>
+        <div className="relative">
           <button ref={btnRef} aria-label="Columns" onClick={() => setMenuOpen(!menuOpen)} className="kebab-btn"><span className="kebab-icon">⋮</span></button>
           {menuOpen && (
-            <div ref={menuRef} className="kebab-menu">
+            <div ref={menuRef} className="kebab-menu" style={{ maxHeight: '400px', overflowY: 'auto' }}>
               <div className="kebab-title">Columns</div>
               {cols.filter(c => c.k !== 'symbol' && c.k !== 'watchlist').map((c) => (
                 <label key={c.k} className="column-label">
@@ -115,6 +206,8 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
             </div>
           )}
         </div>
+      </div>
+      <div className="StockTable-header-row stocktable-header-row-relative">
 
         {columnOrder.map((k, idx) => {
           const labelMap: Record<string, string> = Object.fromEntries(cols.map(c => [c.k, c.l]));
@@ -122,7 +215,7 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
           if (!visibleColumns[k]) return null;
           const isRemove = k === 'watchlist';
           const draggable = !isRemove;
-          const sortableField = colToSortField(k);
+          const sortable = colToSortField(k) !== null;
           return (
             <div
               key={k}
@@ -141,11 +234,11 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
                 const to = idx;
                 if (!Number.isNaN(from) && from !== to) moveColumn(from, to);
               }}
-              onClick={() => { if (sortableField) handleHeaderClick(sortableField); }}
-              role={sortableField ? 'button' : undefined}
-              style={{ cursor: sortableField ? 'pointer' : draggable ? 'grab' : 'default' }}
+              onClick={() => sortable && handleHeaderClick(k)}
+              role={sortable ? 'button' : undefined}
+              style={{ cursor: draggable ? 'grab' : sortable ? 'pointer' : 'default' }}
             >
-              {(labelMap[k] ?? k) + (sortableField ? getSortIndicator(sortableField) : '')}
+              {labelMap[k] ?? k}{getSortIndicator(k)}
             </div>
           );
         })}
@@ -159,12 +252,41 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
           </div>
         )}
         {!loadingStocks && (() => {
-          const displayStocks = (sortField && sortDirection) ? sortStocks(stocksData as unknown as Stock[], sortField, sortDirection) : (stocksData as Stock[]);
+          // Enrich stocks with dateAdded and lastViewed
+          const enrichedStocksKey = `collection.enriched.${collectionId}`;
+          let enrichedData: { viewData: Record<string, number>; dateAddedData: Record<string, number> } = { viewData: {}, dateAddedData: {} };
+          try {
+            const raw = sessionStorage.getItem(enrichedStocksKey);
+            if (raw) enrichedData = JSON.parse(raw);
+          } catch (e) {
+            console.warn('Failed to load enrichment data:', e);
+          }
+          
+          const enrichedStocks = stocksData.map(stock => {
+            const enriched = {
+              ...stock,
+              lastViewed: enrichedData.viewData[stock.symbol] || 0,
+              dateAdded: enrichedData.dateAddedData[stock.symbol] || 0,
+            };
+            if (stocksData.indexOf(stock) < 3) {
+              console.debug(`Stock ${stock.symbol}:`, {
+                purchasePrice: stock.purchasePrice,
+                lastViewed: enriched.lastViewed,
+                dateAdded: enriched.dateAdded
+              });
+            }
+            return enriched;
+          });
+          
+          const displayStocks = (sortField && sortDirection) 
+            ? sortStocks(enrichedStocks as unknown as Stock[], sortField, sortDirection) 
+            : enrichedStocks;
+            
           return displayStocks.map((stock) => (
            <CollectionStockRow
              key={stock.symbol}
              stock={stock}
-             onClick={() => onStockClick(stock.symbol ?? '')}
+             onClick={() => handleStockClick(stock.symbol ?? '')}
             onRemove={onRemoveStock}
             isPending={pendingSymbol === stock.symbol}
             collectionId={collectionId}
