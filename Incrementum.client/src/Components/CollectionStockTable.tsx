@@ -3,7 +3,7 @@ import Loading from './Loading';
 import CollectionStockRow from './CollectionStockRow';
 import ColumnVisibilityProvider from '../Context/ColumnVisibilityContext';
 import { useColumnVisibility } from '../Context/useColumnVisibility';
-import { sortStocks, type SortField, type SortDirection } from '../utils/sortingUtils';
+import { sortStocks, getNextSortDirection, type SortField, type SortDirection } from '../utils/sortingUtils';
 import '../styles/stock-table-extras.css';
 
 interface Stock {
@@ -66,8 +66,6 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
   ];
 
   const sortOptions: { value: SortField; label: string }[] = [
-    { value: 'name', label: 'Name (A-Z)' },
-    { value: 'price', label: 'Current Price' },
     { value: 'dateAdded', label: 'Date Added' },
     { value: 'recentlyViewed', label: 'Recently Viewed' },
   ];
@@ -96,6 +94,31 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
     } else if (sortDirection === 'desc') {
       setSortDirection('asc');
     }
+  };
+
+  const colToSortField = (colKey: string): SortField | null => {
+    const mapping: Record<string, SortField> = {
+      symbol: 'name',
+      price: 'price',
+      percentChange: 'percentChange',
+      volume: 'volume',
+      marketCap: 'marketCap',
+    };
+    return mapping[colKey] ?? null;
+  };
+
+  const getSortIndicator = (colKey: string): string => {
+    const field = colToSortField(colKey);
+    if (!field || sortField !== field || !sortDirection) return '';
+    return sortDirection === 'asc' ? ' ▲' : ' ▼';
+  };
+
+  const handleHeaderClick = (colKey: string) => {
+    const field = colToSortField(colKey);
+    if (!field) return;
+    const newDirection = getNextSortDirection(sortField, field, sortDirection);
+    setSortField(field);
+    setSortDirection(newDirection);
   };
 
   const handleStockClick = (symbol: string) => {
@@ -192,6 +215,7 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
           if (!visibleColumns[k]) return null;
           const isRemove = k === 'watchlist';
           const draggable = !isRemove;
+          const sortable = colToSortField(k) !== null;
           return (
             <div
               key={k}
@@ -210,9 +234,11 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
                 const to = idx;
                 if (!Number.isNaN(from) && from !== to) moveColumn(from, to);
               }}
-              style={{ cursor: draggable ? 'grab' : 'default' }}
+              onClick={() => sortable && handleHeaderClick(k)}
+              role={sortable ? 'button' : undefined}
+              style={{ cursor: draggable ? 'grab' : sortable ? 'pointer' : 'default' }}
             >
-              {labelMap[k] ?? k}
+              {labelMap[k] ?? k}{getSortIndicator(k)}
             </div>
           );
         })}
