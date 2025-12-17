@@ -21,18 +21,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-(xn!j2uh0^*g7kudgm9^d%xemdgu(p0qch#w==g52mj)su35lw'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-(xn!j2uh0^*g7kudgm9^d%xemdgu(p0qch#w==g52mj)su35lw')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
-]
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-]
-ALLOWED_HOSTS = ['api', 'localhost', '127.0.0.1']
+# Parse CSRF_TRUSTED_ORIGINS from environment variable
+_csrf_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:5173')
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in _csrf_origins.split(',')]
+
+# Parse CORS_ALLOWED_ORIGINS from environment variable
+_cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:5173')
+CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _cors_origins.split(',')]
+
+# Parse ALLOWED_HOSTS from environment variable
+_allowed_hosts = os.environ.get('ALLOWED_HOSTS', 'api,localhost,127.0.0.1')
+ALLOWED_HOSTS = [host.strip() for host in _allowed_hosts.split(',')]
 
 
 # Application definition
@@ -86,11 +90,11 @@ WSGI_APPLICATION = 'api_project.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "Incr_DB",
-        "USER": "Incr",
-        "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
-        "HOST": "db",
-        "PORT": "5432",
+        "NAME": os.environ.get("DATABASE_NAME", "Incr_DB"),
+        "USER": os.environ.get("DATABASE_USER", "Incr"),
+        "PASSWORD": os.environ.get("DATABASE_PASSWORD", ""),
+        "HOST": os.environ.get("DATABASE_HOST", "db"),
+        "PORT": os.environ.get("DATABASE_PORT", "5432"),
     }
 }
 
@@ -138,10 +142,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # or wherever your frontend runs
-    "http://127.0.0.1:5173",
-]
+# CORS_ALLOWED_ORIGINS is already configured from environment variable
+# No need to hardcode here - the env var parsing above handles it
 
 CORS_ALLOW_METHODS = [
     "GET",

@@ -1,0 +1,94 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: incrementum_test_db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: test_incrementum_db
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password_123
+    volumes:
+      - ../db_init:/docker-entrypoint-initdb.d
+      - test_db_data:/var/lib/postgresql
+    networks:
+      - test_network
+
+  api:
+    build:
+      context: ../Incrementum.api
+    container_name: incrementum_test_api
+    ports:
+      - "8001:8000"
+    environment:
+      - DJANGO_ENV=test
+      - DJANGO_SECRET_KEY=test-secret-key-12345-abcdefghijklmnop-qrstuvwxyz
+      - DEBUG=False
+      - DATABASE_NAME=test_incrementum_db
+      - DATABASE_USER=test_user
+      - DATABASE_PASSWORD=test_password_123
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - CSRF_TRUSTED_ORIGINS=http://localhost:5174,http://localhost:3000,http://localhost:8001
+      - CORS_ALLOWED_ORIGINS=http://localhost:5174,http://localhost:3000,http://localhost:8001
+      - ALLOWED_HOSTS=localhost,127.0.0.1,api,localhost:8001
+      - KEYCLOAK_REALM_URL=https://auth-test.example.com/realms/incrementum-test
+      - KEYCLOAK_CLIENT_ID=incrementum-test-client
+      - KEYCLOAK_CLIENT_SECRET=test-client-secret-123
+      - FINNHUB_TOKEN=${FINNHUB_TOKEN}
+    restart: unless-stopped
+    depends_on:
+      - db
+    volumes:
+      - ../Incrementum.api:/Incrementum.api
+    networks:
+      - test_network
+
+  client:
+    build:
+      context: ../Incrementum.client
+    container_name: incrementum_test_client
+    ports:
+      - "5174:5173"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8001
+      - VITE_DASH_BASE_URL=http://localhost:8051
+    depends_on:
+      - api
+    restart: unless-stopped
+    volumes:
+      - ../Incrementum.client:/app
+      - test_client_node_modules:/app/node_modules
+    networks:
+      - test_network
+
+  dash:
+    build:
+      context: ../Incrementum.api
+    container_name: incrementum_test_dash
+    command: sh -c "python InteractiveGraph.py"
+    ports:
+      - "8051:8050"
+    environment:
+      - KEYCLOAK_REALM_URL=https://auth-test.example.com/realms/incrementum-test
+      - KEYCLOAK_CLIENT_ID=incrementum-test-client
+      - KEYCLOAK_CLIENT_SECRET=test-client-secret-123
+      - DATABASE_NAME=test_incrementum_db
+      - DATABASE_USER=test_user
+      - DATABASE_PASSWORD=test_password_123
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+    volumes:
+      - ../Incrementum.api:/Incrementum.api:ro
+    depends_on:
+      - db
+    networks:
+      - test_network
+
+volumes:
+  test_db_data:
+  test_client_node_modules:
+
+networks:
+  test_network:
+    driver: bridge

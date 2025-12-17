@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
+import { dashString } from "../Context/FetchingHelper";
 
 type Props = {
   url?: string;
@@ -9,7 +10,7 @@ type Props = {
 };
 
 
-const InteractiveGraph: React.FC<Props> = ({ url = "http://localhost:8050", period = "1y", interval = "1d", height = "600px" }) => {
+const InteractiveGraph: React.FC<Props> = ({ url = dashString(), period = "1y", interval = "1d", height = "600px" }) => {
   const { token } = useParams<{ token: string }>();
   const ticker = token ?? "";
   const [graphType, setGraphType] = useState<'line' | 'candle'>('line');
