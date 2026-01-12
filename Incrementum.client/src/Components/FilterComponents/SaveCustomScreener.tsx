@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
+import { apiString } from '../../Context/FetchingHelper';
 
 interface SaveCustomScreenerProps {
   filters: { filter_name: string; value: string }[];
@@ -32,7 +33,7 @@ const SaveCustomScreener: React.FC<SaveCustomScreenerProps> = ({
 
     try {
       console.log(apiKey)
-      const response = await fetch('http://localhost:8000/custom-screeners/', {
+      const response = await fetch(apiString('/custom-screeners/'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

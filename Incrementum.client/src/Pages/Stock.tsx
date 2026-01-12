@@ -64,7 +64,7 @@ export default function Stock({ token: propToken }: { token?: string; }) {
             </div>
 
             <div style={{ flex: 1, height: '800px' }}>
-              <InteractiveGraph url="http://localhost:8050" height="800px" />
+              <InteractiveGraph height="800px" />
             </div>
           </div>
         </div>
