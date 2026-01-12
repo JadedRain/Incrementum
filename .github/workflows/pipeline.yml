@@ -83,3 +83,82 @@ jobs:
 
       - name: Run React tests
         run: docker run --rm -e CI=true incrementum-client-test
+
+  push-docker:
+    name: Push to Docker Hub
+    needs: [python-test, react-test]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push API image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./Incrementum.api
+          file: ./Incrementum.api/Dockerfile
+          push: true
+          tags: |
+            nhowell02/incrementum_api:latest
+            nhowell02/incrementum_api:${{ github.sha }}
+
+      - name: Build and push Client image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./Incrementum.client
+          file: ./Incrementum.client/Dockerfile
+          push: true
+          tags: |
+            nhowell02/incrementum_client:latest
+            nhowell02/incrementum_client:${{ github.sha }}
+
+  deploy-kubernetes:
+    name: Deploy to Kubernetes
+    needs: push-docker
+    runs-on: [self-hosted]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubectl context
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Substitute environment variables
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          DEBUG: "False"
+          CSRF_TRUSTED_ORIGINS: "https://client.incrementum.duckdns.org"
+          CORS_ALLOWED_ORIGINS: "https://client.incrementum.duckdns.org"
+          ALLOWED_HOSTS: "api.incrementum.duckdns.org,api,localhost,127.0.0.1"
+          DATABASE_NAME: "Incr_DB"
+          DATABASE_USER: "Incr"
+          DATABASE_HOST: "db"
+          DATABASE_PORT: "5432"
+          KEYCLOAK_CLIENT_ID: "incrementum-client"
+          VITE_API_BASE_URL: "https://api.incrementum.duckdns.org"
+          VITE_DASH_BASE_URL: "https://api.incrementum.duckdns.org:8050"
+        run: |
+          for file in kubernetes/*.yaml; do
+            envsubst < "$file" > "${file}.tmp"
+            mv "${file}.tmp" "$file"
+          done
+
+      - name: Apply Kubernetes manifests
+        run: kubectl apply -f kubernetes/

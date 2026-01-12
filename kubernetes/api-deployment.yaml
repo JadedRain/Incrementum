@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: incrementum-api
+  namespace: default
+  labels:
+    app: incrementum-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: incrementum-api
+  template:
+    metadata:
+      labels:
+        app: incrementum-api
+    spec:
+      containers:
+      - name: incrementum-api
+        image: nhowell02/incrementum_api:${IMAGE_TAG}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: DEBUG
+          value: "${DEBUG}"
+        - name: DJANGO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: incrementum-secrets
+              key: django-secret-key
+        - name: CSRF_TRUSTED_ORIGINS
+          value: "${CSRF_TRUSTED_ORIGINS}"
+        - name: CORS_ALLOWED_ORIGINS
+          value: "${CORS_ALLOWED_ORIGINS}"
+        - name: ALLOWED_HOSTS
+          value: "${ALLOWED_HOSTS}"
+        - name: DATABASE_NAME
+          value: "${DATABASE_NAME}"
+        - name: DATABASE_USER
+          value: "${DATABASE_USER}"
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: incrementum-secrets
+              key: database-password
+        - name: DATABASE_HOST
+          value: "${DATABASE_HOST}"
+        - name: DATABASE_PORT
+          value: "${DATABASE_PORT}"
+        - name: FINNHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: incrementum-secrets
+              key: finnhub-token
+        - name: KEYCLOAK_REALM_URL
+          valueFrom:
+            secretKeyRef:
+              name: incrementum-secrets
+              key: keycloak-realm-url
+        - name: KEYCLOAK_CLIENT_ID
+          value: "${KEYCLOAK_CLIENT_ID}"
+        - name: KEYCLOAK_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: incrementum-secrets
+              key: keycloak-client-secret
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2

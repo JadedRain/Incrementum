@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: incrementum-client
+  namespace: default
+  labels:
+    app: incrementum-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: incrementum-client
+  template:
+    metadata:
+      labels:
+        app: incrementum-client
+    spec:
+      containers:
+      - name: incrementum-client
+        image: nhowell02/incrementum_client:${IMAGE_TAG}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5173
+          name: http
+        env:
+        - name: VITE_API_BASE_URL
+          value: "${VITE_API_BASE_URL}"
+        - name: VITE_DASH_BASE_URL
+          value: "${VITE_DASH_BASE_URL}"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 5173
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 5173
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
