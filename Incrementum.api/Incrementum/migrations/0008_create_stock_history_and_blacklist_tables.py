@@ -11,6 +11,7 @@ class Migration(migrations.Migration):
         migrations.RunSQL(
             sql="""
                 CREATE TABLE IF NOT EXISTS stock_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     stock_symbol VARCHAR(20) NOT NULL,
                     day_and_time DATETIME NOT NULL,
                     open_price INTEGER NOT NULL,
@@ -19,9 +20,9 @@ class Migration(migrations.Migration):
                     low INTEGER NOT NULL,
                     volume INTEGER NOT NULL,
                     is_hourly BOOLEAN DEFAULT TRUE,
-                    PRIMARY KEY (stock_symbol, day_and_time),
                     FOREIGN KEY (stock_symbol) 
-                    REFERENCES stock (symbol) ON DELETE CASCADE
+                    REFERENCES stock (symbol) ON DELETE CASCADE,
+                    UNIQUE (stock_symbol, day_and_time)
                 );
 
                 CREATE INDEX IF NOT EXISTS idx_stock_history_symbol_time

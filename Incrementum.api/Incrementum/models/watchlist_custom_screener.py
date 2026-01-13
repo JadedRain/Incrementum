@@ -3,12 +3,12 @@ from django.db import models
 
 class WatchlistCustomScreener(models.Model):
     watchlist = models.ForeignKey(
-        'watchlist.Watchlist',
+        'Watchlist',
         on_delete=models.CASCADE,
         db_column='watchlist_id'
     )
     custom_screener = models.ForeignKey(
-        'custom_screener.CustomScreener',
+        'CustomScreener',
         on_delete=models.CASCADE,
         db_column='custom_screener_id',
     )

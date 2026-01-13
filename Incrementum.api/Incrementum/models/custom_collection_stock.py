@@ -3,12 +3,12 @@ from django.db import models
 
 class CustomCollectionStock(models.Model):
     collection = models.ForeignKey(
-        'custom_collection.CustomCollection',
+        'CustomCollection',
         on_delete=models.CASCADE,
         db_column='collection_id'
     )
     stock = models.ForeignKey(
-        'stock.StockModel',
+        'StockModel',
         on_delete=models.CASCADE,
         db_column='stock_symbol'
     )

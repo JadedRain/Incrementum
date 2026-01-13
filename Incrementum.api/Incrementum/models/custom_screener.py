@@ -4,7 +4,7 @@ from django.db import models
 class CustomScreener(models.Model):
     id = models.AutoField(primary_key=True)
     account = models.ForeignKey(
-        'account.Account',
+        'Account',
         on_delete=models.CASCADE,
         db_column='account_id'
     )

@@ -4,7 +4,7 @@ from django.db import models
 class CustomCollection(models.Model):
     id = models.AutoField(primary_key=True)
     account = models.ForeignKey(
-        'account.Account',
+        'Account',
         on_delete=models.CASCADE,
         db_column='account_id',
         null=True,
@@ -15,8 +15,8 @@ class CustomCollection(models.Model):
     purchase_prices = models.JSONField(default=dict, blank=True)
     date_created = models.DateField(db_column='date_created', auto_now_add=True)
     stocks = models.ManyToManyField(
-        'stock.StockModel',
-        through='custom_collection_stock.CustomCollectionStock',
+        'StockModel',
+        through='CustomCollectionStock',
         related_name='custom_collections'
     )
 

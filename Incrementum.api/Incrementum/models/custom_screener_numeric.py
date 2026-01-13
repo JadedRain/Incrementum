@@ -3,12 +3,12 @@ from django.db import models
 
 class CustomScreenerNumeric(models.Model):
     custom_screener = models.ForeignKey(
-        'custom_screener.CustomScreener',
+        'CustomScreener',
         on_delete=models.CASCADE,
         db_column='custom_screener_id'
     )
     numeric_filter = models.ForeignKey(
-        'numeric_filter.NumericFilter',
+        'NumericFilter',
         on_delete=models.CASCADE,
         db_column='numeric_filter_id'
     )

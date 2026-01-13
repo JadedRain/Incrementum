@@ -3,12 +3,12 @@ from django.db import models
 
 class WatchlistStock(models.Model):
     watchlist = models.ForeignKey(
-        'watchlist.Watchlist',
+        'Watchlist',
         on_delete=models.CASCADE,
         db_column='watchlist_id'
     )
     stock = models.ForeignKey(
-        'stock.StockModel',
+        'StockModel',
         on_delete=models.CASCADE,
         db_column='stock_symbol'
     )

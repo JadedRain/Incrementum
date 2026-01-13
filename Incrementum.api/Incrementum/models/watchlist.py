@@ -4,15 +4,15 @@ from django.db import models
 class Watchlist(models.Model):
     id = models.AutoField(primary_key=True)
     account = models.OneToOneField(
-        'account.Account',
+        'Account',
         on_delete=models.CASCADE,
         db_column='account_id',
         unique=True,
     )
     name = models.CharField(max_length=50)
     stocks = models.ManyToManyField(
-        'stock.StockModel',
-        through='watchlist_stock.WatchlistStock',
+        'StockModel',
+        through='WatchlistStock',
         related_name='watchlists',
     )
 
