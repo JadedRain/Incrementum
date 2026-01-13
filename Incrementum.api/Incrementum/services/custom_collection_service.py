@@ -1,12 +1,14 @@
 from Incrementum.get_stock_info import fetch_stock_data
-from Incrementum.models import StockModel, CustomCollection, CustomCollectionStock
+from Incrementum.models.stock import StockModel
+from Incrementum.models.custom_collection import CustomCollection
+from Incrementum.models.custom_collection_stock import CustomCollectionStock
 from django.db import connection
 from django.db.utils import IntegrityError
 
 
 class CustomCollectionService:
     def _get_account(self, account_api_key: str):
-        from Incrementum.models_user import Account
+        from Incrementum.models.account import Account
         if not account_api_key:
             raise ValueError("account_api_key is required")
         try:

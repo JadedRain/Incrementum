@@ -1,8 +1,8 @@
 import pytest
 from django.test import Client
 from unittest.mock import patch, MagicMock
-from Incrementum.models import CustomCollection
-from Incrementum.models_user import Account
+from Incrementum.models.custom_collection import CustomCollection
+from Incrementum.models.account import Account
 
 
 @pytest.fixture

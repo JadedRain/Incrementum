@@ -1,4 +1,4 @@
-from .models import StockModel
+from .models.stock import StockModel
 import yfinance as yf
 from .stocks_class import Stock
 import logging

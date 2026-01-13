@@ -1,7 +1,7 @@
 import yfinance as yf
 import requests
 import os
-from .models import StockModel
+from .models.stock import StockModel
 from Incrementum.data.sector_industry import get_sectors_industry
 from .fear_greed_service import fetch_and_save_fear_greed_csv
 # from dotenv import load_dotenv

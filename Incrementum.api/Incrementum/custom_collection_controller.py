@@ -269,8 +269,8 @@ def custom_collection_by_id(request, collection_id):
         if not api_key:
             return JsonResponse({'error': 'User id header X-User-Id required'}, status=401)
 
-        from .models import CustomCollection
-        from .models_user import Account
+        from .models.custom_collection import CustomCollection
+        from .models.account import Account
 
         # Get the account for this API key
         try:

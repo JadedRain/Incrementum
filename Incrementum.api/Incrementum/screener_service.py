@@ -1,6 +1,6 @@
 import logging
-from .models import CustomScreener
-from .models_user import Account
+from .models.custom_screener import CustomScreener
+from .models.account import Account
 from django.db import transaction
 
 
