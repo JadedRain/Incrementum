@@ -1,7 +1,11 @@
 import logging
 from .get_stock_info import fetch_stock_data
-from .models import Watchlist, StockModel, WatchlistStock, Screener, WatchlistScreener
-from .models_user import Account
+from .models.watchlist import Watchlist
+from .models.stock import StockModel
+from .models.watchlist_stock import WatchlistStock
+from .models.screener import Screener
+from .models.watchlist_screener import WatchlistScreener
+from .models.account import Account
 
 
 class WatchlistService:
@@ -101,7 +105,8 @@ class WatchlistService:
         return screeners
 
     def add_custom_screener(self, user_id, custom_screener_id):
-        from .models import CustomScreener, WatchlistCustomScreener
+        from .models.custom_screener import CustomScreener
+        from .models.watchlist_custom_screener import WatchlistCustomScreener
 
         try:
             account = Account.objects.get(api_key=user_id)
@@ -139,7 +144,8 @@ class WatchlistService:
             return False
 
     def remove_custom_screener(self, user_id, custom_screener_id):
-        from .models import CustomScreener, WatchlistCustomScreener
+        from .models.custom_screener import CustomScreener
+        from .models.watchlist_custom_screener import WatchlistCustomScreener
 
         try:
             account = Account.objects.get(api_key=user_id)
@@ -173,7 +179,7 @@ class WatchlistService:
             return False
 
     def get_custom_screeners(self, user_id):
-        from .models import WatchlistCustomScreener
+        from .models.watchlist_custom_screener import WatchlistCustomScreener
         try:
             account = Account.objects.get(api_key=user_id)
             watchlist = Watchlist.objects.get(account=account)

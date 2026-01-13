@@ -3,7 +3,7 @@ import json
 import uuid
 from unittest.mock import patch
 from django.test import Client
-from Incrementum.models_user import Account
+from Incrementum.models.account import Account
 
 pytestmark = pytest.mark.django_db
 

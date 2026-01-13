@@ -1,7 +1,7 @@
 import logging
 from Incrementum.get_stock_info import fetch_stock_data
-from Incrementum.models import StockModel
-from Incrementum.models_user import Account
+from Incrementum.models.stock import StockModel
+from Incrementum.models.account import Account
 from Incrementum.services.custom_collection_service import CustomCollectionService
 
 

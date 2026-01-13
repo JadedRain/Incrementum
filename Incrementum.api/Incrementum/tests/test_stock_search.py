@@ -1,6 +1,6 @@
 import pytest
 from Incrementum.get_stock_info import search_stocks
-from Incrementum.models import StockModel
+from Incrementum.models.stock import StockModel
 
 pytestmark = pytest.mark.django_db
 

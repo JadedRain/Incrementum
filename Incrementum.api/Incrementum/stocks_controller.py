@@ -4,7 +4,7 @@ import yfinance as yf
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from .models import StockModel
+from .models.stock import StockModel
 from .serializers import StockSerializer
 from .get_stock_info import get_stock_info, search_stocks, get_stock_by_ticker, generate_stock_graph
 

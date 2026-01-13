@@ -5,7 +5,7 @@ import yfinance as yf
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from Incrementum.models import StockModel
+from Incrementum.models.stock import StockModel
 from Incrementum.serializers import StockSerializer
 from Incrementum.get_stock_info import get_stock_info, search_stocks, get_stock_by_ticker
 

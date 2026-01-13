@@ -1,6 +1,6 @@
 import pytest
 from django.test import TestCase
-from Incrementum.models_user import Account
+from Incrementum.models.account import Account
 from Incrementum.services.watchlist_service import WatchlistService
 pytestmark = pytest.mark.django_db
 

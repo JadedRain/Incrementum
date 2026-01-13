@@ -1,7 +1,7 @@
 import os
 import pytest
 from unittest.mock import patch
-from Incrementum.models import StockModel
+from Incrementum.models.stock import StockModel
 
 from Incrementum.utils import (
     fetch_new_stocks_from_finnhub,
