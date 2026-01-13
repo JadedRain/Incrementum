@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: incrementum-api
-  namespace: default
+  namespace: Incrementum
   labels:
     app: incrementum-api
 spec:

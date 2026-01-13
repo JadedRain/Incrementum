@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: incrementum-client-service
-  namespace: default
+  namespace: Incrementum
   labels:
     app: incrementum-client
 spec:
