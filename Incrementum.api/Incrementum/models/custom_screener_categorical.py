@@ -22,7 +22,7 @@ class CustomScreenerCategorical(models.Model):
     def fetch_all(cls):
         """
         Fetch all custom screener categorical filters from the database.
-        
+
         Returns:
             QuerySet: All CustomScreenerCategorical objects from the database.
         """

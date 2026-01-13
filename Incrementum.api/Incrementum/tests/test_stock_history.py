@@ -73,7 +73,7 @@ def test_data_for_one_stock_with_gaps():
                 low=low,
                 volume=volume
             )
- 
+
     actual_records = StockHistory.objects.filter(stock_symbol=stock).count()
     assert actual_records == 20
 
@@ -108,13 +108,13 @@ def test_all_days_present_for_one_stock():
             low=base_price - 50,
             volume=1000000
         )
-    
+
     unique_days = StockHistory.objects.filter(
         stock_symbol=stock
     ).dates('day_and_time', 'day')
-    
+
     assert len(unique_days) == num_days
-    
+
     for day in range(num_days):
         expected_day = (start_date + timedelta(days=day)).date()
         day_records = StockHistory.objects.filter(
@@ -156,14 +156,14 @@ def test_all_hours_present_for_one_stock():
             low=low,
             volume=volume
         )
-    
+
     # Verify all trading hours are present
     records = StockHistory.objects.filter(
         stock_symbol=stock
     ).order_by('day_and_time')
-    
+
     assert records.count() == trading_hours
-    
+
     # Verify timestamps match what we created
     actual_timestamps = [record.day_and_time for record in records]
     assert actual_timestamps == timestamps
@@ -191,7 +191,7 @@ def test_at_least_one_data_point_for_one_stock():
 
     final_count = StockHistory.objects.filter(stock_symbol=stock).count()
     assert final_count >= 1
-    
+
     data_point = StockHistory.objects.get(stock_symbol=stock)
     assert data_point.stock_symbol == stock
     assert data_point.day_and_time == timestamp
@@ -207,20 +207,20 @@ def test_single_stock_with_blacklisted_times():
     start_date = datetime(2025, 12, 19, 9, 30, tzinfo=dt_timezone.utc)
     base_price = 18000
     blacklisted_times = []
-    
+
     for day in range(5):
         current_day = start_date + timedelta(days=day)
         day_of_week = current_day.weekday()
-        
+
         if day_of_week in [5, 6]:
             blacklisted_times.extend([
                 current_day + timedelta(hours=h) for h in range(7)
             ])
             continue
-        
+
         for hour_offset in range(7):
             timestamp = current_day + timedelta(hours=hour_offset)
-            
+
             StockHistory.objects.create(
                 stock_symbol=stock,
                 day_and_time=timestamp,
@@ -230,17 +230,17 @@ def test_single_stock_with_blacklisted_times():
                 low=base_price - 50,
                 volume=1000000
             )
-    
+
     actual_records = StockHistory.objects.filter(stock_symbol=stock).count()
     assert actual_records == 21
-    
+
     for blacklisted_time in blacklisted_times:
         records = StockHistory.objects.filter(
             stock_symbol=stock,
             day_and_time=blacklisted_time
         ).count()
         assert records == 0
-    
+
     all_records = StockHistory.objects.filter(stock_symbol=stock)
     for record in all_records:
         assert record.day_and_time.weekday() not in [5, 6]
@@ -256,11 +256,11 @@ def test_single_stock_with_blacklisted_hours():
     base_price = 25000
     blacklisted_hours = [6, 7, 8, 17, 18, 19, 20]
     allowed_hours = [9, 10, 11, 12, 13, 14, 15, 16]
-    
+
     for hour_offset in range(15):
         timestamp = start_date + timedelta(hours=hour_offset)
         current_hour = timestamp.hour
-        
+
         if current_hour in allowed_hours:
             StockHistory.objects.create(
                 stock_symbol=stock,
@@ -271,16 +271,16 @@ def test_single_stock_with_blacklisted_hours():
                 low=base_price - 50,
                 volume=1000000
             )
-    
+
     actual_records = StockHistory.objects.filter(stock_symbol=stock).count()
     assert actual_records == 8
-    
+
     all_records = StockHistory.objects.filter(stock_symbol=stock)
     for record in all_records:
         hour = record.day_and_time.hour
         assert hour in allowed_hours
         assert hour not in blacklisted_hours
-    
+
     for hour in blacklisted_hours:
         if 6 <= hour <= 20:
             blacklisted_time = start_date.replace(hour=hour)

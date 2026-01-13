@@ -26,7 +26,7 @@ class Watchlist(models.Model):
     def fetch_all(cls):
         """
         Fetch all watchlists from the database.
-        
+
         Returns:
             QuerySet: All Watchlist objects from the database.
         """

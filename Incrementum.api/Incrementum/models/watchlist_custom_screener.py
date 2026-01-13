@@ -21,7 +21,7 @@ class WatchlistCustomScreener(models.Model):
     def fetch_all(cls):
         """
         Fetch all watchlist custom screener associations from the database.
-        
+
         Returns:
             QuerySet: All WatchlistCustomScreener objects from the database.
         """

@@ -21,7 +21,7 @@ def test_data_for_ten_stocks_without_gaps():
     ]
 
     start_date = datetime(2025, 12, 15, 9, 30, tzinfo=dt_timezone.utc)
-    
+
     for idx, (symbol, company_name) in enumerate(stocks_data):
         stock = StockModel.objects.create(
             symbol=symbol,
@@ -51,12 +51,12 @@ def test_data_for_ten_stocks_without_gaps():
                     low=low,
                     volume=volume
                 )
-    
+
     for symbol, _ in stocks_data:
         stock = StockModel.objects.get(symbol=symbol)
         actual_records = StockHistory.objects.filter(stock_symbol=stock).count()
         assert actual_records == 35
-    
+
     total_records = StockHistory.objects.count()
     assert total_records == 350
 
@@ -76,7 +76,7 @@ def test_data_for_ten_stocks_with_gaps():
     ]
 
     start_date = datetime(2025, 12, 15, 9, 30, tzinfo=dt_timezone.utc)
-    
+
     for idx, (symbol, company_name) in enumerate(stocks_data):
         stock = StockModel.objects.create(
             symbol=symbol,
@@ -106,19 +106,19 @@ def test_data_for_ten_stocks_with_gaps():
                     low=low,
                     volume=volume
                 )
- 
+
     gap_day = start_date + timedelta(days=2)
     for symbol, _ in stocks_data:
         stock = StockModel.objects.get(symbol=symbol)
         actual_records = StockHistory.objects.filter(stock_symbol=stock).count()
         assert actual_records == 20
-        
+
         gap_records = StockHistory.objects.filter(
             stock_symbol=stock,
             day_and_time__date=gap_day.date()
         ).count()
         assert gap_records == 0
-    
+
     total_records = StockHistory.objects.count()
     assert total_records == 200
 
@@ -139,7 +139,7 @@ def test_all_days_present_for_ten_stocks():
 
     start_date = datetime(2025, 12, 1, 9, 30, tzinfo=dt_timezone.utc)
     num_days = 7
-    
+
     for idx, (symbol, company_name) in enumerate(stocks_data):
         stock = StockModel.objects.create(
             symbol=symbol,
@@ -160,15 +160,15 @@ def test_all_days_present_for_ten_stocks():
                 low=base_price - 50,
                 volume=1000000
             )
-    
+
     for symbol, _ in stocks_data:
         stock = StockModel.objects.get(symbol=symbol)
         unique_days = StockHistory.objects.filter(
             stock_symbol=stock
         ).dates('day_and_time', 'day')
-        
+
         assert len(unique_days) == num_days
-        
+
         for day in range(num_days):
             expected_day = (start_date + timedelta(days=day)).date()
             day_records = StockHistory.objects.filter(
@@ -176,7 +176,7 @@ def test_all_days_present_for_ten_stocks():
                 day_and_time__date=expected_day
             ).count()
             assert day_records > 0
-    
+
     total_records = StockHistory.objects.count()
     assert total_records == 70
 
@@ -197,9 +197,9 @@ def test_all_hours_present_for_ten_stocks():
 
     start_date = datetime(2025, 12, 20, 9, 30, tzinfo=dt_timezone.utc)
     trading_hours = 7
-    
+
     stock_timestamps = {}
-    
+
     for idx, (symbol, company_name) in enumerate(stocks_data):
         stock = StockModel.objects.create(
             symbol=symbol,
@@ -228,20 +228,20 @@ def test_all_hours_present_for_ten_stocks():
                 low=low,
                 volume=volume
             )
-        
+
         stock_timestamps[symbol] = timestamps
-    
+
     for symbol, _ in stocks_data:
         stock = StockModel.objects.get(symbol=symbol)
         records = StockHistory.objects.filter(
             stock_symbol=stock
         ).order_by('day_and_time')
-        
+
         assert records.count() == trading_hours
-        
+
         actual_timestamps = [record.day_and_time for record in records]
         assert actual_timestamps == stock_timestamps[symbol]
-    
+
     total_records = StockHistory.objects.count()
     assert total_records == 70
 
@@ -261,7 +261,7 @@ def test_at_least_one_data_point_for_ten_stocks():
     ]
 
     base_timestamp = datetime(2025, 12, 25, 10, 0, tzinfo=dt_timezone.utc)
-    
+
     for idx, (symbol, company_name) in enumerate(stocks_data):
         stock = StockModel.objects.create(
             symbol=symbol,
@@ -273,7 +273,7 @@ def test_at_least_one_data_point_for_ten_stocks():
 
         timestamp = base_timestamp + timedelta(minutes=idx)
         base_price = 14000 + (idx * 1000)
-        
+
         StockHistory.objects.create(
             stock_symbol=stock,
             day_and_time=timestamp,
@@ -288,14 +288,14 @@ def test_at_least_one_data_point_for_ten_stocks():
         stock = StockModel.objects.get(symbol=symbol)
         final_count = StockHistory.objects.filter(stock_symbol=stock).count()
         assert final_count >= 1
-        
+
         data_point = StockHistory.objects.get(stock_symbol=stock)
         assert data_point.stock_symbol == stock
         expected_timestamp = base_timestamp + timedelta(minutes=idx)
         assert data_point.day_and_time == expected_timestamp
         expected_price = 14000 + (idx * 1000)
         assert data_point.open_price == expected_price
-    
+
     total_records = StockHistory.objects.count()
     assert total_records == 10
 
@@ -317,29 +317,29 @@ def test_ten_stocks_with_blacklisted_times():
     start_date = datetime(2025, 12, 18, 9, 30, tzinfo=dt_timezone.utc)
     holiday_date = datetime(2025, 12, 25, 0, 0, tzinfo=dt_timezone.utc)
     blacklisted_dates = set()
-    
+
     for idx, (symbol, company_name) in enumerate(stocks_data):
         stock = StockModel.objects.create(
             symbol=symbol,
             company_name=company_name
         )
         base_price = 20000 + (idx * 2000)
-        
+
         for day in range(10):
             current_day = start_date + timedelta(days=day)
             day_of_week = current_day.weekday()
-            
+
             if day_of_week in [5, 6]:
                 blacklisted_dates.add(current_day.date())
                 continue
-            
+
             if current_day.date() == holiday_date.date():
                 blacklisted_dates.add(current_day.date())
                 continue
-            
+
             for hour_offset in range(7):
                 timestamp = current_day + timedelta(hours=hour_offset)
-                
+
                 StockHistory.objects.create(
                     stock_symbol=stock,
                     day_and_time=timestamp,
@@ -349,24 +349,24 @@ def test_ten_stocks_with_blacklisted_times():
                     low=base_price - 50,
                     volume=1000000
                 )
-    
+
     for symbol, _ in stocks_data:
         stock = StockModel.objects.get(symbol=symbol)
         actual_records = StockHistory.objects.filter(stock_symbol=stock).count()
         assert actual_records == 42
-        
+
         for blacklisted_date in blacklisted_dates:
             records = StockHistory.objects.filter(
                 stock_symbol=stock,
                 day_and_time__date=blacklisted_date
             ).count()
             assert records == 0
-        
+
         all_records = StockHistory.objects.filter(stock_symbol=stock)
         for record in all_records:
             assert record.day_and_time.weekday() not in [5, 6]
             assert record.day_and_time.date() != holiday_date.date()
-    
+
     total_records = StockHistory.objects.count()
     assert total_records == 420
 
@@ -387,23 +387,23 @@ def test_ten_stocks_with_mixed_blacklist_patterns():
 
     start_date = datetime(2025, 12, 15, 9, 30, tzinfo=dt_timezone.utc)
     maintenance_time = start_date + timedelta(days=2, hours=3)
-    
+
     for idx, (symbol, company_name) in enumerate(stocks_data):
         stock = StockModel.objects.create(
             symbol=symbol,
             company_name=company_name
         )
         base_price = 15000 + (idx * 1500)
-        
+
         for day in range(5):
             current_day = start_date + timedelta(days=day)
-            
+
             for hour_offset in range(7):
                 timestamp = current_day + timedelta(hours=hour_offset)
-                
+
                 if timestamp == maintenance_time:
                     continue
-                
+
                 StockHistory.objects.create(
                     stock_symbol=stock,
                     day_and_time=timestamp,
@@ -413,21 +413,21 @@ def test_ten_stocks_with_mixed_blacklist_patterns():
                     low=base_price - 50,
                     volume=1000000
                 )
-    
+
     for symbol, _ in stocks_data:
         stock = StockModel.objects.get(symbol=symbol)
         actual_records = StockHistory.objects.filter(stock_symbol=stock).count()
         assert actual_records == 34
-        
+
         maintenance_records = StockHistory.objects.filter(
             stock_symbol=stock,
             day_and_time=maintenance_time
         ).count()
         assert maintenance_records == 0
-    
+
     total_records = StockHistory.objects.count()
     assert total_records == 340
-    
+
     all_maintenance_records = StockHistory.objects.filter(
         day_and_time=maintenance_time
     ).count()

@@ -24,7 +24,7 @@ class StockModel(models.Model):
     def fetch_all(cls):
         """
         Fetch all stocks from the database.
-        
+
         Returns:
             QuerySet: All StockModel objects from the database.
         """

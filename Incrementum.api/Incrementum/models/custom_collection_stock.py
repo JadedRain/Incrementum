@@ -22,7 +22,7 @@ class CustomCollectionStock(models.Model):
     def fetch_all(cls):
         """
         Fetch all custom collection stock associations from the database.
-        
+
         Returns:
             QuerySet: All CustomCollectionStock objects from the database.
         """

@@ -30,7 +30,7 @@ class CustomCollection(models.Model):
     def fetch_all(cls):
         """
         Fetch all custom collections from the database.
-        
+
         Returns:
             QuerySet: All CustomCollection objects from the database.
         """

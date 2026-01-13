@@ -22,7 +22,7 @@ class CustomScreener(models.Model):
     def fetch_all(cls):
         """
         Fetch all custom screeners from the database.
-        
+
         Returns:
             QuerySet: All CustomScreener objects from the database.
         """

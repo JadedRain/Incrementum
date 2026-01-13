@@ -15,7 +15,7 @@ class CategoricalFilter(models.Model):
     def fetch_all(cls):
         """
         Fetch all categorical filters from the database.
-        
+
         Returns:
             QuerySet: All CategoricalFilter objects from the database.
         """

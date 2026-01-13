@@ -22,7 +22,7 @@ class WatchlistStock(models.Model):
     def fetch_all(cls):
         """
         Fetch all watchlist stock associations from the database.
-        
+
         Returns:
             QuerySet: All WatchlistStock objects from the database.
         """

@@ -18,7 +18,7 @@ class Account(models.Model):
     def fetch_all(cls):
         """
         Fetch all accounts from the database.
-        
+
         Returns:
             QuerySet: All Account objects from the database.
         """
