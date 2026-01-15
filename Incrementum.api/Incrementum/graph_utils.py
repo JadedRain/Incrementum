@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import mplfinance as mpf
 import io
 import logging
-import yfinance as yf
 from .stock_history_service import StockHistoryService
 
 

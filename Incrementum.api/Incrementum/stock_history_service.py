@@ -3,7 +3,7 @@ import yfinance as yf
 from typing import Optional, Tuple
 import pandas as pd
 from django.db import connection
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 class StockHistoryService:
@@ -45,7 +45,9 @@ class StockHistoryService:
                 rows = cursor.fetchall()
 
             if not rows:
-                self.logger.info(f"No database history found for ticker {ticker}")
+                self.logger.info(
+                    f"No database history found for ticker {ticker}"
+                )
                 return None
 
             df = pd.DataFrame(rows, columns=columns)
@@ -53,9 +55,17 @@ class StockHistoryService:
             return df
 
         except Exception as e:
-            self.logger.error(f"Error fetching database history for {ticker}: {str(e)}")
+            self.logger.error(
+                f"Error fetching database history for {ticker}: {str(e)}"
+            )
             return None
-    def save_history_to_db(self, ticker: str, history_df: pd.DataFrame, is_hourly: bool = False) -> bool:
+
+    def save_history_to_db(
+        self,
+        ticker: str,
+        history_df: pd.DataFrame,
+        is_hourly: bool = False,
+    ) -> bool:
 
         if history_df is None or history_df.empty:
             self.logger.warning(f"No data to save for {ticker}")
@@ -77,8 +87,9 @@ class StockHistoryService:
 
             with connection.cursor() as cursor:
                 # Use INSERT ... ON CONFLICT to upsert (update if exists, insert if not)
-                insert_query = """
-                    INSERT INTO incrementum.stock_history 
+                insert_query = (
+                    """
+                    INSERT INTO incrementum.stock_history
                     (stock_symbol, day_and_time, open_price, close_price, high, low, volume, is_hourly)
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                     ON CONFLICT (stock_symbol, day_and_time) DO UPDATE SET
@@ -88,15 +99,21 @@ class StockHistoryService:
                     low = EXCLUDED.low,
                     volume = EXCLUDED.volume,
                     is_hourly = EXCLUDED.is_hourly
-                """
+                    """
+                )
                 cursor.executemany(insert_query, records)
 
-            self.logger.info(f"Saved {len(records)} history records for {ticker} to database")
+            self.logger.info(
+                f"Saved {len(records)} history records for {ticker} to database"
+            )
             return True
 
         except Exception as e:
-            self.logger.error(f"Error saving history for {ticker} to database: {str(e)}")
+            self.logger.error(
+                f"Error saving history for {ticker} to database: {str(e)}"
+            )
             return False
+
     def _is_data_current(self, df: pd.DataFrame, max_age_days: int = 1) -> bool:
         if df is None or df.empty:
             return False
@@ -106,7 +123,9 @@ class StockHistoryService:
             age = datetime.now() - latest_date.to_pydatetime()
             is_current = age.days <= max_age_days
 
-            self.logger.info(f"Data age: {age.days} days - Current: {is_current}")
+            self.logger.info(
+                f"Data age: {age.days} days - Current: {is_current}"
+            )
             return is_current
         except Exception as e:
             self.logger.error(f"Error checking data currency: {str(e)}")
@@ -121,22 +140,28 @@ class StockHistoryService:
         try:
             stock = yf.Ticker(ticker)
             end_date = datetime.now()
-            
+
             fresh_data = stock.history(
                 start=start_date.strftime("%Y-%m-%d"),
                 end=end_date.strftime("%Y-%m-%d"),
-                interval=interval
+                interval=interval,
             )
 
             if fresh_data is None or fresh_data.empty:
-                self.logger.warning(f"No fresh data found for {ticker} from {start_date} to {end_date}")
+                self.logger.warning(
+                    f"No fresh data found for {ticker} from {start_date} to {end_date}"
+                )
                 return None
 
-            self.logger.info(f"Retrieved {len(fresh_data)} fresh records for {ticker}")
+            self.logger.info(
+                f"Retrieved {len(fresh_data)} fresh records for {ticker}"
+            )
             return fresh_data
 
         except Exception as e:
-            self.logger.error(f"Error fetching fresh data for {ticker}: {str(e)}")
+            self.logger.error(
+                f"Error fetching fresh data for {ticker}: {str(e)}"
+            )
             return None
 
     def history(
@@ -153,7 +178,6 @@ class StockHistoryService:
         }
 
         db_history = self.get_db_history(ticker, is_hourly=(interval != "1d"))
-        
         if db_history is not None and not db_history.empty:
             is_current = self._is_data_current(db_history)
             metadata["is_current"] = is_current
@@ -171,7 +195,6 @@ class StockHistoryService:
             if fresh_data is not None and not fresh_data.empty:
                 is_hourly = interval != "1d"
                 self.save_history_to_db(ticker, fresh_data, is_hourly)
-                
                 combined_data = pd.concat([db_history, fresh_data]).drop_duplicates(
                     subset=['day_and_time'], keep='last'
                 ).sort_values('day_and_time').reset_index(drop=True)
@@ -192,7 +215,9 @@ class StockHistoryService:
             history_data = stock.history(period=period, interval=interval)
 
             if history_data is None or history_data.empty:
-                self.logger.warning(f"No history data found for ticker {ticker}")
+                self.logger.warning(
+                    f"No history data found for ticker {ticker}"
+                )
                 return None, metadata
 
             is_hourly = interval != "1d"
@@ -201,9 +226,13 @@ class StockHistoryService:
             metadata["source"] = "yfinance"
             metadata["records_count"] = len(history_data)
             metadata["is_current"] = True
-            self.logger.info(f"Retrieved {len(history_data)} records from yfinance for {ticker}")
+            self.logger.info(
+                f"Retrieved {len(history_data)} records from yfinance for {ticker}"
+            )
             return history_data, metadata
 
         except Exception as e:
-            self.logger.error(f"Error fetching history for {ticker}: {str(e)}")
+            self.logger.error(
+                f"Error fetching history for {ticker}: {str(e)}"
+            )
             return None, metadata
