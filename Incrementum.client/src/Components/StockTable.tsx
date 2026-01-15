@@ -20,14 +20,13 @@ type Stock = {
   volume?: number;
 };
 
-type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'marketCap' | 'watchlist';
+type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'marketCap';
 type Col = { k: ColKey; l: string };
 
-type Props = { onRowClick?: (s: string) => void; watchlistSymbols?: Set<string>; onToggleWatchlist?: (s: string, inW: boolean) => void; pendingSymbol?: string | null };
+type Props = { onRowClick?: (s: string) => void };
 
-export default function StockTable({ onRowClick, watchlistSymbols, onToggleWatchlist, pendingSymbol }: Props) {
+export default function StockTable({ onRowClick }: Props) {
   const { stocks, isLoading, filterDataDict } = useFilterData();
-  const showWatch = !!onToggleWatchlist;
 
   const cols: Col[] = [
     { k: 'symbol', l: 'Symbol' },
@@ -40,17 +39,14 @@ export default function StockTable({ onRowClick, watchlistSymbols, onToggleWatch
   ];
 
   return (
-    <ColumnVisibilityProvider showWatchlist={showWatch}>
-      <InnerStockTable onRowClick={onRowClick} watchlistSymbols={watchlistSymbols} onToggleWatchlist={onToggleWatchlist} pendingSymbol={pendingSymbol} cols={cols} stocks={stocks} isLoading={isLoading} filterDataDict={filterDataDict} />
+    <ColumnVisibilityProvider showWatchlist={false}>
+      <InnerStockTable onRowClick={onRowClick} cols={cols} stocks={stocks} isLoading={isLoading} filterDataDict={filterDataDict} />
     </ColumnVisibilityProvider>
   );
 }
 
-function InnerStockTable({ onRowClick, watchlistSymbols, onToggleWatchlist, pendingSymbol, cols, stocks, isLoading, filterDataDict }: {
+function InnerStockTable({ onRowClick, cols, stocks, isLoading, filterDataDict }: {
   onRowClick?: (s: string) => void;
-  watchlistSymbols?: Set<string>;
-  onToggleWatchlist?: (s: string, inW: boolean) => void;
-  pendingSymbol?: string | null;
   cols: Col[];
   stocks: Stock[] | unknown;
   isLoading: boolean;
@@ -100,7 +96,7 @@ function InnerStockTable({ onRowClick, watchlistSymbols, onToggleWatchlist, pend
           {menuOpen && (
             <div ref={menuRef} className={menuStyle}>
               <div className="font-bold mb-2 text-[15px] text-[#3f2a10]">Columns</div>
-              {cols.filter(c => c.k !== 'symbol' && c.k !== 'watchlist').map((c: Col) => (
+              {cols.filter(c => c.k !== 'symbol').map((c: Col) => (
                 <label key={c.k} className="flex items-center gap-3 mb-2">
                   <input className="transform scale-125 accent-[#6b4c1b]" type="checkbox" checked={!!visibleColumns[c.k]} onChange={() => toggleColumn(c.k)} />
                   <span className="text-[15px] text-[#3f2a10]">{c.l}</span>
@@ -113,34 +109,27 @@ function InnerStockTable({ onRowClick, watchlistSymbols, onToggleWatchlist, pend
         {columnOrder.map((k, idx) => {
           // determine label for key
           const labelMap: Record<string, string> = Object.fromEntries(cols.map(c => [c.k, c.l]));
-          labelMap.watchlist = 'Add to Watchlist';
           if (!visibleColumns[k]) return null;
-          // Don't render watchlist header if onToggleWatchlist isn't provided (not logged in)
-          if (k === 'watchlist' && !onToggleWatchlist) return null;
-          const isWatch = k === 'watchlist';
-          const draggable = !isWatch; // watchlist must be non-draggable
           const sortableField = colToSortField(k);
           return (
             <div
               key={k}
-              className={`StockTable-header ${draggable ? 'cursor-grab' : 'cursor-default'}`}
-              draggable={draggable}
+              className="StockTable-header cursor-grab"
+              draggable={true}
               data-index={idx}
               onDragStart={(e) => {
-                if (!draggable) return;
                 e.dataTransfer?.setData('text/plain', String(idx));
                 e.dataTransfer!.effectAllowed = 'move';
               }}
-              onDragOver={(e) => { if (draggable) e.preventDefault(); }}
+              onDragOver={(e) => { e.preventDefault(); }}
               onDrop={(e) => {
-                if (!draggable) return;
                 const from = Number(e.dataTransfer?.getData('text/plain'));
                 const to = idx;
                 if (!Number.isNaN(from) && from !== to) moveColumn(from, to);
               }}
               onClick={() => { if (sortableField) handleHeaderClick(sortableField); }}
               role={sortableField ? 'button' : undefined}
-              style={{ cursor: sortableField ? 'pointer' : draggable ? 'grab' : 'default' }}
+              style={{ cursor: sortableField ? 'pointer' : 'grab' }}
             >
               {(labelMap[k] ?? k) + (sortableField ? getSortIndicator(sortableField) : '')}
             </div>
@@ -153,7 +142,7 @@ function InnerStockTable({ onRowClick, watchlistSymbols, onToggleWatchlist, pend
         const items: Stock[] = Array.isArray(stocks) ? (stocks as Stock[]) : [];
         const displayItems = (sortField && sortDirection) ? sortStocks(items, sortField, sortDirection) : items;
         return displayItems.map((s: Stock, idx: number) => (
-          <StockRow key={s.symbol ?? idx} stock={s} onClick={() => onRowClick?.(s.symbol ?? '')} inWatchlist={watchlistSymbols?.has(s.symbol ?? '') ?? false} onToggleWatchlist={onToggleWatchlist} isPending={pendingSymbol === s.symbol} />
+          <StockRow key={s.symbol ?? idx} stock={s} onClick={() => onRowClick?.(s.symbol ?? '')} />
         ));
       })()}
     </div>

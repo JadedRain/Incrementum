@@ -13,12 +13,6 @@ create table incrementum.account (
     keycloak_id varchar(255) unique null
 );
 
-create table incrementum.watchlist (
-    id int primary key generated always as identity,
-    account_id int not null references incrementum.account(id) unique,
-    name varchar(50) not null
-);
-
 create table incrementum.stock (
     symbol varchar(10) primary key,
     company_name varchar(100) not null,
@@ -36,22 +30,11 @@ create table if not exists incrementum.stock_history (
     is_hourly boolean default true,
     primary key (stock_symbol, day_and_time)
 );
-
-create table incrementum.watchlist_stock (
-    id int primary key generated always as identity,
-    watchlist_id int not null references incrementum.watchlist(id),
-    stock_symbol varchar(10) not null references incrementum.stock(symbol)
-);
     
 create table incrementum.screener (
     id int primary key generated always as identity,
     screener_name varchar(20) not null,
     description varchar(300)
-);
-
-create table incrementum.watchlist_screener (
-    watchlist_id int not null references incrementum.watchlist(id),
-    screener_id int not null references incrementum.screener(id)
 );
 
 create table incrementum.custom_screener (
@@ -60,11 +43,6 @@ create table incrementum.custom_screener (
     screener_name varchar(100) not null,
     created_at timestamp not null default current_timestamp,
     filters json not null
-);
-
-create table incrementum.watchlist_custom_screener (
-    watchlist_id int not null references incrementum.watchlist(id),
-    custom_screener_id int not null references incrementum.custom_screener(id)
 );
 
 create table incrementum.custom_collection (

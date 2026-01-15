@@ -1,5 +1,10 @@
 # Environment Variables
 
+## Root Level (docker-compose.yml)
+- `POSTGRES_PASSWORD` - PostgreSQL database password (REQUIRED for docker-compose)
+- `KEYCLOAK_CLIENT_SECRET` - Keycloak client secret (defaults to empty string)
+- `FINNHUB_TOKEN` - For accessing Finnhub API (REQUIRED)
+
 ## Backend (Incrementum.api)
 
 ### api_project/settings.py

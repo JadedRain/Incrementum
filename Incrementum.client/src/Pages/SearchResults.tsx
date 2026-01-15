@@ -30,7 +30,6 @@ function SearchResults() {
           <>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px' }}>
               <div style={{ flex: 1 }} />
-              <div className="field-label">Add to Watchlist</div>
             </div>
             <ul>
               {results.map((stock: { symbol: string; name: string }) => (
