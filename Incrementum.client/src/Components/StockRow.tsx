@@ -17,9 +17,6 @@ type Stock = {
 type Props = {
   stock: Stock;
   onClick?: () => void;
-  inWatchlist?: boolean;
-  onToggleWatchlist?: (s: string, inW: boolean) => void;
-  isPending?: boolean;
 };
 
 const fmt = (v?: number) => {
@@ -31,7 +28,7 @@ const fmt = (v?: number) => {
   return v.toString();
 };
 
-export default function StockRow({ stock, onClick, inWatchlist = false, onToggleWatchlist, isPending = false }: Props) {
+export default function StockRow({ stock, onClick }: Props) {
   const { visibleColumns, columnOrder } = useColumnVisibility();
   const s = stock;
   const symbol = (s.symbol || 'N/A').toUpperCase();
@@ -66,12 +63,6 @@ export default function StockRow({ stock, onClick, inWatchlist = false, onToggle
             return <Cell key={k}>{fmt(o.volume)}</Cell>;
           case 'marketCap':
             return <Cell key={k}>{fmt(o.marketCap)}</Cell>;
-          case 'watchlist':
-            return onToggleWatchlist ? (
-              <div key={k} className="StockTable-cell">
-                <button aria-label={inWatchlist ? `Remove ${symbol} from watchlist` : `Add ${symbol} to watchlist`} onClick={(e) => { e.stopPropagation(); if (!isPending && onToggleWatchlist && s.symbol) onToggleWatchlist(s.symbol, inWatchlist); }} className={`watch-btn ${isPending ? 'opacity-50' : 'opacity-100'}`} disabled={isPending}>{inWatchlist ? '−' : '+'}</button>
-              </div>
-            ) : null;
           default:
             return null;
         }

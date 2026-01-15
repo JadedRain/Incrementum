@@ -1,34 +1,18 @@
 import '../styles/NavBar.css'
-import React, { useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { addToWatchlist, removeFromWatchlist } from "../utils/watchlistActions";
-import { useAuth } from "../Context/AuthContext";
 import NavigationBar from "../Components/NavigationBar";
 import Toast from "../Components/Toast";
-import { useWatchlistStatus } from "../hooks/useWatchlistStatus";
 import { useFetchStockData } from "../hooks/useFetchStockData";
 import { FilterDataProvider } from '../Context/FilterDataContext';
 import InteractiveGraph from "../Components/InteractiveGraph"
 import StockInfoSidebar from '../Components/StockInfoSidebar';
 
 export default function Stock({ token: propToken }: { token?: string; }) {
-  const { apiKey } = useAuth();
   const params = useParams<{ token: string }>();
   const token = propToken ?? params.token;
   const { results, loading } = useFetchStockData(token);
-  const { inWatchlist, setInWatchlist } = useWatchlistStatus(token);
-  const [pending, setPending] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
-
-  const handleAdd = async () => {
-    if (!token || pending) return;
-    await addToWatchlist(token, apiKey, setPending, setToast, setInWatchlist);
-  };
-
-  const handleRemove = async () => {
-    if (!token || pending) return;
-    await removeFromWatchlist(token, apiKey, setPending, setToast, setInWatchlist);
-  };
+  const [toast] = useState<string | null>(null);
 
   if (loading) return <div className="bg-[hsl(40,13%,53%)] min-h-screen flex items-center justify-center" style={{ fontFamily: "serif" }}><p className="text-[hsl(40,66%,60%)]">Loading...</p></div>;
   if (!results) return <div className="bg-[hsl(40,13%,53%)] min-h-screen flex items-center justify-center" style={{ fontFamily: "serif" }}><p className="text-[hsl(40,66%,60%)]">No stock data found.</p></div>;
@@ -55,11 +39,6 @@ export default function Stock({ token: propToken }: { token?: string; }) {
             <div style={{ flexShrink: 0 }}>
               <StockInfoSidebar
                 results={results}
-                apiKey={apiKey}
-                inWatchlist={inWatchlist}
-                pending={pending}
-                onAddToWatchlist={handleAdd}
-                onRemoveFromWatchlist={handleRemove}
               />
             </div>
 
