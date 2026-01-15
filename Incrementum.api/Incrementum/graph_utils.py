@@ -3,6 +3,7 @@ import mplfinance as mpf
 import io
 import logging
 import yfinance as yf
+from .stock_history_service import StockHistoryService
 
 
 def generate_overlay_graph(tokens, period="1y"):
@@ -10,12 +11,12 @@ def generate_overlay_graph(tokens, period="1y"):
     if not tokens:
         return None, None, "No stocks in collection"
 
+    history_service = StockHistoryService()
     plt.figure(figsize=(10, 6))
     found = False
     for ticker in tokens:
         try:
-            stock = yf.Ticker(ticker)
-            history = stock.history(period=period)
+            history, metadata = history_service.history(ticker, period=period)
             if history is not None and not history.empty:
                 plt.plot(history.index, history["Close"], label=ticker)
                 found = True
@@ -40,8 +41,7 @@ def generate_overlay_graph(tokens, period="1y"):
     candle_found = False
     for ticker in tokens:
         try:
-            stock = yf.Ticker(ticker)
-            history = stock.history(period=period)
+            history, metadata = history_service.history(ticker, period=period)
             if history is not None and not history.empty:
                 mpf.plot(
                     history,

@@ -56,8 +56,12 @@ def get_stock_by_ticker(ticker, source=setup):
 
 
 def fetch_stock_with_ma(symbol, ma_period=50):
-    ticker = yf.Ticker(symbol)
-    hist = ticker.history(period="1y")['Close']  # last 1 year daily prices
+    from .stock_history_service import StockHistoryService
+    history_service = StockHistoryService()
+    history_df, metadata = history_service.history(symbol, period="1y")
+    hist = history_df['Close'] if history_df is not None else None  # last 1 year daily prices
+    if hist is None:
+        return None
     ma = hist.rolling(window=ma_period).mean()
     return {
         "symbol": symbol,

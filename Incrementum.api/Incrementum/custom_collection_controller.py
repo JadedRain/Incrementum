@@ -1,3 +1,4 @@
+from .stock_history_service import StockHistoryService
 import logging
 import yfinance as yf
 from django.http import HttpResponse, JsonResponse
@@ -199,8 +200,8 @@ def custom_collection_aggregate_graph(request):
             return JsonResponse({"error": "No stocks in collection"}, status=404)
 
         ticker = tokens[0]
-        stock = yf.Ticker(ticker)
-        history = stock.history(period="1y")
+        history_service = StockHistoryService()
+        history, metadata = history_service.history(ticker, period="1y")
 
         if history is None or history.empty:
             logger.error(f"No history for ticker {ticker}")
