@@ -3,6 +3,7 @@ import yfinance as yf
 from typing import Optional, Tuple
 import pandas as pd
 from django.db import connection
+from django.utils import timezone
 from datetime import datetime
 
 
@@ -131,7 +132,7 @@ class StockHistoryService:
 
         try:
             latest_date = pd.to_datetime(df['day_and_time']).max()
-            age = datetime.now() - latest_date.to_pydatetime()
+            age = timezone.now() - latest_date.to_pydatetime()
             is_current = age.days <= max_age_days
 
             self.logger.info(
@@ -150,7 +151,7 @@ class StockHistoryService:
     ) -> Optional[pd.DataFrame]:
         try:
             stock = yf.Ticker(ticker)
-            end_date = datetime.now()
+            end_date = timezone.now()
 
             fresh_data = stock.history(
                 start=start_date.strftime("%Y-%m-%d"),
