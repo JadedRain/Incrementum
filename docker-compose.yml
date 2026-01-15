@@ -20,6 +20,7 @@ services:
       - "8000:8000"
     environment:
       - DJANGO_ENV=development
+      - DATABASE_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - KEYCLOAK_REALM_URL=https://auth-dev.snowse.io/realms/incrementum
       - KEYCLOAK_CLIENT_ID=incrementum-client

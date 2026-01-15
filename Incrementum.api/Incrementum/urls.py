@@ -29,16 +29,7 @@ from .custom_collection_controller import (
     custom_collections_list,
     custom_collection_by_id
 )
-from .controllers.watchlist_controller import (
-    get_watchlist,
-    add_to_watchlist,
-    remove_from_watchlist,
-    search_stocks_watchlist,
-    get_sorted_watchlist,
-    add_custom_screener_to_watchlist,
-    remove_custom_screener_from_watchlist,
-    get_all_watchlist_screeners
-)
+
 from .controllers.filters_controller import (
     get_sectors, get_industries
 )
@@ -83,32 +74,6 @@ urlpatterns = [
         ),
     path('custom-collections/',
          custom_collections_list, name='custom_collections_list'),
-
-    # Watchlist API endpoints
-    path('watchlist/', get_watchlist, name='watchlist'),
-    path('watchlist/add/', add_to_watchlist, name='add_to_watchlist'),
-    path('watchlist/remove/',
-         remove_from_watchlist, name='remove_from_watchlist'),
-    path(
-        'watchlist/search/', search_stocks_watchlist, name='watchlist_search'),
-    path('watchlist/sorted/', get_sorted_watchlist, name='watchlist_sorted'),
-
-    # Watchlist Custom Screener API endpoints
-    path(
-        'watchlist/custom-screeners/add/',
-        add_custom_screener_to_watchlist,
-        name='add_custom_screener_to_watchlist'
-        ),
-    path(
-        'watchlist/custom-screeners/remove/',
-        remove_custom_screener_from_watchlist,
-        name='remove_custom_screener_from_watchlist'
-        ),
-    path(
-        'watchlist/screeners/all/',
-        get_all_watchlist_screeners,
-        name='get_all_watchlist_screeners'
-        ),
 
     # Custom Screener API endpoints
     path('custom-screeners/',

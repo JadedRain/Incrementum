@@ -10,34 +10,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='watchlistcustomscreener',
-            name='custom_screener',
-        ),
-        migrations.RemoveField(
-            model_name='watchlistcustomscreener',
-            name='watchlist',
-        ),
-        migrations.RemoveField(
-            model_name='watchlistscreener',
-            name='screener',
-        ),
-        migrations.RemoveField(
-            model_name='watchlistscreener',
-            name='watchlist',
-        ),
-        migrations.RemoveField(
-            model_name='watchliststock',
-            name='stock',
-        ),
-        migrations.RemoveField(
-            model_name='watchliststock',
-            name='watchlist',
-        ),
-        migrations.RemoveField(
-            model_name='watchlist',
-            name='account',
-        ),
+        # Delete models directly - SQLite handles foreign keys automatically
         migrations.DeleteModel(
             name='WatchlistCustomScreener',
         ),
