@@ -19,7 +19,15 @@ class StockHistoryService:
     ) -> Optional[pd.DataFrame]:
         try:
             query = """
-                SELECT stock_symbol, day_and_time, open_price, close_price, high, low, volume, is_hourly
+                SELECT
+                    stock_symbol,
+                    day_and_time,
+                    open_price,
+                    close_price,
+                    high,
+                    low,
+                    volume,
+                    is_hourly
                 FROM incrementum.stock_history
                 WHERE stock_symbol = %s
             """
@@ -181,7 +189,8 @@ class StockHistoryService:
         if db_history is not None and not db_history.empty:
             is_current = self._is_data_current(db_history)
             metadata["is_current"] = is_current
-            metadata["last_date"] = pd.to_datetime(db_history['day_and_time']).max().isoformat()
+            last_dt = pd.to_datetime(db_history['day_and_time']).max()
+            metadata["last_date"] = last_dt.isoformat()
 
             if is_current:
                 metadata["source"] = "database"
@@ -195,14 +204,22 @@ class StockHistoryService:
             if fresh_data is not None and not fresh_data.empty:
                 is_hourly = interval != "1d"
                 self.save_history_to_db(ticker, fresh_data, is_hourly)
-                combined_data = pd.concat([db_history, fresh_data]).drop_duplicates(
-                    subset=['day_and_time'], keep='last'
-                ).sort_values('day_and_time').reset_index(drop=True)
+
+                combined = pd.concat([db_history, fresh_data])
+                combined = combined.drop_duplicates(
+                    subset=["day_and_time"], keep="last"
+                )
+                combined_data = (
+                    combined.sort_values("day_and_time")
+                    .reset_index(drop=True)
+                )
 
                 metadata["source"] = "combined"
                 metadata["records_count"] = len(combined_data)
                 metadata["is_current"] = True
-                self.logger.info(f"Using combined (database + fresh) history for {ticker}")
+                self.logger.info(
+                    f"Using combined (database + fresh) history for {ticker}"
+                )
                 return combined_data, metadata
             else:
                 metadata["source"] = "database_stale"
