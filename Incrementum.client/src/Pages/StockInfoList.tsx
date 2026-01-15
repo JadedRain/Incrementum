@@ -7,9 +7,8 @@ import { FilterDataProvider } from '../Context/FilterDataContext';
 
 
 const StockInfoList: React.FC = () => {
-    const { apiKey } = useAuth();
     const { stocks, loading } = useFetchStocks();
-    const [toast, setToast] = useState<string | null>(null);
+    const [toast] = useState<string | null>(null);
 
     if (loading) return <div>Loading...</div>;
 
@@ -21,7 +20,6 @@ const StockInfoList: React.FC = () => {
             <ul>
                 {stocks.map((item, idx) => {
                     const name = item.displayName || item.longName || item.shortName || 'Unnamed Stock';
-                    const symbol = item.symbol as string | undefined;
                     return (
                         <li className="stock-card" key={idx} style={{ marginBottom: '1rem' }}>
                             <span className='p-1 newsreader-font'>{name} </span>

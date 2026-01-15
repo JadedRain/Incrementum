@@ -3,12 +3,10 @@ import type { StockData } from '../StockData';
 
 interface StockInfoSidebarProps {
   results: StockData;
-  apiKey: string | null;
 }
 
 const StockInfoSidebar: React.FC<StockInfoSidebarProps> = ({
   results,
-  apiKey,
 }) => {
   return (
     <div className="w-full md:w-80 flex-shrink-0">

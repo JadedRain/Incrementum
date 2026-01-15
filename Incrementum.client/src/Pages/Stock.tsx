@@ -10,11 +10,10 @@ import InteractiveGraph from "../Components/InteractiveGraph"
 import StockInfoSidebar from '../Components/StockInfoSidebar';
 
 export default function Stock({ token: propToken }: { token?: string; }) {
-  const { apiKey } = useAuth();
   const params = useParams<{ token: string }>();
   const token = propToken ?? params.token;
   const { results, loading } = useFetchStockData(token);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast] = useState<string | null>(null);
 
   if (loading) return <div className="bg-[hsl(40,13%,53%)] min-h-screen flex items-center justify-center" style={{ fontFamily: "serif" }}><p className="text-[hsl(40,66%,60%)]">Loading...</p></div>;
   if (!results) return <div className="bg-[hsl(40,13%,53%)] min-h-screen flex items-center justify-center" style={{ fontFamily: "serif" }}><p className="text-[hsl(40,66%,60%)]">No stock data found.</p></div>;
@@ -41,7 +40,6 @@ export default function Stock({ token: propToken }: { token?: string; }) {
             <div style={{ flexShrink: 0 }}>
               <StockInfoSidebar
                 results={results}
-                apiKey={apiKey}
               />
             </div>
 
