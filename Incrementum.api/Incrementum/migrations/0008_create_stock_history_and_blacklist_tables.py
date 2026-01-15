@@ -11,9 +11,9 @@ class Migration(migrations.Migration):
         migrations.RunSQL(
             sql="""
                 CREATE TABLE IF NOT EXISTS stock_history (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     stock_symbol VARCHAR(20) NOT NULL,
-                    day_and_time DATETIME NOT NULL,
+                    day_and_time TIMESTAMP NOT NULL,
                     open_price INTEGER NOT NULL,
                     close_price INTEGER NOT NULL,
                     high INTEGER NOT NULL,
@@ -35,10 +35,10 @@ class Migration(migrations.Migration):
         migrations.RunSQL(
             sql="""
                 CREATE TABLE IF NOT EXISTS blacklist (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    id SERIAL PRIMARY KEY,
                     stock_symbol VARCHAR(10) NOT NULL,
-                    timestamp DATETIME NOT NULL,
-                    time_added DATETIME NOT NULL,
+                    timestamp TIMESTAMP NOT NULL,
+                    time_added TIMESTAMP NOT NULL,
                     FOREIGN KEY (stock_symbol) 
                     REFERENCES stock (symbol) ON DELETE CASCADE,
                     UNIQUE (stock_symbol, timestamp)
