@@ -94,12 +94,12 @@ class StockHistoryService:
                 ))
 
             with connection.cursor() as cursor:
-                # Use INSERT ... ON CONFLICT to upsert (update if exists, insert if not)
                 insert_query = (
                     """
                     INSERT INTO incrementum.stock_history
                     (
-                        stock_symbol, day_and_time, open_price, close_price,
+                        stock_symbol, day_and_time,
+                        open_price, close_price,
                         high, low, volume, is_hourly
                     )
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
@@ -159,14 +159,9 @@ class StockHistoryService:
             )
 
             if fresh_data is None or fresh_data.empty:
-                self.logger.warning(
-                    f"No fresh data found for {ticker} from {start_date} to {end_date}"
-                )
+
                 return None
 
-            self.logger.info(
-                f"Retrieved {len(fresh_data)} fresh records for {ticker}"
-            )
             return fresh_data
 
         except Exception as e:
@@ -227,10 +222,6 @@ class StockHistoryService:
             else:
                 metadata["source"] = "database_stale"
                 metadata["records_count"] = len(db_history)
-                self.logger.warning(
-                    "Could not fetch fresh data, returning stale database history for %s",
-                    ticker,
-                )
                 return db_history, metadata
 
         try:
