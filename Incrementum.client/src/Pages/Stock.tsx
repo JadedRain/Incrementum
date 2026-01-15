@@ -1,7 +1,6 @@
 import '../styles/NavBar.css'
-import React, { useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { useAuth } from "../Context/AuthContext";
 import NavigationBar from "../Components/NavigationBar";
 import Toast from "../Components/Toast";
 import { useFetchStockData } from "../hooks/useFetchStockData";

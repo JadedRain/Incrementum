@@ -1,6 +1,5 @@
 import '../styles/Stocks/StockInfoList.css'
 import React, { useState } from 'react';
-import { useAuth } from '../Context/AuthContext';
 import { useFetchStocks } from '../useFetchStocks';
 import Toast from '../Components/Toast';
 import { FilterDataProvider } from '../Context/FilterDataContext';
