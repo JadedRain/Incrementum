@@ -6,6 +6,7 @@ from django.db import connection
 from django.utils import timezone
 from datetime import datetime
 
+
 class StockHistoryService:
     def __init__(self):
         datetime.timezone.utc
