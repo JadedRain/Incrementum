@@ -9,7 +9,11 @@ from datetime import datetime
 
 class StockHistoryService:
     def __init__(self):
+        datetime.timezone.utc
         self.logger = logging.getLogger("django")
+        # store current timezone for making datetimes aware
+        timezone.make_aware(datetime, datetime.timezone.utc)
+
 
     def get_db_history(
         self,
@@ -132,7 +136,9 @@ class StockHistoryService:
 
         try:
             latest_date = pd.to_datetime(df['day_and_time']).max()
-            age = timezone.now() - latest_date.to_pydatetime()
+            latest_dt = latest_date.to_pydatetime()
+
+            age = timezone.now() - latest_dt
             is_current = age.days <= max_age_days
 
             self.logger.info(
@@ -151,6 +157,9 @@ class StockHistoryService:
     ) -> Optional[pd.DataFrame]:
         try:
             stock = yf.Ticker(ticker)
+            # ensure start_date is timezone-aware (yfinance accepts date strings)
+            start_date = self._ensure_aware(start_date)
+
             end_date = timezone.now()
 
             fresh_data = stock.history(
