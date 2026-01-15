@@ -11,6 +11,7 @@ class Migration(migrations.Migration):
         migrations.RunSQL(
             sql="""
                 CREATE TABLE IF NOT EXISTS stock_history (
+                    id serial primary key,
                     stock_symbol varchar(20) not null references stock(symbol),
                     day_and_time timestamp not null,
                     open_price integer not null,
@@ -19,7 +20,7 @@ class Migration(migrations.Migration):
                     low integer not null,
                     volume integer not null,
                     is_hourly boolean default true,
-                    primary key (stock_symbol, day_and_time)
+                    unique (stock_symbol, day_and_time)
                 );
 
                 CREATE INDEX IF NOT EXISTS idx_stock_history_symbol_time
