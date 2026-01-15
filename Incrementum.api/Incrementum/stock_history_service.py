@@ -6,14 +6,12 @@ from django.db import connection
 from django.utils import timezone
 from datetime import datetime
 
-
 class StockHistoryService:
     def __init__(self):
         datetime.timezone.utc
         self.logger = logging.getLogger("django")
         # store current timezone for making datetimes aware
         timezone.make_aware(datetime, datetime.timezone.utc)
-
 
     def get_db_history(
         self,
