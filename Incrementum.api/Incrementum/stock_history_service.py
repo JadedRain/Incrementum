@@ -98,7 +98,10 @@ class StockHistoryService:
                 insert_query = (
                     """
                     INSERT INTO incrementum.stock_history
-                    (stock_symbol, day_and_time, open_price, close_price, high, low, volume, is_hourly)
+                    (
+                        stock_symbol, day_and_time, open_price, close_price,
+                        high, low, volume, is_hourly
+                    )
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                     ON CONFLICT (stock_symbol, day_and_time) DO UPDATE SET
                     open_price = EXCLUDED.open_price,
@@ -224,7 +227,10 @@ class StockHistoryService:
             else:
                 metadata["source"] = "database_stale"
                 metadata["records_count"] = len(db_history)
-                self.logger.warning(f"Could not fetch fresh data, returning stale database history for {ticker}")
+                self.logger.warning(
+                    "Could not fetch fresh data, returning stale database history for %s",
+                    ticker,
+                )
                 return db_history, metadata
 
         try:
