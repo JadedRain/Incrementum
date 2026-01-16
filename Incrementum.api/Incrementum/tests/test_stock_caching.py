@@ -1,7 +1,7 @@
 import pytest
 from datetime import timedelta
 from decimal import Decimal
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from django.test import TestCase
 from django.utils import timezone
 
@@ -93,7 +93,7 @@ class TestStockCaching(TestCase):
         stock2 = get_stock_by_ticker('MSFT')
 
         self.assertEqual(stock2.symbol, 'MSFT')
-        
+
         mock_ticker.assert_not_called()
 
     @patch('Incrementum.get_stock_info.yf.Ticker')
@@ -224,7 +224,7 @@ class TestStockCaching(TestCase):
         mock_ticker_instance.info = mock_yfinance_data
         mock_ticker.return_value = mock_ticker_instance
 
-        stock = get_stock_by_ticker('NVDA')
+        get_stock_by_ticker('NVDA')
 
         mock_ticker.assert_called_once()
 
@@ -258,7 +258,7 @@ class TestStockCaching(TestCase):
 
         with self.assertRaises(ValueError) as context:
             fetch_stock_data('INVALID')
-        
+
         self.assertIn('Unable to fetch valid data', str(context.exception))
 
     @patch('Incrementum.get_stock_info.yf.Ticker')

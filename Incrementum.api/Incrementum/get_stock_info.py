@@ -34,17 +34,22 @@ def get_stock_by_ticker(ticker, source=setup):
     try:
         from datetime import timedelta
         from django.utils import timezone
-        
+
         try:
             stock_model = StockModel.objects.get(symbol__iexact=ticker)
-            
+
             if stock_model.yfinance_data_updated_at:
                 age = timezone.now() - stock_model.yfinance_data_updated_at
                 if age < timedelta(minutes=5):
-                    logging.info(f"Returning cached data for {ticker} (age: {age})")
+                    logging.info(
+                        f"Returning cached data for {ticker} (age: {age})"
+                    )
                     return stock_model_to_stock(stock_model)
                 else:
-                    logging.info(f"Cached data for {ticker} is stale (age: {age}), fetching fresh data")
+                    logging.info(
+                        f"Cached data for {ticker} is stale "
+                        f"(age: {age}), fetching fresh data"
+                    )
             else:
                 logging.info(f"No yfinance data timestamp for {ticker}, fetching fresh data")
         except StockModel.DoesNotExist:
@@ -184,11 +189,24 @@ def stock_model_to_stock(stock_model):
         'currentPrice': float(stock_model.current_price) if stock_model.current_price else None,
         'open': float(stock_model.open_price) if stock_model.open_price else None,
         'previousClose': float(stock_model.previous_close) if stock_model.previous_close else None,
-        'dayHigh': float(stock_model.day_high) if stock_model.day_high else None,
-        'dayLow': float(stock_model.day_low) if stock_model.day_low else None,
-        'fiftyDayAverage': float(stock_model.fifty_day_average) if stock_model.fifty_day_average else None,
-        'fiftyTwoWeekHigh': float(stock_model.fifty_two_week_high) if stock_model.fifty_two_week_high else None,
-        'fiftyTwoWeekLow': float(stock_model.fifty_two_week_low) if stock_model.fifty_two_week_low else None,
+        'dayHigh': (
+            float(stock_model.day_high) if stock_model.day_high else None
+        ),
+        'dayLow': (
+            float(stock_model.day_low) if stock_model.day_low else None
+        ),
+        'fiftyDayAverage': (
+            float(stock_model.fifty_day_average)
+            if stock_model.fifty_day_average else None
+        ),
+        'fiftyTwoWeekHigh': (
+            float(stock_model.fifty_two_week_high)
+            if stock_model.fifty_two_week_high else None
+        ),
+        'fiftyTwoWeekLow': (
+            float(stock_model.fifty_two_week_low)
+            if stock_model.fifty_two_week_low else None
+        ),
         'exchange': stock_model.exchange,
         'fullExchangeName': stock_model.full_exchange_name,
         'industry': stock_model.industry,
@@ -199,7 +217,10 @@ def stock_model_to_stock(stock_model):
         'regularMarketVolume': stock_model.volume,
         'averageVolume': stock_model.average_volume,
         'averageDailyVolume3Month': stock_model.average_volume,
-        'regularMarketChangePercent': float(stock_model.regular_market_change_percent) if stock_model.regular_market_change_percent else None,
+        'regularMarketChangePercent': (
+            float(stock_model.regular_market_change_percent)
+            if stock_model.regular_market_change_percent else None
+        ),
     })
 
 
@@ -216,7 +237,7 @@ def save_stock_data_to_db(info):
             return None
         try:
             return Decimal(str(value))
-        except:
+        except Exception:
             return None
 
     def to_int(value):
@@ -224,17 +245,24 @@ def save_stock_data_to_db(info):
             return None
         try:
             return int(value)
-        except:
+        except Exception:
             return None
-    
+
     stock_model, created = StockModel.objects.update_or_create(
         symbol=symbol,
         defaults={
             'company_name': company_name,
             'yfinance_data_updated_at': timezone.now(),
-            'current_price': to_decimal(info.get('currentPrice') or info.get('regularMarketPrice')),
-            'open_price': to_decimal(info.get('open') or info.get('regularMarketOpen')),
-            'previous_close': to_decimal(info.get('previousClose') or info.get('regularMarketPreviousClose')),
+            'current_price': to_decimal(
+                info.get('currentPrice') or info.get('regularMarketPrice')
+            ),
+            'open_price': to_decimal(
+                info.get('open') or info.get('regularMarketOpen')
+            ),
+            'previous_close': to_decimal(
+                info.get('previousClose')
+                or info.get('regularMarketPreviousClose')
+            ),
             'day_high': to_decimal(info.get('dayHigh') or info.get('regularMarketDayHigh')),
             'day_low': to_decimal(info.get('dayLow') or info.get('regularMarketDayLow')),
             'fifty_day_average': to_decimal(info.get('fiftyDayAverage')),
@@ -246,12 +274,20 @@ def save_stock_data_to_db(info):
             'sector': info.get('sector'),
             'country': info.get('country'),
             'market_cap': to_int(info.get('marketCap')),
-            'volume': to_int(info.get('volume') or info.get('regularMarketVolume')),
-            'average_volume': to_int(info.get('averageVolume') or info.get('averageDailyVolume3Month') or info.get('avgDailyVolume3Month')),
-            'regular_market_change_percent': to_decimal(info.get('regularMarketChangePercent')),
+            'volume': to_int(
+                info.get('volume') or info.get('regularMarketVolume')
+            ),
+            'average_volume': to_int(
+                info.get('averageVolume')
+                or info.get('averageDailyVolume3Month')
+                or info.get('avgDailyVolume3Month')
+            ),
+            'regular_market_change_percent': to_decimal(
+                info.get('regularMarketChangePercent')
+            ),
         }
     )
-    
+
     action = "Created" if created else "Updated"
     logging.info(f"{action} stock data in database for {symbol}")
     return stock_model
@@ -266,7 +302,7 @@ def fetch_stock_data(ticker):
             raise ValueError(f"Unable to fetch valid data for ticker: {ticker}")
 
         save_stock_data_to_db(info)
-        
+
         return Stock(info)
     except Exception as e:
         logging.error(f"Error fetching stock data for {ticker}: {str(e)}")
