@@ -228,7 +228,7 @@ def save_stock_data_to_db(info):
     """Save or update stock data in the database with yfinance data."""
     from django.utils import timezone
     from decimal import Decimal
-    
+ 
     symbol = info.get('symbol', '').upper()
     company_name = info.get('longName') or info.get('shortName') or symbol
 
