@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='stockmodel',
-            name='updated_at',
+            name='stock_history_updated_at',
             field=models.DateTimeField(default=datetime.datetime.now),
         ),
     ]

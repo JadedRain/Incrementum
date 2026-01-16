@@ -16,7 +16,25 @@ create table incrementum.account (
 create table incrementum.stock (
     symbol varchar(10) primary key,
     company_name varchar(100) not null,
-    updated_at timestamp not null default current_timestamp
+    stock_history_updated_at timestamp not null default current_timestamp,
+    yfinance_data_updated_at timestamp null,
+    current_price decimal(15, 2) null,
+    open_price decimal(15, 2) null,
+    previous_close decimal(15, 2) null,
+    day_high decimal(15, 2) null,
+    day_low decimal(15, 2) null,
+    fifty_day_average decimal(15, 2) null,
+    fifty_two_week_high decimal(15, 2) null,
+    fifty_two_week_low decimal(15, 2) null,
+    exchange varchar(20) null,
+    full_exchange_name varchar(100) null,
+    industry varchar(100) null,
+    sector varchar(100) null,
+    country varchar(100) null,
+    market_cap bigint null,
+    volume bigint null,
+    average_volume bigint null,
+    regular_market_change_percent decimal(10, 4) null
 );
 
 create table if not exists incrementum.stock_history (
@@ -50,6 +68,7 @@ create table incrementum.custom_collection (
     account_id int not null references incrementum.account(id),
     collection_name varchar(20) not null,
     c_desc varchar(300),
+    purchase_prices jsonb default '{}',
     date_created date not null
 );
 

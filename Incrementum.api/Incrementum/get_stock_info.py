@@ -32,22 +32,24 @@ def search_stocks(query, page, source=setup):
 
 def get_stock_by_ticker(ticker, source=setup):
     try:
-        # Get all stocks from database
-        tickers = source()
+        from datetime import timedelta
+        from django.utils import timezone
+        
+        try:
+            stock_model = StockModel.objects.get(symbol__iexact=ticker)
+            
+            if stock_model.yfinance_data_updated_at:
+                age = timezone.now() - stock_model.yfinance_data_updated_at
+                if age < timedelta(minutes=5):
+                    logging.info(f"Returning cached data for {ticker} (age: {age})")
+                    return stock_model_to_stock(stock_model)
+                else:
+                    logging.info(f"Cached data for {ticker} is stale (age: {age}), fetching fresh data")
+            else:
+                logging.info(f"No yfinance data timestamp for {ticker}, fetching fresh data")
+        except StockModel.DoesNotExist:
+            logging.info(f"Stock {ticker} not in database, fetching from yfinance")
 
-        # For Django QuerySet, filter directly
-        if hasattr(tickers, 'filter'):
-            stock_exists = tickers.filter(symbol__iexact=ticker).exists()
-        else:
-            # For DataFrame or list
-            stock_row = tickers[tickers['symbol'].str.lower() == ticker.lower()]
-            stock_exists = not stock_row.empty
-
-        if not stock_exists:
-            logging.warning(f"No stock found in database for ticker: {ticker}")
-            # Still try to fetch from yfinance even if not in our database
-
-        # Fetch fresh data from yfinance
         stock_data = fetch_stock_data(ticker)
         return stock_data
     except Exception as e:
@@ -57,7 +59,7 @@ def get_stock_by_ticker(ticker, source=setup):
 
 def fetch_stock_with_ma(symbol, ma_period=50):
     ticker = yf.Ticker(symbol)
-    hist = ticker.history(period="1y")['Close']  # last 1 year daily prices
+    hist = ticker.history(period="1y")['Close']
     ma = hist.rolling(window=ma_period).mean()
     return {
         "symbol": symbol,
@@ -70,7 +72,6 @@ def get_stock_info(max, offset, filters=None, source=setup):
     max = int(max)
     offset = int(offset)
 
-    # Handle percent change filtering first
     if (
         isinstance(filters, dict)
         and filters.get('percent_change_filter')
@@ -119,11 +120,9 @@ def get_stock_info(max, offset, filters=None, source=setup):
         end = min(start + max, len(all_screened_stocks))
         return all_screened_stocks[start:end]
 
-    # DB-based filtering
     tickers = list(source())
     stocks = []
 
-    # Sector filtering
     allowed_sectors = None
     if filters and filters.get('sectors'):
         fs_set = {str(s).strip().lower() for s in filters.get('sectors') if s}
@@ -134,7 +133,6 @@ def get_stock_info(max, offset, filters=None, source=setup):
             in allowed_sectors
         ]
 
-    # Industry filtering
     allowed_industries = None
     if filters and filters.get('industries'):
         fi_set = {str(s).strip().lower() for s in filters.get('industries') if s}
@@ -145,19 +143,16 @@ def get_stock_info(max, offset, filters=None, source=setup):
             and str(getattr(t, 'industryKey', '')).lower() in allowed_industries
         ]
 
-    # Build Stock objects with historical prices
     for t in tickers[offset:offset+max]:
-        stock_data = fetch_stock_data(t.symbol)  # must return a Stock object with historical prices
+        stock_data = fetch_stock_data(t.symbol)
         stocks.append(stock_data)
 
-    # Moving average filtering
     screeners_list = []
     if (
         filters
         and filters.get('price_52w_high')
         and filters.get('price_52w_high_value') is not None
     ):
-        # You can optionally use the value as threshold, for now we filter by MA
         ma_screener = fifty_two_high(filters.get('price_52w_high_value'))
         screeners_list.append(ma_screener)
 
@@ -179,19 +174,99 @@ def ensure_stock_in_db(symbol, company_name):
             )
 
 
+def stock_model_to_stock(stock_model):
+    """Convert a StockModel instance to a Stock object."""
+    return Stock({
+        'symbol': stock_model.symbol,
+        'longName': stock_model.company_name,
+        'shortName': stock_model.company_name,
+        'displayName': stock_model.company_name,
+        'currentPrice': float(stock_model.current_price) if stock_model.current_price else None,
+        'open': float(stock_model.open_price) if stock_model.open_price else None,
+        'previousClose': float(stock_model.previous_close) if stock_model.previous_close else None,
+        'dayHigh': float(stock_model.day_high) if stock_model.day_high else None,
+        'dayLow': float(stock_model.day_low) if stock_model.day_low else None,
+        'fiftyDayAverage': float(stock_model.fifty_day_average) if stock_model.fifty_day_average else None,
+        'fiftyTwoWeekHigh': float(stock_model.fifty_two_week_high) if stock_model.fifty_two_week_high else None,
+        'fiftyTwoWeekLow': float(stock_model.fifty_two_week_low) if stock_model.fifty_two_week_low else None,
+        'exchange': stock_model.exchange,
+        'fullExchangeName': stock_model.full_exchange_name,
+        'industry': stock_model.industry,
+        'sector': stock_model.sector,
+        'country': stock_model.country,
+        'marketCap': stock_model.market_cap,
+        'volume': stock_model.volume,
+        'regularMarketVolume': stock_model.volume,
+        'averageVolume': stock_model.average_volume,
+        'averageDailyVolume3Month': stock_model.average_volume,
+        'regularMarketChangePercent': float(stock_model.regular_market_change_percent) if stock_model.regular_market_change_percent else None,
+    })
+
+
+def save_stock_data_to_db(info):
+    """Save or update stock data in the database with yfinance data."""
+    from django.utils import timezone
+    from decimal import Decimal
+    
+    symbol = info.get('symbol', '').upper()
+    company_name = info.get('longName') or info.get('shortName') or symbol
+
+    def to_decimal(value):
+        if value is None:
+            return None
+        try:
+            return Decimal(str(value))
+        except:
+            return None
+
+    def to_int(value):
+        if value is None:
+            return None
+        try:
+            return int(value)
+        except:
+            return None
+    
+    stock_model, created = StockModel.objects.update_or_create(
+        symbol=symbol,
+        defaults={
+            'company_name': company_name,
+            'yfinance_data_updated_at': timezone.now(),
+            'current_price': to_decimal(info.get('currentPrice') or info.get('regularMarketPrice')),
+            'open_price': to_decimal(info.get('open') or info.get('regularMarketOpen')),
+            'previous_close': to_decimal(info.get('previousClose') or info.get('regularMarketPreviousClose')),
+            'day_high': to_decimal(info.get('dayHigh') or info.get('regularMarketDayHigh')),
+            'day_low': to_decimal(info.get('dayLow') or info.get('regularMarketDayLow')),
+            'fifty_day_average': to_decimal(info.get('fiftyDayAverage')),
+            'fifty_two_week_high': to_decimal(info.get('fiftyTwoWeekHigh')),
+            'fifty_two_week_low': to_decimal(info.get('fiftyTwoWeekLow')),
+            'exchange': info.get('exchange'),
+            'full_exchange_name': info.get('fullExchangeName'),
+            'industry': info.get('industry'),
+            'sector': info.get('sector'),
+            'country': info.get('country'),
+            'market_cap': to_int(info.get('marketCap')),
+            'volume': to_int(info.get('volume') or info.get('regularMarketVolume')),
+            'average_volume': to_int(info.get('averageVolume') or info.get('averageDailyVolume3Month') or info.get('avgDailyVolume3Month')),
+            'regular_market_change_percent': to_decimal(info.get('regularMarketChangePercent')),
+        }
+    )
+    
+    action = "Created" if created else "Updated"
+    logging.info(f"{action} stock data in database for {symbol}")
+    return stock_model
+
+
 def fetch_stock_data(ticker):
     try:
         stock = yf.Ticker(ticker)
         info = stock.info
 
-        # Check if we got valid data
         if not info or info.get('regularMarketPrice') is None:
-            # Sometimes yfinance returns empty dict for invalid tickers
             raise ValueError(f"Unable to fetch valid data for ticker: {ticker}")
 
-        symbol = info.get('symbol', ticker)
-        company_name = info.get('longName') or info.get('shortName') or symbol
-        ensure_stock_in_db(symbol, company_name)
+        save_stock_data_to_db(info)
+        
         return Stock(info)
     except Exception as e:
         logging.error(f"Error fetching stock data for {ticker}: {str(e)}")
