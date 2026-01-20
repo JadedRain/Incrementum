@@ -6,6 +6,7 @@ import SearchResults from "./Pages/SearchResults";
 import StocksPage from './Pages/StocksPage'
 import Stock from "./Pages/Stock";
 import ScreenerPage from "./Pages/ScreenerPage";
+import ScreenerTestPage from "./Pages/ScreenerTestPage";
 import IndividualScreenPage from "./Pages/IndividualScreenPage";
 import CustomScreenerPage from "./Pages/CustomScreenerPage";
 import SignInPage from "./Pages/LogInPage";
@@ -39,6 +40,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <BrowserRouter>
           <Routes>
             <Route path="/screener" element={<ScreenerPage />} />
+            <Route path="/screener-test" element={<ProtectedRoute><ScreenerTestPage /></ProtectedRoute>} />
             <Route path="/" element={<App />} />
             <Route index element={<SignInPage />} />
             <Route path="/signup" element={<SignupPage />} />
