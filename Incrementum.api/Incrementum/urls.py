@@ -1,6 +1,7 @@
 from Incrementum.views import fetch_update_and_list_stocks
-from Incrementum.views import fetch_finnhub_stocks_view
+from Incrementum.views import fetch_polygon_stocks_view
 from Incrementum.views import get_fear_greed_from_csv
+from Incrementum.views import fetch_and_update_database
 from django.urls import path
 from .views_auth import login, signup, account_info, sync_keycloak_user
 from .views_auth import keycloak_login
@@ -16,7 +17,10 @@ from .controllers.stocks_controller import (
     get_stocks_info, get_stock_graph,
     search_stocks_controller,
     stock_list_create, hello_world,
-    get_stock_info_controller
+    get_stock_info_controller,
+    get_all_stocks_with_info,
+    get_stock_metadata,
+    get_database_stocks
 )
 from .filter_views import (
     get_categorical_filter_types, get_numeric_filter_types
@@ -30,9 +34,6 @@ from .custom_collection_controller import (
     custom_collection_by_id
 )
 
-from .controllers.filters_controller import (
-    get_sectors, get_industries
-)
 from .controllers.screener_run_controller import run_screener
 
 urlpatterns = [
@@ -43,7 +44,11 @@ urlpatterns = [
          search_stocks_controller, name='search_stocks'),
     path('stock/<str:ticker>/',
          get_stock_info_controller, name='get_stocks_by_ticker'),
+    path('stock/<str:ticker>/metadata/',
+         get_stock_metadata, name='get_stock_metadata'),
     path('stocks/', stock_list_create, name='stock_list_create'),
+    path('stocks/database/', get_database_stocks, name='get_database_stocks'),
+    path('stocks/all-with-info/', get_all_stocks_with_info, name='get_all_stocks_with_info'),
     path('api/signup', signup, name='signup'),
     path('api/login', login, name='login'),
     path('api/account', account_info, name='account_info'),
@@ -95,14 +100,16 @@ urlpatterns = [
         name='delete_custom_screener'
         ),
 
-    # Finhub endpoints (mostly to test functionality)
-    path('fetch-finnhub-stocks/',
-         fetch_finnhub_stocks_view, name='fetch_finnhub_stocks'),
+    # Polygon endpoints (mostly to test functionality)
+    path('fetch-polygon-stocks/',
+         fetch_polygon_stocks_view, name='fetch_polygon_stocks'),
     path(
         'fetch-update-list-stocks/',
         fetch_update_and_list_stocks,
         name='fetch_update_list_stocks'
         ),
+    path('fetch-and-update-database/',
+         fetch_and_update_database, name='fetch_and_update_database'),
 
     path('fear-greed/csv/', get_fear_greed_from_csv, name='fear_greed_csv'),
 
@@ -111,8 +118,6 @@ urlpatterns = [
          get_categorical_filter_types, name='get_categorical_filter_types'),
     path('filters/numeric/',
          get_numeric_filter_types, name='get_numeric_filter_types'),
-    path('sectors/', get_sectors, name='sectors'),
-    path('industries/', get_industries, name='industries'),
     # Dynamic screener run endpoint
     path('stocks/getfilteredstocks', run_screener, name='get_filtered_stocks'),
 ]

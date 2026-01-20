@@ -35,7 +35,7 @@ services:
       - KEYCLOAK_REALM_URL=https://auth-test.example.com/realms/incrementum-test
       - KEYCLOAK_CLIENT_ID=incrementum-test-client
       - KEYCLOAK_CLIENT_SECRET=test-client-secret-123
-      - FINNHUB_TOKEN=${FINNHUB_TOKEN}
+      - POLYGON_API_KEY=${POLYGON_API_KEY}
     restart: unless-stopped
     depends_on:
       - db

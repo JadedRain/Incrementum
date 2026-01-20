@@ -92,6 +92,44 @@ def get_stock_info_controller(request, ticker):
 
 @csrf_exempt
 @require_http_methods(["GET"])
+def get_stock_metadata(request, ticker):
+    try:
+        stock = StockModel.objects.get(symbol__iexact=ticker)
+        return JsonResponse({
+            'symbol': stock.symbol,
+            'company_name': stock.company_name,
+            'description': stock.description,
+            'market_cap': stock.market_cap,
+            'primary_exchange': stock.primary_exchange,
+            'type': stock.type,
+            'currency_name': stock.currency_name,
+            'cik': stock.cik,
+            'composite_figi': stock.composite_figi,
+            'share_class_figi': stock.share_class_figi,
+            'outstanding_shares': stock.outstanding_shares,
+            'homepage_url': stock.homepage_url,
+            'total_employees': stock.total_employees,
+            'list_date': (
+                stock.list_date.isoformat() if stock.list_date else None
+            ),
+            'locale': stock.locale,
+            'sic_code': stock.sic_code,
+            'sic_description': stock.sic_description,
+            'updated_at': (
+                stock.updated_at.isoformat() if stock.updated_at else None
+            ),
+        }, status=200)
+    except StockModel.DoesNotExist:
+        return JsonResponse(
+            {'error': f'Stock with ticker {ticker} not found'},
+            status=404
+        )
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
 def get_stock_graph(request, ticker):
     try:
         period = request.GET.get("period", "1y")
@@ -138,6 +176,56 @@ def get_stock_graph(request, ticker):
 
     except Exception as e:
         logging.exception("Error in get_stock_graph for %s", ticker)
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_all_stocks_with_info(request):
+    try:
+        limit = int(request.GET.get('limit', 100))
+        offset = int(request.GET.get('offset', 0))
+
+        limit = min(limit, 1000)
+
+        total_count = StockModel.objects.count()
+        stocks = StockModel.objects.all()[offset:offset+limit]
+        stocks_data = [stock.to_dict() for stock in stocks]
+
+        return JsonResponse({
+            'total': total_count,
+            'count': len(stocks_data),
+            'limit': limit,
+            'offset': offset,
+            'stocks': stocks_data
+        }, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_database_stocks(request):
+    try:
+        # Get pagination parameters
+        limit = int(request.GET.get('limit', 100))  # Default to 100 stocks
+        offset = int(request.GET.get('offset', 0))
+
+        # Limit max to prevent huge responses
+        limit = min(limit, 1000)
+
+        total_count = StockModel.objects.count()
+        stocks = StockModel.objects.all().order_by('symbol')[offset:offset+limit]
+        stocks_data = [stock.to_dict() for stock in stocks]
+
+        return JsonResponse({
+            'total': total_count,
+            'count': len(stocks_data),
+            'limit': limit,
+            'offset': offset,
+            'stocks': stocks_data
+        }, status=200)
+    except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
 

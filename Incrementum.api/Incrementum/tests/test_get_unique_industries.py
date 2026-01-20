@@ -17,7 +17,7 @@ def test_get_unique_sectors(mock_get_sectors_industry):
     assert "Healthcare" in sectors
 
 
-@patch('Incrementum.utils.yf.Sector')
+@patch('yfinance.Sector')
 def test_get_unique_industries(mock_sector_class):
     # Mock the Sector object and its industries attribute
     mock_sector = MagicMock()
