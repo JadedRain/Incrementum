@@ -2,6 +2,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from Incrementum.screener_service import ScreenerService
+from Incrementum.screener import Screener
+from Incrementum.DTOs.ifilterdata import FilterData
 import json
 import logging
 
@@ -152,4 +154,64 @@ def delete_custom_screener(request, screener_id):
         return JsonResponse({"message": "Custom screener deleted successfully"}, status=200)
 
     except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def run_database_screener(request):
+    """
+    Run screener using database queries with the new Screener class.
+    Accepts a list of FilterData objects and returns matching stocks from the database.
+    """
+    try:
+        try:
+            payload = json.loads(request.body or b"[]")
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+        if not isinstance(payload, list):
+            return JsonResponse(
+                {"error": "Body must be a JSON array of filter objects"},
+                status=400
+            )
+
+        filters = []
+        for index, item in enumerate(payload):
+            if not isinstance(item, dict):
+                return JsonResponse(
+                    {"error": f"Item at index {index} is not an object"},
+                    status=400
+                )
+
+            required_keys = {"operator", "operand", "filter_type"}
+            missing = required_keys - item.keys()
+            if missing:
+                return JsonResponse(
+                    {"error": f"Item {index} missing keys: {sorted(missing)}"},
+                    status=400
+                )
+            
+            operator = item.get("operator")
+            operand = item.get("operand")
+            filter_type = item.get("filter_type")
+            value = item.get("value")
+
+            filters.append(FilterData(operator, operand, filter_type, value))
+
+        screener = Screener()
+        stocks = screener.query(filters)
+
+        stocks_dict = [stock.to_dict() for stock in stocks]
+
+        return JsonResponse(
+            {
+                "stocks": stocks_dict,
+                "count": len(stocks_dict)
+            },
+            status=200
+        )
+
+    except Exception as e:
+        logging.error(f"Error in run_database_screener: {str(e)}", exc_info=True)
         return JsonResponse({"error": str(e)}, status=500)
