@@ -16,12 +16,13 @@ RUN pip install --no-cache-dir pytest pytest-django
 # Copy project
 COPY . .
 
+# Debug: Check what was copied
+RUN echo "=== Checking working directory ===" && pwd && ls -la
+RUN echo "=== Migration files ===" && ls -la Incrementum/migrations/*.py | head -20
+
 # Clean any Python cache files
 RUN find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 RUN find . -name "*.pyc" -delete 2>/dev/null || true
-
-# Debug: List migration files
-RUN echo "=== Migration files in Docker ===" && ls -la Incrementum/migrations/
 
 # Apply migrations and run tests
 CMD ["sh", "-c", "python manage.py migrate --settings=api_project.settings_test && pytest -v"]
