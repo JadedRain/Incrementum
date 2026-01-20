@@ -11,18 +11,16 @@ class Migration(migrations.Migration):
         migrations.RunSQL(
             sql="""
                 CREATE TABLE IF NOT EXISTS stock_history (
-                    id SERIAL PRIMARY KEY,
-                    stock_symbol VARCHAR(20) NOT NULL,
-                    day_and_time TIMESTAMP NOT NULL,
-                    open_price INTEGER NOT NULL,
-                    close_price INTEGER NOT NULL,
-                    high INTEGER NOT NULL,
-                    low INTEGER NOT NULL,
-                    volume INTEGER NOT NULL,
-                    is_hourly BOOLEAN DEFAULT TRUE,
-                    FOREIGN KEY (stock_symbol) 
-                    REFERENCES stock (symbol) ON DELETE CASCADE,
-                    UNIQUE (stock_symbol, day_and_time)
+                    id serial primary key,
+                    stock_symbol varchar(20) not null references stock(symbol),
+                    day_and_time timestamp not null,
+                    open_price integer not null,
+                    close_price integer not null,
+                    high integer not null,
+                    low integer not null,
+                    volume integer not null,
+                    is_hourly boolean default true,
+                    unique (stock_symbol, day_and_time)
                 );
 
                 CREATE INDEX IF NOT EXISTS idx_stock_history_symbol_time
@@ -35,13 +33,12 @@ class Migration(migrations.Migration):
         migrations.RunSQL(
             sql="""
                 CREATE TABLE IF NOT EXISTS blacklist (
-                    id SERIAL PRIMARY KEY,
-                    stock_symbol VARCHAR(10) NOT NULL,
-                    timestamp TIMESTAMP NOT NULL,
-                    time_added TIMESTAMP NOT NULL,
-                    FOREIGN KEY (stock_symbol) 
-                    REFERENCES stock (symbol) ON DELETE CASCADE,
-                    UNIQUE (stock_symbol, timestamp)
+                    id serial primary key,
+                    stock_symbol varchar(10) not null,
+                    timestamp timestamp not null,
+                    time_added timestamp not null,
+                    foreign key (stock_symbol) references stock(symbol) on delete cascade,
+                    unique (stock_symbol, timestamp)
                 );
 
                 CREATE INDEX IF NOT EXISTS idx_blacklist_symbol
