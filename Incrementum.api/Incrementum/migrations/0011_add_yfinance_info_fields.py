@@ -5,7 +5,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('Incrementum', '0009_blacklist_alter_stockmodel_updated_at'),
+        ('Incrementum', '0010_remove_watchlist_tables'),
     ]
 
     operations = [
