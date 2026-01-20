@@ -49,13 +49,13 @@ class TestScreener:
             filter_type="string",
             value="AAPL"
         )
-        
+
         filters = [ticker_filter]
         result = screener.query(filters)
-        
+
         assert len(result) == 1
         assert result[0].symbol == "AAPL"
-    
+
     def test_filter_by_ticker_no_match(self, test_stocks):
         """Test that filtering returns empty list when no stocks match."""
         screener = Screener()
@@ -66,37 +66,37 @@ class TestScreener:
             filter_type="string",
             value="NOTFOUND"
         )
-        
+
         filters = [ticker_filter]
 
         result = screener.query(filters)
-        
+
         assert len(result) == 0
-    
+
     def test_filter_with_multiple_filters(self, test_stocks):
         """Test filtering with multiple criteria."""
         screener = Screener()
-        
+
         ticker_filter = FilterData(
             operator="equals",
             operand="ticker",
             filter_type="string",
             value="AAPL"
         )
-        
+
         price_filter = FilterData(
             operator="greater_than",
             operand="price",
             filter_type="numeric",
             value=100
         )
-        
+
         filters = [ticker_filter, price_filter]
-        
+
         result = screener.query(filters)
         
         assert len(result) == 1
-    
+
     def test_filter_empty_filter_list(self, test_stocks):
         """Test that empty filter list returns all stocks."""
         screener = Screener()
@@ -105,7 +105,7 @@ class TestScreener:
         result = screener.query(filters)
 
         assert len(result) == 4
-    
+
     def test_filter_by_ticker_case_sensitivity(self, test_stocks):
         """Test that ticker filtering handles case correctly."""
         screener = Screener()
@@ -116,9 +116,9 @@ class TestScreener:
             filter_type="string",
             value="aapl"
         )
-        
+
         filters = [ticker_filter]
-        
+
         result = screener.query(filters)
         
         assert len(result) == 1

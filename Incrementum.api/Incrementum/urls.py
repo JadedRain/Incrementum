@@ -121,7 +121,7 @@ urlpatterns = [
          get_numeric_filter_types, name='get_numeric_filter_types'),
     # Dynamic screener run endpoint
     path('stocks/getfilteredstocks', run_screener, name='get_filtered_stocks'),
-    
+
     # Database screener endpoint using new Screener class
     path('stocks/screen', run_database_screener, name='run_database_screener'),
 ]

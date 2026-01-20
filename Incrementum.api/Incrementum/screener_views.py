@@ -191,7 +191,7 @@ def run_database_screener(request):
                     {"error": f"Item {index} missing keys: {sorted(missing)}"},
                     status=400
                 )
-            
+
             operator = item.get("operator")
             operand = item.get("operand")
             filter_type = item.get("filter_type")

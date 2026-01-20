@@ -66,7 +66,7 @@ function ScreenerTestPage() {
             const data: ScreenerResponse = await response.json();
 
             if (!response.ok) {
-                throw new Error((data as any).error || 'Request failed');
+                throw new Error((data as unknown as { error?: string }).error || 'Request failed');
             }
 
             setStocks(data.stocks);

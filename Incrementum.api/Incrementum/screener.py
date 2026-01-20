@@ -8,16 +8,16 @@ class Screener:
     def query(self, filters: List[FilterData]) -> List[StockModel]:
         """
         Query stocks based on provided filters.
-        
+
         Args:
             filters: List of FilterData objects to apply
-            
+
         Returns:
             List of stocks matching the filter criteria
         """
         if not filters:
             return list(StockModel.objects.all())
-        
+
         combined_q = Q()
         for filter_data in filters:
             q_obj = self._build_q_object(filter_data)
@@ -25,14 +25,14 @@ class Screener:
                 combined_q &= q_obj
 
         return list(StockModel.objects.filter(combined_q))
-    
+
     def _build_q_object(self, filter_data: FilterData) -> Q:
         """
         Build a Django Q object for a single filter.
-        
+
         Args:
             filter_data: FilterData object containing filter criteria
-            
+
         Returns:
             Q object representing the filter condition
         """
@@ -44,7 +44,7 @@ class Screener:
             'ticker': 'symbol',
             'price': 'market_cap',
         }
-        
+
         field_name = field_mapping.get(operand, operand)
 
         if operator == 'equals':
@@ -52,19 +52,19 @@ class Screener:
                 return Q(**{f'{field_name}__iexact': value})
             else:
                 return Q(**{field_name: value})
-        
+
         elif operator == 'greater_than':
             return Q(**{f'{field_name}__gt': value})
-        
+
         elif operator == 'less_than':
             return Q(**{f'{field_name}__lt': value})
-        
+
         elif operator == 'greater_than_or_equal':
             return Q(**{f'{field_name}__gte': value})
-        
+
         elif operator == 'less_than_or_equal':
             return Q(**{f'{field_name}__lte': value})
-        
+
         elif operator == 'contains':
             return Q(**{f'{field_name}__icontains': value})
 
