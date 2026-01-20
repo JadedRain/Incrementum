@@ -20,7 +20,7 @@ interface FilterData {
 }
 
 function ScreenerTestPage() {
-    const [tickerSymbol, setTickerSymbol] = useState('');
+    const [tickerSymbols, setTickerSymbols] = useState('');
     const [stocks, setStocks] = useState<Stock[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -28,19 +28,29 @@ function ScreenerTestPage() {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
     const searchByTicker = async () => {
-        if (!tickerSymbol.trim()) {
-            setError('Please enter a ticker symbol');
+        const trimmed = tickerSymbols.trim();
+        if (!trimmed) {
+            setError('Please enter at least one ticker symbol');
             return;
         }
 
-        const filters: FilterData[] = [
-            {
-                operator: 'equals',
-                operand: 'ticker',
-                filter_type: 'string',
-                value: tickerSymbol.trim()
-            }
-        ];
+        // Split by comma or space and filter out empty strings
+        const symbols = trimmed
+            .split(/[,\s]+/)
+            .map(s => s.trim().toUpperCase())
+            .filter(s => s.length > 0);
+
+        if (symbols.length === 0) {
+            setError('Please enter valid ticker symbols');
+            return;
+        }
+
+        const filters: FilterData[] = symbols.map(symbol => ({
+            operator: 'equals',
+            operand: 'ticker',
+            filter_type: 'string',
+            value: symbol
+        }));
 
         await runScreener(filters);
     };
@@ -80,7 +90,7 @@ function ScreenerTestPage() {
 
     const clearResults = () => {
         setStocks([]);
-        setTickerSymbol('');
+        setTickerSymbols('');
         setError('');
     };
 
@@ -93,14 +103,20 @@ function ScreenerTestPage() {
                         <h1 className="text-2xl font-bold mb-6">Stock Screener Test</h1>
 
                         <div className="mb-4">
+                            <label className="block text-sm font-medium mb-2">
+                                Ticker Symbols (comma or space separated):
+                            </label>
                             <input
                                 type="text"
-                                value={tickerSymbol}
-                                onChange={(e) => setTickerSymbol(e.target.value.toUpperCase())}
+                                value={tickerSymbols}
+                                onChange={(e) => setTickerSymbols(e.target.value.toUpperCase())}
                                 onKeyPress={(e) => e.key === 'Enter' && searchByTicker()}
-                                placeholder="Enter ticker symbol"
+                                placeholder="e.g. AAPL, MSFT, GOOGL"
                                 className="w-full px-3 py-2 border rounded"
                             />
+                            <p className="text-xs text-gray-500 mt-1">
+                                Enter multiple symbols separated by commas or spaces
+                            </p>
                         </div>
 
                         <div className="flex gap-2 mb-6">
