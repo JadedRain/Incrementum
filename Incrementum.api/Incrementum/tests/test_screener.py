@@ -93,7 +93,7 @@ class TestScreener:
 
         filters = [ticker_filter, price_filter]
 
-        result = screener.query(filters)  
+        result = screener.query(filters)
         assert len(result) == 1
 
     def test_filter_empty_filter_list(self, test_stocks):
@@ -118,6 +118,6 @@ class TestScreener:
 
         filters = [ticker_filter]
 
-        result = screener.query(filters)        
+        result = screener.query(filters)
         assert len(result) == 1
         assert result[0].symbol == "AAPL"

@@ -18,7 +18,6 @@ class Screener:
         if not filters:
             return list(StockModel.objects.all())
 
-
         grouped_filters = {}
         for filter_data in filters:
             operand = filter_data.operand
