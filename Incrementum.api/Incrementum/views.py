@@ -38,7 +38,6 @@ fetch_status = {
 
 
 def run_fetch_in_background():
-    global fetch_status
     try:
         fetch_status['running'] = True
         fetch_status['started_at'] = time.time()
@@ -65,7 +64,6 @@ def run_fetch_in_background():
 @csrf_exempt
 @require_http_methods(["POST", "GET"])
 def fetch_and_update_database(request):
-    global fetch_status
 
     if request.method == "GET":
         # Return current status
