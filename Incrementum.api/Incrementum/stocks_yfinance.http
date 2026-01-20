@@ -1,0 +1,14 @@
+@host = http://localhost:8000
+
+POST {{host}}/fetch-and-update-database/
+###
+GET {{host}}/fetch-and-update-database/
+###
+GET {{host}}/stock/AAPL/metadata/
+###
+GET {{host}}/stock/MSFT/metadata/
+###
+GET {{host}}/stock/TSLA/metadata/
+###
+GET {{host}}/stock/INTC/metadata/
+###

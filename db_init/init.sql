@@ -15,8 +15,23 @@ create table incrementum.account (
 
 create table incrementum.stock (
     symbol varchar(10) primary key,
-    company_name varchar(100) not null,
-    updated_at timestamp not null default current_timestamp
+    company_name varchar(255) not null,
+    updated_at timestamp not null default current_timestamp,
+    description text,
+    market_cap bigint,
+    primary_exchange varchar(50),
+    type varchar(50),
+    currency_name varchar(50),
+    cik varchar(20),
+    composite_figi varchar(50),
+    share_class_figi varchar(50),
+    outstanding_shares bigint,
+    homepage_url varchar(500),
+    total_employees integer,
+    list_date date,
+    locale varchar(10),
+    sic_code varchar(20),
+    sic_description varchar(255)
 );
 
 create table if not exists incrementum.stock_history (
