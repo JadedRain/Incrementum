@@ -437,7 +437,6 @@ class TestScreener:
 
     def test_filter_by_industry_and_ticker_with_and_logic(self, db):
         """Test filtering with all filters ANDed together.
-        
         Creates four stocks (INTC, MSFT, TSLA, F). Tests various scenarios:
         1. Automotive AND specific tickers
         2. Automotive AND Technology - returns 0 stocks (no stock has both)
@@ -543,7 +542,6 @@ class TestScreener:
 
     def test_filter_by_industry_with_multiple_ticker_filters(self, db):
         """Test filtering by automotive industry with multiple ticker filters.
-        
         Creates four stocks (INTC, MSFT, TSLA, F) where only TSLA and F
         are in the automotive industry. With all filters ANDed, combining
         automotive industry with multiple different ticker filters would
