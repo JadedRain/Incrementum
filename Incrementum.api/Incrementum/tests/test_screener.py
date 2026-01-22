@@ -435,4 +435,165 @@ class TestScreener:
         assert "AAPL" in symbols
         assert "MSFT" in symbols
 
+    def test_filter_by_industry_and_ticker_with_and_logic(self, db):
+        """Test filtering with all filters ANDed together.
+        
+        Creates four stocks (INTC, MSFT, TSLA, F). Tests various scenarios:
+        1. Automotive AND specific tickers
+        2. Automotive AND Technology - returns 0 stocks (no stock has both)
+        """
+        StockModel.objects.create(
+            symbol="INTC",
+            company_name="Intel Corporation",
+            market_cap=150000000000,
+            primary_exchange="NASDAQ",
+            sic_description="Semiconductors"
+        )
+        StockModel.objects.create(
+            symbol="MSFT",
+            company_name="Microsoft Corporation",
+            market_cap=2800000000000,
+            primary_exchange="NASDAQ",
+            sic_description="Technology"
+        )
+        StockModel.objects.create(
+            symbol="TSLA",
+            company_name="Tesla Inc.",
+            market_cap=800000000000,
+            primary_exchange="NASDAQ",
+            sic_description="Automotive"
+        )
+        StockModel.objects.create(
+            symbol="F",
+            company_name="Ford Motor Company",
+            market_cap=50000000000,
+            primary_exchange="NYSE",
+            sic_description="Automotive"
+        )
 
+        screener = Screener()
+
+        industry_filter = FilterData(
+            operator="contains",
+            operand="sic_description",
+            filter_type="string",
+            value="Automotive"
+        )
+
+        ticker_filter_intc = FilterData(
+            operator="equals",
+            operand="ticker",
+            filter_type="string",
+            value="INTC"
+        )
+        ticker_filter_msft = FilterData(
+            operator="equals",
+            operand="ticker",
+            filter_type="string",
+            value="MSFT"
+        )
+        ticker_filter_tsla = FilterData(
+            operator="equals",
+            operand="ticker",
+            filter_type="string",
+            value="TSLA"
+        )
+        ticker_filter_f = FilterData(
+            operator="equals",
+            operand="ticker",
+            filter_type="string",
+            value="F"
+        )
+
+        filters = [industry_filter, ticker_filter_tsla]
+        result = screener.query(filters)
+        assert len(result) == 1
+        assert result[0].symbol == "TSLA"
+
+        filters = [industry_filter, ticker_filter_f]
+        result = screener.query(filters)
+        assert len(result) == 1
+        assert result[0].symbol == "F"
+
+        filters = [industry_filter, ticker_filter_intc]
+        result = screener.query(filters)
+        assert len(result) == 0
+
+        filters = [industry_filter, ticker_filter_msft]
+        result = screener.query(filters)
+        assert len(result) == 0
+
+        automotive_filter = FilterData(
+            operator="contains",
+            operand="sic_description",
+            filter_type="string",
+            value="Automotive"
+        )
+        technology_filter = FilterData(
+            operator="contains",
+            operand="sic_description",
+            filter_type="string",
+            value="Technology"
+        )
+
+        filters = [automotive_filter, technology_filter]
+        result = screener.query(filters)
+
+        assert len(result) == 0
+
+    def test_filter_by_industry_with_multiple_ticker_filters(self, db):
+        """Test filtering by automotive industry with multiple ticker filters.
+        
+        Creates four stocks (INTC, MSFT, TSLA, F) where only TSLA and F
+        are in the automotive industry. With all filters ANDed, combining
+        automotive industry with multiple different ticker filters would
+        require impossible conditions, so this test demonstrates filtering
+        with just the industry to show which stocks qualify.
+        """
+        StockModel.objects.create(
+            symbol="INTC",
+            company_name="Intel Corporation",
+            market_cap=150000000000,
+            primary_exchange="NASDAQ",
+            sic_description="Semiconductors"
+        )
+        StockModel.objects.create(
+            symbol="MSFT",
+            company_name="Microsoft Corporation",
+            market_cap=2800000000000,
+            primary_exchange="NASDAQ",
+            sic_description="Technology"
+        )
+        StockModel.objects.create(
+            symbol="TSLA",
+            company_name="Tesla Inc.",
+            market_cap=800000000000,
+            primary_exchange="NASDAQ",
+            sic_description="Automotive"
+        )
+        StockModel.objects.create(
+            symbol="F",
+            company_name="Ford Motor Company",
+            market_cap=50000000000,
+            primary_exchange="NYSE",
+            sic_description="Automotive"
+        )
+
+        screener = Screener()
+
+        industry_filter = FilterData(
+            operator="contains",
+            operand="sic_description",
+            filter_type="string",
+            value="Automotive"
+        )
+
+        filters = [industry_filter]
+        result = screener.query(filters)
+
+        assert len(result) == 2
+        symbols = [stock.symbol for stock in result]
+        assert "TSLA" in symbols
+        assert "F" in symbols
+        assert "INTC" not in symbols
+        assert "MSFT" not in symbols
