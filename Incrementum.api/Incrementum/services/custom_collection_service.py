@@ -67,24 +67,24 @@ class CustomCollectionService:
 
     def get_stocks(self, account_api_key: str, collection_name: str = 'default'):
         account = self._get_account(account_api_key)
-        collection = CustomCollection.objects.get(collection_name=collection_name, account=account)
+        try:
+            collection = CustomCollection.objects.get(collection_name=collection_name,
+                                                      account=account)
+        except CustomCollection.DoesNotExist:
+            return []
         stocks = []
-        # iterate StockModel instances so we can fallback to DB values if external fetch fails
         for stock_obj in collection.stocks.all():
             symbol = stock_obj.symbol
             try:
                 data = fetch_stock_data(symbol)
-                # fetch_stock_data should return a Stock object with to_dict
                 try:
                     stocks.append(data.to_dict())
                 except Exception:
-                    # If data isn't the expected object, accept dicts
                     if isinstance(data, dict):
                         stocks.append(data)
                     else:
                         stocks.append({'symbol': symbol, 'company_name': stock_obj.company_name})
             except Exception:
-                # External fetch failed (network/yfinance). Fall back to DB values.
                 stocks.append({'symbol': symbol, 'company_name': stock_obj.company_name})
         return stocks
 
@@ -126,7 +126,6 @@ class CustomCollectionService:
                         try:
                             with connection.cursor() as cur:
                                 cur.execute(sql, [collection.id, stock.symbol])
-                                # Check if row was actually inserted
                                 if cur.rowcount > 0:
                                     added_count += 1
                         except IntegrityError:
@@ -142,7 +141,6 @@ class CustomCollectionService:
             collection_name: str = 'default') -> None:
         if not symbols:
             return
-        # normalize to list if a single symbol string was passed
         if isinstance(symbols, str):
             symbols = [symbols]
 

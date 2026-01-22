@@ -1,7 +1,6 @@
 from keycloak import KeycloakOpenID
 import os
 
-# Keycloak configuration - single realm URL
 KEYCLOAK_REALM_URL = os.getenv(
     'KEYCLOAK_REALM_URL',
     'https://auth-dev.snowse.io/realms/incrementum'
@@ -9,7 +8,6 @@ KEYCLOAK_REALM_URL = os.getenv(
 KEYCLOAK_CLIENT_ID = os.getenv('KEYCLOAK_CLIENT_ID', 'incrementum-client')
 KEYCLOAK_CLIENT_SECRET = os.getenv('KEYCLOAK_CLIENT_SECRET', '')
 
-# Parse base URL and realm from the full realm URL
 KEYCLOAK_URL = (
     KEYCLOAK_REALM_URL.rsplit('/realms/', 1)[0]
     if '/realms/' in KEYCLOAK_REALM_URL

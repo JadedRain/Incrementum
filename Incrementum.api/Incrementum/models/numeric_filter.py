@@ -13,10 +13,4 @@ class NumericFilter(models.Model):
 
     @classmethod
     def fetch_all(cls):
-        """
-        Fetch all numeric filters from the database.
-
-        Returns:
-            QuerySet: All NumericFilter objects from the database.
-        """
         return cls.objects.all()

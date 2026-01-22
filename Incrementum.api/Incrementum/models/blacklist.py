@@ -22,10 +22,4 @@ class Blacklist(models.Model):
 
     @classmethod
     def fetch_all(cls):
-        """
-        Fetch all blacklist entries from the database.
-
-        Returns:
-            QuerySet: All Blacklist objects from the database.
-        """
         return cls.objects.all()
