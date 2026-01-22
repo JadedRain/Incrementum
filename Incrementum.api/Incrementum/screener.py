@@ -2,12 +2,17 @@ from typing import List
 from django.db.models import Q
 from Incrementum.DTOs.ifilterdata import FilterData
 from Incrementum.models.stock import StockModel
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Screener:
     def query(self, filters: List[FilterData]) -> List[StockModel]:
         """
         Query stocks based on provided filters.
+        Filters with the same operand are OR'd together.
+        Different operands are AND'd together.
 
         Args:
             filters: List of FilterData objects to apply
@@ -40,7 +45,10 @@ class Screener:
                 if or_q:
                     combined_q &= or_q
 
-        return list(StockModel.objects.filter(combined_q))
+        logger.info(f"Final query: {combined_q}")
+        result = list(StockModel.objects.filter(combined_q))
+        logger.info(f"Query returned {len(result)} stocks")
+        return result
 
     def _build_q_object(self, filter_data: FilterData) -> Q:
         """
