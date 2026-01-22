@@ -12,7 +12,8 @@ from .screener_views import (
     list_custom_screeners,
     update_custom_screener,
     delete_custom_screener,
-    run_database_screener
+    run_database_screener,
+    industry_autocomplete
 )
 from .controllers.stocks_controller import (
     get_stocks_info, get_stock_graph,
@@ -124,4 +125,7 @@ urlpatterns = [
 
     # Database screener endpoint using new Screener class
     path('stocks/screen', run_database_screener, name='run_database_screener'),
+
+    # Industry autocomplete endpoint
+    path('stocks/industry-autocomplete', industry_autocomplete, name='industry_autocomplete'),
 ]

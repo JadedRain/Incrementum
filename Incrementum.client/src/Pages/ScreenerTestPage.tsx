@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import NavigationBar from '../Components/NavigationBar';
 import '../App.css';
 
@@ -21,11 +21,74 @@ interface FilterData {
 
 function ScreenerTestPage() {
     const [tickerSymbols, setTickerSymbols] = useState('');
+    const [industryQuery, setIndustryQuery] = useState('');
+    const [industrySuggestions, setIndustrySuggestions] = useState<string[]>([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [selectedIndustry, setSelectedIndustry] = useState('');
     const [stocks, setStocks] = useState<Stock[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const suggestionBoxRef = useRef<HTMLDivElement>(null);
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
+    // Fetch industry suggestions with debounce
+    useEffect(() => {
+        const fetchIndustrySuggestions = async () => {
+            if (industryQuery.trim().length < 2) {
+                setIndustrySuggestions([]);
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    `${API_BASE_URL}/stocks/industry-autocomplete?query=${encodeURIComponent(industryQuery)}`
+                );
+                const data = await response.json();
+                setIndustrySuggestions(data.industries || []);
+                setShowSuggestions(true);
+            } catch (err) {
+                console.error('Error fetching industry suggestions:', err);
+            }
+        };
+
+        const timeoutId = setTimeout(fetchIndustrySuggestions, 300);
+        return () => clearTimeout(timeoutId);
+    }, [industryQuery, API_BASE_URL]);
+
+    // Close suggestions when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (suggestionBoxRef.current && !suggestionBoxRef.current.contains(event.target as Node)) {
+                setShowSuggestions(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const selectIndustry = (industry: string) => {
+        setSelectedIndustry(industry);
+        setIndustryQuery(industry);
+        setShowSuggestions(false);
+    };
+
+    const searchByIndustry = async () => {
+        if (!selectedIndustry.trim()) {
+            setError('Please select an industry from the suggestions');
+            return;
+        }
+
+        const filters: FilterData[] = [{
+            operator: 'contains',
+            operand: 'industry',
+            filter_type: 'string',
+            value: selectedIndustry
+        }];
+
+        await runScreener(filters);
+    };
 
     const searchByTicker = async () => {
         const trimmed = tickerSymbols.trim();
@@ -91,6 +154,9 @@ function ScreenerTestPage() {
     const clearResults = () => {
         setStocks([]);
         setTickerSymbols('');
+        setIndustryQuery('');
+        setSelectedIndustry('');
+        setIndustrySuggestions([]);
         setError('');
     };
 
@@ -119,13 +185,55 @@ function ScreenerTestPage() {
                             </p>
                         </div>
 
+                        <div className="mb-4 relative" ref={suggestionBoxRef}>
+                            <label className="block text-sm font-medium mb-2">
+                                Industry Search:
+                            </label>
+                            <input
+                                type="text"
+                                value={industryQuery}
+                                onChange={(e) => {
+                                    setIndustryQuery(e.target.value);
+                                    setSelectedIndustry('');
+                                }}
+                                onKeyPress={(e) => e.key === 'Enter' && searchByIndustry()}
+                                onFocus={() => industrySuggestions.length > 0 && setShowSuggestions(true)}
+                                placeholder="Start typing an industry..."
+                                className="w-full px-3 py-2 border rounded"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                                Type to search for industries (e.g., "banking", "software")
+                            </p>
+                            
+                            {showSuggestions && industrySuggestions.length > 0 && (
+                                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded shadow-lg max-h-60 overflow-y-auto">
+                                    {industrySuggestions.map((industry, index) => (
+                                        <div
+                                            key={index}
+                                            onClick={() => selectIndustry(industry)}
+                                            className="px-3 py-2 hover:bg-blue-100 cursor-pointer"
+                                        >
+                                            {industry}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
                         <div className="flex gap-2 mb-6">
                             <button
                                 onClick={searchByTicker}
                                 disabled={loading}
                                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
                             >
-                                Search
+                                Search Tickers
+                            </button>
+                            <button
+                                onClick={searchByIndustry}
+                                disabled={loading}
+                                className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:bg-gray-400"
+                            >
+                                Search Industry
                             </button>
                             <button
                                 onClick={getAllStocks}

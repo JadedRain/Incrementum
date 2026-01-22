@@ -59,6 +59,7 @@ class Screener:
         field_mapping = {
             'ticker': 'symbol',
             'price': 'market_cap',
+            'industry': 'sic_description',
         }
 
         field_name = field_mapping.get(operand, operand)
