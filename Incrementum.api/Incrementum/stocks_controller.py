@@ -109,9 +109,3 @@ def get_stock_graph(request, ticker):
 
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-
-
-@csrf_exempt
-@require_http_methods(["GET"])
-def hello_world(request):
-    return JsonResponse({"message": "Hello, world!"})

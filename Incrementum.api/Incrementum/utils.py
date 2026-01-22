@@ -1,4 +1,5 @@
 import os
+import traceback
 from django.utils import timezone
 from polygon import RESTClient
 from Incrementum.models.stock import StockModel
@@ -24,7 +25,6 @@ def fetch_new_stocks_from_polygon():
 
     except Exception as e:
         print(f"ERROR fetching tickers from Polygon: {e}")
-        import traceback
         traceback.print_exc()
         return []
 
@@ -109,7 +109,6 @@ def update_stocks_in_db_from_polygon(stock_data, status_dict=None):
             if error_count <= 10:  # Only print first 10 errors
                 print(f"Error fetching {ticker}: {e}")
 
-        # Progress update every 100 stocks
         if (idx + 1) % 100 == 0:
             progress_msg = (
                 f"Processed {idx + 1}/{len(stock_data)} stocks... "
@@ -132,12 +131,10 @@ def update_stocks_in_db_from_polygon(stock_data, status_dict=None):
 
 
 def fetch_and_update_symbols():
-    # Fetch ticker list
     data = fetch_new_stocks_from_polygon()
     if not data:
         print("ERROR: No data fetched from Polygon")
         return 0
 
-    # Update database with full metadata
     saved = update_stocks_in_db_from_polygon(data)
     return saved

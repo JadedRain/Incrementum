@@ -28,10 +28,4 @@ class CustomCollection(models.Model):
 
     @classmethod
     def fetch_all(cls):
-        """
-        Fetch all custom collections from the database.
-
-        Returns:
-            QuerySet: All CustomCollection objects from the database.
-        """
         return cls.objects.all()

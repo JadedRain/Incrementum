@@ -20,10 +20,4 @@ class CustomCollectionStock(models.Model):
 
     @classmethod
     def fetch_all(cls):
-        """
-        Fetch all custom collection stock associations from the database.
-
-        Returns:
-            QuerySet: All CustomCollectionStock objects from the database.
-        """
         return cls.objects.all()

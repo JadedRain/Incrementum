@@ -6,15 +6,6 @@ from Incrementum.models.stock import StockModel
 
 class Screener:
     def query(self, filters: List[FilterData]) -> List[StockModel]:
-        """
-        Query stocks based on provided filters.
-
-        Args:
-            filters: List of FilterData objects to apply
-
-        Returns:
-            List of stocks matching the filter criteria
-        """
         if not filters:
             return list(StockModel.objects.all())
 
@@ -43,15 +34,6 @@ class Screener:
         return list(StockModel.objects.filter(combined_q))
 
     def _build_q_object(self, filter_data: FilterData) -> Q:
-        """
-        Build a Django Q object for a single filter.
-
-        Args:
-            filter_data: FilterData object containing filter criteria
-
-        Returns:
-            Q object representing the filter condition
-        """
         operand = filter_data.operand
         operator = filter_data.operator
         value = filter_data.value

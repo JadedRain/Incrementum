@@ -27,10 +27,4 @@ class StockHistory(models.Model):
 
     @classmethod
     def fetch_all(cls):
-        """
-        Fetch all stock history records from the database.
-
-        Returns:
-            QuerySet: All StockHistory objects from the database.
-        """
         return cls.objects.all()

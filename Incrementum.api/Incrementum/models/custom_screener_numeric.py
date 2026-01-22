@@ -20,10 +20,4 @@ class CustomScreenerNumeric(models.Model):
 
     @classmethod
     def fetch_all(cls):
-        """
-        Fetch all custom screener numeric filters from the database.
-
-        Returns:
-            QuerySet: All CustomScreenerNumeric objects from the database.
-        """
         return cls.objects.all()

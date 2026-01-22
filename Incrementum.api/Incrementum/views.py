@@ -1,14 +1,14 @@
-from Incrementum.utils import fetch_new_stocks_from_polygon
-from Incrementum.utils import update_stocks_in_db_from_polygon
-from Incrementum.models.stock import StockModel
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
-from django.http import JsonResponse
-import threading
-import time
-import os
 import csv
 import json
+import os
+import threading
+import time
+import traceback
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from Incrementum.models.stock import StockModel
+from Incrementum.utils import fetch_new_stocks_from_polygon, update_stocks_in_db_from_polygon
 
 
 @csrf_exempt
@@ -55,7 +55,6 @@ def run_fetch_in_background():
 
     except Exception as e:
         print(f"Background fetch error: {e}")
-        import traceback
         traceback.print_exc()
     finally:
         fetch_status['running'] = False
@@ -102,7 +101,6 @@ def fetch_and_update_database(request):
 
     except Exception as e:
         print(f"\nERROR in fetch_and_update_database: {e}")
-        import traceback
         traceback.print_exc()
 
         return JsonResponse({

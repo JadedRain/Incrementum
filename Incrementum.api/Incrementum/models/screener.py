@@ -14,10 +14,4 @@ class Screener(models.Model):
 
     @classmethod
     def fetch_all(cls):
-        """
-        Fetch all screeners from the database.
-
-        Returns:
-            QuerySet: All Screener objects from the database.
-        """
         return cls.objects.all()

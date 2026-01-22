@@ -1,5 +1,5 @@
 import pytest
-
+import Screeners.screener_constructor as sc_mod
 from Incrementum.tests.mock.mock_equity_query import MockEquityQuery
 
 try:
@@ -19,7 +19,6 @@ def mock_equity_query_cls():
 def inject_mock_equity_query(monkeypatch):
     if not _HAS_CONSTRUCTOR:
         pytest.skip("ScreenerConstructor unavailable for monkeypatch")
-    import Screeners.screener_constructor as sc_mod
     monkeypatch.setattr(sc_mod, 'EquityQuery', MockEquityQuery)
     return MockEquityQuery
 
