@@ -22,6 +22,7 @@ interface FilterData {
 function ScreenerTestPage() {
     const [tickerSymbols, setTickerSymbols] = useState('');
     const [stocks, setStocks] = useState<Stock[]>([]);
+    const [selectedStocks, setSelectedStocks] = useState<Stock[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -94,6 +95,66 @@ function ScreenerTestPage() {
         setError('');
     };
 
+    const handleEnterAdd = () => {
+        const trimmed = tickerSymbols.trim();
+        if (!trimmed) return;
+
+        const symbols = trimmed
+            .split(/[,\s]+/)
+            .map(s => s.trim().toUpperCase())
+            .filter(s => s.length > 0);
+
+        if (symbols.length === 0) return;
+
+        setSelectedStocks(prev => {
+            const map = new Map(prev.map(s => [s.symbol, s]));
+            for (const sym of symbols) {
+                if (!map.has(sym)) map.set(sym, { symbol: sym, company_name: '' });
+            }
+            return Array.from(map.values());
+        });
+
+        setTickerSymbols('');
+        setError('');
+    };
+
+    const addToSelected = (stock: Stock) => {
+        setSelectedStocks(prev => {
+            if (prev.find(s => s.symbol === stock.symbol)) return prev;
+            return [...prev, stock];
+        });
+    };
+
+    const removeFromSelected = (symbol: string) => {
+        setSelectedStocks(prev => prev.filter(s => s.symbol !== symbol));
+    };
+
+    const addAllResultsToSelected = () => {
+        setSelectedStocks(prev => {
+            const map = new Map(prev.map(s => [s.symbol, s]));
+            for (const s of stocks) map.set(s.symbol, s);
+            return Array.from(map.values());
+        });
+    };
+
+    const clearSelected = () => setSelectedStocks([]);
+
+    const searchSelected = async () => {
+        if (selectedStocks.length === 0) {
+            setError('No selected stocks to search');
+            return;
+        }
+
+        const filters: FilterData[] = selectedStocks.map(s => ({
+            operator: 'equals',
+            operand: 'ticker',
+            filter_type: 'string',
+            value: s.symbol,
+        }));
+
+        await runScreener(filters);
+    };
+
     return (
         <div className="min-h-screen bg-[hsl(40,13%,53%)]">
             <NavigationBar />
@@ -110,7 +171,12 @@ function ScreenerTestPage() {
                                 type="text"
                                 value={tickerSymbols}
                                 onChange={(e) => setTickerSymbols(e.target.value.toUpperCase())}
-                                onKeyPress={(e) => e.key === 'Enter' && searchByTicker()}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        handleEnterAdd();
+                                    }
+                                }}
                                 placeholder="e.g. AAPL, MSFT, GOOGL"
                                 className="w-full px-3 py-2 border rounded"
                             />
@@ -121,7 +187,7 @@ function ScreenerTestPage() {
 
                         <div className="flex gap-2 mb-6">
                             <button
-                                onClick={searchByTicker}
+                                onClick={() => selectedStocks.length > 0 ? searchSelected() : searchByTicker()}
                                 disabled={loading}
                                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
                             >
@@ -152,14 +218,68 @@ function ScreenerTestPage() {
 
                         {!loading && stocks.length > 0 && (
                             <div>
-                                <p className="mb-3 font-semibold">{stocks.length} stocks found:</p>
+                                <div className="flex items-center justify-between mb-3">
+                                    <p className="font-semibold">{stocks.length} stocks found:</p>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={addAllResultsToSelected}
+                                            className="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                                        >
+                                            Add All
+                                        </button>
+                                    </div>
+                                </div>
                                 <ul className="list-disc list-inside space-y-1">
-                                    {stocks.map((stock) => (
-                                        <li key={stock.symbol}>
-                                            {stock.symbol} - {stock.company_name}
+                                    {stocks.map((stock) => {
+                                        const already = selectedStocks.find(s => s.symbol === stock.symbol);
+                                        return (
+                                            <li key={stock.symbol} className="flex items-center justify-between">
+                                                <span>{stock.symbol} - {stock.company_name}</span>
+                                                <button
+                                                    onClick={() => addToSelected(stock)}
+                                                    disabled={!!already}
+                                                    className={`ml-4 px-2 py-1 rounded ${already ? 'bg-gray-300 text-gray-600' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                                                >
+                                                    {already ? 'Added' : 'Add'}
+                                                </button>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            </div>
+                        )}
+
+                        {selectedStocks.length > 0 && (
+                            <div className="mt-6 bg-gray-50 p-3 rounded">
+                                <p className="mb-2 font-semibold">Selected stocks ({selectedStocks.length}):</p>
+                                <ul className="list-disc list-inside space-y-1">
+                                    {selectedStocks.map(s => (
+                                        <li key={s.symbol} className="flex items-center justify-between">
+                                            <span>{s.symbol} - {s.company_name}</span>
+                                            <button
+                                                onClick={() => removeFromSelected(s.symbol)}
+                                                className="ml-4 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                                            >
+                                                Remove
+                                            </button>
                                         </li>
                                     ))}
                                 </ul>
+
+                                <div className="flex gap-2 mt-4">
+                                    <button
+                                        onClick={searchSelected}
+                                        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                                    >
+                                        Search Selected
+                                    </button>
+                                    <button
+                                        onClick={clearSelected}
+                                        className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                                    >
+                                        Clear Selected
+                                    </button>
+                                </div>
                             </div>
                         )}
 
