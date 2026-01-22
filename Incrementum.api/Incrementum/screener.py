@@ -2,13 +2,17 @@ from typing import List
 from django.db.models import Q
 from Incrementum.DTOs.ifilterdata import FilterData
 from Incrementum.models.stock import StockModel
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Screener:
     def query(self, filters: List[FilterData]) -> List[StockModel]:
         """
         Query stocks based on provided filters.
-        All filters are ANDed together.
+        Filters with the same operand are OR'd together.
+        Different operands are AND'd together.
 
         Args:
             filters: List of FilterData objects to apply
@@ -19,13 +23,34 @@ class Screener:
         if not filters:
             return list(StockModel.objects.all())
 
-        combined_q = Q()
+        grouped_filters = {}
         for filter_data in filters:
-            q_obj = self._build_q_object(filter_data)
-            if q_obj:
-                combined_q &= q_obj
+            operand = filter_data.operand
+            if operand not in grouped_filters:
+                grouped_filters[operand] = []
+            grouped_filters[operand].append(filter_data)
 
-        return list(StockModel.objects.filter(combined_q))
+        logger.info(f"Grouped filters: {[(k, [f.__dict__ for f in v]) for k, v in grouped_filters.items()]}")
+
+        combined_q = Q()
+        for operand, filter_list in grouped_filters.items():
+            if len(filter_list) == 1:
+                q_obj = self._build_q_object(filter_list[0])
+                if q_obj:
+                    combined_q &= q_obj
+            else:
+                or_q = Q()
+                for filter_data in filter_list:
+                    q_obj = self._build_q_object(filter_data)
+                    if q_obj:
+                        or_q |= q_obj
+                if or_q:
+                    combined_q &= or_q
+
+        logger.info(f"Final query: {combined_q}")
+        result = list(StockModel.objects.filter(combined_q))
+        logger.info(f"Query returned {len(result)} stocks")
+        return result
 
     def _build_q_object(self, filter_data: FilterData) -> Q:
         """

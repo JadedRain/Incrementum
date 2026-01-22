@@ -33,7 +33,6 @@ function ScreenerTestPage() {
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
-    // Fetch industry suggestions with debounce
     useEffect(() => {
         const fetchIndustrySuggestions = async () => {
             if (industryQuery.trim().length < 2) {
@@ -57,7 +56,6 @@ function ScreenerTestPage() {
         return () => clearTimeout(timeoutId);
     }, [industryQuery, API_BASE_URL]);
 
-    // Close suggestions when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (suggestionBoxRef.current && !suggestionBoxRef.current.contains(event.target as Node)) {
@@ -73,50 +71,6 @@ function ScreenerTestPage() {
         setSelectedIndustry(industry);
         setIndustryQuery(industry);
         setShowSuggestions(false);
-    };
-
-    const searchByIndustry = async () => {
-        if (!selectedIndustry.trim()) {
-            setError('Please select an industry from the suggestions');
-            return;
-        }
-
-        const filters: FilterData[] = [{
-            operator: 'contains',
-            operand: 'industry',
-            filter_type: 'string',
-            value: selectedIndustry
-        }];
-
-        await runScreener(filters);
-    };
-
-    const searchByTicker = async () => {
-        const trimmed = tickerSymbols.trim();
-        if (!trimmed) {
-            setError('Please enter at least one ticker symbol');
-            return;
-        }
-
-        // Split by comma or space and filter out empty strings
-        const symbols = trimmed
-            .split(/[,\s]+/)
-            .map(s => s.trim().toUpperCase())
-            .filter(s => s.length > 0);
-
-        if (symbols.length === 0) {
-            setError('Please enter valid ticker symbols');
-            return;
-        }
-
-        const filters: FilterData[] = symbols.map(symbol => ({
-            operator: 'equals',
-            operand: 'ticker',
-            filter_type: 'string',
-            value: symbol
-        }));
-
-        await runScreener(filters);
     };
 
     const getAllStocks = async () => {
@@ -221,6 +175,56 @@ function ScreenerTestPage() {
         await runScreener(filters);
     };
 
+    const searchByIndustryAndTickers = async () => {
+        const hasIndustry = selectedIndustry.trim().length > 0;
+        const hasTickerInput = tickerSymbols.trim().length > 0;
+        const hasSelectedStocks = selectedStocks.length > 0;
+
+        if (!hasIndustry && !hasTickerInput && !hasSelectedStocks) {
+            setError('Please enter an industry, ticker symbols, or select stocks');
+            return;
+        }
+
+        const filters: FilterData[] = [];
+
+        if (hasIndustry) {
+            filters.push({
+                operator: 'contains',
+                operand: 'industry',
+                filter_type: 'string',
+                value: selectedIndustry
+            });
+        }
+
+        if (hasSelectedStocks) {
+            const tickerFilters = selectedStocks.map(s => ({
+                operator: 'equals',
+                operand: 'ticker',
+                filter_type: 'string',
+                value: s.symbol
+            }));
+            filters.push(...tickerFilters);
+        } else if (hasTickerInput) {
+            const symbols = tickerSymbols
+                .trim()
+                .split(/[,\s]+/)
+                .map(s => s.trim().toUpperCase())
+                .filter(s => s.length > 0);
+
+            if (symbols.length > 0) {
+                const tickerFilters = symbols.map(symbol => ({
+                    operator: 'equals',
+                    operand: 'ticker',
+                    filter_type: 'string',
+                    value: symbol
+                }));
+                filters.push(...tickerFilters);
+            }
+        }
+
+        await runScreener(filters);
+    };
+
     return (
         <div className="min-h-screen bg-[hsl(40,13%,53%)]">
             <NavigationBar />
@@ -262,7 +266,7 @@ function ScreenerTestPage() {
                                     setIndustryQuery(e.target.value);
                                     setSelectedIndustry('');
                                 }}
-                                onKeyPress={(e) => e.key === 'Enter' && searchByIndustry()}
+                                onKeyPress={(e) => e.key === 'Enter' && searchByIndustryAndTickers}
                                 onFocus={() => industrySuggestions.length > 0 && setShowSuggestions(true)}
                                 placeholder="Start typing an industry..."
                                 className="w-full px-3 py-2 border rounded"
@@ -286,20 +290,13 @@ function ScreenerTestPage() {
                             )}
                         </div>
 
-                        <div className="flex gap-2 mb-6">
+                        <div className="flex gap-2 mb-6 flex-wrap">
                             <button
-                                onClick={() => selectedStocks.length > 0 ? searchSelected() : searchByTicker()}
+                                onClick={searchByIndustryAndTickers}
                                 disabled={loading}
-                                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
+                                className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:bg-gray-400"
                             >
-                                Search Tickers
-                            </button>
-                            <button
-                                onClick={searchByIndustry}
-                                disabled={loading}
-                                className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:bg-gray-400"
-                            >
-                                Search Industry
+                                Search
                             </button>
                             <button
                                 onClick={getAllStocks}
