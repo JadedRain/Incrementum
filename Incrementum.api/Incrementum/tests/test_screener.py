@@ -522,20 +522,14 @@ class TestScreener:
         result = screener.query(filters)
         assert len(result) == 0
 
-        automotive_filter = FilterData(
+        airline_filter = FilterData(
             operator="contains",
             operand="sic_description",
             filter_type="string",
-            value="Automotive"
-        )
-        technology_filter = FilterData(
-            operator="contains",
-            operand="sic_description",
-            filter_type="string",
-            value="Technology"
+            value="Airline"
         )
 
-        filters = [automotive_filter, technology_filter]
+        filters = [airline_filter]
         result = screener.query(filters)
 
         assert len(result) == 0
