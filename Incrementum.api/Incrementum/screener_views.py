@@ -1,3 +1,5 @@
+from Incrementum.models.stock import StockModel
+from django.db.models import Q
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -214,4 +216,27 @@ def run_database_screener(request):
 
     except Exception as e:
         logging.error(f"Error in run_database_screener: {str(e)}", exc_info=True)
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def industry_autocomplete(request):
+    try:
+        query = request.GET.get('query', '').strip()
+
+        if not query:
+            return JsonResponse({"industries": []}, status=200)
+
+        stocks = StockModel.objects.filter(
+            Q(sic_description__icontains=query) &
+            Q(sic_description__isnull=False)
+        ).values('sic_description').distinct()[:20]
+
+        industries = [stock['sic_description'] for stock in stocks if stock['sic_description']]
+
+        return JsonResponse({"industries": industries}, status=200)
+
+    except Exception as e:
+        logging.error(f"Error in industry_autocomplete: {str(e)}", exc_info=True)
         return JsonResponse({"error": str(e)}, status=500)
