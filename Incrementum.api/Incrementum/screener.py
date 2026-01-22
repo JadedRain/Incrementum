@@ -30,9 +30,6 @@ class Screener:
                 grouped_filters[operand] = []
             grouped_filters[operand].append(filter_data)
 
-        logger.info(f"Grouped filters: {[(k, [f.__dict__ for f in v]) 
-                                            for k, v in grouped_filters.items()]}")
-
         combined_q = Q()
         for operand, filter_list in grouped_filters.items():
             if len(filter_list) == 1:
