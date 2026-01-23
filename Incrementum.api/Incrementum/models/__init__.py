@@ -11,6 +11,7 @@ from .numeric_filter import NumericFilter
 from .screener import Screener
 from .stock import StockModel, Stock
 from .stock_history import StockHistory
+from .user_stock_potential import UserStockPotential
 
 __all__ = [
     'Account',
@@ -26,4 +27,5 @@ __all__ = [
     'Stock',
     'StockModel',
     'StockHistory',
+    'UserStockPotential',
 ]

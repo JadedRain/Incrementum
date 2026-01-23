@@ -20,7 +20,7 @@ services:
       - "8000:8000"
     environment:
       - DJANGO_ENV=development
-      - DATABASE_NAME=postgres
+      - DATABASE_NAME=Incr_DB
       - DATABASE_USER=Incr
       - DATABASE_PASSWORD=${POSTGRES_PASSWORD}
       - DATABASE_HOST=db
