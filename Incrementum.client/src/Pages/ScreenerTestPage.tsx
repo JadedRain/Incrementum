@@ -65,25 +65,6 @@ function ScreenerTestPage() {
             }
         };
 
-        // add PPS filters if provided
-        if (ppsMin !== '') {
-            filters.push({
-                operator: 'greater_than',
-                operand: 'pps',
-                filter_type: 'numeric',
-                value: Number(ppsMin)
-            });
-        }
-        if (ppsMax !== '') {
-            filters.push({
-                operator: 'less_than',
-                operand: 'pps',
-                filter_type: 'numeric',
-                value: Number(ppsMax)
-            });
-        }
-
-        await runScreener(filters);
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
@@ -396,6 +377,7 @@ function ScreenerTestPage() {
                             >
                                 Clear
                             </button>
+                        </div>
                         </div>
 
                         {error && (

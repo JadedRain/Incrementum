@@ -7,6 +7,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class Screener:
     def query(self, filters: List[FilterData]) -> List[StockModel]:
         if not filters:
