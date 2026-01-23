@@ -16,8 +16,6 @@ interface CollectionStockTableProps {
   loadingStocks: boolean;
   tokens: string[];
   onStockClick: (symbol: string) => void;
-  onRemoveStock: (symbol: string) => void;
-  pendingSymbol: string | null;
   collectionId?: string | undefined;
   collectionName?: string | undefined;
 }
@@ -26,9 +24,7 @@ export default function CollectionStockTable({
   loadingStocks,
   tokens,
   onStockClick,
-  onRemoveStock,
-  pendingSymbol
-  , collectionId, collectionName
+  collectionId, collectionName
 }: CollectionStockTableProps) {
 
   return (
@@ -39,8 +35,6 @@ export default function CollectionStockTable({
           loadingStocks={loadingStocks}
           tokens={tokens}
           onStockClick={onStockClick}
-          onRemoveStock={onRemoveStock}
-          pendingSymbol={pendingSymbol}
           collectionId={collectionId}
           collectionName={collectionName}
         />
@@ -49,7 +43,7 @@ export default function CollectionStockTable({
   );
 };
 
-function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockClick, onRemoveStock, pendingSymbol, collectionId, collectionName }: CollectionStockTableProps) {
+function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockClick, collectionId, collectionName }: CollectionStockTableProps) {
   const { visibleColumns, toggleColumn, menuOpen, setMenuOpen, menuRef, btnRef, columnOrder, moveColumn } = useColumnVisibility();
   // Debug: log visibility/order to help diagnose missing column
   console.debug('CollectionStockTable visibleColumns:', visibleColumns, 'columnOrder:', columnOrder);
