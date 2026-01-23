@@ -39,7 +39,7 @@ export default function StockTable({ onRowClick }: Props) {
   ];
 
   return (
-    <ColumnVisibilityProvider showWatchlist={false}>
+    <ColumnVisibilityProvider>
       <InnerStockTable onRowClick={onRowClick} cols={cols} stocks={stocks} isLoading={isLoading} filterDataDict={filterDataDict} />
     </ColumnVisibilityProvider>
   );

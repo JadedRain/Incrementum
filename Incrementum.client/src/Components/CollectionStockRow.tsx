@@ -19,25 +19,16 @@ type Stock = {
 type Props = {
   stock: Stock;
   onClick?: () => void;
-  onRemove?: (symbol: string) => void;
-  isPending?: boolean;
   collectionId?: string | undefined;
   collectionName?: string | undefined;
 };
 
-export default function CollectionStockRow({ stock, onClick, onRemove, isPending = false, collectionId, collectionName }: Props) {
+export default function CollectionStockRow({ stock, onClick, collectionId, collectionName }: Props) {
   const { visibleColumns, columnOrder } = useColumnVisibility();
   const { apiKey } = useAuth();
   const symbol = (stock.symbol || 'N/A').toUpperCase();
   const fiftyTwoWeekHigh = stock.fiftyTwoWeekHigh as number | undefined;
   const fiftyTwoWeekLow = stock.fiftyTwoWeekLow as number | undefined;
-
-  const handleRemoveClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!isPending && onRemove && stock.symbol) {
-      onRemove(stock.symbol);
-    }
-  };
 
   const storageKey = `collection.purchasePrices.v1:${collectionId ?? 'global'}`;
   const [purchasePrice, setPurchasePrice] = useState<string | undefined>(undefined);
@@ -148,19 +139,6 @@ export default function CollectionStockRow({ stock, onClick, onRemove, isPending
             return <StockColumn key={k} variableName="volume" displayName="Vol." />;
           case 'marketCap':
             return <StockColumn key={k} variableName="marketCap" displayName="Mkt. Cap" />;
-          case 'watchlist':
-            return onRemove ? (
-              <div key={k} className="StockTable-cell">
-                <button
-                  aria-label={`Remove ${symbol} from collection`}
-                  onClick={handleRemoveClick}
-                  className={`watch-btn ${isPending ? 'opacity-50' : 'opacity-100'}`}
-                  disabled={isPending}
-                >
-                  −
-                </button>
-              </div>
-            ) : null;
           default:
             return null;
         }

@@ -1,18 +1,12 @@
 @reference "tailwindcss";
 
-.screener-topbar {
-  @apply bg-[hsl(40,63%,63%)];
-  @apply sticky top-0 z-50;
+.screener-topbar-inner {
   @apply flex items-center justify-between;
-  @apply px-3;
-  @apply py-3;
-  @apply m-1;
 }
 
 .screener-topbar-group {
-  @apply gap-2;
   @apply grid;
-  grid-template-columns: 1000px 300px;
+  grid-template-columns: 800px 400px;
 }
 
 .screener-topbar-btn {
@@ -36,6 +30,7 @@
 }
 .screener-page-toggle {
   @apply col-2;
+  @apply min-w-[200px];
   @apply justify-self-start text-left;
 }
 
