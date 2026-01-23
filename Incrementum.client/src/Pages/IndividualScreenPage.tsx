@@ -1,4 +1,5 @@
 import '../styles/SideBar.css'
+import '../styles/IndividualScreenerPage.css'
 import { useEffect, useState } from 'react';
 import { useQuery } from "@tanstack/react-query"
 import { useNavigate, useParams } from 'react-router-dom';
@@ -11,18 +12,25 @@ import { fetchCustomScreener } from "../Query/apiScreener"
 import type { CustomScreener } from '../Types/ScreenerTypes';
 import { FilterDataProvider, useFilterData } from '../Context/FilterDataContext';
 import { getDefaultFilterDict } from './DefaultScreenerHelper';
-import type {RangeFilter} from "./DefaultScreenerHelper"
+import type { RangeFilter } from "./DefaultScreenerHelper"
+import TopBar from '../Components/IndividualScreenerPage/ScreenerTopBar';
+import PotentialGainsTable from '../Components/IndividualScreenerPage/PotentialGainsTable';
 
 function IndividualScreenPageContent() {
   const navigate = useNavigate();
   const { apiKey } = useAuth();
   const [toast, setToast] = useState<string | null>(null);
   const { addFilter, setSelectedSectors, setSortValue, setSortBool } = useFilterData();
+  const [potentialGainsToggled, setPotentialGainsToggled] = useState<boolean>(false);
 
-  const {setInitDict, setIsInit, initDict} = useFilterData()
+  const { setInitDict, setIsInit, initDict } = useFilterData()
 
   const { id } = useParams<{ id: string }>();
-  
+
+  const togglePotentialGains = () => {
+    setPotentialGainsToggled(!potentialGainsToggled);
+  }
+
   const showToast = (message: string) => {
     setToast(message);
     setTimeout(() => setToast(null), 3000);
@@ -41,8 +49,7 @@ function IndividualScreenPageContent() {
       const base = getDefaultFilterDict(id!) as (Record<string, unknown> & { notimplemented?: string[]; sortValue?: unknown; sortBool?: unknown }) | null;
       setIsInit(true);
       console.log(base)
-      if(base != null && Object.hasOwn(base, "sortValue"))
-      {
+      if (base != null && Object.hasOwn(base, "sortValue")) {
         const val = base["sortValue"]?.toString() ?? null
         const bol = base["sortBool"]?.toString() ?? null
         setSortValue(val)
@@ -54,20 +61,19 @@ function IndividualScreenPageContent() {
         if (Array.isArray(list)) {
           for (const item of list) {
             const minmaxData = base[item as string] as RangeFilter
-            if(minmaxData.high != null)
-            {
-              addFilter(item + "high", { operand: item, operator: "lt", filter_type: "numeric", value_high: null, value_low: null, value: minmaxData.high,})
+            if (minmaxData.high != null) {
+              addFilter(item + "high", { operand: item, operator: "lt", filter_type: "numeric", value_high: null, value_low: null, value: minmaxData.high, })
             }
-            if(minmaxData.low != null)
-            {
-              addFilter(item + "high", { operand: item, operator: "gt", filter_type: "numeric", value_high: null, value_low: null, value: minmaxData.low,})
+            if (minmaxData.low != null) {
+              addFilter(item + "high", { operand: item, operator: "gt", filter_type: "numeric", value_high: null, value_low: null, value: minmaxData.low, })
             }
           }
         }
-  }
-      setInitDict(()=>{
+      }
+      setInitDict(() => {
         console.log(base);
-        return base!});
+        return base!
+      });
       console.log(initDict)
     }
   }, [addFilter, id, initDict, setInitDict, setIsInit, setSortBool, setSortValue]);
@@ -75,9 +81,9 @@ function IndividualScreenPageContent() {
   useEffect(() => {
     if (screenerData) {
       console.log('Loading screener data:', screenerData);
-      
+
       const sectorsToLoad: string[] = [];
-      
+
       type NumericFilter = {
         operand?: string;
         filter_name?: string;
@@ -116,10 +122,10 @@ function IndividualScreenPageContent() {
         (screenerData.categorical_filters as CategoricalFilter[]).forEach((filter: CategoricalFilter, index: number) => {
           // Use sector-specific key format for sector filters to match Sectors.tsx
           const isSectorFilter = filter.operand === 'sector' || filter.filter_name === 'sector';
-          const key = isSectorFilter 
-            ? `sector.${filter.value}` 
+          const key = isSectorFilter
+            ? `sector.${filter.value}`
             : `categorical_${filter.operand || filter.filter_name}_${index}`;
-          
+
           const filterData = {
             operand: filter.operand || filter.filter_name || '',
             operator: filter.operator || 'eq',
@@ -130,13 +136,13 @@ function IndividualScreenPageContent() {
           };
           console.log('Adding categorical filter:', key, filterData);
           addFilter(key, filterData);
-          
+
           if (isSectorFilter && filter.value != null) {
             sectorsToLoad.push(String(filter.value));
           }
         });
       }
-      
+
       if (sectorsToLoad.length > 0) {
         console.log('Setting selected sectors:', sectorsToLoad);
         setSelectedSectors(sectorsToLoad);
@@ -149,27 +155,40 @@ function IndividualScreenPageContent() {
   }
 
   return (
-      <div className="min-h-screen bg-[hsl(40,13%,53%)]">
-        <NavigationBar />
-        <Toast message={toast} />
-        <div className="main-content">
-          <div className="pt-32 px-8 ScreenerPage-main-layout">
-            {/* Sidebar appears first on smaller screens, will stack above table */}
-            <Sidebar 
-              screenerName={screenerData?.screener_name}
+    <div className="screener-page">
+      <NavigationBar />
+      <Toast message={toast} />
+
+      <div className="screener-container">
+        <div className="screener-grid">
+          <div className="screener-topbar">
+            <TopBar
+              potentialGainsToggled={potentialGainsToggled}
+              togglePotentialGains={togglePotentialGains}
             />
-            <div className="w-full flex">
+          </div>
+
+          <div className="screener-table">
+            {!potentialGainsToggled &&
               <StockTable
-                onRowClick={(symbol: string) => navigate(`/stock/${symbol}`)}
-              />
-            </div>
-          <Sidebar 
-            screenerName={screenerData?.screener_name}
-            onShowToast={showToast}
-          />
+                onRowClick={(symbol: string) =>
+                  navigate(`/stock/${symbol}`)
+                }
+              />}
+            {potentialGainsToggled && <PotentialGainsTable />}
+          </div>
+
+          <aside className="screener-sidebar">
+            <Sidebar
+              screenerName={screenerData?.screener_name}
+              onShowToast={showToast}
+            />
+          </aside>
         </div>
+
       </div>
     </div>
+
   );
 }
 

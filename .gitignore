@@ -27,3 +27,4 @@ node_modules/
 Incrementum.client/node_modules/
 
 ./fear_greed.csv
+.pnpm-store/
