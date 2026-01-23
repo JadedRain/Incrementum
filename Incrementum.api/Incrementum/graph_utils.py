@@ -35,7 +35,7 @@ def generate_overlay_graph(tokens, period="1y"):
     plt.close()
     buf_line.seek(0)
 
-    # Candlestick chart for the first ticker (or all, but here just the first for clarity)
+    # Candlestick chart for the first ticker
     buf_candle = io.BytesIO()
     candle_found = False
     for ticker in tokens:

@@ -1,0 +1,48 @@
+@reference "tailwindcss";
+
+.stock-table-wrapper {
+  @apply min-h-[700px] bg-[#eac67a];
+  @apply shadow-[5px_5px_5px_#3F3A30];
+  @apply bg-[hsl(40,63%,63%)];
+  @apply rounded-sm;
+}
+
+.stock-table {
+  @apply w-full text-left border-separate border-spacing-0;
+}
+
+.stock-table-header-row {
+  @apply bg-[#deb86c] text-[#6b4a1b] max-h-[10px];
+}
+
+.stock-table-header-cell {
+  @apply px-4 py-2;
+}
+
+.stock-table-row {
+  @apply bg-[#E8CB92] text-[#6b4a1b] cursor-pointer;
+}
+
+.stock-table-cell {
+  @apply px-4 py-2;
+}
+
+.stock-table-input {
+  @apply bg-white border rounded w-12 h-6 text-center;
+}
+
+.stock-table-input-date {
+  @apply bg-white border rounded w-16 h-6 text-center;
+}
+
+.stock-table-expand-btn {
+  @apply px-4 py-2 text-center;
+}
+
+.stock-table-collapsible-row {
+  @apply p-0;
+}
+
+.stock-table-collapsible-content {
+  @apply bg-[#9c7017] text-[#eac67a] p-8 transition-all duration-300;
+}

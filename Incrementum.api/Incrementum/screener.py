@@ -3,19 +3,12 @@ from django.db.models import Q, OuterRef, Subquery
 from Incrementum.DTOs.ifilterdata import FilterData
 from Incrementum.models.stock import StockModel
 from Incrementum.models.stock_history import StockHistory
+import logging
 
+logger = logging.getLogger(__name__)
 
 class Screener:
     def query(self, filters: List[FilterData]) -> List[StockModel]:
-        """
-        Query stocks based on provided filters.
-
-        Args:
-            filters: List of FilterData objects to apply
-
-        Returns:
-            List of stocks matching the filter criteria
-        """
         if not filters:
             return list(StockModel.objects.all())
 
@@ -51,18 +44,12 @@ class Screener:
                 if or_q:
                     combined_q &= or_q
 
-        return list(base_qs.filter(combined_q))
+        logger.info(f"Final query: {combined_q}")
+        result = list(base_qs.filter(combined_q))
+        logger.info(f"Query returned {len(result)} stocks")
+        return result
 
     def _build_q_object(self, filter_data: FilterData) -> Q:
-        """
-        Build a Django Q object for a single filter.
-
-        Args:
-            filter_data: FilterData object containing filter criteria
-
-        Returns:
-            Q object representing the filter condition
-        """
         operand = filter_data.operand
         operator = filter_data.operator
         value = filter_data.value
@@ -71,6 +58,7 @@ class Screener:
             'ticker': 'symbol',
             'price': 'market_cap',
             'pps': 'latest_close',
+            'industry': 'sic_description',
         }
 
         field_name = field_mapping.get(operand, operand)

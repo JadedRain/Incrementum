@@ -1,0 +1,44 @@
+@reference "tailwindcss";
+
+.screener-topbar {
+  @apply bg-[hsl(40,63%,63%)];
+  @apply sticky top-0 z-50;
+  @apply flex items-center justify-between;
+  @apply px-3;
+  @apply py-3;
+  @apply m-1;
+}
+
+.screener-topbar-group {
+  @apply gap-2;
+  @apply grid;
+  grid-template-columns: 1000px 300px;
+}
+
+.screener-topbar-btn {
+  @apply bg-[#eac67a]; 
+  @apply text-[#6b4a1b];
+  @apply shadow-none;
+  @apply px-4;
+  @apply py-2;
+  @apply rounded;
+  @apply m-1;
+}
+
+.screener-topbar-select {
+  @apply bg-[#eac67a];
+  @apply text-[#6b4a1b];
+  @apply min-w-[180px];
+  @apply px-4;
+  @apply py-2;
+  @apply rounded;
+  @apply appearance-none;
+}
+.screener-page-toggle {
+  @apply col-2;
+  @apply justify-self-start text-left;
+}
+
+.non-toggle-buttons {
+  @apply col-1;
+}

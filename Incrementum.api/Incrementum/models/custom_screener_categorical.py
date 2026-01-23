@@ -20,10 +20,4 @@ class CustomScreenerCategorical(models.Model):
 
     @classmethod
     def fetch_all(cls):
-        """
-        Fetch all custom screener categorical filters from the database.
-
-        Returns:
-            QuerySet: All CustomScreenerCategorical objects from the database.
-        """
         return cls.objects.all()

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import NavigationBar from '../Components/NavigationBar';
 import '../App.css';
 
@@ -21,35 +21,49 @@ interface FilterData {
 
 function ScreenerTestPage() {
     const [tickerSymbols, setTickerSymbols] = useState('');
+    const [industryQuery, setIndustryQuery] = useState('');
+    const [industrySuggestions, setIndustrySuggestions] = useState<string[]>([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [selectedIndustry, setSelectedIndustry] = useState('');
     const [stocks, setStocks] = useState<Stock[]>([]);
     const [selectedStocks, setSelectedStocks] = useState<Stock[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [ppsMin, setPpsMin] = useState('');
     const [ppsMax, setPpsMax] = useState('');
+    const suggestionBoxRef = useRef<HTMLDivElement>(null);
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
-    const searchByTicker = async () => {
-        const trimmed = tickerSymbols.trim();
-        if (!trimmed && ppsMin === '' && ppsMax === '') {
-            setError('Please enter at least one ticker symbol or PPS filter');
-            return;
-        }
+    useEffect(() => {
+        const fetchIndustrySuggestions = async () => {
+            if (industryQuery.trim().length < 2) {
+                setIndustrySuggestions([]);
+                return;
+            }
 
-        // Split by comma or space and filter out empty strings
-        const symbols = trimmed
-            .split(/[,\s]+/)
-            .map(s => s.trim().toUpperCase())
-            .filter(s => s.length > 0);
+            try {
+                const response = await fetch(
+                    `${API_BASE_URL}/stocks/industry-autocomplete?query=${encodeURIComponent(industryQuery)}`
+                );
+                const data = await response.json();
+                setIndustrySuggestions(data.industries || []);
+                setShowSuggestions(true);
+            } catch (err) {
+                console.error('Error fetching industry suggestions:', err);
+            }
+        };
 
+        const timeoutId = setTimeout(fetchIndustrySuggestions, 300);
+        return () => clearTimeout(timeoutId);
+    }, [industryQuery, API_BASE_URL]);
 
-        const filters: FilterData[] = symbols.map(symbol => ({
-            operator: 'equals',
-            operand: 'ticker',
-            filter_type: 'string',
-            value: symbol
-        }));
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (suggestionBoxRef.current && !suggestionBoxRef.current.contains(event.target as Node)) {
+                setShowSuggestions(false);
+            }
+        };
 
         // add PPS filters if provided
         if (ppsMin !== '') {
@@ -70,6 +84,14 @@ function ScreenerTestPage() {
         }
 
         await runScreener(filters);
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const selectIndustry = (industry: string) => {
+        setSelectedIndustry(industry);
+        setIndustryQuery(industry);
+        setShowSuggestions(false);
     };
 
     const getAllStocks = async () => {
@@ -126,6 +148,9 @@ function ScreenerTestPage() {
     const clearResults = () => {
         setStocks([]);
         setTickerSymbols('');
+        setIndustryQuery('');
+        setSelectedIndustry('');
+        setIndustrySuggestions([]);
         setError('');
         setPpsMin('');
         setPpsMax('');
@@ -209,6 +234,56 @@ function ScreenerTestPage() {
         await runScreener(filters);
     };
 
+    const searchByIndustryAndTickers = async () => {
+        const hasIndustry = selectedIndustry.trim().length > 0;
+        const hasTickerInput = tickerSymbols.trim().length > 0;
+        const hasSelectedStocks = selectedStocks.length > 0;
+
+        if (!hasIndustry && !hasTickerInput && !hasSelectedStocks) {
+            setError('Please enter an industry, ticker symbols, or select stocks');
+            return;
+        }
+
+        const filters: FilterData[] = [];
+
+        if (hasIndustry) {
+            filters.push({
+                operator: 'contains',
+                operand: 'industry',
+                filter_type: 'string',
+                value: selectedIndustry
+            });
+        }
+
+        if (hasSelectedStocks) {
+            const tickerFilters = selectedStocks.map(s => ({
+                operator: 'equals',
+                operand: 'ticker',
+                filter_type: 'string',
+                value: s.symbol
+            }));
+            filters.push(...tickerFilters);
+        } else if (hasTickerInput) {
+            const symbols = tickerSymbols
+                .trim()
+                .split(/[,\s]+/)
+                .map(s => s.trim().toUpperCase())
+                .filter(s => s.length > 0);
+
+            if (symbols.length > 0) {
+                const tickerFilters = symbols.map(symbol => ({
+                    operator: 'equals',
+                    operand: 'ticker',
+                    filter_type: 'string',
+                    value: symbol
+                }));
+                filters.push(...tickerFilters);
+            }
+        }
+
+        await runScreener(filters);
+    };
+
     return (
         <div className="min-h-screen bg-[hsl(40,13%,53%)]">
             <NavigationBar />
@@ -265,10 +340,46 @@ function ScreenerTestPage() {
                         </div>
 
                         <div className="flex gap-2 mb-6">
+                        <div className="mb-4 relative" ref={suggestionBoxRef}>
+                            <label className="block text-sm font-medium mb-2">
+                                Industry Search:
+                            </label>
+                            <input
+                                type="text"
+                                value={industryQuery}
+                                onChange={(e) => {
+                                    setIndustryQuery(e.target.value);
+                                    setSelectedIndustry('');
+                                }}
+                                onKeyPress={(e) => e.key === 'Enter' && searchByIndustryAndTickers}
+                                onFocus={() => industrySuggestions.length > 0 && setShowSuggestions(true)}
+                                placeholder="Start typing an industry..."
+                                className="w-full px-3 py-2 border rounded"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                                Type to search for industries (e.g., "banking", "software")
+                            </p>
+                            
+                            {showSuggestions && industrySuggestions.length > 0 && (
+                                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded shadow-lg max-h-60 overflow-y-auto">
+                                    {industrySuggestions.map((industry, index) => (
+                                        <div
+                                            key={index}
+                                            onClick={() => selectIndustry(industry)}
+                                            className="px-3 py-2 hover:bg-blue-100 cursor-pointer"
+                                        >
+                                            {industry}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex gap-2 mb-6 flex-wrap">
                             <button
-                                onClick={() => selectedStocks.length > 0 ? searchSelected() : searchByTicker()}
+                                onClick={searchByIndustryAndTickers}
                                 disabled={loading}
-                                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
+                                className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:bg-gray-400"
                             >
                                 Search
                             </button>

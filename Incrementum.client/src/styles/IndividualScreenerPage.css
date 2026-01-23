@@ -1,0 +1,28 @@
+@reference "tailwindcss";
+
+.screener-page {
+  @apply min-h-screen bg-[hsl(40,13%,53%)];
+}
+
+.screener-container {
+  @apply mx-auto max-w-[1500px];
+}
+
+.screener-grid {
+  @apply grid gap-6;
+  grid-template-columns: 1fr 320px;
+}
+
+.screener-topbar {
+  @apply sticky top-0 z-40 col-span-2;
+  /* @apply shadow-[5px_5px_5px_#3F3A30];
+  @apply rounded-sm; */
+}
+
+.screener-table {
+  @apply w-full;
+}
+
+.screener-sidebar {
+  @apply w-full;
+}
