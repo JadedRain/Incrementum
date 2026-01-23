@@ -87,3 +87,26 @@ create table if not exists incrementum.blacklist (
     foreign key (stock_symbol) references incrementum.stock(symbol) on delete cascade,
     unique (stock_symbol, timestamp)
 );
+
+create table if not exists incrementum.user_stock_potential (
+    id int primary key generated always as identity,
+    account_id int not null references incrementum.account(id) on delete cascade,
+    stock_symbol varchar(10) not null references incrementum.stock(symbol) on delete cascade,
+    purchase_date date not null,
+    quantity numeric(15, 4) not null,
+    purchase_price numeric(15, 2) not null
+);
+
+-- Insert test account for development/testing
+-- API Key: test-api-key-12345
+-- Email: testuser@example.com
+-- Password: password (hashed with bcrypt)
+INSERT INTO incrementum.account (name, phone_number, email, password_hash, api_key)
+VALUES (
+    'Test User',
+    '5555555555',
+    'testuser@example.com',
+    '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5n4mZJZthPWeu',
+    'test-api-key-12345'
+)
+ON CONFLICT (email) DO NOTHING;
