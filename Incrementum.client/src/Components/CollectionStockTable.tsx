@@ -33,7 +33,7 @@ export default function CollectionStockTable({
 
   return (
     <div className="flex-1 h-full">
-      <ColumnVisibilityProvider showWatchlist={true}>
+      <ColumnVisibilityProvider>
         <InnerCollectionStockTable
           stocksData={stocksData}
           loadingStocks={loadingStocks}
@@ -287,8 +287,6 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
              key={stock.symbol}
              stock={stock}
              onClick={() => handleStockClick(stock.symbol ?? '')}
-            onRemove={onRemoveStock}
-            isPending={pendingSymbol === stock.symbol}
             collectionId={collectionId}
             collectionName={collectionName}
           />
