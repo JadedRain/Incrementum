@@ -10,7 +10,7 @@ const TopBar: React.FC<TopBarProps> = ({
   togglePotentialGains
 }) => {
   return (
-    <div className="screener-topbar">
+    <div className='screener-topbar-inner'>
       <div className="screener-topbar-group">
         <div className="non-toggle-buttons">
           <button className="screener-topbar-btn">
