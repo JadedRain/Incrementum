@@ -201,7 +201,7 @@ class TestScreener:
 
         assert len(result) == 1
         assert result[0].symbol == "BBB"
-        
+
     def test_filter_by_market_cap_greater_than(self, test_stocks):
         """Test filtering stocks with market cap greater than a threshold."""
         screener = Screener()
