@@ -16,7 +16,7 @@ interface FilterData {
     operator: string;
     operand: string;
     filter_type: string;
-    value?: string;
+    value?: string | number;
 }
 
 function ScreenerTestPage() {
@@ -29,6 +29,8 @@ function ScreenerTestPage() {
     const [selectedStocks, setSelectedStocks] = useState<Stock[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [ppsMin, setPpsMin] = useState('');
+    const [ppsMax, setPpsMax] = useState('');
     const suggestionBoxRef = useRef<HTMLDivElement>(null);
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
@@ -74,7 +76,25 @@ function ScreenerTestPage() {
     };
 
     const getAllStocks = async () => {
-        await runScreener([]);
+        const filters: FilterData[] = [];
+        if (ppsMin !== '') {
+            filters.push({
+                operator: 'greater_than',
+                operand: 'pps',
+                filter_type: 'numeric',
+                value: Number(ppsMin)
+            });
+        }
+        if (ppsMax !== '') {
+            filters.push({
+                operator: 'less_than',
+                operand: 'pps',
+                filter_type: 'numeric',
+                value: Number(ppsMax)
+            });
+        }
+
+        await runScreener(filters);
     };
 
     const runScreener = async (filters: FilterData[]) => {
@@ -113,6 +133,8 @@ function ScreenerTestPage() {
         setSelectedIndustry('');
         setIndustrySuggestions([]);
         setError('');
+        setPpsMin('');
+        setPpsMax('');
     };
 
     const handleEnterAdd = () => {
@@ -160,7 +182,8 @@ function ScreenerTestPage() {
     const clearSelected = () => setSelectedStocks([]);
 
     const searchSelected = async () => {
-        if (selectedStocks.length === 0) {
+        // Allow searching when no tickers are selected if PPS filters are provided
+        if (selectedStocks.length === 0 && ppsMin === '' && ppsMax === '') {
             setError('No selected stocks to search');
             return;
         }
@@ -171,6 +194,23 @@ function ScreenerTestPage() {
             filter_type: 'string',
             value: s.symbol,
         }));
+
+        if (ppsMin !== '') {
+            filters.push({
+                operator: 'greater_than',
+                operand: 'pps',
+                filter_type: 'numeric',
+                value: Number(ppsMin)
+            });
+        }
+        if (ppsMax !== '') {
+            filters.push({
+                operator: 'less_than',
+                operand: 'pps',
+                filter_type: 'numeric',
+                value: Number(ppsMax)
+            });
+        }
 
         await runScreener(filters);
     };
@@ -255,6 +295,32 @@ function ScreenerTestPage() {
                             </p>
                         </div>
 
+                        <div className="mb-4 grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-2">PPS Greater Than</label>
+                                <input
+                                    type="number"
+                                    value={ppsMin}
+                                    onChange={(e) => setPpsMin(e.target.value)}
+                                    placeholder="Enter min PPS (numeric)"
+                                    className="w-full px-3 py-2 border rounded"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">Leave empty to ignore</p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-2">PPS Less Than</label>
+                                <input
+                                    type="number"
+                                    value={ppsMax}
+                                    onChange={(e) => setPpsMax(e.target.value)}
+                                    placeholder="Enter max PPS (numeric)"
+                                    className="w-full px-3 py-2 border rounded"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">Leave empty to ignore</p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-2 mb-6">
                         <div className="mb-4 relative" ref={suggestionBoxRef}>
                             <label className="block text-sm font-medium mb-2">
                                 Industry Search:
@@ -311,6 +377,7 @@ function ScreenerTestPage() {
                             >
                                 Clear
                             </button>
+                        </div>
                         </div>
 
                         {error && (

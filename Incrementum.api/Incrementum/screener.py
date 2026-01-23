@@ -1,7 +1,8 @@
 from typing import List
-from django.db.models import Q
+from django.db.models import Q, OuterRef, Subquery
 from Incrementum.DTOs.ifilterdata import FilterData
 from Incrementum.models.stock import StockModel
+from Incrementum.models.stock_history import StockHistory
 import logging
 
 logger = logging.getLogger(__name__)
@@ -18,6 +19,16 @@ class Screener:
             if operand not in grouped_filters:
                 grouped_filters[operand] = []
             grouped_filters[operand].append(filter_data)
+        # If any filter references 'pps' we need to annotate StockModel
+        # with the latest StockHistory close_price so we can filter against it.
+        needs_latest_pps = any(f.operand == 'pps' for f in filters)
+        base_qs = StockModel.objects
+        if needs_latest_pps:
+            latest_history_qs = StockHistory.objects.filter(
+                stock_symbol__symbol=OuterRef('symbol')
+            ).order_by('-day_and_time')
+            latest_close_subq = Subquery(latest_history_qs.values('close_price')[:1])
+            base_qs = StockModel.objects.annotate(latest_close=latest_close_subq)
 
         combined_q = Q()
         for operand, filter_list in grouped_filters.items():
@@ -35,7 +46,7 @@ class Screener:
                     combined_q &= or_q
 
         logger.info(f"Final query: {combined_q}")
-        result = list(StockModel.objects.filter(combined_q))
+        result = list(base_qs.filter(combined_q))
         logger.info(f"Query returned {len(result)} stocks")
         return result
 
@@ -47,11 +58,11 @@ class Screener:
         field_mapping = {
             'ticker': 'symbol',
             'price': 'market_cap',
+            'pps': 'latest_close',
             'industry': 'sic_description',
         }
 
         field_name = field_mapping.get(operand, operand)
-
         if operator == 'equals':
             if filter_data.filter_type == 'string':
                 return Q(**{f'{field_name}__iexact': value})
