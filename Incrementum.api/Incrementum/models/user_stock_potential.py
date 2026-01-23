@@ -20,7 +20,7 @@ class UserStockPotential(models.Model):
 
     class Meta:
         db_table = 'user_stock_potential'
-        managed = False
+        managed = True
 
     @classmethod
     def fetch_all(cls):

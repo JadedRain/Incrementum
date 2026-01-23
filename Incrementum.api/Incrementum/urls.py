@@ -1,6 +1,8 @@
 from django.urls import path
-from .views_auth import login, signup, account_info, sync_keycloak_user, keycloak_login
-from . import views, screener_views, filter_views
+from .views_auth import (
+    login, signup, account_info, sync_keycloak_user, keycloak_login
+)
+from . import views, screener_views, filter_views, views_user_stock_potential
 from .controllers import stocks_controller as stocks
 from .controllers import custom_collection_controller as collections
 from .controllers.screener_run_controller import run_screener
@@ -117,4 +119,9 @@ urlpatterns = [
     path('custom-screeners',
          screener_views.custom_screener_list_create,
          name='custom_screener_list_create'),
+
+    # User stock potential endpoints
+    path('api/user-stock-potentials/',
+         views_user_stock_potential.user_stock_potential_list_create,
+         name='user_stock_potential_list_create'),
 ]

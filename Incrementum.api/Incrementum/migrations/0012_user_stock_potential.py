@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'db_table': 'user_stock_potential',
-                'managed': False,
+                'managed': True,
             },
         ),
     ]
