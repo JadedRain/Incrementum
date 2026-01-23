@@ -148,19 +148,6 @@ export default function CollectionStockRow({ stock, onClick, onRemove, isPending
             return <StockColumn key={k} variableName="volume" displayName="Vol." />;
           case 'marketCap':
             return <StockColumn key={k} variableName="marketCap" displayName="Mkt. Cap" />;
-          case 'watchlist':
-            return onRemove ? (
-              <div key={k} className="StockTable-cell">
-                <button
-                  aria-label={`Remove ${symbol} from collection`}
-                  onClick={handleRemoveClick}
-                  className={`watch-btn ${isPending ? 'opacity-50' : 'opacity-100'}`}
-                  disabled={isPending}
-                >
-                  −
-                </button>
-              </div>
-            ) : null;
           default:
             return null;
         }
