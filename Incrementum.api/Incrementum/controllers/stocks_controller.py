@@ -8,7 +8,7 @@ from django.views.decorators.http import require_http_methods
 from Incrementum.models.stock import StockModel
 from Incrementum.serializers import StockSerializer
 from Incrementum.get_stock_info import get_stock_info, search_stocks, get_stock_by_ticker
-
+from ..services.stock_service import StockService
 
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
@@ -203,3 +203,17 @@ def get_database_stocks(request):
 @require_http_methods(["GET"])
 def hello_world(request):
     return JsonResponse({"message": "Hello, world!"})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def get_stocks_by_tickers(request):
+    try:
+        data = json.loads(request.body)
+        tickers = data.get('tickers', [])
+        if not isinstance(tickers, list) or not all(isinstance(t, str) for t in tickers):
+            return JsonResponse({'error': 'tickers must be a list of strings'}, status=400)
+        stocks = StockService.get_stocks_by_symbols(tickers)
+        serializer = StockSerializer(stocks, many=True)
+        return JsonResponse({'stocks': serializer.data}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

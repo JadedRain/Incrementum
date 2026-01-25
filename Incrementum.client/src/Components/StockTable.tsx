@@ -23,10 +23,11 @@ type Stock = {
 type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'marketCap';
 type Col = { k: ColKey; l: string };
 
-type Props = { onRowClick?: (s: string) => void };
+type Props = { onRowClick?: (s: string) => void; stocks?: Stock[] };
 
-export default function StockTable({ onRowClick }: Props) {
-  const { stocks, isLoading, filterDataDict } = useFilterData();
+export default function StockTable({ onRowClick, stocks: overrideStocks }: Props) {
+  const { stocks: contextStocks, isLoading, filterDataDict } = useFilterData();
+  const stocks = overrideStocks ?? contextStocks;
 
   const cols: Col[] = [
     { k: 'symbol', l: 'Symbol' },

@@ -5,6 +5,8 @@ import { useQuery } from "@tanstack/react-query"
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../Context/AuthContext';
 import Sidebar from '../Components/Sidebar'
+import SaveCollectionPopup from '../Components/SaveCollectionPopup';
+import useSaveCollection from '../hooks/useSaveCollection';
 import NavigationBar from '../Components/NavigationBar'
 import StockTable from '../Components/StockTable'
 import Toast from '../Components/Toast'
@@ -14,18 +16,77 @@ import { FilterDataProvider, useFilterData } from '../Context/FilterDataContext'
 import { getDefaultFilterDict } from './DefaultScreenerHelper';
 import type { RangeFilter } from "./DefaultScreenerHelper"
 import TopBar from '../Components/IndividualScreenerPage/ScreenerTopBar';
+import { useCustomCollection } from '../hooks/useCustomCollection';
 import PotentialGainsTable from '../Components/IndividualScreenerPage/PotentialGainsTable';
+import { useCustomCollections } from '../hooks/useCustomCollections';
+import { useBulkStockData } from '../hooks/useBulkStockData';
+
+interface StockItem { symbol?: string;[key: string]: unknown }
 
 function IndividualScreenPageContent() {
   const navigate = useNavigate();
   const { apiKey } = useAuth();
   const [toast, setToast] = useState<string | null>(null);
+  const [showSavePopup, setShowSavePopup] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const { id } = useParams<{ id: string }>();
+  const { collections, loading: collectionsLoading } = useCustomCollections();
+  const [selectedCollectionId, setSelectedCollectionId] = useState<number | null>(id ? Number(id) : null);
+  const { tokens } = useCustomCollection({ id: selectedCollectionId, apiKey });
+
+  const { stocks } = useFilterData();
+  const { saveCollection } = useSaveCollection({ apiKey, setTokens: () => { }, resetForm: () => { }, onError: setSaveError });
+  const { data: bulkStockData, loading: loadingBulkStocks, updateTickers } = useBulkStockData(tokens, apiKey);
+
+  useEffect(() => {
+    updateTickers(tokens);
+  }, [tokens]);
+
+  const handleSelectCollection = (collectionId: number | null) => {
+    setSelectedCollectionId(collectionId);
+  };
+
+  const handleSave = async () => {
+    setSaveError(null);
+    const symbols = (Array.isArray(stocks) ? (stocks as StockItem[]) : []).map((s) => s?.symbol).filter((sym): sym is string => typeof sym === 'string' && sym.length > 0);
+    if (!symbols.length) {
+      setSaveError('No stocks to save. Run the screener to get results first.');
+      setShowSavePopup(false);
+      return;
+    }
+
+    if (id && !isNaN(Number(id))) {
+      const res = await saveCollection({ name: screenerData?.screener_name || '', symbols });
+      if (res.ok) {
+        setToast('Collection updated!');
+      } else {
+        setSaveError(res.error || 'Failed to update collection');
+      }
+    } else {
+      setShowSavePopup(true);
+    }
+  };
+
+  const handleSaveCollection = async (name: string, desc?: string) => {
+    setSaveError(null);
+    const symbols = (Array.isArray(stocks) ? (stocks as StockItem[]) : []).map((s) => s?.symbol).filter((sym): sym is string => typeof sym === 'string' && sym.length > 0);
+    if (!symbols.length) {
+      setSaveError('No stocks to save. Run the screener to get results first.');
+      return;
+    }
+    const res = await saveCollection({ name, desc, symbols });
+    if (res.ok) {
+      setShowSavePopup(false);
+      setToast('Collection saved!');
+    } else {
+      setSaveError(res.error || 'Failed to save collection');
+    }
+  };
+
   const { addFilter, setSelectedSectors, setSortValue, setSortBool } = useFilterData();
   const [potentialGainsToggled, setPotentialGainsToggled] = useState<boolean>(false);
 
   const { setInitDict, setIsInit, initDict } = useFilterData()
-
-  const { id } = useParams<{ id: string }>();
 
   const togglePotentialGains = () => {
     setPotentialGainsToggled(!potentialGainsToggled);
@@ -77,7 +138,7 @@ function IndividualScreenPageContent() {
       console.log(initDict)
     }
   }, [addFilter, id, initDict, setInitDict, setIsInit, setSortBool, setSortValue]);
-  // Load filters when screener data is fetched
+
   useEffect(() => {
     if (screenerData) {
       console.log('Loading screener data:', screenerData);
@@ -100,7 +161,6 @@ function IndividualScreenPageContent() {
         value?: string | number | null;
       };
 
-      // Load numeric filters
       if (screenerData.numeric_filters) {
         (screenerData.numeric_filters as NumericFilter[]).forEach((filter: NumericFilter, index: number) => {
           const key = `numeric_${filter.operand || filter.filter_name}_${index}`;
@@ -117,10 +177,8 @@ function IndividualScreenPageContent() {
         });
       }
 
-      // Load categorical filters
       if (screenerData.categorical_filters) {
         (screenerData.categorical_filters as CategoricalFilter[]).forEach((filter: CategoricalFilter, index: number) => {
-          // Use sector-specific key format for sector filters to match Sectors.tsx
           const isSectorFilter = filter.operand === 'sector' || filter.filter_name === 'sector';
           const key = isSectorFilter
             ? `sector.${filter.value}`
@@ -150,6 +208,16 @@ function IndividualScreenPageContent() {
     }
   }, [screenerData, addFilter, setSelectedSectors]);
 
+  const [displayStocks, setDisplayStocks] = useState<StockItem[]>(Array.isArray(stocks) ? (stocks as StockItem[]) : []);
+
+  useEffect(() => {
+    if (selectedCollectionId && Array.isArray(bulkStockData) && bulkStockData.length > 0) {
+      setDisplayStocks(bulkStockData as StockItem[]);
+    } else {
+      setDisplayStocks(Array.isArray(stocks) ? (stocks as StockItem[]) : []);
+    }
+  }, [selectedCollectionId, bulkStockData, stocks]);
+
   if (!id) {
     return <div>Loading screener...</div>;
   }
@@ -159,21 +227,35 @@ function IndividualScreenPageContent() {
       <NavigationBar />
       <Toast message={toast} />
 
+      <SaveCollectionPopup
+        isOpen={showSavePopup}
+        onClose={() => { setShowSavePopup(false); setSaveError(null); }}
+        onSave={handleSaveCollection}
+      />
+      {saveError && showSavePopup && (
+        <div style={{ color: 'red', textAlign: 'center', marginBottom: 8 }}>{saveError}</div>
+      )}
+
       <div className="screener-container">
         <div className="screener-grid">
           <div className="screener-topbar">
             <TopBar
               potentialGainsToggled={potentialGainsToggled}
               togglePotentialGains={togglePotentialGains}
+              onSave={handleSave}
+              collections={collections}
+              selectedCollectionId={selectedCollectionId}
+              onSelectCollection={handleSelectCollection}
+              collectionsLoading={collectionsLoading}
             />
           </div>
 
           <div className="screener-table">
             {!potentialGainsToggled &&
               <StockTable
-                onRowClick={(symbol: string) =>
-                  navigate(`/stock/${symbol}`)
-                }
+                stocks={displayStocks}
+                loading={loadingBulkStocks}
+                onRowClick={(symbol: string) => navigate(`/stock/${symbol}`)}
               />}
             {potentialGainsToggled && <PotentialGainsTable />}
           </div>

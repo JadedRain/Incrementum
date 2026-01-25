@@ -1,29 +1,46 @@
 import type React from 'react';
 import '../../styles/ScreenerTopBar.css';
+import type { CustomCollection } from '../../hooks/useCustomCollections';
 interface TopBarProps {
   potentialGainsToggled: boolean;
   togglePotentialGains: () => void;
+  onSave: () => void;
+  collections: CustomCollection[];
+  selectedCollectionId: number | null;
+  onSelectCollection: (id: number | null) => void;
+  collectionsLoading: boolean;
 }
 
 const TopBar: React.FC<TopBarProps> = ({
   potentialGainsToggled,
-  togglePotentialGains
+  togglePotentialGains,
+  onSave,
+  collections,
+  selectedCollectionId,
+  onSelectCollection,
+  collectionsLoading
 }) => {
   return (
     <div className='screener-topbar-inner'>
       <div className="screener-topbar-group">
         <div className="non-toggle-buttons">
-          <button className="screener-topbar-btn">
+          <button className="screener-topbar-btn" onClick={onSave}>
             Save
           </button>
           <select
             className="screener-topbar-select"
             aria-label="Select Collection"
-            defaultValue=""
+            value={selectedCollectionId ?? ''}
+            onChange={e => {
+              const val = e.target.value;
+              onSelectCollection(val ? Number(val) : null);
+            }}
+            disabled={collectionsLoading}
           >
-            <option value="" disabled>
-              Select Collection
-            </option>
+            <option value="">Select Collection</option>
+            {collections.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
           </select>
         </div>
       </div>
