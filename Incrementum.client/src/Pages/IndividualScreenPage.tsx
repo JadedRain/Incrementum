@@ -23,6 +23,7 @@ import { useBulkStockData } from '../hooks/useBulkStockData';
 
 interface StockItem { symbol?: string;[key: string]: unknown }
 
+
 function IndividualScreenPageContent() {
   const navigate = useNavigate();
   const { apiKey } = useAuth();
@@ -33,15 +34,10 @@ function IndividualScreenPageContent() {
   const { collections, loading: collectionsLoading } = useCustomCollections();
   const [selectedCollectionId, setSelectedCollectionId] = useState<number | null>(id ? Number(id) : null);
   const { tokens } = useCustomCollection({ id: selectedCollectionId, apiKey });
-
+  const { data: bulkStockData, loading: loadingBulkStocks } = useBulkStockData(tokens && tokens.length > 0 ? tokens : []);
   const { stocks } = useFilterData();
   const { saveCollection } = useSaveCollection({ apiKey, setTokens: () => { }, resetForm: () => { }, onError: setSaveError });
-  const { data: bulkStockData, loading: loadingBulkStocks, updateTickers } = useBulkStockData(tokens, apiKey);
-
-  useEffect(() => {
-    updateTickers(tokens);
-  }, [tokens]);
-
+  
   const handleSelectCollection = (collectionId: number | null) => {
     setSelectedCollectionId(collectionId);
   };
@@ -218,6 +214,15 @@ function IndividualScreenPageContent() {
     }
   }, [selectedCollectionId, bulkStockData, stocks]);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 12;
+  const totalPages = Math.ceil(displayStocks.length / pageSize);
+  const paginatedStocks = displayStocks.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
   if (!id) {
     return <div>Loading screener...</div>;
   }
@@ -252,11 +257,19 @@ function IndividualScreenPageContent() {
 
           <div className="screener-table">
             {!potentialGainsToggled &&
-              <StockTable
-                stocks={displayStocks}
-                loading={loadingBulkStocks}
-                onRowClick={(symbol: string) => navigate(`/stock/${symbol}`)}
-              />}
+              <>
+                <StockTable
+                  stocks={paginatedStocks}
+                  loading={loadingBulkStocks}
+                  onRowClick={(symbol: string) => navigate(`/stock/${symbol}`)}
+                />
+                <div className="pagination-controls" style={{ display: 'flex', justifyContent: 'center', margin: '16px 0' }}>
+                  <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>&lt; Prev</button>
+                  <span style={{ margin: '0 12px' }}>Page {currentPage} of {totalPages}</span>
+                  <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>&gt; Next</button>
+                </div>
+              </>
+            }
             {potentialGainsToggled && <PotentialGainsTable />}
           </div>
 
