@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: incrementum-ingress
-  namespace: Incrementum
+  namespace: incrementum
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -11,23 +11,19 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - api.incrementum.duckdns.org
-    - client.incrementum.duckdns.org
+    - incremy.duckdns.org
     secretName: incrementum-tls
   rules:
-  - host: api.incrementum.duckdns.org
+  - host: incremy.duckdns.org
     http:
       paths:
-      - path: /
+      - path: /api
         pathType: Prefix
         backend:
           service:
             name: incrementum-api-service
             port:
               number: 80
-  - host: client.incrementum.duckdns.org
-    http:
-      paths:
       - path: /
         pathType: Prefix
         backend:
