@@ -1,6 +1,6 @@
 import pytest
 import json
-from Incrementum.models_user import Account
+from Incrementum.models.account import Account
 from django.urls import reverse
 from rest_framework.test import APIClient
 pytestmark = pytest.mark.django_db

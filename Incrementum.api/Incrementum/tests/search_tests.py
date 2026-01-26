@@ -4,7 +4,7 @@ from Incrementum.get_stock_info import search_stocks
 
 class SearchStocksTests(TestCase):
     def setUp(self):
-        from Incrementum.models import StockModel
+        from Incrementum.models.stock import StockModel
         StockModel.objects.all().delete()
         StockModel.objects.create(symbol='AAPL', company_name='Apple')
 

@@ -1,0 +1,9 @@
+### Start fetching stocks from Polygon (POST)
+POST http://localhost:8000/fetch-and-update-database/
+
+###
+
+### Check fetch progress/status (GET)
+GET http://localhost:8000/fetch-and-update-database/
+
+###

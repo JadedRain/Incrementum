@@ -1,4 +1,5 @@
-from .models import StockModel
+from .stock_history_service import StockHistoryService
+from .models.stock import StockModel
 import yfinance as yf
 from .stocks_class import Stock
 import logging
@@ -31,33 +32,27 @@ def search_stocks(query, page, source=setup):
 
 
 def get_stock_by_ticker(ticker, source=setup):
-    try:
-        # Get all stocks from database
-        tickers = source()
+    tickers = source()
 
-        # For Django QuerySet, filter directly
-        if hasattr(tickers, 'filter'):
-            stock_exists = tickers.filter(symbol__iexact=ticker).exists()
-        else:
-            # For DataFrame or list
-            stock_row = tickers[tickers['symbol'].str.lower() == ticker.lower()]
-            stock_exists = not stock_row.empty
+    if hasattr(tickers, 'filter'):
+        stock_exists = tickers.filter(symbol__iexact=ticker).exists()
+    else:
+        stock_row = tickers[tickers['symbol'].str.lower() == ticker.lower()]
+        stock_exists = not stock_row.empty
 
-        if not stock_exists:
-            logging.warning(f"No stock found in database for ticker: {ticker}")
-            # Still try to fetch from yfinance even if not in our database
+    if not stock_exists:
+        logging.warning(f"No stock found in database for ticker: {ticker}")
 
-        # Fetch fresh data from yfinance
-        stock_data = fetch_stock_data(ticker)
-        return stock_data
-    except Exception as e:
-        logging.error(f"Error in get_stock_by_ticker for {ticker}: {str(e)}")
-        raise
+    stock_data = fetch_stock_data(ticker)
+    return stock_data
 
 
 def fetch_stock_with_ma(symbol, ma_period=50):
-    ticker = yf.Ticker(symbol)
-    hist = ticker.history(period="1y")['Close']  # last 1 year daily prices
+    history_service = StockHistoryService()
+    history_df, metadata = history_service.history(symbol, period="1y")
+    hist = history_df['Close'] if history_df is not None else None  # last 1 year daily prices
+    if hist is None:
+        return None
     ma = hist.rolling(window=ma_period).mean()
     return {
         "symbol": symbol,
@@ -239,8 +234,6 @@ def screen_stocks_by_average_volume(average_volume_filter, average_volume_value,
     max_results = min(max_results, 250)
 
     try:
-        # No 30 day average volume filter available in yfinance?
-        # Using 3 month average volume instead for now.
         query = EquityQuery(average_volume_filter, ['avgdailyvol3m', average_volume_value])
 
         screen_results = yf.screen(query, size=max_results)

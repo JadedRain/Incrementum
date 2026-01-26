@@ -3,7 +3,7 @@ import uuid
 import bcrypt
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models_user import Account
+from .models.account import Account
 from .keycloak_service import verify_keycloak_token, get_token_with_password
 from Incrementum.services.custom_collection_service import CustomCollectionService
 

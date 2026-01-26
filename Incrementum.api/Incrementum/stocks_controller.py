@@ -1,10 +1,10 @@
+from .stock_history_service import StockHistoryService
 import json
 import logging
-import yfinance as yf
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from .models import StockModel
+from .models.stock import StockModel
 from .serializers import StockSerializer
 from .get_stock_info import get_stock_info, search_stocks, get_stock_by_ticker, generate_stock_graph
 
@@ -98,9 +98,9 @@ def get_stock_graph(request, ticker):
     try:
         period = request.GET.get("period", "1y")
         interval = request.GET.get("interval", "1d")
-        stock = yf.Ticker(ticker)
-        history = stock.history(period=period, interval=interval)
-        if history.empty:
+        history_service = StockHistoryService()
+        history, metadata = history_service.history(ticker, period=period, interval=interval)
+        if history is None or history.empty:
             return JsonResponse({
                 "error": f"No data found for {ticker} with period={period} and interval={interval}"
             }, status=404)
@@ -109,9 +109,3 @@ def get_stock_graph(request, ticker):
 
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-
-
-@csrf_exempt
-@require_http_methods(["GET"])
-def hello_world(request):
-    return JsonResponse({"message": "Hello, world!"})

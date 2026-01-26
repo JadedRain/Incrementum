@@ -26,4 +26,5 @@ Incrementum.api/hello/__pycache__/searchtests.cpython-310-pytest-8.4.1.pyc
 node_modules/
 Incrementum.client/node_modules/
 
-Incrementum.api/fear_greed.csv
+./fear_greed.csv
+.pnpm-store/

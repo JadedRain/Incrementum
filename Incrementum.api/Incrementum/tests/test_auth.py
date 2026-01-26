@@ -1,9 +1,10 @@
-import pytest
+import bcrypt
 import json
+import pytest
 import uuid
 from unittest.mock import patch
 from django.test import Client
-from Incrementum.models_user import Account
+from Incrementum.models.account import Account
 
 pytestmark = pytest.mark.django_db
 
@@ -15,7 +16,6 @@ def client():
 
 @pytest.fixture
 def test_user():
-    import bcrypt
     password = "testpassword123"
     password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
     user = Account.objects.create(

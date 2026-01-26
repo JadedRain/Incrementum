@@ -36,10 +36,10 @@
 }
 
 .sidebar {
-  @apply fixed;
+  @apply sticky;
   top: calc(var(--header-height) + 40px);
   right: 50px;
-  @apply w-[300px];
+  /* @apply w-[300px]; */
   height: calc(100vh - var(--header-height) - 80px);
   @apply bg-[hsl(40,63%,63%)];
   @apply text-[hsl(40,62%,18%)];

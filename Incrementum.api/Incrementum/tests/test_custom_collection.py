@@ -1,7 +1,7 @@
 import pytest
 from django.urls import reverse
 from Incrementum.services.custom_collection_service import CustomCollectionService
-from Incrementum.models_user import Account
+from Incrementum.models.account import Account
 
 
 @pytest.fixture
@@ -200,7 +200,7 @@ class TestCustomCollection:
 @pytest.fixture(autouse=True)
 def seed_stocks(db):
     try:
-        from Incrementum.models import StockModel
+        from Incrementum.models.stock import StockModel
     except Exception:
         # If models aren't importable in some test contexts, just skip seeding
         return None

@@ -1,39 +1,15 @@
 import React from 'react';
 import type { StockData } from '../StockData';
-import { BiPlus, BiMinus } from "react-icons/bi";
 
 interface StockInfoSidebarProps {
   results: StockData;
-  apiKey: string | null;
-  inWatchlist: boolean;
-  pending: boolean;
-  onAddToWatchlist: () => void;
-  onRemoveFromWatchlist: () => void;
 }
 
 const StockInfoSidebar: React.FC<StockInfoSidebarProps> = ({
   results,
-  apiKey,
-  inWatchlist,
-  pending,
-  onAddToWatchlist,
-  onRemoveFromWatchlist,
 }) => {
-  const buttonHoverStyle = `
-    .watchlist-button:hover:not(:disabled) {
-      background: #AF8228 !important;
-    }
-    .watchlist-button:hover:not(:disabled) span {
-      color: hsl(40, 56%, 67%) !important;
-    }
-    .watchlist-button:hover:not(:disabled) svg {
-      color: hsl(40, 62%, 26%) !important;
-    }
-  `;
-
   return (
     <div className="w-full md:w-80 flex-shrink-0">
-      <style>{buttonHoverStyle}</style>
       <div className="p-6 shadow-lg h-[800px] flex flex-col" style={{ backgroundColor: 'hsl(40, 63%, 63%)', borderRadius: '2px', boxShadow: '4px 6px 8px rgba(0, 0, 0, 0.3)' }}>
         <div>
           <h2 className="text-2xl font-bold mb-4" style={{ color: 'hsl(40, 62%, 26%)' }}>
@@ -97,26 +73,6 @@ const StockInfoSidebar: React.FC<StockInfoSidebarProps> = ({
             </div>
           </div>
         </div>
-        
-        {apiKey && (
-          <div className="mt-auto flex justify-end">
-            <button
-              onClick={inWatchlist ? onRemoveFromWatchlist : onAddToWatchlist}
-              disabled={pending}
-              className="watchlist-button px-4 py-2 rounded text-[16px] font-semibold transition-opacity flex items-center"
-              style={{
-                background: 'hsl(40, 62%, 26%)',
-                color: '#EBCB92',
-                opacity: pending ? 0.7 : 1,
-              }}
-              aria-label={`${inWatchlist ? 'Remove' : 'Add'} ${results.symbol} ${inWatchlist ? 'from' : 'to'} watchlist`}
-            >
-              {!inWatchlist && <BiPlus size={32} style={{ color: 'hsl(40, 63%, 42%)', marginRight: '8px' }} />}
-              {inWatchlist && <BiMinus size={32} style={{ color: 'hsl(40, 63%, 42%)', marginRight: '8px' }} />}
-              <span>{inWatchlist ? 'Remove' : 'Watch'}</span>
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -20,11 +20,15 @@ services:
       - "8000:8000"
     environment:
       - DJANGO_ENV=development
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DATABASE_NAME=postgres
+      - DATABASE_USER=Incr
+      - DATABASE_PASSWORD=${POSTGRES_PASSWORD}
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
       - KEYCLOAK_REALM_URL=https://auth-dev.snowse.io/realms/incrementum
       - KEYCLOAK_CLIENT_ID=incrementum-client
       - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-}
-      - FINNHUB_TOKEN=${FINNHUB_TOKEN}
+      - POLYGON_API_KEY=${POLYGON_API_KEY}
     restart: unless-stopped
     depends_on:
       - db
