@@ -51,7 +51,8 @@ def get_user_stock_potentials(request):
             'purchase_price': str(potential.purchase_price)
         })
 
-    return JsonResponse({'potentials': result}, status=200)
+    # Always return a valid JSON object, even if empty
+    return JsonResponse({'potentials': result if result else []}, status=200)
 
 
 @csrf_exempt

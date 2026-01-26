@@ -1,22 +1,113 @@
+
 import React, { useState } from "react";
-import "../../styles/PotentialGains.css"; // Make sure to import your Tailwind CSS file
+import "../../styles/PotentialGains.css";
 
-const mockRows = [
-  { symbol: "INTC", price: "$10.00", shares: 10, gain: "Up", date: "1/27" },
-  { symbol: "NVDA", price: "", shares: "", gain: "", date: "" },
-];
 
-const StockTable: React.FC = () => {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+// Helper to group entries by symbol
+function groupBySymbol(potentials) {
+  const grouped = {};
+  potentials.forEach((p) => {
+    if (!grouped[p.stock_symbol]) grouped[p.stock_symbol] = [];
+    grouped[p.stock_symbol].push(p);
+  });
+  return grouped;
+}
 
-  const handleRowClick = (idx: number) => {
-    setOpenIndex(openIndex === idx ? null : idx);
+const API_URL = "/api/user-stock-potentials/"; // Use Vite proxy for backend, matches backend URL with trailing slash
+
+interface StockTableProps {
+  filteredSymbols?: string[];
+}
+
+const StockTable: React.FC<StockTableProps> = ({ filteredSymbols = [] }) => {
+  const [potentials, setPotentials] = useState<{ [symbol: string]: any[] }>({});
+  const [openSymbol, setOpenSymbol] = useState<string | null>(null);
+  const [newEntry, setNewEntry] = useState<any>({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Fetch entries for a symbol when expanded
+  const fetchPotentialsForSymbol = async (symbol: string) => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch(API_URL, {
+        headers: {
+          "X-User-Id": localStorage.getItem("userId") || "demo-user",
+        },
+      });
+      if (!res.ok) throw new Error("Failed to fetch");
+      const data = await res.json();
+      // Only keep entries for this symbol
+      const filtered = (data.potentials || []).filter((p: any) => p.stock_symbol === symbol);
+      setPotentials((prev: any) => ({ ...prev, [symbol]: filtered }));
+    } catch (e) {
+      setError("Error loading data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle row expand/collapse
+  const handleRowClick = (symbol: string) => {
+    if (openSymbol !== symbol) {
+      fetchPotentialsForSymbol(symbol);
+    }
+    setOpenSymbol(openSymbol === symbol ? null : symbol);
+  };
+
+  // Handle new entry input change
+  const handleInputChange = (symbol: string, field: string, value: string) => {
+    setNewEntry((prev: any) => ({
+      ...prev,
+      [symbol]: {
+        ...prev[symbol],
+        [field]: value,
+      },
+    }));
+  };
+
+  // Add new entry for a symbol
+  const handleAddEntry = async (symbol: string) => {
+    const entry = newEntry[symbol] || {};
+    if (!entry.purchase_price || !entry.quantity || !entry.purchase_date) {
+      setError("All fields required");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-User-Id": localStorage.getItem("userId") || "demo-user",
+        },
+        body: JSON.stringify({
+          stock_symbol: symbol,
+          purchase_price: entry.purchase_price,
+          quantity: entry.quantity,
+          purchase_date: entry.purchase_date,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to add");
+      }
+      setNewEntry((prev: any) => ({ ...prev, [symbol]: {} }));
+      fetchPotentialsForSymbol(symbol);
+    } catch (e: any) {
+      setError(e.message || "Error adding entry");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="w-full">
       <div className="stock-table-wrapper">
-
+        {error && <div className="text-red-500 mb-2">{error}</div>}
+        {loading && <div>Loading...</div>}
         <table className="stock-table">
           <thead>
             <tr className="stock-table-header-row">
@@ -29,42 +120,90 @@ const StockTable: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {mockRows.map((row, idx) => (
-              <React.Fragment key={row.symbol}>
-                <tr
-                  className="stock-table-row"
-                  onClick={() => handleRowClick(idx)}
-                >
-                  <td className="stock-table-cell">{row.symbol}</td>
-                  <td className="stock-table-cell">{row.price}</td>
-                  <td className="stock-table-cell">
-                    <input
-                      className="stock-table-input"
-                      defaultValue={row.shares}
-                      onClick={e => e.stopPropagation()}
-                    />
-                  </td>
-                  <td className="stock-table-cell">{row.gain}</td>
-                  <td className="stock-table-cell">
-                    <input
-                      className="stock-table-input-date"
-                      defaultValue={row.date}
-                      onClick={e => e.stopPropagation()}
-                    />
-                  </td>
-                  <td className="stock-table-expand-btn">+</td>
-                </tr>
-                {openIndex === idx && (
-                  <tr>
-                    <td colSpan={6} className="stock-table-collapsible-row">
-                      <div className="stock-table-collapsible-content">
-                        Collapsible content for {row.symbol}
-                      </div>
-                    </td>
+            {filteredSymbols.length === 0 && (
+              <tr><td colSpan={6}>No stocks found.</td></tr>
+            )}
+            {filteredSymbols.map((symbol, idx) => {
+              const entries = potentials[symbol] || [];
+              return (
+                <React.Fragment key={symbol}>
+                  <tr
+                    className="stock-table-row"
+                    onClick={() => handleRowClick(symbol)}
+                  >
+                    <td className="stock-table-cell">{symbol}</td>
+                    <td className="stock-table-cell">{entries[0]?.purchase_price ? `$${entries[0].purchase_price}` : "-"}</td>
+                    <td className="stock-table-cell">{entries[0]?.quantity || "-"}</td>
+                    <td className="stock-table-cell">-</td>
+                    <td className="stock-table-cell">{entries[0]?.purchase_date?.slice(0,10) || "-"}</td>
+                    <td className="stock-table-expand-btn">+</td>
                   </tr>
-                )}
-              </React.Fragment>
-            ))}
+                  {openSymbol === symbol && (
+                    <tr>
+                      <td colSpan={6} className="stock-table-collapsible-row">
+                        <div className="stock-table-collapsible-content">
+                          <div>
+                            <b>All Entries for {symbol}:</b>
+                            <table className="w-full mt-2">
+                              <thead>
+                                <tr>
+                                  <th>Price</th>
+                                  <th>Shares</th>
+                                  <th>Date</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {entries.length === 0 && (
+                                  <tr><td colSpan={3}>No entries yet.</td></tr>
+                                )}
+                                {entries.map((entry, i) => (
+                                  <tr key={entry.id}>
+                                    <td>${entry.purchase_price}</td>
+                                    <td>{entry.quantity}</td>
+                                    <td>{entry.purchase_date?.slice(0,10)}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                            <div className="mt-4">
+                              <b>Add Entry:</b>
+                              <div className="flex gap-2 mt-2">
+                                <input
+                                  className="stock-table-input"
+                                  type="number"
+                                  placeholder="Price"
+                                  value={newEntry[symbol]?.purchase_price || ""}
+                                  onChange={e => handleInputChange(symbol, "purchase_price", e.target.value)}
+                                />
+                                <input
+                                  className="stock-table-input"
+                                  type="number"
+                                  placeholder="Shares"
+                                  value={newEntry[symbol]?.quantity || ""}
+                                  onChange={e => handleInputChange(symbol, "quantity", e.target.value)}
+                                />
+                                <input
+                                  className="stock-table-input-date"
+                                  type="date"
+                                  placeholder="Date"
+                                  value={newEntry[symbol]?.purchase_date || ""}
+                                  onChange={e => handleInputChange(symbol, "purchase_date", e.target.value)}
+                                />
+                                <button
+                                  className="bg-blue-500 text-white px-2 py-1 rounded"
+                                  onClick={e => { e.stopPropagation(); handleAddEntry(symbol); }}
+                                  disabled={loading}
+                                >Add</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              );
+            })}
           </tbody>
         </table>
       </div>
