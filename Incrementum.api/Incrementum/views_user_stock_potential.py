@@ -12,22 +12,32 @@ def get_user_from_request(request):
 
 
 def calculate_stock_price_difference(stock_symbol_obj, purchase_date, quantity):
+    """
+    Calculate the price difference between purchase date and latest price.
 
+    Args:
+        stock_symbol_obj: The StockModel object (not string)
+        purchase_date: The purchase date
+        quantity: The quantity of shares
+
+    Returns:
+        The price difference multiplied by quantity, or None if data not found
+    """
     old_price_record = StockHistory.objects.filter(
         stock_symbol=stock_symbol_obj,
         day_and_time=purchase_date
     ).first()
-    
+
     new_price_record = StockHistory.objects.filter(
         stock_symbol=stock_symbol_obj
     ).order_by('-day_and_time').first()
-    
+
     if not old_price_record or not new_price_record:
         return None
-    
+
     old_price = old_price_record.close_price
     new_price = new_price_record.close_price
-    
+
     diff = (old_price - new_price) * quantity
     return diff
 
