@@ -16,10 +16,9 @@ import { FilterDataProvider, useFilterData } from '../Context/FilterDataContext'
 import { getDefaultFilterDict } from './DefaultScreenerHelper';
 import type { RangeFilter } from "./DefaultScreenerHelper"
 import TopBar from '../Components/IndividualScreenerPage/ScreenerTopBar';
-import { useCustomCollection } from '../hooks/useCustomCollection';
 import PotentialGainsTable from '../Components/IndividualScreenerPage/PotentialGainsTable';
 import { useCustomCollections } from '../hooks/useCustomCollections';
-import { useBulkStockData } from '../hooks/useBulkStockData';
+import { useBulkStockDataForCollection } from '../hooks/useBulkStockData';
 
 interface StockItem { symbol?: string;[key: string]: unknown }
 
@@ -33,8 +32,7 @@ function IndividualScreenPageContent() {
   const { id } = useParams<{ id: string }>();
   const { collections, loading: collectionsLoading } = useCustomCollections();
   const [selectedCollectionId, setSelectedCollectionId] = useState<number | null>(id ? Number(id) : null);
-  const { tokens } = useCustomCollection({ id: selectedCollectionId, apiKey });
-  const { data: bulkStockData, loading: loadingBulkStocks } = useBulkStockData(tokens && tokens.length > 0 ? tokens : []);
+  const { data: bulkStockData, loading: loadingBulkStocks } = useBulkStockDataForCollection(selectedCollectionId);
   const { stocks } = useFilterData();
   const { saveCollection } = useSaveCollection({ apiKey, setTokens: () => { }, resetForm: () => { }, onError: setSaveError });
   

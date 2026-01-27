@@ -1,27 +1,31 @@
 import { useState, useEffect } from 'react';
+import { useCustomCollection } from './useCustomCollection';
 import { useAuth } from '../Context/AuthContext';
+import { apiString, fetchWrapper } from "../Context/FetchingHelper";
 
-export function useBulkStockData(tickers: string[]) {
+export function useBulkStockDataForCollection(collectionId: number | null) {
+    const { apiKey } = useAuth();
+    const { tokens, refreshCollection, error: collectionError } = useCustomCollection({ id: collectionId, apiKey });
     const [data, setData] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const { apiKey } = useAuth();
+
     useEffect(() => {
-        if (!tickers || tickers.length === 0) {
+        if (!tokens || tokens.length === 0) {
             setData([]);
             setLoading(false);
             return;
         }
         setLoading(true);
         setError(null);
-        fetch('/stocks/bulk/', {
+        fetchWrapper(() => fetch(apiString('/stocks/bulk/'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 ...(apiKey ? { 'X-User-Id': apiKey } : {})
             },
-            body: JSON.stringify({ tickers })
-        })
+            body: JSON.stringify({ tickers: tokens })
+        }))
             .then(res => res.json())
             .then(json => {
                 if (json.stocks) {
@@ -32,7 +36,11 @@ export function useBulkStockData(tickers: string[]) {
             })
             .catch(e => setError(e.message))
             .finally(() => setLoading(false));
-    }, [tickers, apiKey]);
+    }, [tokens, apiKey]);
 
-    return { data, loading, error };
+    const refresh = () => {
+        refreshCollection && refreshCollection();
+    };
+
+    return { data, loading, error: error || collectionError, refresh };
 }
