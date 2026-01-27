@@ -4,14 +4,22 @@ import "../../styles/PotentialGains.css";
 
 
 // Helper to group entries by symbol
-function groupBySymbol(potentials) {
-  const grouped = {};
-  potentials.forEach((p) => {
-    if (!grouped[p.stock_symbol]) grouped[p.stock_symbol] = [];
-    grouped[p.stock_symbol].push(p);
-  });
-  return grouped;
+interface PotentialEntry {
+  id?: string | number;
+  stock_symbol: string;
+  purchase_price: number;
+  quantity: number;
+  purchase_date: string;
 }
+
+// function groupBySymbol(potentials: PotentialEntry[]): Record<string, PotentialEntry[]> {
+//   const grouped: Record<string, PotentialEntry[]> = {};
+//   potentials.forEach((p) => {
+//     if (!grouped[p.stock_symbol]) grouped[p.stock_symbol] = [];
+//     grouped[p.stock_symbol].push(p);
+//   });
+//   return grouped;
+// }
 
 const API_URL = "/api/user-stock-potentials/"; // Use Vite proxy for backend, matches backend URL with trailing slash
 
@@ -19,12 +27,18 @@ interface StockTableProps {
   filteredSymbols?: string[];
 }
 
+interface NewEntry {
+  purchase_price?: string;
+  quantity?: string;
+  purchase_date?: string;
+}
+
 const StockTable: React.FC<StockTableProps> = ({ filteredSymbols = [] }) => {
-  const [potentials, setPotentials] = useState<{ [symbol: string]: any[] }>({});
+  const [potentials, setPotentials] = useState<Record<string, PotentialEntry[]>>({});
   const [openSymbol, setOpenSymbol] = useState<string | null>(null);
-  const [newEntry, setNewEntry] = useState<any>({});
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [newEntry, setNewEntry] = useState<Record<string, NewEntry>>({});
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
 
   // Fetch entries for a symbol when expanded
   const fetchPotentialsForSymbol = async (symbol: string) => {
@@ -39,9 +53,9 @@ const StockTable: React.FC<StockTableProps> = ({ filteredSymbols = [] }) => {
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
       // Only keep entries for this symbol
-      const filtered = (data.potentials || []).filter((p: any) => p.stock_symbol === symbol);
-      setPotentials((prev: any) => ({ ...prev, [symbol]: filtered }));
-    } catch (e) {
+      const filtered: PotentialEntry[] = (data.potentials || []).filter((p: PotentialEntry) => p.stock_symbol === symbol);
+      setPotentials((prev) => ({ ...prev, [symbol]: filtered }));
+    } catch {
       setError("Error loading data");
     } finally {
       setLoading(false);
@@ -57,8 +71,8 @@ const StockTable: React.FC<StockTableProps> = ({ filteredSymbols = [] }) => {
   };
 
   // Handle new entry input change
-  const handleInputChange = (symbol: string, field: string, value: string) => {
-    setNewEntry((prev: any) => ({
+  const handleInputChange = (symbol: string, field: keyof NewEntry, value: string) => {
+    setNewEntry((prev) => ({
       ...prev,
       [symbol]: {
         ...prev[symbol],
@@ -85,8 +99,8 @@ const StockTable: React.FC<StockTableProps> = ({ filteredSymbols = [] }) => {
         },
         body: JSON.stringify({
           stock_symbol: symbol,
-          purchase_price: entry.purchase_price,
-          quantity: entry.quantity,
+          purchase_price: Number(entry.purchase_price),
+          quantity: Number(entry.quantity),
           purchase_date: entry.purchase_date,
         }),
       });
@@ -94,10 +108,14 @@ const StockTable: React.FC<StockTableProps> = ({ filteredSymbols = [] }) => {
         const err = await res.json();
         throw new Error(err.error || "Failed to add");
       }
-      setNewEntry((prev: any) => ({ ...prev, [symbol]: {} }));
+      setNewEntry((prev) => ({ ...prev, [symbol]: {} }));
       fetchPotentialsForSymbol(symbol);
-    } catch (e: any) {
-      setError(e.message || "Error adding entry");
+    } catch (e) {
+      if (e instanceof Error) {
+        setError(e.message || "Error adding entry");
+      } else {
+        setError("Error adding entry");
+      }
     } finally {
       setLoading(false);
     }
@@ -123,7 +141,7 @@ const StockTable: React.FC<StockTableProps> = ({ filteredSymbols = [] }) => {
             {filteredSymbols.length === 0 && (
               <tr><td colSpan={6}>No stocks found.</td></tr>
             )}
-            {filteredSymbols.map((symbol, idx) => {
+            {filteredSymbols.map((symbol) => {
               const entries = potentials[symbol] || [];
               return (
                 <React.Fragment key={symbol}>
@@ -133,9 +151,9 @@ const StockTable: React.FC<StockTableProps> = ({ filteredSymbols = [] }) => {
                   >
                     <td className="stock-table-cell">{symbol}</td>
                     <td className="stock-table-cell">{entries[0]?.purchase_price ? `$${entries[0].purchase_price}` : "-"}</td>
-                    <td className="stock-table-cell">{entries[0]?.quantity || "-"}</td>
+                    <td className="stock-table-cell">{entries[0]?.quantity ?? "-"}</td>
                     <td className="stock-table-cell">-</td>
-                    <td className="stock-table-cell">{entries[0]?.purchase_date?.slice(0,10) || "-"}</td>
+                    <td className="stock-table-cell">{entries[0]?.purchase_date?.slice(0,10) ?? "-"}</td>
                     <td className="stock-table-expand-btn">+</td>
                   </tr>
                   {openSymbol === symbol && (
@@ -157,7 +175,7 @@ const StockTable: React.FC<StockTableProps> = ({ filteredSymbols = [] }) => {
                                   <tr><td colSpan={3}>No entries yet.</td></tr>
                                 )}
                                 {entries.map((entry, i) => (
-                                  <tr key={entry.id}>
+                                  <tr key={entry.id ?? i}>
                                     <td>${entry.purchase_price}</td>
                                     <td>{entry.quantity}</td>
                                     <td>{entry.purchase_date?.slice(0,10)}</td>
@@ -172,21 +190,21 @@ const StockTable: React.FC<StockTableProps> = ({ filteredSymbols = [] }) => {
                                   className="stock-table-input"
                                   type="number"
                                   placeholder="Price"
-                                  value={newEntry[symbol]?.purchase_price || ""}
+                                  value={newEntry[symbol]?.purchase_price ?? ""}
                                   onChange={e => handleInputChange(symbol, "purchase_price", e.target.value)}
                                 />
                                 <input
                                   className="stock-table-input"
                                   type="number"
                                   placeholder="Shares"
-                                  value={newEntry[symbol]?.quantity || ""}
+                                  value={newEntry[symbol]?.quantity ?? ""}
                                   onChange={e => handleInputChange(symbol, "quantity", e.target.value)}
                                 />
                                 <input
                                   className="stock-table-input-date"
                                   type="date"
                                   placeholder="Date"
-                                  value={newEntry[symbol]?.purchase_date || ""}
+                                  value={newEntry[symbol]?.purchase_date ?? ""}
                                   onChange={e => handleInputChange(symbol, "purchase_date", e.target.value)}
                                 />
                                 <button
