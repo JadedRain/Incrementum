@@ -5,10 +5,31 @@ from django.views.decorators.http import require_http_methods
 from Incrementum.models.user_stock_potential import UserStockPotential
 from Incrementum.models.account import Account
 from Incrementum.models.stock import StockModel
-
+from Incrementum.models.stock_history import StockHistory
 
 def get_user_from_request(request):
     return request.headers.get('X-User-Id')
+
+
+def calculate_stock_price_difference(stock_symbol_obj, purchase_date, quantity):
+
+    old_price_record = StockHistory.objects.filter(
+        stock_symbol=stock_symbol_obj,
+        day_and_time=purchase_date
+    ).first()
+    
+    new_price_record = StockHistory.objects.filter(
+        stock_symbol=stock_symbol_obj
+    ).order_by('-day_and_time').first()
+    
+    if not old_price_record or not new_price_record:
+        return None
+    
+    old_price = old_price_record.close_price
+    new_price = new_price_record.close_price
+    
+    diff = (old_price - new_price) * quantity
+    return diff
 
 
 @csrf_exempt
@@ -41,6 +62,11 @@ def get_user_stock_potentials(request):
             if hasattr(potential.purchase_date, 'isoformat')
             else str(potential.purchase_date)
         )
+        diff = calculate_stock_price_difference(
+            potential.stock_symbol,
+            potential.purchase_date,
+            potential.quantity
+        )
         result.append({
             'id': potential.id,
             'account_id': potential.account.id,
@@ -48,7 +74,8 @@ def get_user_stock_potentials(request):
             'company_name': potential.stock_symbol.company_name,
             'purchase_date': purchase_date,
             'quantity': str(potential.quantity),
-            'purchase_price': str(potential.purchase_price)
+            'purchase_price': str(potential.purchase_price),
+            'difference': str(diff)
         })
 
     # Always return a valid JSON object, even if empty
