@@ -20,7 +20,7 @@ function IndividualScreenPageContent() {
   const navigate = useNavigate();
   const { apiKey } = useAuth();
   const [toast, setToast] = useState<string | null>(null);
-  const { addFilter, setSelectedSectors, setSortValue, setSortBool } = useFilterData();
+  const { addFilter, setSelectedSectors, setSortValue, setSortBool, stocks } = useFilterData();
   const [potentialGainsToggled, setPotentialGainsToggled] = useState<boolean>(false);
 
   const { setInitDict, setIsInit, initDict } = useFilterData()
@@ -175,7 +175,22 @@ function IndividualScreenPageContent() {
                   navigate(`/stock/${symbol}`)
                 }
               />}
-            {potentialGainsToggled && <PotentialGainsTable />}
+            {potentialGainsToggled && (
+              <PotentialGainsTable
+                filteredSymbols={
+                  Array.isArray(stocks)
+                    ? stocks
+                        .filter((s: unknown): s is { symbol: string } =>
+                          typeof s === 'object' &&
+                          s !== null &&
+                          'symbol' in s &&
+                          typeof (s as { symbol?: unknown }).symbol === 'string'
+                        )
+                        .map((s) => s.symbol)
+                    : []
+                }
+              />
+            )}
           </div>
 
           <aside className="screener-sidebar">
