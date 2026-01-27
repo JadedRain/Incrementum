@@ -7,6 +7,7 @@ from Incrementum.models.account import Account
 from Incrementum.models.stock import StockModel
 from Incrementum.models.stock_history import StockHistory
 
+
 def get_user_from_request(request):
     return request.headers.get('X-User-Id')
 
