@@ -12,17 +12,6 @@ def get_user_from_request(request):
 
 
 def calculate_stock_price_difference(stock_symbol_obj, purchase_date, quantity):
-    """
-    Calculate the price difference between purchase date and latest price.
-
-    Args:
-        stock_symbol_obj: The StockModel object (not string)
-        purchase_date: The purchase date
-        quantity: The quantity of shares
-
-    Returns:
-        The price difference multiplied by quantity, or None if data not found
-    """
     old_price_record = StockHistory.objects.filter(
         stock_symbol=stock_symbol_obj,
         day_and_time=purchase_date
