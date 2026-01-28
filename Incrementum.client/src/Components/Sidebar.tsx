@@ -10,6 +10,8 @@ import { useFilterData } from '../Context/FilterDataContext';
 import { useAuth } from '../Context/AuthContext';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { fetchWrapper, apiString } from "../Context/FetchingHelper";
+import TickerSymbolFilter from './TickerSymbolFilter';
+import IndustryFilter from './FilterComponents/IndustryFilter';
 interface SidebarProps {
   screenerName?: string;
   onShowToast?: (message: string) => void;
@@ -242,29 +244,9 @@ const Sidebar: React.FC<SidebarProps> = ({
         </div>
       )}
       <nav className="sidebar-nav">
-        {/* Region now defaults to us*/}
-        {/* <RegionFilter /> */}
+        <TickerSymbolFilter />
 
-        <SectorFilter />
-        
-        {/* industry not working */}
-        {/* <IndustryFilter /> */}
-        
-        {/* todayvolume.min not working */}
-        {/* avgvolume.min */}
-        {/* avgvolume.max */}
-        {/* todayvolume.max */}
-        <VolumeFilter />
-        
-          {/* lastclose52weekhigh.min */}
-          {/* lastclose52weekhigh.max  */}
-        <WeekRangeFilter />
-
-        <SharePriceFilter />
-
-        <MarketCapFilter /> 
-
-        <PercentChangeFilter />
+        <IndustryFilter />
       </nav>
     </aside>
   );

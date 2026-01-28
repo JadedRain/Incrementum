@@ -1,11 +1,9 @@
-import { useState } from 'react';
 import Loading from './Loading';
 import StockRow from './StockRow';
-import { useFilterData } from '../Context/FilterDataContext';
 import ColumnVisibilityProvider from '../Context/ColumnVisibilityContext';
 import { useColumnVisibility } from '../Context/useColumnVisibility';
-import { getNextSortDirection, sortStocks, type SortField, type SortDirection } from '../utils/sortingUtils';
 import '../styles/stock-table-extras.css';
+import { useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
 
 type Stock = {
   symbol?: string;
@@ -26,7 +24,7 @@ type Col = { k: ColKey; l: string };
 type Props = { onRowClick?: (s: string) => void; stocks?: Stock[] };
 
 export default function StockTable({ onRowClick, stocks: overrideStocks }: Props) {
-  const { stocks: contextStocks, isLoading, filterDataDict } = useFilterData();
+  const { stocks: contextStocks, isLoading, sortBy, setSortBy, sortAsc, setSortAsc } = useDatabaseScreenerContext();
   const stocks = overrideStocks ?? contextStocks;
 
   const cols: Col[] = [
@@ -41,50 +39,58 @@ export default function StockTable({ onRowClick, stocks: overrideStocks }: Props
 
   return (
     <ColumnVisibilityProvider>
-      <InnerStockTable onRowClick={onRowClick} cols={cols} stocks={stocks} isLoading={isLoading} filterDataDict={filterDataDict} />
+      <InnerStockTable onRowClick={onRowClick} cols={cols} stocks={stocks} isLoading={isLoading} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} />
     </ColumnVisibilityProvider>
   );
 }
 
-function InnerStockTable({ onRowClick, cols, stocks, isLoading, filterDataDict }: {
+function InnerStockTable({ onRowClick, cols, stocks, isLoading, sortBy, setSortBy, sortAsc, setSortAsc }: {
   onRowClick?: (s: string) => void;
   cols: Col[];
   stocks: Stock[] | unknown;
   isLoading: boolean;
-  filterDataDict: Record<string, unknown>;
+  sortBy: string | null;
+  setSortBy: (v: string | null) => void;
+  sortAsc: boolean;
+  setSortAsc: (v: boolean) => void;
 }) {
   const { visibleColumns, toggleColumn, menuOpen, setMenuOpen, menuRef, btnRef, columnOrder, moveColumn } = useColumnVisibility();
-  const [sortField, setSortField] = useState<SortField | null>(null);
-  const [sortDirection, setSortDirection] = useState<SortDirection>(null);
 
-  const colToSortField = (k: string): SortField | null => {
+  // Map column keys to backend sort fields
+  const colToSortField = (k: string): string | null => {
     switch (k) {
       case 'symbol':
-        return 'name';
+        return 'symbol';
       case 'price':
-        return 'price';
+        return 'regularMarketPrice';
       case 'percentChange':
-        return 'percentChange';
+        return 'regularMarketChangePercent';
       case 'volume':
         return 'volume';
       case 'marketCap':
         return 'marketCap';
+      case 'high52':
+        return 'fiftyTwoWeekHigh';
+      case 'low52':
+        return 'fiftyTwoWeekLow';
       default:
         return null;
     }
   };
 
-  const getSortIndicator = (field: SortField) => {
-    if (sortField !== field) return '';
-    if (sortDirection === 'asc') return ' ▲';
-    if (sortDirection === 'desc') return ' ▼';
-    return '';
+  const getSortIndicator = (field: string) => {
+    if (sortBy !== field) return '';
+    if (sortAsc) return ' ▲';
+    return ' ▼';
   };
 
-  const handleHeaderClick = (field: SortField) => {
-    const nextDirection = getNextSortDirection(sortField, field, sortDirection);
-    setSortField(nextDirection === null ? null : field);
-    setSortDirection(nextDirection);
+  const handleHeaderClick = (field: string) => {
+    if (sortBy === field) {
+      setSortAsc(!sortAsc);
+    } else {
+      setSortBy(field);
+      setSortAsc(true);
+    }
   };
   const btnStyle = 'bg-transparent border-none cursor-pointer p-1';
   const menuStyle = 'absolute right-0 mt-1 bg-[#e6c884] rounded-lg shadow-lg p-3 min-w-[240px]';
@@ -138,14 +144,10 @@ function InnerStockTable({ onRowClick, cols, stocks, isLoading, filterDataDict }
         })}
       </div>
       <Loading loading={isLoading} />
-      {Object.keys(filterDataDict).length == 0 && <div>Select some filters to get started!</div>}
-      {!isLoading && (() => {
-        const items: Stock[] = Array.isArray(stocks) ? (stocks as Stock[]) : [];
-        const displayItems = (sortField && sortDirection) ? sortStocks(items, sortField, sortDirection) : items;
-        return displayItems.map((s: Stock, idx: number) => (
-          <StockRow key={s.symbol ?? idx} stock={s} onClick={() => onRowClick?.(s.symbol ?? '')} />
-        ));
-      })()}
+      {Array.isArray(stocks) && stocks.length === 0 && <div>Select some filters to get started!</div>}
+      {!isLoading && Array.isArray(stocks) && stocks.map((s: Stock, idx: number) => (
+        <StockRow key={s.symbol ?? idx} stock={s} onClick={() => onRowClick?.(s.symbol ?? '')} />
+      ))}
     </div>
   );
 }

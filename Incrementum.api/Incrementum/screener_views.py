@@ -151,18 +151,23 @@ def run_database_screener(request):
     Accepts a list of FilterData objects and returns matching stocks from the database.
     """
     try:
-        payload = json.loads(request.body or b"[]")
+        payload = json.loads(request.body or b"{}")
     except json.JSONDecodeError:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
 
-    if not isinstance(payload, list):
-        return JsonResponse(
-            {"error": "Body must be a JSON array of filter objects"},
-            status=400
-        )
+    if isinstance(payload, list):
+        filters_payload = payload
+        sort_by = None
+        sort_order = 'asc'
+    elif isinstance(payload, dict):
+        filters_payload = payload.get('filters', [])
+        sort_by = payload.get('sort_by')
+        sort_order = payload.get('sort_order', 'asc')
+    else:
+        return JsonResponse({"error": "Body must be a JSON array or object"}, status=400)
 
     filters = []
-    for index, item in enumerate(payload):
+    for index, item in enumerate(filters_payload):
         if not isinstance(item, dict):
             return JsonResponse(
                 {"error": f"Item at index {index} is not an object"},
@@ -185,7 +190,7 @@ def run_database_screener(request):
         filters.append(FilterData(operator, operand, filter_type, value))
 
     screener = Screener()
-    stocks = screener.query(filters)
+    stocks = screener.query(filters, sort_by=sort_by, sort_order=sort_order)
 
     stocks_dict = [stock.to_dict() for stock in stocks]
 

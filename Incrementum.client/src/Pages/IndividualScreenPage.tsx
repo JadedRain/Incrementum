@@ -12,16 +12,13 @@ import StockTable from '../Components/StockTable'
 import Toast from '../Components/Toast'
 import { fetchCustomScreener } from "../Query/apiScreener"
 import type { CustomScreener } from '../Types/ScreenerTypes';
-import { FilterDataProvider, useFilterData } from '../Context/FilterDataContext';
-import { getDefaultFilterDict } from './DefaultScreenerHelper';
-import type { RangeFilter } from "./DefaultScreenerHelper"
-import TopBar from '../Components/IndividualScreenerPage/ScreenerTopBar';
-import PotentialGainsTable from '../Components/IndividualScreenerPage/PotentialGainsTable';
+import { DatabaseScreenerProvider, useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
 import { useCustomCollections } from '../hooks/useCustomCollections';
 import { useBulkStockDataForCollection } from '../hooks/useBulkStockData';
+import TopBar from '../Components/IndividualScreenerPage/ScreenerTopBar';
+import PotentialGainsTable from '../Components/IndividualScreenerPage/PotentialGainsTable';
 
 interface StockItem { symbol?: string;[key: string]: unknown }
-
 
 function IndividualScreenPageContent() {
   const navigate = useNavigate();
@@ -33,9 +30,9 @@ function IndividualScreenPageContent() {
   const { collections, loading: collectionsLoading } = useCustomCollections();
   const [selectedCollectionId, setSelectedCollectionId] = useState<number | null>(id ? Number(id) : null);
   const { data: bulkStockData, loading: loadingBulkStocks } = useBulkStockDataForCollection(selectedCollectionId);
-  const { stocks } = useFilterData();
+  const { stocks, addFilter, isLoading, error, sortBy, setSortBy, sortAsc, setSortAsc } = useDatabaseScreenerContext();
   const { saveCollection } = useSaveCollection({ apiKey, setTokens: () => { }, resetForm: () => { }, onError: setSaveError });
-  
+
   const handleSelectCollection = (collectionId: number | null) => {
     setSelectedCollectionId(collectionId);
   };
@@ -77,11 +74,7 @@ function IndividualScreenPageContent() {
     }
   };
 
-  const { addFilter, setSelectedSectors, setSortValue, setSortBool } = useFilterData();
   const [potentialGainsToggled, setPotentialGainsToggled] = useState<boolean>(false);
-
-  const { setInitDict, setIsInit, initDict } = useFilterData()
-
   const togglePotentialGains = () => {
     setPotentialGainsToggled(!potentialGainsToggled);
   }
@@ -99,111 +92,37 @@ function IndividualScreenPageContent() {
 
 
   useEffect(() => {
-    const numid = Number(id);
-    if (isNaN(numid)) {
-      const base = getDefaultFilterDict(id!) as (Record<string, unknown> & { notimplemented?: string[]; sortValue?: unknown; sortBool?: unknown }) | null;
-      setIsInit(true);
-      console.log(base)
-      if (base != null && Object.hasOwn(base, "sortValue")) {
-        const val = base["sortValue"]?.toString() ?? null
-        const bol = base["sortBool"]?.toString() ?? null
-        setSortValue(val)
-        setSortBool(bol)
-      }
-      if (base != null && Array.isArray(base.notimplemented)) {
-        const list = base.notimplemented;
-
-        if (Array.isArray(list)) {
-          for (const item of list) {
-            const minmaxData = base[item as string] as RangeFilter
-            if (minmaxData.high != null) {
-              addFilter(item + "high", { operand: item, operator: "lt", filter_type: "numeric", value_high: null, value_low: null, value: minmaxData.high, })
-            }
-            if (minmaxData.low != null) {
-              addFilter(item + "high", { operand: item, operator: "gt", filter_type: "numeric", value_high: null, value_low: null, value: minmaxData.low, })
-            }
-          }
-        }
-      }
-      setInitDict(() => {
-        console.log(base);
-        return base!
-      });
-      console.log(initDict)
-    }
-  }, [addFilter, id, initDict, setInitDict, setIsInit, setSortBool, setSortValue]);
-
-  useEffect(() => {
     if (screenerData) {
-      console.log('Loading screener data:', screenerData);
 
-      const sectorsToLoad: string[] = [];
-
-      type NumericFilter = {
-        operand?: string;
-        filter_name?: string;
-        operator?: string;
-        value_high?: number | null;
-        value_low?: number | null;
-        value?: number | null;
-      };
-
-      type CategoricalFilter = {
-        operand?: string;
-        filter_name?: string;
-        operator?: string;
-        value?: string | number | null;
-      };
-
-      if (screenerData.numeric_filters) {
-        (screenerData.numeric_filters as NumericFilter[]).forEach((filter: NumericFilter, index: number) => {
-          const key = `numeric_${filter.operand || filter.filter_name}_${index}`;
-          const filterData = {
+      if (Array.isArray(screenerData.numeric_filters)) {
+        screenerData.numeric_filters.forEach((filter: any) => {
+          addFilter({
             operand: filter.operand || filter.filter_name || '',
             operator: filter.operator || 'between',
-            filter_type: 'numeric' as const,
+            filter_type: 'numeric',
             value_high: filter.value_high ?? null,
             value_low: filter.value_low ?? null,
             value: filter.value ?? null,
-          };
-          console.log('Adding numeric filter:', key, filterData);
-          addFilter(key, filterData);
+          });
         });
       }
 
-      if (screenerData.categorical_filters) {
-        (screenerData.categorical_filters as CategoricalFilter[]).forEach((filter: CategoricalFilter, index: number) => {
-          const isSectorFilter = filter.operand === 'sector' || filter.filter_name === 'sector';
-          const key = isSectorFilter
-            ? `sector.${filter.value}`
-            : `categorical_${filter.operand || filter.filter_name}_${index}`;
-
-          const filterData = {
+      if (Array.isArray(screenerData.categorical_filters)) {
+        screenerData.categorical_filters.forEach((filter: any) => {
+          addFilter({
             operand: filter.operand || filter.filter_name || '',
             operator: filter.operator || 'eq',
-            filter_type: 'categoric' as const,
+            filter_type: 'categoric',
             value: filter.value ?? null,
             value_high: null,
             value_low: null,
-          };
-          console.log('Adding categorical filter:', key, filterData);
-          addFilter(key, filterData);
-
-          if (isSectorFilter && filter.value != null) {
-            sectorsToLoad.push(String(filter.value));
-          }
+          });
         });
       }
-
-      if (sectorsToLoad.length > 0) {
-        console.log('Setting selected sectors:', sectorsToLoad);
-        setSelectedSectors(sectorsToLoad);
-      }
     }
-  }, [screenerData, addFilter, setSelectedSectors]);
+  }, [screenerData, addFilter]);
 
   const [displayStocks, setDisplayStocks] = useState<StockItem[]>(Array.isArray(stocks) ? (stocks as StockItem[]) : []);
-
   useEffect(() => {
     if (selectedCollectionId && Array.isArray(bulkStockData) && bulkStockData.length > 0) {
       setDisplayStocks(bulkStockData as StockItem[]);
@@ -258,7 +177,7 @@ function IndividualScreenPageContent() {
               <>
                 <StockTable
                   stocks={paginatedStocks}
-                  loading={loadingBulkStocks}
+                  loading={loadingBulkStocks || isLoading}
                   onRowClick={(symbol: string) => navigate(`/stock/${symbol}`)}
                 />
                 <div className="pagination-controls" style={{ display: 'flex', justifyContent: 'center', margin: '16px 0' }}>
@@ -287,9 +206,9 @@ function IndividualScreenPageContent() {
 
 function IndividualScreenPage() {
   return (
-    <FilterDataProvider>
+    <DatabaseScreenerProvider>
       <IndividualScreenPageContent />
-    </FilterDataProvider>
+    </DatabaseScreenerProvider>
   );
 }
 
