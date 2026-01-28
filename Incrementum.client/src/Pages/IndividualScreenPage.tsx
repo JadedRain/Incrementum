@@ -36,6 +36,7 @@ function IndividualScreenPageContent() {
   const handleSelectCollection = (collectionId: number | null) => {
     setSelectedCollectionId(collectionId);
   };
+  const [potentialGainsToggled, setPotentialGainsToggled] = useState<boolean>(false);
 
   const handleSave = async () => {
     setSaveError(null);
@@ -174,11 +175,13 @@ function IndividualScreenPageContent() {
 
           <div className="screener-table">
             {!potentialGainsToggled &&
-              <>
+            <>
                 <StockTable
                   stocks={paginatedStocks}
                   loading={loadingBulkStocks || isLoading}
-                  onRowClick={(symbol: string) => navigate(`/stock/${symbol}`)}
+                  onRowClick={(symbol: string) =>
+                    navigate(`/stock/${symbol}`)
+                  }
                 />
                 <div className="pagination-controls" style={{ display: 'flex', justifyContent: 'center', margin: '16px 0' }}>
                   <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>&lt; Prev</button>
@@ -187,7 +190,22 @@ function IndividualScreenPageContent() {
                 </div>
               </>
             }
-            {potentialGainsToggled && <PotentialGainsTable />}
+            {potentialGainsToggled && (
+              <PotentialGainsTable
+                filteredSymbols={
+                  Array.isArray(stocks)
+                    ? stocks
+                        .filter((s: unknown): s is { symbol: string } =>
+                          typeof s === 'object' &&
+                          s !== null &&
+                          'symbol' in s &&
+                          typeof (s as { symbol?: unknown }).symbol === 'string'
+                        )
+                        .map((s) => s.symbol)
+                    : []
+                }
+              />
+            )}
           </div>
 
           <aside className="screener-sidebar">

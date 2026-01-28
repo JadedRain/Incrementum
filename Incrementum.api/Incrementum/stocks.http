@@ -96,3 +96,8 @@ X-User-Id: test-api-key-12345
 }
 
 ###
+
+### Get EPS for a specific stock
+GET {{host}}/stock/AAPL/eps/
+Accept: application/json
+

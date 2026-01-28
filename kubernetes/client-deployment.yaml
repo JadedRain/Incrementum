@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: incrementum-client
+  namespace: incrementum
+  labels:
+    app: incrementum-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: incrementum-client
+  template:
+    metadata:
+      labels:
+        app: incrementum-client
+    spec:
+      containers:
+      - name: incrementum-client
+        image: nhowell02/incrementum_client:latest
+        imagePullPolicy: Always
+        command: ["pnpm", "run", "dev", "--host", "0.0.0.0"]
+        ports:
+        - containerPort: 5173
+          name: http
+        env:
+        - name: VITE_API_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: incrementum-config
+              key: VITE_API_BASE_URL
+        - name: VITE_DASH_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: incrementum-config
+              key: VITE_DASH_BASE_URL
+        - name: DANGEROUSLY_DISABLE_HOST_CHECK
+          value: "true"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"

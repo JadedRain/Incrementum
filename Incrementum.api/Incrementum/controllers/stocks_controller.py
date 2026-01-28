@@ -105,6 +105,7 @@ def get_stock_metadata(request, ticker):
             'updated_at': (
                 stock.updated_at.isoformat() if stock.updated_at else None
             ),
+            'eps': (float(stock.eps) if stock.eps is not None else None),
         }, status=200)
     except StockModel.DoesNotExist:
         return JsonResponse(
@@ -221,3 +222,13 @@ def get_stocks_by_tickers(request):
         return JsonResponse({'stocks': serializer.data}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+      
+      
+@require_http_methods(["GET"])
+def get_stock_eps(request, ticker):
+    try:
+        stock = StockModel.objects.get(symbol__iexact=ticker)
+        eps_val = float(stock.eps) if stock.eps is not None else None
+        return JsonResponse({'symbol': stock.symbol, 'eps': eps_val}, status=200)
+    except StockModel.DoesNotExist:
+        return JsonResponse({'error': f'Stock with ticker {ticker} not found'}, status=404)
