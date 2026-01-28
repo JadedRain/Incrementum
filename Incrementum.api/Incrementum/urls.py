@@ -47,6 +47,9 @@ urlpatterns = [
     path('stocks/industry-autocomplete/',
          screener_views.industry_autocomplete,
          name='industry_autocomplete'),
+    path('stocks/bulk/',
+         stocks.get_stocks_by_tickers,
+         name='get_stocks_by_tickers'),
 
     # Custom collection endpoints
     path('custom-collection/',

@@ -1,23 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import NavigationBar from '../Components/NavigationBar';
 import '../App.css';
-
-interface Stock {
-    symbol: string;
-    company_name: string;
-}
-
-interface ScreenerResponse {
-    stocks: Stock[];
-    count: number;
-}
-
-interface FilterData {
-    operator: string;
-    operand: string;
-    filter_type: string;
-    value?: string | number;
-}
+import type { Stock, ScreenerResponse, FilterData } from './ScreenerTestPage.types';
 
 function ScreenerTestPage() {
     const [tickerSymbols, setTickerSymbols] = useState('');
@@ -114,12 +98,12 @@ function ScreenerTestPage() {
             const data: ScreenerResponse = await response.json();
 
             if (!response.ok) {
-                throw new Error((data as unknown as { error?: string }).error || 'Request failed');
+                throw new Error((data as { error?: string }).error || 'Request failed');
             }
 
             setStocks(data.stocks);
 
-        } catch (err) {
+        } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
             setLoading(false);
