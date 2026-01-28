@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class Screener:
-    def query(self, filters: List[FilterData], 
+    def query(self, filters: List[FilterData],
               sort_by: str = None, sort_order: str = 'asc') -> List[StockModel]:
         if not filters:
             qs = StockModel.objects.all()

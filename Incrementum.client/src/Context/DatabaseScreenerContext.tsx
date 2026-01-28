@@ -69,6 +69,7 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useDatabaseScreenerContext = (): DatabaseScreenerContextType => {
   const context = useContext(DatabaseScreenerContext);
   if (!context) throw new Error("useDatabaseScreenerContext must be used within a DatabaseScreenerProvider");
