@@ -36,7 +36,6 @@ function IndividualScreenPageContent() {
   const handleSelectCollection = (collectionId: number | null) => {
     setSelectedCollectionId(collectionId);
   };
-  const [potentialGainsToggled, setPotentialGainsToggled] = useState<boolean>(false);
 
   const handleSave = async () => {
     setSaveError(null);
