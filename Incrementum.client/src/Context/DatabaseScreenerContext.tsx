@@ -1,7 +1,15 @@
 import { createContext, useCallback, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import { apiString, fetchWrapper } from "./FetchingHelper";
-import type { DatabaseScreenerFilter } from '../hooks/useDatabaseScreener';
+
+export interface DatabaseScreenerFilter {
+  operator: string;
+  operand: string;
+  filter_type: string;
+  value?: any;
+  value_high?: any;
+  value_low?: any;
+}
 
 interface DatabaseScreenerContextType {
   filterList: DatabaseScreenerFilter[];

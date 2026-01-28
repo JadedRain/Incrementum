@@ -6,7 +6,7 @@ from .models.user_stock_potential import UserStockPotential
 class StockSerializer(serializers.ModelSerializer):
     class Meta:
         model = StockModel
-        fields = ['id', 'symbol', 'company_name']
+        fields = ['symbol', 'company_name']
 
 
 class UserStockPotentialSerializer(serializers.ModelSerializer):

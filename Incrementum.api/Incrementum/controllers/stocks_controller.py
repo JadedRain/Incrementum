@@ -214,7 +214,7 @@ def get_stocks_by_tickers(request):
         if not isinstance(tickers, list) or not all(isinstance(t, str) for t in tickers):
             return JsonResponse({'error': 'tickers must be a list of strings'}, status=400)
         stocks = StockService.get_stocks_by_symbols(tickers)
-        logger.info("Got" + len(stocks) + "stocks")
+        logger.info("Got {len(stocks)} stocks")
         serializer = StockSerializer(stocks, many=True)
         return JsonResponse({'stocks': serializer.data}, status=200)
     except Exception as e:
