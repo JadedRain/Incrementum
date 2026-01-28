@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { useCustomCollection } from './useCustomCollection';
 import { useAuth } from '../Context/AuthContext';
 import { apiString, fetchWrapper } from "../Context/FetchingHelper";
+import type { StockInfo } from '../Types/StockInfoTypes';
 
 export function useBulkStockDataForCollection(collectionId: number | null) {
     const { apiKey } = useAuth();
     const { tokens, refreshCollection, error: collectionError } = useCustomCollection({ id: collectionId, apiKey });
-    const [data, setData] = useState<any[]>([]);
+    const [data, setData] = useState<StockInfo[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -39,7 +40,7 @@ export function useBulkStockDataForCollection(collectionId: number | null) {
     }, [tokens, apiKey]);
 
     const refresh = () => {
-        refreshCollection && refreshCollection();
+        if (refreshCollection) refreshCollection();
     };
 
     return { data, loading, error: error || collectionError, refresh };

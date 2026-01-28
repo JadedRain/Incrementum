@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '../Context/AuthContext';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import React from 'react';
 import TickerSymbolFilter from './TickerSymbolFilter';
 import IndustryFilter from './FilterComponents/IndustryFilter';
 interface SidebarProps {

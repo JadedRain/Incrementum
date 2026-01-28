@@ -1,5 +1,4 @@
 from Incrementum.models import Stock
-from django.db.models import Q
 
 class StockService:
     @staticmethod

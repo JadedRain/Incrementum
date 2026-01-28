@@ -26,7 +26,7 @@ const IndustryFilter: React.FC = () => {
         const data = await response.json();
         setIndustrySuggestions(data.industries || []);
         setShowSuggestions(true);
-      } catch (err) {
+      } catch {
         setError('Error fetching industry suggestions');
       } finally {
         setLoading(false);
