@@ -3,6 +3,7 @@ import traceback
 from django.utils import timezone
 from polygon import RESTClient
 from Incrementum.models.stock import StockModel
+from decimal import Decimal
 
 
 def fetch_new_stocks_from_polygon():
@@ -74,7 +75,66 @@ def update_stocks_in_db_from_polygon(stock_data, status_dict=None):
                 except (ValueError, TypeError):
                     pass
 
-            # Create or update stock in database using Django ORM
+            # Fetch annual VX financials and extract basic EPS for last fiscal year
+            eps_value = None
+            try:
+                last_year = timezone.now().year - 1
+
+                def _dp_value(dp):
+                    if dp is None:
+                        return None
+                    return getattr(dp, 'value', dp)
+
+                reports = client.vx.list_stock_financials(
+                    ticker=ticker,
+                    timeframe='annual',
+                    limit=5,
+                )
+                target = None
+                for rpt in reports:
+                    fiscal_year = getattr(rpt, 'fiscal_year', None)
+                    if fiscal_year is not None:
+                        try:
+                            if int(fiscal_year) == int(last_year):
+                                target = rpt
+                                break
+                        except Exception:
+                            pass
+                    end_date_str = getattr(rpt, 'end_date', None)
+                    if end_date_str:
+                        end_dt = datetime.strptime(end_date_str[:10], '%Y-%m-%d').date()
+                        if end_dt.year == last_year:
+                            target = rpt
+                            break
+
+                if target is None:
+                    target = next(
+                        iter(
+                            client.vx.list_stock_financials(
+                                ticker=ticker,
+                                timeframe='annual',
+                                limit=1,
+                            )
+                        ),
+                        None,
+                    )
+
+                if target is not None:
+                    fin = getattr(target, 'financials', None)
+                    income = getattr(fin, 'income_statement', None) if fin is not None else None
+                    beps = None
+                    if income is not None:
+                        beps = _dp_value(
+                            getattr(income, 'basic_earnings_per_share', None)
+                        )
+                    if beps is not None:
+                        try:
+                            eps_value = Decimal(str(round(float(beps), 4)))
+                        except Exception:
+                            eps_value = None
+            except Exception:
+                eps_value = None
+
             stock, created = StockModel.objects.update_or_create(
                 symbol=ticker,
                 defaults={
@@ -92,6 +152,7 @@ def update_stocks_in_db_from_polygon(stock_data, status_dict=None):
                     'outstanding_shares': getattr(
                         details, 'weighted_shares_outstanding', None
                     ),
+                    'eps': eps_value,
                     'homepage_url': getattr(details, 'homepage_url', None),
                     'total_employees': getattr(details, 'total_employees', None),
                     'list_date': list_date,
@@ -106,7 +167,7 @@ def update_stocks_in_db_from_polygon(stock_data, status_dict=None):
 
         except Exception as e:
             error_count += 1
-            if error_count <= 10:  # Only print first 10 errors
+            if error_count <= 10:
                 print(f"Error fetching {ticker}: {e}")
 
         if (idx + 1) % 100 == 0:
