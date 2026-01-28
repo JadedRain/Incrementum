@@ -11,6 +11,7 @@ from Incrementum.get_stock_info import get_stock_info, search_stocks, get_stock_
 from ..services.stock_service import StockService
 logger = logging.getLogger(__name__)
 
+
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
 def stock_list_create(request):
@@ -204,6 +205,7 @@ def get_database_stocks(request):
 @require_http_methods(["GET"])
 def hello_world(request):
     return JsonResponse({"message": "Hello, world!"})
+
 
 @csrf_exempt
 @require_http_methods(["POST"])

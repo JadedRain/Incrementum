@@ -11,7 +11,7 @@ import NavigationBar from '../Components/NavigationBar'
 import StockTable from '../Components/StockTable'
 import Toast from '../Components/Toast'
 import { fetchCustomScreener } from "../Query/apiScreener"
-import type { CustomScreener } from '../Types/ScreenerTypes';
+import type { CustomScreener, NumericFilter, CategoricalFilter } from '../Types/ScreenerTypes';
 import { DatabaseScreenerProvider, useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
 import { useCustomCollections } from '../hooks/useCustomCollections';
 import { useBulkStockDataForCollection } from '../hooks/useBulkStockData';
@@ -95,7 +95,7 @@ function IndividualScreenPageContent() {
     if (screenerData) {
 
       if (Array.isArray(screenerData.numeric_filters)) {
-        screenerData.numeric_filters.forEach((filter: any) => {
+        screenerData.numeric_filters.forEach((filter: NumericFilter) => {
           addFilter({
             operand: filter.operand || filter.filter_name || '',
             operator: filter.operator || 'between',
@@ -108,7 +108,7 @@ function IndividualScreenPageContent() {
       }
 
       if (Array.isArray(screenerData.categorical_filters)) {
-        screenerData.categorical_filters.forEach((filter: any) => {
+        screenerData.categorical_filters.forEach((filter: CategoricalFilter) => {
           addFilter({
             operand: filter.operand || filter.filter_name || '',
             operator: filter.operator || 'eq',

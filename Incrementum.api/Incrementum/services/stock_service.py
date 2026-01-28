@@ -8,6 +8,7 @@ class StockService:
         except Stock.DoesNotExist:
             return None
 
+
     @staticmethod
     def get_stocks_by_symbols(symbols):
         return list(Stock.objects.filter(symbol__in=symbols))

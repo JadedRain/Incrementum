@@ -9,7 +9,8 @@ logger = logging.getLogger(__name__)
 
 
 class Screener:
-    def query(self, filters: List[FilterData], sort_by: str = None, sort_order: str = 'asc') -> List[StockModel]:
+    def query(self, filters: List[FilterData], 
+              sort_by: str = None, sort_order: str = 'asc') -> List[StockModel]:
         if not filters:
             qs = StockModel.objects.all()
             if sort_by:
@@ -25,7 +26,6 @@ class Screener:
             grouped_filters[operand].append(filter_data)
         needs_latest_pps = any(f.operand == 'pps' for f in filters)
         base_qs = StockModel.objects
-        
         if needs_latest_pps:
             latest_history_qs = StockHistory.objects.filter(
                 stock_symbol__symbol=OuterRef('symbol')

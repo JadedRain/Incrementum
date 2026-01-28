@@ -1,29 +1,7 @@
 import { createContext, useCallback, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import { apiString, fetchWrapper } from "./FetchingHelper";
-
-export interface DatabaseScreenerFilter {
-  operator: string;
-  operand: string;
-  filter_type: string;
-  value?: any;
-  value_high?: any;
-  value_low?: any;
-}
-
-interface DatabaseScreenerContextType {
-  filterList: DatabaseScreenerFilter[];
-  addFilter: (filter: DatabaseScreenerFilter) => void;
-  removeFilter: (index: number) => void;
-  stocks: unknown[];
-  isLoading: boolean;
-  error: string | null;
-  clearFilters: () => void;
-  sortBy: string | null;
-  setSortBy: (value: string | null) => void;
-  sortAsc: boolean;
-  setSortAsc: (value: boolean) => void;
-}
+import type { DatabaseScreenerFilter, DatabaseScreenerContextType } from "./DatabaseScreenerTypes";
 
 const DatabaseScreenerContext = createContext<DatabaseScreenerContextType | undefined>(undefined);
 
@@ -56,7 +34,7 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
       setIsLoading(true);
       setError(null);
       try {
-        const body: any = {
+        const body: { filters: DatabaseScreenerFilter[]; sort_by?: string; sort_order?: string } = {
           filters: filterList,
         };
         if (sortBy) {
