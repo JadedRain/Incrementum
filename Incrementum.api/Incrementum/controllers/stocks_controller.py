@@ -222,8 +222,8 @@ def get_stocks_by_tickers(request):
         return JsonResponse({'stocks': serializer.data}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-      
-      
+
+
 @require_http_methods(["GET"])
 def get_stock_eps(request, ticker):
     try:
