@@ -293,7 +293,7 @@ class StockHistoryService:
                 for bar in resp
             ]
             if not data:
-                self.logger.warning(f"No history data found for ticker {ticker} from Polygon (empty data)")
+                self.logger.warning(f"No history data found for ticker {ticker} from Polygon")
                 return None, metadata
             df = pd.DataFrame(data)
             self.logger.error(df.head(25))

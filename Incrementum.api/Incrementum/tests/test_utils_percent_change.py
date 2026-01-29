@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from Incrementum.utils import calculate_percent_change
 from unittest.mock import patch
 
+
 def make_test_df_day():
     now = datetime.now()
     idx = [now - timedelta(days=1), now]
@@ -16,6 +17,7 @@ def make_test_df_day():
     }
     df = pd.DataFrame(data, index=idx)
     return df
+
 
 def make_test_df_hour():
     now = datetime.now()
@@ -30,12 +32,14 @@ def make_test_df_hour():
     df = pd.DataFrame(data, index=idx)
     return df
 
+
 @patch('Incrementum.utils.StockHistoryService')
 def test_percent_change_day_simulated(MockSHS):
     instance = MockSHS.return_value
     instance.history.return_value = (make_test_df_day(), {})
     pct, _ = calculate_percent_change('FAKE', mode='day')
     assert pct == pytest.approx(0.10)
+
 
 @patch('Incrementum.utils.StockHistoryService')
 def test_percent_change_hour_simulated(MockSHS):
