@@ -12,18 +12,18 @@ interface MarketCapFilterProps {
 
 const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
   const { addFilter, removeFilter, fetchInit, initDict } = useFilterData();
-    const [minValue, setMinValue] = useState<number | null>(null);
-    const [maxValue, setMaxValue] = useState<number | null>(null);
+  const [minValue, setMinValue] = useState<number | null>(null);
+  const [maxValue, setMaxValue] = useState<number | null>(null);
 
-        useEffect(() => {
-        console.log(initDict)
-        const init = fetchInit("MarketCapFilter");
-        console.log(init)
-        if (init) {
-          setMinValue(init.high ?? null);
-          setMaxValue(init.low ?? null);
-        }
-      }, [fetchInit, initDict]);
+  useEffect(() => {
+    console.log(initDict)
+    const init = fetchInit("MarketCapFilter");
+    console.log(init)
+    if (init) {
+      setMinValue(init.high ?? null);
+      setMaxValue(init.low ?? null);
+    }
+  }, [fetchInit, initDict]);
 
   const minKey = 'marketcap.min';
   const maxKey = 'marketcap.max';
@@ -66,7 +66,7 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
     <ExpandableSidebarItem title="Market Cap">
       <div style={{ marginBottom: '0.5rem' }}>
         <div style={{ fontWeight: 600 }}>Market Cap</div>
-        <div 
+        <div
           style={{
             display: "flex",
             alignItems: "center",
@@ -81,7 +81,7 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
             value={minValue ?? ''}
             onChange={e => setMinValue(e.target.value ? Number(e.target.value) : null)}
             className="sidebar-input"
-            style={{ flex: 1, padding: '0.4rem', minWidth: 0}}
+            style={{ flex: 1, padding: '0.4rem', minWidth: 0 }}
           />
           <input
             type="number"
@@ -89,7 +89,7 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
             value={maxValue ?? ''}
             onChange={e => setMaxValue(e.target.value ? Number(e.target.value) : null)}
             className="sidebar-input"
-            style={{ flex: 1, padding: '0.4rem', minWidth: 0}}
+            style={{ flex: 1, padding: '0.4rem', minWidth: 0 }}
           />
         </div>
       </div>
