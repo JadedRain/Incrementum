@@ -1,3 +1,4 @@
+from Incrementum.utils import calculate_percent_change
 from ..stock_history_service import StockHistoryService
 import json
 import logging
@@ -232,3 +233,27 @@ def get_stock_eps(request, ticker):
         return JsonResponse({'symbol': stock.symbol, 'eps': eps_val}, status=200)
     except StockModel.DoesNotExist:
         return JsonResponse({'error': f'Stock with ticker {ticker} not found'}, status=404)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_percent_change(request, ticker):
+    mode = request.GET.get('mode', 'day')
+    try:
+        pct, calc_time = calculate_percent_change(ticker, mode=mode)
+        if pct is None:
+            return JsonResponse({
+                'symbol': ticker,
+                'mode': mode,
+                'percent_change': None,
+                'calculation_time': str(calc_time),
+                'error': 'Not enough data or unavailable.'
+            }, status=404)
+        return JsonResponse({
+            'symbol': ticker,
+            'mode': mode,
+            'percent_change': pct,
+            'calculation_time': str(calc_time)
+        }, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
