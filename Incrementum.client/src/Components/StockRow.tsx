@@ -12,6 +12,7 @@ type Stock = {
   averageDailyVolume3Month?: number;
   averageVolume?: number;
   volume?: number;
+  eps?: number;
 };
 
 type Props = {
@@ -39,6 +40,7 @@ export default function StockRow({ stock, onClick }: Props) {
     percentChange: s.regularMarketChangePercent,
     volume: s.regularMarketVolume ?? s.averageDailyVolume3Month ?? s.averageVolume ?? s.volume,
     marketCap: s.marketCap,
+    eps: s.eps,
   } as Record<string, number | undefined>;
   const Cell = ({ children }: { children: React.ReactNode }) => (
     <div className="StockTable-cell">{children}</div>
@@ -53,6 +55,8 @@ export default function StockRow({ stock, onClick }: Props) {
             return <div key={k} className="StockTable-cell font-mono text-sm uppercase tracking-wider">{symbol}</div>;
           case 'price':
             return <Cell key={k}>{o.price != null ? `$${o.price.toFixed(2)}` : 'N/A'}</Cell>;
+          case 'eps':
+            return <Cell key={k}>{o.eps != null ? `$${o.eps.toFixed(2)}` : 'N/A'}</Cell>;
           case 'high52':
             return <Cell key={k}>{o.high52 != null ? `$${o.high52.toFixed(2)}` : 'N/A'}</Cell>;
           case 'low52':

@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ColumnVisibilityContext } from './columnVisibilityCore';
 
-export function ColumnVisibilityProvider({ children, showWatchlist = false }: { children: React.ReactNode; showWatchlist?: boolean }) {
+export function ColumnVisibilityProvider({ children }: { children: React.ReactNode; }) {
   const LS_KEY = 'stockTable.visibleColumns.v1';
-  const defaultCols = { symbol: true, price: true, purchasePrice: false, high52: true, low52: true, percentChange: true, volume: true, marketCap: true, watchlist: !!showWatchlist } as Record<string, boolean>;
+  const defaultCols = { symbol: true, price: true, eps: true, purchasePrice: false, high52: true, low52: true, percentChange: true, volume: true, marketCap: true} as Record<string, boolean>;
 
   const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>(() => {
     try {

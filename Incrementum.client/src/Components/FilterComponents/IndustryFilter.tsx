@@ -1,75 +1,99 @@
-import React from 'react';
-import CategoryFilter from './CategoricFilter';
-import { useFilterData } from "../../Context/FilterDataContext";
-import {useState, useEffect} from "react"
+import React, { useState, useEffect, useRef } from 'react';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
-import { fetchWrapper, apiString } from "../../Context/FetchingHelper";
+import { useDatabaseScreenerContext } from '../../Context/DatabaseScreenerContext';
+import { fetchWrapper, apiString } from '../../Context/FetchingHelper';
+
 const IndustryFilter: React.FC = () => {
-  const {selectedSectors} = useFilterData()
-  const [loading, setLoading] = useState<boolean>(true);
+  const [industryQuery, setIndustryQuery] = useState('');
+  const [industrySuggestions, setIndustrySuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [industries, SetIndustries] = useState<string[]>()
-    useEffect(() => {
-    const fetchIndustries = async () => {
-        try {
-        if (selectedSectors == null)
-        {
-          return
-        }
-        setLoading(true);
-        const response = await fetchWrapper(()=>fetch(apiString("/industries/"), {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ "sectors": selectedSectors}),
-        }));
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        SetIndustries([])
+  const { addFilter } = useDatabaseScreenerContext();
+  const suggestionBoxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchIndustrySuggestions = async () => {
+      if (industryQuery.trim().length < 2) {
+        setIndustrySuggestions([]);
+        return;
+      }
+      setLoading(true);
+      try {
+        const response = await fetchWrapper(() =>
+          fetch(apiString(`/stocks/industry-autocomplete?query=${encodeURIComponent(industryQuery)}`))
+        );
         const data = await response.json();
-        selectedSectors.forEach((sector)=>{
-          const industryNames = Array.isArray(data.industries[sector])
-            ? data.industries[sector]
-            : [];
-          console.log(industryNames)
-          SetIndustries((p)=>p?.concat(industryNames));
-
-        })
-        } catch (err: unknown) {
-        console.error("Failed to fetch industries:", err);
-        const message = err instanceof Error ? err.message : String(err);
-        setError(message || "Failed to load industries");
-        } finally {
+        setIndustrySuggestions(data.industries || []);
+        setShowSuggestions(true);
+      } catch {
+        setError('Error fetching industry suggestions');
+      } finally {
         setLoading(false);
-        }
+      }
     };
+    const timeoutId = setTimeout(fetchIndustrySuggestions, 300);
+    return () => clearTimeout(timeoutId);
+  }, [industryQuery]);
 
-    fetchIndustries();
-    }, [selectedSectors]);
-    if (industries?.length == 0) {
-    return (
-      <ExpandableSidebarItem title="Industry Filters">
-        <div>Please Select one or more Sectors to display related industries</div>
-      </ExpandableSidebarItem>
-    );
-  }
-      if (loading) {
-    return (
-      <ExpandableSidebarItem title="Industry Filters">
-        <div>Loading industries...</div>
-      </ExpandableSidebarItem>
-    );
-  }
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (suggestionBoxRef.current && !suggestionBoxRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-  if (error) {
-    return (
-      <ExpandableSidebarItem title="Industry Filters">
-        <div style={{ color: "red" }}>Error: {error}</div>
-      </ExpandableSidebarItem>
-    );
-  }
+  const selectIndustry = (industry: string) => {
+    setIndustryQuery(industry);
+    setShowSuggestions(false);
+    addFilter({
+      operator: 'contains',
+      operand: 'industry',
+      filter_type: 'string',
+      value: industry,
+    });
+  };
+
   return (
-      <CategoryFilter categorys={industries ?? []} category='industry' displayName="Industries" />
+    <ExpandableSidebarItem title="Industry Search">
+      <div className="mb-4 relative" ref={suggestionBoxRef}>
+        <label className="block text-sm font-medium mb-2">Industry Search:</label>
+        <input
+          type="text"
+          value={industryQuery}
+          onChange={e => setIndustryQuery(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === 'Enter' && industryQuery.trim().length > 1) {
+              selectIndustry(industryQuery);
+            }
+          }}
+          onFocus={() => industrySuggestions.length > 0 && setShowSuggestions(true)}
+          placeholder="Start typing an industry..."
+          className="w-full px-3 py-2 border rounded"
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          Type to search for industries (e.g., "banking", "software")
+        </p>
+        {showSuggestions && industrySuggestions.length > 0 && (
+          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded shadow-lg max-h-60 overflow-y-auto">
+            {industrySuggestions.map((industry, index) => (
+              <div
+                key={index}
+                onClick={() => selectIndustry(industry)}
+                className="px-3 py-2 hover:bg-blue-100 cursor-pointer"
+              >
+                {industry}
+              </div>
+            ))}
+          </div>
+        )}
+        {loading && <div>Loading industries...</div>}
+        {error && <div style={{ color: 'red' }}>{error}</div>}
+      </div>
+    </ExpandableSidebarItem>
   );
 };
 

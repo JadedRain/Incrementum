@@ -11,8 +11,6 @@ type CollectionStockTableProps = {
   loadingStocks: boolean;
   tokens: string[];
   onStockClick: (symbol: string) => void;
-  onRemoveStock: (symbol: string) => void | Promise<void>;
-  pendingSymbol?: string | null;
   collectionId?: string | undefined;
   collectionName?: string | undefined;
 };
@@ -55,7 +53,7 @@ const IndividualCustomCollectionPage: React.FC = () => {
     setSearching(true);
     setSearchResults([]);
     try {
-      const res = await fetchWrapper(()=>fetch(apiString(`/searchStocks/${encodeURIComponent(newToken)}/0/`)));
+      const res = await fetchWrapper(()=>fetch(apiString(`/stocks/search/${encodeURIComponent(newToken)}/0/`)));
       if (!res.ok) throw new Error("Failed to search stocks");
       const data = await res.json();
       setSearchResults((data.results || data || []) as StockItem[]);
@@ -75,7 +73,7 @@ const IndividualCustomCollectionPage: React.FC = () => {
     setSearchResults([]);
   };
   
-  const { addStock, removeStock, pendingSymbol } = useCollectionActions({
+  const { addStock } = useCollectionActions({
     collectionName,
     apiKey,
     onRefresh: refreshCollection,
@@ -153,8 +151,6 @@ const IndividualCustomCollectionPage: React.FC = () => {
           loadingStocks={loadingStocks}
           tokens={tokens}
           onStockClick={(symbol) => navigate(`/stock/${symbol}`)}
-          onRemoveStock={removeStock}
-          pendingSymbol={pendingSymbol}
           collectionId={id}
           collectionName={collectionName}
         />

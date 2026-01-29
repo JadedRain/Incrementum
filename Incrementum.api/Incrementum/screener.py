@@ -1,16 +1,22 @@
 from typing import List
-from django.db.models import Q
+from django.db.models import Q, OuterRef, Subquery
 from Incrementum.DTOs.ifilterdata import FilterData
 from Incrementum.models.stock import StockModel
+from Incrementum.models.stock_history import StockHistory
 import logging
 
 logger = logging.getLogger(__name__)
 
 
 class Screener:
-    def query(self, filters: List[FilterData]) -> List[StockModel]:
+    def query(self, filters: List[FilterData],
+              sort_by: str = None, sort_order: str = 'asc') -> List[StockModel]:
         if not filters:
-            return list(StockModel.objects.all())
+            qs = StockModel.objects.all()
+            if sort_by:
+                order = '' if sort_order == 'asc' else '-'
+                qs = qs.order_by(f'{order}{sort_by}')
+            return list(qs)
 
         grouped_filters = {}
         for filter_data in filters:
@@ -18,6 +24,14 @@ class Screener:
             if operand not in grouped_filters:
                 grouped_filters[operand] = []
             grouped_filters[operand].append(filter_data)
+        needs_latest_pps = any(f.operand == 'pps' for f in filters)
+        base_qs = StockModel.objects
+        if needs_latest_pps:
+            latest_history_qs = StockHistory.objects.filter(
+                stock_symbol__symbol=OuterRef('symbol')
+            ).order_by('-day_and_time')
+            latest_close_subq = Subquery(latest_history_qs.values('close_price')[:1])
+            base_qs = StockModel.objects.annotate(latest_close=latest_close_subq)
 
         combined_q = Q()
         for operand, filter_list in grouped_filters.items():
@@ -35,7 +49,11 @@ class Screener:
                     combined_q &= or_q
 
         logger.info(f"Final query: {combined_q}")
-        result = list(StockModel.objects.filter(combined_q))
+        qs = base_qs.filter(combined_q)
+        if sort_by:
+            order = '' if sort_order == 'asc' else '-'
+            qs = qs.order_by(f'{order}{sort_by}')
+        result = list(qs)
         logger.info(f"Query returned {len(result)} stocks")
         return result
 
@@ -47,11 +65,11 @@ class Screener:
         field_mapping = {
             'ticker': 'symbol',
             'price': 'market_cap',
+            'pps': 'latest_close',
             'industry': 'sic_description',
         }
 
         field_name = field_mapping.get(operand, operand)
-
         if operator == 'equals':
             if filter_data.filter_type == 'string':
                 return Q(**{f'{field_name}__iexact': value})

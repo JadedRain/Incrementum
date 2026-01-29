@@ -1,3 +1,4 @@
+from Incrementum.utils import calculate_percent_change
 from ..stock_history_service import StockHistoryService
 import json
 import logging
@@ -8,6 +9,8 @@ from django.views.decorators.http import require_http_methods
 from Incrementum.models.stock import StockModel
 from Incrementum.serializers import StockSerializer
 from Incrementum.get_stock_info import get_stock_info, search_stocks, get_stock_by_ticker
+from ..services.stock_service import StockService
+logger = logging.getLogger(__name__)
 
 
 @csrf_exempt
@@ -103,6 +106,7 @@ def get_stock_metadata(request, ticker):
             'updated_at': (
                 stock.updated_at.isoformat() if stock.updated_at else None
             ),
+            'eps': (float(stock.eps) if stock.eps is not None else None),
         }, status=200)
     except StockModel.DoesNotExist:
         return JsonResponse(
@@ -203,3 +207,53 @@ def get_database_stocks(request):
 @require_http_methods(["GET"])
 def hello_world(request):
     return JsonResponse({"message": "Hello, world!"})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def get_stocks_by_tickers(request):
+    try:
+        data = json.loads(request.body)
+        tickers = data.get('tickers', [])
+        if not isinstance(tickers, list) or not all(isinstance(t, str) for t in tickers):
+            return JsonResponse({'error': 'tickers must be a list of strings'}, status=400)
+        stocks = StockService.get_stocks_by_symbols(tickers)
+        logger.info(f"Got {len(stocks)} stocks")
+        serializer = StockSerializer(stocks, many=True)
+        return JsonResponse({'stocks': serializer.data}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@require_http_methods(["GET"])
+def get_stock_eps(request, ticker):
+    try:
+        stock = StockModel.objects.get(symbol__iexact=ticker)
+        eps_val = float(stock.eps) if stock.eps is not None else None
+        return JsonResponse({'symbol': stock.symbol, 'eps': eps_val}, status=200)
+    except StockModel.DoesNotExist:
+        return JsonResponse({'error': f'Stock with ticker {ticker} not found'}, status=404)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_percent_change(request, ticker):
+    mode = request.GET.get('mode', 'day')
+    try:
+        pct, calc_time = calculate_percent_change(ticker, mode=mode)
+        if pct is None:
+            return JsonResponse({
+                'symbol': ticker,
+                'mode': mode,
+                'percent_change': None,
+                'calculation_time': str(calc_time),
+                'error': 'Not enough data or unavailable.'
+            }, status=404)
+        return JsonResponse({
+            'symbol': ticker,
+            'mode': mode,
+            'percent_change': pct,
+            'calculation_time': str(calc_time)
+        }, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

@@ -15,8 +15,11 @@
 
 .screener-topbar {
   @apply sticky top-0 z-40 col-span-2;
-  /* @apply shadow-[5px_5px_5px_#3F3A30];
-  @apply rounded-sm; */
+  @apply bg-[hsl(40,63%,63%)];
+  @apply px-2;
+  @apply py-2;
+  @apply shadow-[5px_5px_5px_#3F3A30];
+  @apply rounded-sm;
 }
 
 .screener-table {
@@ -26,3 +29,4 @@
 .screener-sidebar {
   @apply w-full;
 }
+

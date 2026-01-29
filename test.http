@@ -7,3 +7,10 @@ POST http://localhost:8000/fetch-and-update-database/
 GET http://localhost:8000/fetch-and-update-database/
 
 ###
+
+GET http://localhost:8000/stock/AAPL/percent-change?mode=day
+
+###
+
+GET http://localhost:8000/stock/AAPL/percent-change?mode=hour
+

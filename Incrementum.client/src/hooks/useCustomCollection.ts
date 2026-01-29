@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { apiString, fetchWrapper } from "../Context/FetchingHelper";
-interface UseCustomCollectionProps {
-  id?: string;
+export interface UseCustomCollectionProps {
+  id?: number | null;
   apiKey: string | null;
 }
 

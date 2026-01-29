@@ -32,12 +32,10 @@ interface FilterDataContextType {
 
 }
 
-// Create context
 const FilterDataContext = createContext<FilterDataContextType | undefined>(
   undefined
 );
 
-// Provider
 export const FilterDataProvider = ({ children }: { children: ReactNode }) => {
   const [initDict, setInitDict] = useState<Record<string, unknown | null>>({})
   const fetchInit =  (key: string)=> {
