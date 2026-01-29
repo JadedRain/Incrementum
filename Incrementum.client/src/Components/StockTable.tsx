@@ -16,9 +16,10 @@ type Stock = {
   averageDailyVolume3Month?: number;
   averageVolume?: number;
   volume?: number;
+  eps?: number;
 };
 
-type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'marketCap';
+type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'marketCap' | 'eps';
 type Col = { k: ColKey; l: string };
 
 type Props = { onRowClick?: (s: string) => void; stocks?: Stock[] };
@@ -30,6 +31,7 @@ export default function StockTable({ onRowClick, stocks: overrideStocks }: Props
   const cols: Col[] = [
     { k: 'symbol', l: 'Symbol' },
     { k: 'price', l: 'Price' },
+    { k: 'eps', l: 'EPS' },
     { k: 'high52', l: '52W High' },
     { k: 'low52', l: '52W Low' },
     { k: 'percentChange', l: '1 Day % Chg.' },
@@ -63,6 +65,8 @@ function InnerStockTable({ onRowClick, cols, stocks, isLoading, sortBy, setSortB
         return 'symbol';
       case 'price':
         return 'regularMarketPrice';
+      case 'eps':
+        return 'eps';
       case 'percentChange':
         return 'regularMarketChangePercent';
       case 'volume':
