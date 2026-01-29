@@ -18,7 +18,7 @@ export const useCreateCollectionForm = (opts?: UseCreateCollectionFormOptions) =
     setSearching(true);
     setSearchResults([]);
     try {
-      const res = await fetchWrapper(()=>fetch(apiString(`/searchStocks/${encodeURIComponent(newToken)}/0/`)));
+      const res = await fetchWrapper(()=>fetch(apiString(`/stocks/search/${encodeURIComponent(newToken)}/0/`)));
       if (!res.ok) throw new Error('Failed to search stocks');
       const data = await res.json();
       setSearchResults((data && (data.results || data)) || []);

@@ -10,11 +10,11 @@ export function useFetchStockData(token: string | undefined) {
     const fetchResults = async () => {
       setLoading(true);
       try {
-        const res = await fetchWrapper(()=>fetch(apiString(`/stock/${token}/`)));
-        const data: StockData = await res.json();
-        setResults(data);
+        const res = await fetchWrapper(()=>fetch(apiString(`/stock/${token}/metadata/`)));
+        const data = await res.json();
+        setResults(data as unknown as StockData);
       } catch (err) {
-        console.error("Error fetching stock data:", err);
+        console.error("Error fetching stock metadata:", err);
       } finally {
         setLoading(false);
       }
