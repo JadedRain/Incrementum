@@ -4,7 +4,12 @@ from django.utils import timezone
 from polygon import RESTClient
 from Incrementum.models.stock import StockModel
 from decimal import Decimal
+from Incrementum.stock_history_service import StockHistoryService
+import pandas as pd
+from datetime import timedelta
+from logging import Logger
 
+logger = Logger("logs")
 
 def fetch_new_stocks_from_polygon():
     api_key = os.environ.get('POLYGON_API_KEY')
@@ -199,3 +204,30 @@ def fetch_and_update_symbols():
 
     saved = update_stocks_in_db_from_polygon(data)
     return saved
+
+
+def calculate_percent_change(ticker: str, mode: str = 'day'):
+    shs = StockHistoryService()
+    now = timezone.now()
+
+    if mode == 'day':
+        df, _ = shs.history(ticker, period='2d', interval='1d')
+        if df is None or len(df) < 2:
+            return None, now
+        old_time, new_time = df.index[-2], df.index[-1]
+        old, new = df['Close'].iloc[-2], df['Close'].iloc[-1]
+        logger.error(f"[{timezone.now()}][PercentChange] DAY: old=({old_time}, {old}), new=({new_time}, {new})")
+
+    elif mode == 'hour':
+        df, _ = shs.history(ticker, period='2d', interval='1h')
+        if df is None or len(df) < 2:
+            return None, now
+        old_time, new_time = df.index[-2], df.index[-1]
+        old, new = df['Close'].iloc[-2], df['Close'].iloc[-1]
+        logger.error(f"[{timezone.now()}][PercentChange] HOUR: old=({old_time}, {old}), new=({new_time}, {new})")
+    else:
+        raise ValueError("mode must be 'day' or 'hour'")
+    if old == 0 or old is None or new is None:
+        return None, now
+    percent_change = (new - old) / old
+    return percent_change, now

@@ -130,4 +130,8 @@ urlpatterns = [
     path('api/user-stock-potentials/',
          views_user_stock_potential.user_stock_potential_list_create,
          name='user_stock_potential_list_create'),
+    
+    path('stock/<str:ticker>/percent-change/',
+          stocks.get_percent_change,
+          name='get_percent_change'),
 ]

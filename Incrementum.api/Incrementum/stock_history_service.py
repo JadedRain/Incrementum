@@ -1,5 +1,6 @@
-import logging
-import yfinance as yf
+from logging import Logger
+from polygon import RESTClient
+import os
 from typing import Optional, Tuple
 import pandas as pd
 from django.db import connection
@@ -9,10 +10,8 @@ from datetime import datetime
 
 class StockHistoryService:
     def __init__(self):
-        datetime.timezone.utc
-        self.logger = logging.getLogger("django")
-        # store current timezone for making datetimes aware
-        timezone.make_aware(datetime, datetime.timezone.utc)
+        # self.logger = logging.getLogger("django")
+        self.logger = Logger("logs")
 
     def get_db_history(
         self,
@@ -86,6 +85,13 @@ class StockHistoryService:
         try:
             records = []
             for date_index, row in history_df.iterrows():
+                if isinstance(date_index, (int, float)):
+                    date_index = pd.to_datetime(date_index, unit='ms')
+                elif isinstance(date_index, str):
+                    try:
+                        date_index = pd.to_datetime(date_index)
+                    except Exception:
+                        pass
                 records.append((
                     ticker,
                     date_index,
@@ -155,28 +161,42 @@ class StockHistoryService:
         interval: str = "1d"
     ) -> Optional[pd.DataFrame]:
         try:
-            stock = yf.Ticker(ticker)
-            # ensure start_date is timezone-aware (yfinance accepts date strings)
-            start_date = self._ensure_aware(start_date)
-
-            end_date = timezone.now()
-
-            fresh_data = stock.history(
-                start=start_date.strftime("%Y-%m-%d"),
-                end=end_date.strftime("%Y-%m-%d"),
-                interval=interval,
-            )
-
-            if fresh_data is None or fresh_data.empty:
-
+            api_key = os.environ.get('POLYGON_API_KEY')
+            if not api_key:
+                self.logger.error("POLYGON_API_KEY not set in environment")
                 return None
-
-            return fresh_data
-
-        except Exception as e:
-            self.logger.error(
-                f"Error fetching fresh data for {ticker}: {str(e)}"
+            client = RESTClient(api_key)
+            end_date = timezone.now()
+            timespan = 'hour' if interval != '1d' else 'day'
+            resp = client.get_aggs(
+                ticker,
+                1,
+                timespan,
+                start_date.strftime('%Y-%m-%d'),
+                end_date.strftime('%Y-%m-%d'),
+                limit=5000
             )
+            self.logger.error(f"{start_date}:{end_date}")
+            if not resp:
+                return None
+            # Build DataFrame
+            data = [
+                {
+                    'day_and_time': pd.to_datetime(bar.timestamp, unit='ms'),
+                    'Open': bar.open,
+                    'Close': bar.close,
+                    'High': bar.high,
+                    'Low': bar.low,
+                    'Volume': bar.volume
+                }
+                for bar in resp
+            ]
+            if not data:
+                return None
+            df = pd.DataFrame(data)
+            return df
+        except Exception as e:
+            self.logger.error(f"Error fetching fresh data for {ticker} from Polygon: {str(e)}")
             return None
 
     def history(
@@ -234,28 +254,56 @@ class StockHistoryService:
                 return db_history, metadata
 
         try:
-            stock = yf.Ticker(ticker)
-            history_data = stock.history(period=period, interval=interval)
-
-            if history_data is None or history_data.empty:
-                self.logger.warning(
-                    f"No history data found for ticker {ticker}"
-                )
+            api_key = os.environ.get('POLYGON_API_KEY')
+            if not api_key:
+                self.logger.error("POLYGON_API_KEY not set in environment")
                 return None, metadata
-
+            client = RESTClient(api_key)
+            end_date = timezone.now()
+            if period.endswith('d'):
+                days = int(period[:-1])
+                start_date = end_date - pd.Timedelta(days=days)
+            elif period.endswith('y'):
+                years = int(period[:-1])
+                start_date = end_date - pd.DateOffset(years=years)
+            else:
+                start_date = end_date - pd.Timedelta(days=365)
+            timespan = 'hour' if interval != '1d' else 'day'
+            resp = client.get_aggs(
+                ticker,
+                1,
+                timespan,
+                start_date.strftime('%Y-%m-%d'),
+                end_date.strftime('%Y-%m-%d'),
+                limit=5000
+            )
+            self.logger.error(f"{start_date}:{end_date}")
+            if not resp:
+                self.logger.warning(f"No history data found for ticker {ticker} from Polygon")
+                return None, metadata
+            data = [
+                {
+                    'day_and_time': pd.to_datetime(bar.timestamp, unit='ms'),
+                    'Open': bar.open,
+                    'Close': bar.close,
+                    'High': bar.high,
+                    'Low': bar.low,
+                    'Volume': bar.volume
+                }
+                for bar in resp
+            ]
+            if not data:
+                self.logger.warning(f"No history data found for ticker {ticker} from Polygon (empty data)")
+                return None, metadata
+            df = pd.DataFrame(data)
+            self.logger.error(df.head(25))
             is_hourly = interval != "1d"
-            self.save_history_to_db(ticker, history_data, is_hourly)
-
-            metadata["source"] = "yfinance"
-            metadata["records_count"] = len(history_data)
+            self.save_history_to_db(ticker, df, is_hourly)
+            metadata["source"] = "polygon"
+            metadata["records_count"] = len(df)
             metadata["is_current"] = True
-            self.logger.info(
-                f"Retrieved {len(history_data)} records from yfinance for {ticker}"
-            )
-            return history_data, metadata
-
+            self.logger.info(f"Retrieved {len(df)} records from Polygon for {ticker}")
+            return df, metadata
         except Exception as e:
-            self.logger.error(
-                f"Error fetching history for {ticker}: {str(e)}"
-            )
+            self.logger.error(f"Error fetching history for {ticker} from Polygon: {str(e)}")
             return None, metadata
