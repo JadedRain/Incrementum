@@ -24,6 +24,7 @@ class Screener:
             if operand not in grouped_filters:
                 grouped_filters[operand] = []
             grouped_filters[operand].append(filter_data)
+        logger.error(f"Grouped filters: {grouped_filters}")
         needs_latest_pps = any(f.operand == 'pps' for f in filters)
         base_qs = StockModel.objects
         if needs_latest_pps:
@@ -33,6 +34,7 @@ class Screener:
             latest_close_subq = Subquery(latest_history_qs.values('close_price')[:1])
             base_qs = StockModel.objects.annotate(latest_close=latest_close_subq)
 
+
         combined_q = Q()
         for operand, filter_list in grouped_filters.items():
             if len(filter_list) == 1:
@@ -40,13 +42,24 @@ class Screener:
                 if q_obj:
                     combined_q &= q_obj
             else:
-                or_q = Q()
-                for filter_data in filter_list:
-                    q_obj = self._build_q_object(filter_data)
-                    if q_obj:
-                        or_q |= q_obj
-                if or_q:
-                    combined_q &= or_q
+
+                all_numeric = all(getattr(f, 'filter_type', None) == 'numeric' for f in filter_list)
+                if all_numeric:
+                    and_q = Q()
+                    for filter_data in filter_list:
+                        q_obj = self._build_q_object(filter_data)
+                        if q_obj:
+                            and_q &= q_obj
+                    if and_q:
+                        combined_q &= and_q
+                else:
+                    or_q = Q()
+                    for filter_data in filter_list:
+                        q_obj = self._build_q_object(filter_data)
+                        if q_obj:
+                            or_q |= q_obj
+                    if or_q:
+                        combined_q &= or_q
 
         logger.info(f"Final query: {combined_q}")
         qs = base_qs.filter(combined_q)

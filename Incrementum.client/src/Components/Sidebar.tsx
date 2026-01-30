@@ -1,6 +1,9 @@
 import React from 'react';
 import TickerSymbolFilter from './TickerSymbolFilter';
 import IndustryFilter from './FilterComponents/IndustryFilter';
+import MarketCapFilter from './FilterComponents/MarketCapFilter';
+import EPSFilter from './FilterComponents/EPSFilter';
+
 interface SidebarProps {
   screenerName?: string;
   onShowToast?: (message: string) => void;
@@ -13,6 +16,10 @@ const Sidebar: React.FC<SidebarProps> = () => {
         <TickerSymbolFilter />
 
         <IndustryFilter />
+
+        <MarketCapFilter />
+
+        <EPSFilter />
       </nav>
     </aside>
   );
