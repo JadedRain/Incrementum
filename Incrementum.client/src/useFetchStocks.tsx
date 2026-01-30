@@ -18,7 +18,11 @@ export function useFetchStocks() {
       try {
         const response = await fetchWrapper(()=>fetch(apiString('/getStockInfo/')));
         const data = await response.json();
-        setStocks(data.stocks.slice(0, 11));
+        const mappedStocks = data.stocks.slice(0, 11).map((stock: any) => ({
+          ...stock,
+          marketCap: stock.market_cap ?? stock.marketCap
+        }));
+        setStocks(mappedStocks);
       } finally {
         setLoading(false);
       }

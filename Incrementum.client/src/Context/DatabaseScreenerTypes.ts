@@ -9,8 +9,9 @@ export interface DatabaseScreenerFilter {
 
 export interface DatabaseScreenerContextType {
   filterList: DatabaseScreenerFilter[];
-  addFilter: (filter: DatabaseScreenerFilter) => void;
-  removeFilter: (index: number) => void;
+  filterDict: Record<string, DatabaseScreenerFilter>;
+  addFilter: (filter: DatabaseScreenerFilter) => string;
+  removeFilter: (key: string) => void;
   stocks: unknown[];
   isLoading: boolean;
   error: string | null;
