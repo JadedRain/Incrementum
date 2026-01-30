@@ -12,7 +12,12 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortAsc, setSortAsc] = useState(true);
-  const getKey = (filter: DatabaseScreenerFilter) => `${filter.operand}__${filter.operator}`;
+  const getKey = (filter: DatabaseScreenerFilter) => {
+    if (filter.value !== undefined && filter.value !== null) {
+      return `${filter.operand}__${filter.operator}__${filter.value}`;
+    }
+    return `${filter.operand}__${filter.operator}`;
+  };
 
   const addFilter = useCallback((filter: DatabaseScreenerFilter) => {
     const key = getKey(filter);
@@ -72,6 +77,7 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
     <DatabaseScreenerContext.Provider
       value={{
         filterList: Object.values(filterDict),
+        filterDict, // expose for filter components
         addFilter,
         removeFilter,
         stocks,

@@ -11,11 +11,16 @@ interface MarketCapFilterProps {
 
 
 const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
-  const { addFilter, removeFilter } = useDatabaseScreenerContext();
+  const { addFilter, removeFilter, filterDict } = useDatabaseScreenerContext();
+
+  // Utility to remove all keys with a given prefix
+  const removeAllWithPrefix = (prefix: string) => {
+    Object.keys(filterDict).forEach(key => {
+      if (key.startsWith(prefix)) removeFilter(key);
+    });
+  };
   const [min_market_cap, setMinMarketCap] = useState<number | null>(null);
   const [max_market_cap, setMaxMarketCap] = useState<number | null>(null);
-  const minKey = 'market_cap__greater_than_or_equal';
-  const maxKey = 'market_cap__less_than_or_equal';
 
   const showWarning = min_market_cap !== null && max_market_cap !== null && min_market_cap > max_market_cap;
 
@@ -28,7 +33,7 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
         value: min_market_cap,
       });
     } else {
-      removeFilter(minKey);
+      removeAllWithPrefix('market_cap__greater_than_or_equal');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [min_market_cap]);
@@ -42,7 +47,7 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
         value: max_market_cap,
       });
     } else {
-      removeFilter(maxKey);
+      removeAllWithPrefix('market_cap__less_than_or_equal');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [max_market_cap]);

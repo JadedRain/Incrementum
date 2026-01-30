@@ -1,5 +1,5 @@
 import React from 'react';
-import TickerSymbolFilter from './TickerSymbolFilter';
+import TickerSymbolFilter from './FilterComponents/TickerSymbolFilter';
 import IndustryFilter from './FilterComponents/IndustryFilter';
 import MarketCapFilter from './FilterComponents/MarketCapFilter';
 import EPSFilter from './FilterComponents/EPSFilter';

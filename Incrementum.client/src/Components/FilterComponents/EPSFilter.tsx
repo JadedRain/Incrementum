@@ -3,11 +3,15 @@ import ExpandableSidebarItem from '../ExpandableSidebarItem';
 import { useDatabaseScreenerContext } from '../../Context/DatabaseScreenerContext';
 
 const EPSFilter: React.FC = () => {
-  const { addFilter, removeFilter } = useDatabaseScreenerContext();
+  const { addFilter, removeFilter, filterDict } = useDatabaseScreenerContext();
+
+  const removeAllWithPrefix = (prefix: string) => {
+    Object.keys(filterDict).forEach(key => {
+      if (key.startsWith(prefix)) removeFilter(key);
+    });
+  };
   const [min_eps, setMinEPS] = useState<number | null>(null);
   const [max_eps, setMaxEPS] = useState<number | null>(null);
-  const minKey = 'eps__greater_than_or_equal';
-  const maxKey = 'eps__less_than_or_equal';
 
   const showWarning = min_eps !== null && max_eps !== null && min_eps > max_eps;
 
@@ -20,7 +24,7 @@ const EPSFilter: React.FC = () => {
         value: min_eps,
       });
     } else {
-      removeFilter(minKey);
+      removeAllWithPrefix('eps__greater_than_or_equal');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [min_eps]);
@@ -34,7 +38,7 @@ const EPSFilter: React.FC = () => {
         value: max_eps,
       });
     } else {
-      removeFilter(maxKey);
+      removeAllWithPrefix('eps__less_than_or_equal');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [max_eps]);

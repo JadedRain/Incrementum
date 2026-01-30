@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
-import ExpandableSidebarItem from './ExpandableSidebarItem';
+import { useDatabaseScreenerContext } from '../../Context/DatabaseScreenerContext';
+import ExpandableSidebarItem from '../ExpandableSidebarItem';
 
 const TickerSymbolFilter: React.FC = () => {
   const [input, setInput] = useState('');
