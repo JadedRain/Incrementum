@@ -16,6 +16,11 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Stock API Configuration
+USE_EXTERNAL_STOCK_API = os.environ.get('USE_EXTERNAL_STOCK_API', 'False').lower() == 'true'
+STOCK_API_BASE_URL = os.environ.get('STOCK_API_BASE_URL', 'http://localhost:8001')
+STOCK_API_TIMEOUT = int(os.environ.get('STOCK_API_TIMEOUT', '30'))
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/

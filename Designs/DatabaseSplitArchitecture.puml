@@ -1,0 +1,56 @@
+@startuml Current vs Proposed Database Architecture
+
+!theme plain
+
+package "Current Architecture" {
+    database "PostgreSQL\n(Incrementum_DB)" as CurrentDB {
+        folder "incrementum schema" {
+            [account]
+            [stock]
+            [stock_history]
+            [blacklist]
+            [custom_screener]
+            [custom_collection]
+            [custom_collection_stock]
+            [user_stock_potential]
+            [screener]
+            [numeric_filter]
+            [categorical_filter]
+        }
+    }
+    
+    [Django API] --> CurrentDB : Single Connection
+}
+
+package "Proposed Split Architecture" {
+    database "Stock Database\n(Stock_DB)" as StockDB {
+        folder "stock_data schema" {
+            [stock] as stock2
+            [stock_history] as history2
+            [blacklist] as blacklist2
+            [screener] as screener2
+            [numeric_filter] as numeric2
+            [categorical_filter] as categorical2
+        }
+    }
+    
+    database "User Database\n(User_DB)" as UserDB {
+        folder "user_data schema" {
+            [account] as account2
+            [custom_screener] as custom2
+            [custom_collection] as collection2
+            [custom_collection_stock] as collstock2
+            [user_stock_potential] as potential2
+            [custom_screener_numeric] as custnumeric2
+            [custom_screener_categorical] as custcat2
+        }
+    }
+    
+    [Django API Split] --> StockDB : Stock Data Connection
+    [Django API Split] --> UserDB : User Data Connection
+    
+    note right of UserDB : Cross-schema references\nto stock_data.stock
+    note left of StockDB : Read-heavy operations\nStock market data
+}
+
+@enduml

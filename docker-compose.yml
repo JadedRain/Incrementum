@@ -19,6 +19,9 @@ services:
     ports:
       - "8000:8000"
     environment:
+      - USE_EXTERNAL_STOCK_API=true
+      - STOCK_API_BASE_URL=${STOCK_API_BASE_URL:-http://data.Incrementum.duckdns.org}
+      - STOCK_API_TIMEOUT=${STOCK_API_TIMEOUT:-30}
       - DJANGO_ENV=development
       - DATABASE_NAME=Incr_DB
       - DATABASE_USER=Incr
