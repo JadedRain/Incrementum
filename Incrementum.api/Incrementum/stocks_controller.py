@@ -1,4 +1,5 @@
 from .stock_history_service import StockHistoryService
+from .services.stock_service import StockService
 import json
 import logging
 from django.http import HttpResponse, JsonResponse
@@ -107,5 +108,20 @@ def get_stock_graph(request, ticker):
         png_bytes = generate_stock_graph(history, ticker, f"{period}, {interval}")
         return HttpResponse(png_bytes, content_type="image/png")
 
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def get_stocks_by_tickers(request):
+    try:
+        data = json.loads(request.body)
+        tickers = data.get('tickers', [])
+        if not isinstance(tickers, list) or not all(isinstance(t, str) for t in tickers):
+            return JsonResponse({'error': 'tickers must be a list of strings'}, status=400)
+        stocks = StockService.get_stocks_by_symbols(tickers)
+        serializer = StockSerializer(stocks, many=True)
+        return JsonResponse({'stocks': serializer.data}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)

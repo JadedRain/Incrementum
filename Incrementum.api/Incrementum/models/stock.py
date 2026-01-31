@@ -34,6 +34,9 @@ class StockModel(models.Model):
     outstanding_shares = models.BigIntegerField(
         null=True, blank=True, db_column='outstanding_shares'
     )
+    eps = models.DecimalField(
+        max_digits=20, decimal_places=4, null=True, blank=True, db_column='eps'
+    )
     homepage_url = models.CharField(
         max_length=500, null=True, blank=True, db_column='homepage_url'
     )
@@ -75,6 +78,7 @@ class StockModel(models.Model):
             'composite_figi': self.composite_figi,
             'share_class_figi': self.share_class_figi,
             'outstanding_shares': self.outstanding_shares,
+            'eps': (float(self.eps) if self.eps is not None else None),
             'homepage_url': self.homepage_url,
             'total_employees': self.total_employees,
             'list_date': (
