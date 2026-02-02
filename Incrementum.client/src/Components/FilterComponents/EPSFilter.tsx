@@ -26,7 +26,6 @@ const EPSFilter: React.FC = () => {
     } else {
       removeAllWithPrefix('eps__greater_than_or_equal');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [min_eps]);
 
   useEffect(() => {
@@ -40,7 +39,6 @@ const EPSFilter: React.FC = () => {
     } else {
       removeAllWithPrefix('eps__less_than_or_equal');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [max_eps]);
 
   return (

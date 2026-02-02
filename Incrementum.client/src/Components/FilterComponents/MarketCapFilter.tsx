@@ -35,7 +35,6 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
     } else {
       removeAllWithPrefix('market_cap__greater_than_or_equal');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [min_market_cap]);
 
   useEffect(() => {
@@ -49,8 +48,11 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
     } else {
       removeAllWithPrefix('market_cap__less_than_or_equal');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [max_market_cap]);
+
+  useEffect(() => {
+    console.log('Current filterDict:', filterDict);
+  }, [filterDict]);
 
   return (
     <ExpandableSidebarItem title="Market Cap">

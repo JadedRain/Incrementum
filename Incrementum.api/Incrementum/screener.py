@@ -34,7 +34,6 @@ class Screener:
             latest_close_subq = Subquery(latest_history_qs.values('close_price')[:1])
             base_qs = StockModel.objects.annotate(latest_close=latest_close_subq)
 
-
         combined_q = Q()
         for operand, filter_list in grouped_filters.items():
             if len(filter_list) == 1:

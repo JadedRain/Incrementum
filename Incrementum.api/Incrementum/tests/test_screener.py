@@ -657,8 +657,7 @@ class TestScreener:
         assert "F" in symbols
         assert "INTC" not in symbols
         assert "MSFT" not in symbols
-        
-    
+
     def test_filter_by_market_cap_min(self, test_stocks):
         """Test filtering stocks with market cap >= min value."""
         screener = Screener()

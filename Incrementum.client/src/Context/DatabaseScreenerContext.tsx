@@ -13,6 +13,9 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortAsc, setSortAsc] = useState(true);
   const getKey = (filter: DatabaseScreenerFilter) => {
+    if (filter.filter_type === 'numeric') {
+      return `${filter.operand}__${filter.operator}`;
+    }
     if (filter.value !== undefined && filter.value !== null) {
       return `${filter.operand}__${filter.operator}__${filter.value}`;
     }
@@ -21,15 +24,20 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
 
   const addFilter = useCallback((filter: DatabaseScreenerFilter) => {
     const key = getKey(filter);
-    setFilterDict((prev) => ({ ...prev, [key]: filter }));
+    setFilterDict((prev) => {
+      const updated = { ...prev, [key]: filter };
+      console.log('Filter added:', updated);
+      return updated;
+    });
     return key;
   }, []);
 
   const removeFilter = useCallback((key: string) => {
     setFilterDict((prev) => {
-      const copy = { ...prev };
-      delete copy[key];
-      return copy;
+      const updated = { ...prev };
+      delete updated[key];
+      console.log('Filter removed:', updated);
+      return updated;
     });
   }, []);
 
