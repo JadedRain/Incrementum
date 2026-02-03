@@ -90,18 +90,18 @@ class TestScreener:
         ticker_filter = FilterData(
             operator="equals",
             operand="ticker",
-            filter_type="string",
+            filter_type="categoric",
             value="AAPL"
         )
 
-        price_filter = FilterData(
+        market_cap_filter = FilterData(
             operator="greater_than",
-            operand="price",
+            operand="market_cap",
             filter_type="numeric",
-            value=100
+            value=1500000000000
         )
 
-        filters = [ticker_filter, price_filter]
+        filters = [ticker_filter, market_cap_filter]
 
         result = screener.query(filters)
         assert len(result) == 1
@@ -122,7 +122,7 @@ class TestScreener:
         ticker_filter = FilterData(
             operator="equals",
             operand="ticker",
-            filter_type="string",
+            filter_type="categoric",
             value="aapl"
         )
 

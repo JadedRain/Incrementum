@@ -84,7 +84,7 @@ class Screener:
 
         field_name = field_mapping.get(operand, operand)
         if operator == 'equals':
-            if filter_data.filter_type == 'categoric':
+            if filter_data.filter_type in ['categoric', 'string']:
                 return Q(**{f'{field_name}__iexact': value})
             else:
                 return Q(**{field_name: value})
