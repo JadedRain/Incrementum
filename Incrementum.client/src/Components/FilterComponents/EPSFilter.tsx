@@ -2,62 +2,49 @@ import React, { useState, useEffect } from 'react';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
 import { useDatabaseScreenerContext } from '../../Context/DatabaseScreenerContext';
 
-interface MarketCapFilterProps {
-  marketCapMin?: string;
-  setMarketCapMin?: React.Dispatch<React.SetStateAction<string>>;
-  marketCapMax?: string;
-  setMarketCapMax?: React.Dispatch<React.SetStateAction<string>>;
-}
-
-
-const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
+const EPSFilter: React.FC = () => {
   const { addFilter, removeFilter, filterDict } = useDatabaseScreenerContext();
 
-  // Utility to remove all keys with a given prefix
   const removeAllWithPrefix = (prefix: string) => {
     Object.keys(filterDict).forEach(key => {
       if (key.startsWith(prefix)) removeFilter(key);
     });
   };
-  const [min_market_cap, setMinMarketCap] = useState<number | null>(null);
-  const [max_market_cap, setMaxMarketCap] = useState<number | null>(null);
+  const [min_eps, setMinEPS] = useState<number | null>(null);
+  const [max_eps, setMaxEPS] = useState<number | null>(null);
 
-  const showWarning = min_market_cap !== null && max_market_cap !== null && min_market_cap > max_market_cap;
+  const showWarning = min_eps !== null && max_eps !== null && min_eps > max_eps;
 
   useEffect(() => {
-    if (min_market_cap !== null) {
+    if (min_eps !== null) {
       addFilter({
         operator: 'greater_than_or_equal',
-        operand: 'market_cap',
+        operand: 'eps',
         filter_type: 'numeric',
-        value: min_market_cap,
+        value: min_eps,
       });
     } else {
-      removeAllWithPrefix('market_cap__greater_than_or_equal');
+      removeAllWithPrefix('eps__greater_than_or_equal');
     }
-  }, [min_market_cap]);
+  }, [min_eps]);
 
   useEffect(() => {
-    if (max_market_cap !== null) {
+    if (max_eps !== null) {
       addFilter({
         operator: 'less_than_or_equal',
-        operand: 'market_cap',
+        operand: 'eps',
         filter_type: 'numeric',
-        value: max_market_cap,
+        value: max_eps,
       });
     } else {
-      removeAllWithPrefix('market_cap__less_than_or_equal');
+      removeAllWithPrefix('eps__less_than_or_equal');
     }
-  }, [max_market_cap]);
-
-  useEffect(() => {
-    console.log('Current filterDict:', filterDict);
-  }, [filterDict]);
+  }, [max_eps]);
 
   return (
-    <ExpandableSidebarItem title="Market Cap">
+    <ExpandableSidebarItem title="EPS">
       <div style={{ marginBottom: '0.5rem' }}>
-        <div style={{ fontWeight: 600 }}>Market Cap</div>
+        <div style={{ fontWeight: 600 }}>Earnings Per Share (EPS)</div>
         <div
           style={{
             display: "flex",
@@ -70,16 +57,16 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
           <input
             type="number"
             placeholder="Min"
-            value={min_market_cap ?? ''}
-            onChange={e => setMinMarketCap(e.target.value ? Number(e.target.value) : null)}
+            value={min_eps ?? ''}
+            onChange={e => setMinEPS(e.target.value ? Number(e.target.value) : null)}
             className="sidebar-input"
             style={{ flex: 1, padding: '0.4rem', minWidth: 0 }}
           />
           <input
             type="number"
             placeholder="Max"
-            value={max_market_cap ?? ''}
-            onChange={e => setMaxMarketCap(e.target.value ? Number(e.target.value) : null)}
+            value={max_eps ?? ''}
+            onChange={e => setMaxEPS(e.target.value ? Number(e.target.value) : null)}
             className="sidebar-input"
             style={{ flex: 1, padding: '0.4rem', minWidth: 0 }}
           />
@@ -97,4 +84,4 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
   );
 };
 
-export default MarketCapFilter;
+export default EPSFilter;

@@ -7,7 +7,7 @@ type Stock = {
   regularMarketPrice?: number;
   fiftyTwoWeekHigh?: number;
   fiftyTwoWeekLow?: number;
-  marketCap?: number;
+  market_cap?: number;
   regularMarketVolume?: number;
   averageDailyVolume3Month?: number;
   averageVolume?: number;
@@ -39,7 +39,7 @@ export default function StockRow({ stock, onClick }: Props) {
     low52: s.fiftyTwoWeekLow,
     percentChange: s.regularMarketChangePercent,
     volume: s.regularMarketVolume ?? s.averageDailyVolume3Month ?? s.averageVolume ?? s.volume,
-    marketCap: s.marketCap,
+    marketCap: s.market_cap,
     eps: s.eps,
   } as Record<string, number | undefined>;
   const Cell = ({ children }: { children: React.ReactNode }) => (

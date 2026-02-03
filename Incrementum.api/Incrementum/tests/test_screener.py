@@ -90,18 +90,18 @@ class TestScreener:
         ticker_filter = FilterData(
             operator="equals",
             operand="ticker",
-            filter_type="string",
+            filter_type="categoric",
             value="AAPL"
         )
 
-        price_filter = FilterData(
+        market_cap_filter = FilterData(
             operator="greater_than",
-            operand="price",
+            operand="market_cap",
             filter_type="numeric",
-            value=100
+            value=1500000000000
         )
 
-        filters = [ticker_filter, price_filter]
+        filters = [ticker_filter, market_cap_filter]
 
         result = screener.query(filters)
         assert len(result) == 1
@@ -122,7 +122,7 @@ class TestScreener:
         ticker_filter = FilterData(
             operator="equals",
             operand="ticker",
-            filter_type="string",
+            filter_type="categoric",
             value="aapl"
         )
 
@@ -136,7 +136,6 @@ class TestScreener:
         """Verify 'pps' uses the latest StockHistory.close_price per stock."""
         screener = Screener()
 
-        # Create two stocks
         stock_a = StockModel.objects.create(
             symbol="AAA",
             company_name="Company A"
@@ -149,7 +148,6 @@ class TestScreener:
         newer = datetime(2025, 12, 26, 12, 0, tzinfo=dt_timezone.utc)
         older = newer - timedelta(hours=2)
 
-        # Stock A: older close 1200, newer close 1500
         StockHistory.objects.create(
             stock_symbol=stock_a,
             day_and_time=older,
@@ -169,7 +167,6 @@ class TestScreener:
             volume=1200
         )
 
-        # Stock B: older close 1700, newer close 1800
         StockHistory.objects.create(
             stock_symbol=stock_b,
             day_and_time=older,
@@ -189,7 +186,6 @@ class TestScreener:
             volume=1100
         )
 
-        # Filter for pps > 1600 should return only BBB (latest 1800)
         pps_filter = FilterData(
             operator="greater_than",
             operand="pps",
@@ -661,3 +657,115 @@ class TestScreener:
         assert "F" in symbols
         assert "INTC" not in symbols
         assert "MSFT" not in symbols
+
+    def test_filter_by_market_cap_min(self, test_stocks):
+        """Test filtering stocks with market cap >= min value."""
+        screener = Screener()
+        min_filter = FilterData(
+            operator="greater_than_or_equal",
+            operand="market_cap",
+            filter_type="numeric",
+            value=2000000000000
+        )
+        filters = [min_filter]
+        result = screener.query(filters)
+        assert len(result) == 2
+        symbols = [stock.symbol for stock in result]
+        assert "AAPL" in symbols
+        assert "MSFT" in symbols
+
+    def test_filter_by_market_cap_max(self, test_stocks):
+        """Test filtering stocks with market cap <= max value."""
+        screener = Screener()
+        max_filter = FilterData(
+            operator="less_than_or_equal",
+            operand="market_cap",
+            filter_type="numeric",
+            value=1800000000000
+        )
+        filters = [max_filter]
+        result = screener.query(filters)
+        assert len(result) == 2
+        symbols = [stock.symbol for stock in result]
+        assert "GOOGL" in symbols
+        assert "TSLA" in symbols
+
+    def test_filter_by_market_cap_range(self, test_stocks):
+        """Test filtering stocks with market cap between min and max (inclusive)."""
+        screener = Screener()
+        min_filter = FilterData(
+            operator="greater_than_or_equal",
+            operand="market_cap",
+            filter_type="numeric",
+            value=800000000000
+        )
+        max_filter = FilterData(
+            operator="less_than_or_equal",
+            operand="market_cap",
+            filter_type="numeric",
+            value=1800000000000
+        )
+        filters = [min_filter, max_filter]
+        result = screener.query(filters)
+        assert len(result) == 2
+        symbols = [stock.symbol for stock in result]
+        assert "GOOGL" in symbols
+        assert "TSLA" in symbols
+
+    def test_filter_by_eps_min(self, db):
+        """Test filtering stocks with eps >= min value."""
+        # Setup stocks with eps
+        StockModel.objects.create(symbol="A", company_name="A", market_cap=1, eps=2.0)
+        StockModel.objects.create(symbol="B", company_name="B", market_cap=1, eps=3.5)
+        StockModel.objects.create(symbol="C", company_name="C", market_cap=1, eps=1.0)
+        screener = Screener()
+        min_filter = FilterData(
+            operator="greater_than_or_equal",
+            operand="eps",
+            filter_type="numeric",
+            value=2.0
+        )
+        filters = [min_filter]
+        result = screener.query(filters)
+        symbols = [stock.symbol for stock in result]
+        assert set(symbols) == {"A", "B"}
+
+    def test_filter_by_eps_max(self, db):
+        """Test filtering stocks with eps <= max value."""
+        StockModel.objects.create(symbol="A", company_name="A", market_cap=1, eps=2.0)
+        StockModel.objects.create(symbol="B", company_name="B", market_cap=1, eps=3.5)
+        StockModel.objects.create(symbol="C", company_name="C", market_cap=1, eps=1.0)
+        screener = Screener()
+        max_filter = FilterData(
+            operator="less_than_or_equal",
+            operand="eps",
+            filter_type="numeric",
+            value=2.0
+        )
+        filters = [max_filter]
+        result = screener.query(filters)
+        symbols = [stock.symbol for stock in result]
+        assert set(symbols) == {"A", "C"}
+
+    def test_filter_by_eps_range(self, db):
+        """Test filtering stocks with eps between min and max (inclusive)."""
+        StockModel.objects.create(symbol="A", company_name="A", market_cap=1, eps=2.0)
+        StockModel.objects.create(symbol="B", company_name="B", market_cap=1, eps=3.5)
+        StockModel.objects.create(symbol="C", company_name="C", market_cap=1, eps=1.0)
+        screener = Screener()
+        min_filter = FilterData(
+            operator="greater_than_or_equal",
+            operand="eps",
+            filter_type="numeric",
+            value=1.5
+        )
+        max_filter = FilterData(
+            operator="less_than_or_equal",
+            operand="eps",
+            filter_type="numeric",
+            value=3.0
+        )
+        filters = [min_filter, max_filter]
+        result = screener.query(filters)
+        symbols = [stock.symbol for stock in result]
+        assert set(symbols) == {"A"}

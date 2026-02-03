@@ -24,6 +24,7 @@ class Screener:
             if operand not in grouped_filters:
                 grouped_filters[operand] = []
             grouped_filters[operand].append(filter_data)
+
         needs_latest_pps = any(f.operand == 'pps' for f in filters)
         base_qs = StockModel.objects
         if needs_latest_pps:
@@ -40,13 +41,25 @@ class Screener:
                 if q_obj:
                     combined_q &= q_obj
             else:
-                or_q = Q()
-                for filter_data in filter_list:
-                    q_obj = self._build_q_object(filter_data)
-                    if q_obj:
-                        or_q |= q_obj
-                if or_q:
-                    combined_q &= or_q
+                all_numeric = all(getattr(f, 'filter_type', None) == 'numeric' for f in filter_list)
+                if all_numeric:
+                    and_q = Q()
+                    for filter_data in filter_list:
+                        q_obj = self._build_q_object(filter_data)
+                        if q_obj:
+                            and_q &= q_obj
+                    if and_q:
+                        combined_q &= and_q
+                else:
+                    or_q = Q()
+                    for filter_data in filter_list:
+                        logger.error(filter_data)
+                        q_obj = self._build_q_object(filter_data)
+                        if q_obj:
+                            or_q |= q_obj
+                            logger.error(or_q)
+                    if or_q:
+                        combined_q &= or_q
 
         logger.info(f"Final query: {combined_q}")
         qs = base_qs.filter(combined_q)
@@ -54,7 +67,7 @@ class Screener:
             order = '' if sort_order == 'asc' else '-'
             qs = qs.order_by(f'{order}{sort_by}')
         result = list(qs)
-        logger.info(f"Query returned {len(result)} stocks")
+        logger.error(f"Query returned {len(result)} stocks")
         return result
 
     def _build_q_object(self, filter_data: FilterData) -> Q:
@@ -64,14 +77,14 @@ class Screener:
 
         field_mapping = {
             'ticker': 'symbol',
-            'price': 'market_cap',
+            'market_cap': 'market_cap',
             'pps': 'latest_close',
             'industry': 'sic_description',
         }
 
         field_name = field_mapping.get(operand, operand)
         if operator == 'equals':
-            if filter_data.filter_type == 'string':
+            if filter_data.filter_type in ['categoric', 'string']:
                 return Q(**{f'{field_name}__iexact': value})
             else:
                 return Q(**{field_name: value})

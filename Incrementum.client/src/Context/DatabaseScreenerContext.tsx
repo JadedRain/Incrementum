@@ -6,27 +6,48 @@ import type { DatabaseScreenerFilter, DatabaseScreenerContextType } from "./Data
 const DatabaseScreenerContext = createContext<DatabaseScreenerContextType | undefined>(undefined);
 
 export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) => {
-  const [filterList, setFilterList] = useState<DatabaseScreenerFilter[]>([]);
+  const [filterDict, setFilterDict] = useState<Record<string, DatabaseScreenerFilter>>({});
   const [stocks, setStocks] = useState<unknown[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortAsc, setSortAsc] = useState(true);
+  const getKey = (filter: DatabaseScreenerFilter) => {
+    if (filter.filter_type === 'numeric') {
+      return `${filter.operand}__${filter.operator}`;
+    }
+    if (filter.value !== undefined && filter.value !== null) {
+      return `${filter.operand}__${filter.operator}__${filter.value}`;
+    }
+    return `${filter.operand}__${filter.operator}`;
+  };
 
   const addFilter = useCallback((filter: DatabaseScreenerFilter) => {
-    setFilterList((prev) => [...prev, filter]);
+    const key = getKey(filter);
+    setFilterDict((prev) => {
+      const updated = { ...prev, [key]: filter };
+      console.log('Filter added:', updated);
+      return updated;
+    });
+    return key;
   }, []);
 
-  const removeFilter = useCallback((index: number) => {
-    setFilterList((prev) => prev.filter((_, i) => i !== index));
+  const removeFilter = useCallback((key: string) => {
+    setFilterDict((prev) => {
+      const updated = { ...prev };
+      delete updated[key];
+      console.log('Filter removed:', updated);
+      return updated;
+    });
   }, []);
 
   const clearFilters = useCallback(() => {
-    setFilterList([]);
+    setFilterDict({});
   }, []);
 
   useEffect(() => {
     const fetchStocks = async () => {
+      const filterList = Object.values(filterDict);
       if (filterList.length === 0) {
         setStocks([]);
         return;
@@ -58,11 +79,24 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
       }
     };
     fetchStocks();
-  }, [filterList, sortBy, sortAsc]);
+  }, [filterDict, sortBy, sortAsc]);
 
   return (
     <DatabaseScreenerContext.Provider
-      value={{ filterList, addFilter, removeFilter, stocks, isLoading, error, clearFilters, sortBy, setSortBy, sortAsc, setSortAsc }}
+      value={{
+        filterList: Object.values(filterDict),
+        filterDict, // expose for filter components
+        addFilter,
+        removeFilter,
+        stocks,
+        isLoading,
+        error,
+        clearFilters,
+        sortBy,
+        setSortBy,
+        sortAsc,
+        setSortAsc,
+      }}
     >
       {children}
     </DatabaseScreenerContext.Provider>

@@ -1,13 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiString, fetchWrapper } from "./Context/FetchingHelper";
-
-interface StockInfo {
-  [key: string]: unknown;
-  displayName?: string;
-  longName?: string;
-  shortName?: string;
-  symbol?: string;
-}
+import { type StockInfo } from './Types/StockInfoTypes';
 
 export function useFetchStocks() {
   const [stocks, setStocks] = useState<StockInfo[]>([]);
@@ -18,7 +11,11 @@ export function useFetchStocks() {
       try {
         const response = await fetchWrapper(()=>fetch(apiString('/getStockInfo/')));
         const data = await response.json();
-        setStocks(data.stocks.slice(0, 11));
+        const mappedStocks = data.stocks.slice(0, 11).map((stock: StockInfo) => ({
+          ...stock,
+          marketCap: stock.market_cap
+        }));
+        setStocks(mappedStocks);
       } finally {
         setLoading(false);
       }
