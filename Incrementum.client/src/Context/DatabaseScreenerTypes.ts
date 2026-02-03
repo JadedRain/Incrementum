@@ -3,8 +3,6 @@ export interface DatabaseScreenerFilter {
   operand: string;
   filter_type: string;
   value?: string | number | boolean | null;
-  value_high?: string | number | boolean | null;
-  value_low?: string | number | boolean | null;
 }
 
 export interface DatabaseScreenerContextType {

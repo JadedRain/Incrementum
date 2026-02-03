@@ -25,7 +25,7 @@ const TickerSymbolFilter: React.FC = () => {
       addFilter({
         operator: 'equals',
         operand: 'ticker',
-        filter_type: 'string',
+        filter_type: 'categoric',
         value: symbol,
       });
     });
