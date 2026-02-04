@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useDatabaseScreenerContext } from '../../Context/DatabaseScreenerContext';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
+import FilterChip from '../FilterChip';
 
 const TickerSymbolFilter: React.FC = () => {
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const { addFilter } = useDatabaseScreenerContext();
+  const [activeTickerFilters, setActiveTickerFilters] = useState<string[]>([]);
+  const { addFilter, removeFilter } = useDatabaseScreenerContext();
 
   const handleAdd = () => {
     const trimmed = input.trim();
@@ -22,15 +24,24 @@ const TickerSymbolFilter: React.FC = () => {
       return;
     }
     symbols.forEach(symbol => {
-      addFilter({
-        operator: 'equals',
-        operand: 'ticker',
-        filter_type: 'categoric',
-        value: symbol,
-      });
+      if (!activeTickerFilters.includes(symbol)) {
+        addFilter({
+          operator: 'equals',
+          operand: 'ticker',
+          filter_type: 'categoric',
+          value: symbol,
+        });
+        setActiveTickerFilters(prev => [...prev, symbol]);
+      }
     });
     setInput('');
     setError(null);
+  };
+
+  const removeTickerFilter = (ticker: string) => {
+    const key = `ticker__equals__${ticker}`;
+    removeFilter(key);
+    setActiveTickerFilters(prev => prev.filter(t => t !== ticker));
   };
 
   return (
@@ -61,6 +72,17 @@ const TickerSymbolFilter: React.FC = () => {
         <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#2b2b2b' }}>
           Enter multiple symbols separated by commas or spaces.
         </div>
+        {activeTickerFilters.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem' }}>
+            {activeTickerFilters.map(ticker => (
+              <FilterChip
+                key={ticker}
+                label={ticker}
+                onRemove={() => removeTickerFilter(ticker)}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </ExpandableSidebarItem>
   );

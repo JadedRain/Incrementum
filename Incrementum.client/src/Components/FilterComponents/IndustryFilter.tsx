@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
+import FilterChip from '../FilterChip';
 import { useDatabaseScreenerContext } from '../../Context/DatabaseScreenerContext';
 import { fetchWrapper, apiString } from '../../Context/FetchingHelper';
 
@@ -9,7 +10,8 @@ const IndustryFilter: React.FC = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { addFilter } = useDatabaseScreenerContext();
+  const [activeIndustryFilters, setActiveIndustryFilters] = useState<string[]>([]);
+  const { addFilter, removeFilter } = useDatabaseScreenerContext();
   const suggestionBoxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -47,14 +49,23 @@ const IndustryFilter: React.FC = () => {
   }, []);
 
   const selectIndustry = (industry: string) => {
-    setIndustryQuery(industry);
-    setShowSuggestions(false);
-    addFilter({
-      operator: 'contains',
-      operand: 'industry',
-      filter_type: 'string',
-      value: industry,
-    });
+    if (!activeIndustryFilters.includes(industry)) {
+      setIndustryQuery('');
+      setShowSuggestions(false);
+      setActiveIndustryFilters(prev => [...prev, industry]);
+      addFilter({
+        operator: 'contains',
+        operand: 'industry',
+        filter_type: 'string',
+        value: industry,
+      });
+    }
+  };
+
+  const removeIndustryFilter = (industry: string) => {
+    const key = `industry__contains__${industry}`;
+    removeFilter(key);
+    setActiveIndustryFilters(prev => prev.filter(i => i !== industry));
   };
 
   return (
@@ -92,6 +103,17 @@ const IndustryFilter: React.FC = () => {
         )}
         {loading && <div>Loading industries...</div>}
         {error && <div style={{ color: 'red' }}>{error}</div>}
+        {activeIndustryFilters.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem' }}>
+            {activeIndustryFilters.map(industry => (
+              <FilterChip
+                key={industry}
+                label={industry}
+                onRemove={() => removeIndustryFilter(industry)}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </ExpandableSidebarItem>
   );

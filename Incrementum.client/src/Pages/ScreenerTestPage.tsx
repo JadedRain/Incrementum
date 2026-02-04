@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import NavigationBar from '../Components/NavigationBar';
+import FilterChip from '../Components/FilterChip';
 import '../App.css';
 import type { Stock, ScreenerResponse, FilterData } from './ScreenerTestPage.types';
 
@@ -9,6 +10,8 @@ function ScreenerTestPage() {
     const [industrySuggestions, setIndustrySuggestions] = useState<string[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [selectedIndustry, setSelectedIndustry] = useState('');
+    const [activeTickerFilters, setActiveTickerFilters] = useState<string[]>([]);
+    const [activeIndustryFilter, setActiveIndustryFilter] = useState<string | null>(null);
     const [stocks, setStocks] = useState<Stock[]>([]);
     const [selectedStocks, setSelectedStocks] = useState<Stock[]>([]);
     const [loading, setLoading] = useState(false);
@@ -56,6 +59,7 @@ function ScreenerTestPage() {
     const selectIndustry = (industry: string) => {
         setSelectedIndustry(industry);
         setIndustryQuery(industry);
+        setActiveIndustryFilter(industry);
         setShowSuggestions(false);
     };
 
@@ -116,6 +120,8 @@ function ScreenerTestPage() {
         setIndustryQuery('');
         setSelectedIndustry('');
         setIndustrySuggestions([]);
+        setActiveTickerFilters([]);
+        setActiveIndustryFilter(null);
         setError('');
         setPpsMin('');
         setPpsMax('');
@@ -131,6 +137,17 @@ function ScreenerTestPage() {
             .filter(s => s.length > 0);
 
         if (symbols.length === 0) return;
+
+        // Add to active ticker filters
+        setActiveTickerFilters(prev => {
+            const newFilters = [...prev];
+            symbols.forEach(sym => {
+                if (!newFilters.includes(sym)) {
+                    newFilters.push(sym);
+                }
+            });
+            return newFilters;
+        });
 
         setSelectedStocks(prev => {
             const map = new Map(prev.map(s => [s.symbol, s]));
@@ -164,6 +181,17 @@ function ScreenerTestPage() {
     };
 
     const clearSelected = () => setSelectedStocks([]);
+
+    const removeTickerFilter = (ticker: string) => {
+        setActiveTickerFilters(prev => prev.filter(t => t !== ticker));
+        setSelectedStocks(prev => prev.filter(s => s.symbol !== ticker));
+    };
+
+    const removeIndustryFilter = () => {
+        setActiveIndustryFilter(null);
+        setSelectedIndustry('');
+        setIndustryQuery('');
+    };
 
     const searchSelected = async () => {
         // Allow searching when no tickers are selected if PPS filters are provided
@@ -277,6 +305,17 @@ function ScreenerTestPage() {
                             <p className="text-xs text-gray-500 mt-1">
                                 Enter multiple symbols separated by commas or spaces
                             </p>
+                            {activeTickerFilters.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-3">
+                                    {activeTickerFilters.map(ticker => (
+                                        <FilterChip
+                                            key={ticker}
+                                            label={ticker}
+                                            onRemove={() => removeTickerFilter(ticker)}
+                                        />
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         <div className="mb-4 grid grid-cols-2 gap-4">
@@ -336,6 +375,14 @@ function ScreenerTestPage() {
                                             {industry}
                                         </div>
                                     ))}
+                                </div>
+                            )}
+                            {activeIndustryFilter && (
+                                <div className="flex gap-2 mt-3">
+                                    <FilterChip
+                                        label={activeIndustryFilter}
+                                        onRemove={removeIndustryFilter}
+                                    />
                                 </div>
                             )}
                         </div>
