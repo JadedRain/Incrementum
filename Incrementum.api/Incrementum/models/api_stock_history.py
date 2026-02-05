@@ -3,7 +3,6 @@ from django.utils import timezone
 from ..managers.stock_history_api_manager import StockHistoryAPIManager, StockHistoryDoesNotExist
 
 
-
 class APIStockHistory(models.Model):
     """
     API-backed Stock History model that mimics Django ORM StockHistory behavior.
