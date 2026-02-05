@@ -64,7 +64,7 @@ class CustomCollectionService:
                                 """
                                 with connection.cursor() as cur:
                                     cur.execute(
-                                        sql, [collection.id, stock.symbol])
+                                        sql, [collection.id, sym])
                             except IntegrityError:
                                 pass
                         else:
@@ -94,10 +94,10 @@ class CustomCollectionService:
                         stocks.append(data)
                     else:
                         stocks.append(
-                            {'symbol': symbol, 'company_name': stock_obj.company_name})
+                            {'symbol': symbol, 'company_name': data.company_name})
             except Exception:
                 stocks.append({'symbol': symbol,
-                               'company_name': stock_obj.company_name})
+                               'company_name': data.company_name})
         return stocks
 
     def add_stocks(

@@ -89,9 +89,11 @@ def test_conditional_imports():
     # Import models - should get database models
     from Incrementum.models import StockModel, StockHistory
     print(
-        f"With API disabled - StockModel class: {StockModel.__module__}.{StockModel.__name__}")
+        f"With API disabled - StockModel: {StockModel.__module__}."
+        f"{StockModel.__name__}")
     print(
-        f"With API disabled - StockHistory class: {StockHistory.__module__}.{StockHistory.__name__}")
+        f"With API disabled - StockHistory: {StockHistory.__module__}."
+        f"{StockHistory.__name__}")
 
     # Test with API enabled
     os.environ['USE_EXTERNAL_STOCK_API'] = 'True'

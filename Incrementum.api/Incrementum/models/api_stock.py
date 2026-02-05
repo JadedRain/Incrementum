@@ -104,7 +104,7 @@ class APIStockModel(models.Model):
                 return None
         return value
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> Dict:
         return {
             'symbol': self.symbol,
             'company_name': self.company_name,

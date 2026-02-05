@@ -65,7 +65,8 @@ class StockHistoryService:
                 record_count += 1
                 if record_count <= 2 or record_count % 1000 == 0:
                     self.logger.debug(
-                        f"[GET_DB_HISTORY] Processing record {record_count}, type: {type(record).__name__}")
+                        f"[GET_DB_HISTORY] Processing record {record_count}, "
+                        f"type: {type(record).__name__}")
 
                 # Handle both dict (from API) and model instance (from DB)
                 if isinstance(record, dict):
@@ -100,7 +101,8 @@ class StockHistoryService:
 
             df = pd.DataFrame(data)
             self.logger.info(
-                f"[GET_DB_HISTORY] Successfully created DataFrame with {len(df)} records for {ticker}")
+                f"[GET_DB_HISTORY] Successfully created DataFrame "
+                f"with {len(df)} records for {ticker}")
             return df
 
         except Exception as e:
@@ -205,8 +207,9 @@ class StockHistoryService:
         try:
             api_key = os.environ.get('POLYGON_API_KEY')
             if not api_key:
-                self.logger.error("POLYGON_API_KEY not set in environment")
+                self.logger.error("POLYGON_API_KEY not set")
                 return None
+            from polygon import RESTClient
             client = RESTClient(api_key)
             end_date = timezone.now()
             timespan = 'hour' if interval != '1d' else 'day'

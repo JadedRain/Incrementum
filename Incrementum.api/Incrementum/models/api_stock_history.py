@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from ..managers.stock_history_api_manager import StockHistoryAPIManager, StockHistoryDoesNotExist
-from typing import Dict
+
 
 
 class APIStockHistory(models.Model):

@@ -115,8 +115,7 @@ class StockHistoryAPIQuerySet(models.QuerySet):
                     is_hourly = value
 
             # Fetch from API
-            logger.info(
-                f"[GET_API_DATA] Calling API: symbol={symbol}, start_date={start_date}, end_date={end_date}, is_hourly={is_hourly}")
+            logger.info("[GET_API_DATA] Calling API...")
             response = stock_api_client.get_stock_history(
                 symbol=symbol,
                 start_date=start_date,
@@ -253,7 +252,7 @@ class StockHistoryAPIQuerySet(models.QuerySet):
                 try:
                     if idx < 1 or idx % 1000 == 0:
                         logger.debug(
-                            f"[ITER] Yielding item {idx}, keys: {list(item.keys()) if isinstance(item, dict) else 'not a dict'}")
+                            f"[ITER] Yielding item {idx}")
                     # Return raw dict without model instantiation - much
                     # faster!
                     yield item
