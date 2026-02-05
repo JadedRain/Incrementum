@@ -159,7 +159,7 @@ app.layout = html.Div([
                             })
                     ],
                 ),
-                dcc.Input(id="interval-dropdown", type="hidden", value="1d"),
+                dcc.Input(id="interval-dropdown", type="hidden", value="1h"),
             ],
             style={
                 "display": "flex",

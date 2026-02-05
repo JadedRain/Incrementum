@@ -8,12 +8,7 @@ class UserStockPotential(models.Model):
         on_delete=models.CASCADE,
         db_column='account_id'
     )
-    stock_symbol = models.ForeignKey(
-        'StockModel',
-        on_delete=models.CASCADE,
-        db_column='stock_symbol',
-        to_field='symbol'
-    )
+    stock_symbol = models.CharField(max_length=10, db_column='stock_symbol')
     purchase_date = models.DateField()
     quantity = models.DecimalField(max_digits=15, decimal_places=4)
     purchase_price = models.DecimalField(max_digits=15, decimal_places=2)

@@ -30,23 +30,22 @@ class CustomCollectionService:
             account=account,
             defaults=defaults or None
         )
-        if created or not collection.stocks.exists():
+        # Check if collection has any stocks
+        has_stocks = CustomCollectionStock.objects.filter(collection=collection).exists()
+        if created or not has_stocks:
             if symbols is None:
                 raise ValueError("symbols list is required to create/seed a collection")
             if not isinstance(symbols, (list, tuple)):
                 raise ValueError("symbols must be a list when creating a collection")
             for sym in symbols:
-                stock, _ = StockModel.objects.get_or_create(
-                    symbol=sym,
-                    defaults={'company_name': sym}
-                )
+                # Note: We don't create StockModel anymore, just store the symbol
                 qs = CustomCollectionStock.objects.filter(
                     collection=collection,
-                    stock=stock
+                    stock_symbol=sym
                 )
                 if not qs.exists():
                     try:
-                        CustomCollectionStock.objects.create(collection=collection, stock=stock)
+                        CustomCollectionStock.objects.create(collection=collection, stock_symbol=sym)
                     except Exception as e:
                         msg = str(e) or ''
                         if ('custom_collection_stock.id' in msg or 'RETURNING' in msg
@@ -73,8 +72,8 @@ class CustomCollectionService:
         except CustomCollection.DoesNotExist:
             return []
         stocks = []
-        for stock_obj in collection.stocks.all():
-            symbol = stock_obj.symbol
+        for collection_stock in CustomCollectionStock.objects.filter(collection=collection):
+            symbol = collection_stock.stock_symbol
             try:
                 data = fetch_stock_data(symbol)
                 try:
@@ -162,10 +161,11 @@ class CustomCollectionService:
         account = self._get_account(api_key)
         collections = []
         for c in CustomCollection.objects.filter(account=account):
+            stock_symbols = [cs.stock_symbol for cs in CustomCollectionStock.objects.filter(collection=c)]
             collections.append({
                 'id': c.id,
                 'name': c.collection_name,
-                'stocks': [s.symbol for s in c.stocks.all()],
+                'stocks': stock_symbols,
                 'c_desc': c.c_desc,
                 'date_created': c.date_created
             })

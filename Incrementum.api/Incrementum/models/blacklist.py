@@ -3,12 +3,7 @@ from django.db import models
 
 class Blacklist(models.Model):
     id = models.AutoField(primary_key=True)
-    stock_symbol = models.ForeignKey(
-        'StockModel',
-        on_delete=models.CASCADE,
-        db_column='stock_symbol',
-        to_field='symbol'
-    )
+    stock_symbol = models.CharField(max_length=10, db_column='stock_symbol')
     timestamp = models.DateTimeField()
     time_added = models.DateTimeField()
 

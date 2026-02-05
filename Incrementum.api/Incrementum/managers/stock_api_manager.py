@@ -1,4 +1,5 @@
 from typing import List, Optional, Any, Dict
+from django.db import models
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from ..services.stock_api_client import stock_api_client
 import logging
@@ -12,81 +13,57 @@ class StockDoesNotExist(ObjectDoesNotExist):
     pass
 
 
-class APIQuerySet:
+class APIQuerySet(models.QuerySet):
     """
-    Mimics Django QuerySet behavior for API results.
+    Custom QuerySet for API results. Overrides Django QuerySet to use API instead of DB.
     """
     
-    def __init__(self, model_class, data: List[Dict] = None):
-        self.model_class = model_class
-        self._data = data or []
-        self._filters = {}
-        self._limit = None
-        self._offset = 0
-        self._order_by = None
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._api_data = None
+        self._filters_dict = {}
+    
+    def _fetch_api_data(self):
+        """Fetch data from API."""
+        if self._api_data is None:
+            try:
+                response = stock_api_client.get_stocks(limit=10000, offset=0)
+                if response and 'stocks' in response:
+                    self._api_data = response['stocks']
+                else:
+                    self._api_data = []
+            except Exception as e:
+                logger.error(f"Error fetching stocks from API: {str(e)}")
+                self._api_data = []
+        return self._api_data
     
     def filter(self, **kwargs):
-        """
-        Filter the queryset. Returns new APIQuerySet with filters applied.
-        """
-        new_qs = APIQuerySet(self.model_class, self._data)
-        new_qs._filters = {**self._filters, **kwargs}
-        new_qs._limit = self._limit
-        new_qs._offset = self._offset
-        new_qs._order_by = self._order_by
-        return new_qs
+        """Filter the API results."""
+        clone = self._clone()
+        clone._filters_dict.update(kwargs)
+        return clone
     
-    def order_by(self, *fields):
-        """
-        Order the queryset by specified fields.
-        """
-        new_qs = APIQuerySet(self.model_class, self._data)
-        new_qs._filters = self._filters.copy()
-        new_qs._limit = self._limit
-        new_qs._offset = self._offset
-        new_qs._order_by = fields
-        return new_qs
-    
-    def exists(self) -> bool:
-        """
-        Check if any records exist matching the filters.
-        """
-        return len(self._get_data()) > 0
-    
-    def count(self) -> int:
-        """
-        Return count of records matching the filters.
-        """
-        return len(self._get_data())
-    
-    def __iter__(self):
-        """
-        Make QuerySet iterable.
-        """
-        for item_data in self._get_data():
-            yield self.model_class(**item_data)
-    
-    def __len__(self):
-        return len(self._get_data())
-    
-    def __getitem__(self, key):
-        data = self._get_data()
-        if isinstance(key, slice):
-            return [self.model_class(**item) for item in data[key]]
-        else:
-            return self.model_class(**data[key])
-    
-    def _get_data(self) -> List[Dict]:
-        """
-        Apply filters and return filtered data.
-        """
-        if not self._data:
-            return []
+    def get(self, **kwargs):
+        """Get a single result from API."""
+        if 'symbol' in kwargs or 'symbol__iexact' in kwargs:
+            symbol = kwargs.get('symbol') or kwargs.get('symbol__iexact')
+            response = stock_api_client.get_stock_by_symbol(symbol)
+            if response:
+                return self.model(**response)
+            else:
+                raise StockDoesNotExist(f"Stock matching query does not exist.")
         
-        data = self._data.copy()
-        
-        # Apply filters
-        for field, value in self._filters.items():
+        # Filter results
+        results = list(self.filter(**kwargs))
+        if len(results) == 0:
+            raise StockDoesNotExist(f"Stock matching query does not exist.")
+        elif len(results) > 1:
+            raise MultipleObjectsReturned(f"Multiple stocks returned for query.")
+        return results[0]
+    
+    def _apply_filters(self, data: List[Dict]) -> List[Dict]:
+        """Apply stored filters to data."""
+        for field, value in self._filters_dict.items():
             if '__' in field:
                 field_name, lookup = field.split('__', 1)
                 if lookup == 'iexact':
@@ -102,28 +79,41 @@ class APIQuerySet:
                         data = [item for item in data if item.get(field_name) is not None]
             else:
                 data = [item for item in data if item.get(field) == value]
-        
-        # Apply ordering
-        if self._order_by:
-            for field in reversed(self._order_by):
-                reverse = field.startswith('-')
-                field_name = field[1:] if reverse else field
-                data.sort(key=lambda x: x.get(field_name, ''), reverse=reverse)
-        
         return data
+    
+    def __iter__(self):
+        """Iterate over API results."""
+        api_data = self._fetch_api_data()
+        filtered = self._apply_filters(api_data)
+        for item in filtered:
+            yield self.model(**item)
+    
+    def count(self):
+        """Count results."""
+        api_data = self._fetch_api_data()
+        filtered = self._apply_filters(api_data)
+        return len(filtered)
+    
+    def exists(self):
+        """Check if results exist."""
+        return self.count() > 0
 
 
-class StockAPIManager:
+class StockAPIManager(models.Manager):
     """
-    Mimics Django Model Manager behavior for Stock API calls.
-    Implements get(), filter(), all(), exists(), count() methods.
+    Custom Manager for API-backed Stock model.
     """
     
-    def __init__(self, model_class):
-        self.model_class = model_class
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._cache = {}
         self._cache_timestamp = None
         self._cache_ttl = 300  # 5 minutes
+    
+    def get_queryset(self):
+        """Return custom APIQuerySet instead of Django QuerySet."""
+        qs = APIQuerySet(self.model, using=self._db)
+        return qs
     
     def _is_cache_valid(self) -> bool:
         """Check if cache is still valid."""
@@ -132,9 +122,7 @@ class StockAPIManager:
         return (datetime.now() - self._cache_timestamp).seconds < self._cache_ttl
     
     def _get_all_stocks(self) -> List[Dict]:
-        """
-        Get all stocks from API with caching.
-        """
+        """Get all stocks from API with caching."""
         if self._is_cache_valid() and 'all_stocks' in self._cache:
             return self._cache['all_stocks']
         
@@ -153,64 +141,31 @@ class StockAPIManager:
             return []
     
     def all(self):
-        """
-        Return QuerySet of all stocks.
-        """
-        stocks_data = self._get_all_stocks()
-        return APIQuerySet(self.model_class, stocks_data)
+        """Return all stocks."""
+        return self.get_queryset()
     
     def filter(self, **kwargs):
-        """
-        Return filtered QuerySet.
-        """
-        stocks_data = self._get_all_stocks()
-        return APIQuerySet(self.model_class, stocks_data).filter(**kwargs)
+        """Return filtered queryset."""
+        return self.get_queryset().filter(**kwargs)
     
     def get(self, **kwargs):
-        """
-        Get a single stock matching the criteria.
-        Raises StockDoesNotExist if not found, MultipleObjectsReturned if multiple.
-        """
-        if 'symbol' in kwargs or 'symbol__iexact' in kwargs:
-            # Direct API call for symbol lookup
-            symbol = kwargs.get('symbol') or kwargs.get('symbol__iexact')
-            response = stock_api_client.get_stock_by_symbol(symbol)
-            if response:
-                return self.model_class(**response)
-            else:
-                raise StockDoesNotExist(f"Stock matching query does not exist.")
-        
-        # Fallback to filtering all stocks
-        queryset = self.filter(**kwargs)
-        data = queryset._get_data()
-        
-        if len(data) == 0:
-            raise StockDoesNotExist(f"Stock matching query does not exist.")
-        elif len(data) > 1:
-            raise MultipleObjectsReturned(f"Multiple stocks returned for query.")
-        
-        return self.model_class(**data[0])
+        """Get a single stock."""
+        return self.get_queryset().get(**kwargs)
     
     def exists(self) -> bool:
-        """
-        Check if any stocks exist.
-        """
-        return len(self._get_all_stocks()) > 0
+        """Check if any stocks exist."""
+        stocks_data = self._get_all_stocks()
+        return len(stocks_data) > 0
     
     def count(self) -> int:
-        """
-        Return total count of stocks.
-        """
-        return len(self._get_all_stocks())
+        """Return total count of stocks."""
+        stocks_data = self._get_all_stocks()
+        return len(stocks_data)
     
     def create(self, **kwargs):
-        """
-        Create operation - not supported for read-only API.
-        """
+        """Create is not supported."""
         raise NotImplementedError("Create operations not supported for API-backed models")
     
     def bulk_create(self, objs, **kwargs):
-        """
-        Bulk create operation - not supported for read-only API.
-        """
+        """Bulk create is not supported."""
         raise NotImplementedError("Bulk create operations not supported for API-backed models")

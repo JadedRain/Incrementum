@@ -1,41 +1,76 @@
+from django.db import models
 from django.utils import timezone
 from ..managers.stock_api_manager import StockAPIManager, StockDoesNotExist
 from typing import Optional, Dict, Any
 
 
-class APIStockModel:    
-    DoesNotExist = StockDoesNotExist
-    objects = StockAPIManager(lambda **kwargs: APIStockModel(**kwargs))
+class APIStockModel(models.Model):
+    symbol = models.CharField(max_length=10, primary_key=True)
+    company_name = models.CharField(max_length=255)
+    updated_at = models.DateTimeField(default=timezone.now)
+    description = models.TextField(null=True, blank=True)
+    market_cap = models.BigIntegerField(null=True, blank=True)
+    primary_exchange = models.CharField(max_length=50, null=True, blank=True)
+    type = models.CharField(max_length=50, null=True, blank=True)
+    currency_name = models.CharField(max_length=50, null=True, blank=True)
+    cik = models.CharField(max_length=20, null=True, blank=True)
+    composite_figi = models.CharField(max_length=50, null=True, blank=True)
+    share_class_figi = models.CharField(max_length=50, null=True, blank=True)
+    outstanding_shares = models.BigIntegerField(null=True, blank=True)
+    eps = models.DecimalField(
+        max_digits=20, decimal_places=4, null=True, blank=True
+    )
+    homepage_url = models.CharField(max_length=500, null=True, blank=True)
+    total_employees = models.IntegerField(null=True, blank=True)
+    list_date = models.DateField(null=True, blank=True)
+    locale = models.CharField(max_length=10, null=True, blank=True)
+    sic_code = models.CharField(max_length=20, null=True, blank=True)
+    sic_description = models.CharField(max_length=255, null=True, blank=True)
     
-    def __init__(self, **data):
-        # Map API response fields to model attributes
-        self.symbol = data.get('symbol', '')
-        self.company_name = data.get('company_name', '') or data.get('longName', '') or data.get('shortName', '')
-        self.updated_at = self._parse_datetime(data.get('updated_at')) or timezone.now()
-        self.description = data.get('description')
-        self.market_cap = data.get('market_cap') or data.get('marketCap')
-        self.primary_exchange = data.get('primary_exchange') or data.get('exchange')
-        self.type = data.get('type')
-        self.currency_name = data.get('currency_name') or data.get('currency')
-        self.cik = data.get('cik')
-        self.composite_figi = data.get('composite_figi')
-        self.share_class_figi = data.get('share_class_figi')
-        self.outstanding_shares = data.get('outstanding_shares')
-        self.eps = data.get('eps')
-        self.homepage_url = data.get('homepage_url') or data.get('website')
-        self.total_employees = data.get('total_employees')
-        self.list_date = self._parse_date(data.get('list_date'))
-        self.locale = data.get('locale')
-        self.sic_code = data.get('sic_code')
-        self.sic_description = data.get('sic_description')
-        
-        # Additional fields that might come from yfinance data
-        self.current_price = data.get('regularMarketPrice') or data.get('currentPrice')
-        self.day_high = data.get('dayHigh')
-        self.day_low = data.get('dayLow')
-        self.fifty_day_average = data.get('fiftyDayAverage')
-        self.sector = data.get('sector')
-        self.industry = data.get('industry')
+    objects = StockAPIManager()
+    
+    class Meta:
+        db_table = 'stock'
+        managed = False
+    
+    DoesNotExist = StockDoesNotExist
+    
+    def __init__(self, **kwargs):
+        # Handle API response data mapping
+        if kwargs:
+            # Map API fields to model fields
+            mapped_data = {
+                'symbol': kwargs.get('symbol', ''),
+                'company_name': kwargs.get('company_name', '') or kwargs.get('longName', '') or kwargs.get('shortName', ''),
+                'updated_at': self._parse_datetime(kwargs.get('updated_at')) or timezone.now(),
+                'description': kwargs.get('description'),
+                'market_cap': kwargs.get('market_cap') or kwargs.get('marketCap'),
+                'primary_exchange': kwargs.get('primary_exchange') or kwargs.get('exchange'),
+                'type': kwargs.get('type'),
+                'currency_name': kwargs.get('currency_name') or kwargs.get('currency'),
+                'cik': kwargs.get('cik'),
+                'composite_figi': kwargs.get('composite_figi'),
+                'share_class_figi': kwargs.get('share_class_figi'),
+                'outstanding_shares': kwargs.get('outstanding_shares'),
+                'eps': kwargs.get('eps'),
+                'homepage_url': kwargs.get('homepage_url') or kwargs.get('website'),
+                'total_employees': kwargs.get('total_employees'),
+                'list_date': self._parse_date(kwargs.get('list_date')),
+                'locale': kwargs.get('locale'),
+                'sic_code': kwargs.get('sic_code'),
+                'sic_description': kwargs.get('sic_description'),
+            }
+            super().__init__(**mapped_data)
+            
+            # Store additional API fields on the instance (not as model fields)
+            self.currentPrice = kwargs.get('latest_price') or kwargs.get('regularMarketPrice') or kwargs.get('currentPrice')
+            self.dayHigh = kwargs.get('dayHigh')
+            self.dayLow = kwargs.get('dayLow')
+            self.fiftyDayAverage = kwargs.get('fiftyDayAverage')
+            self.sector = kwargs.get('sector')
+            self.industry = kwargs.get('industry')
+        else:
+            super().__init__(**kwargs)
     
     def _parse_datetime(self, value):
         if not value:
@@ -82,6 +117,12 @@ class APIStockModel:
             'locale': self.locale,
             'sic_code': self.sic_code,
             'sic_description': self.sic_description,
+            'currentPrice': getattr(self, 'currentPrice', None),
+            'dayHigh': getattr(self, 'dayHigh', None),
+            'dayLow': getattr(self, 'dayLow', None),
+            'fiftyDayAverage': getattr(self, 'fiftyDayAverage', None),
+            'sector': getattr(self, 'sector', None),
+            'industry': getattr(self, 'industry', None),
         }
     
     def __str__(self):

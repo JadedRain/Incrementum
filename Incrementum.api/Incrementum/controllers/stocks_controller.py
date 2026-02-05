@@ -1,5 +1,6 @@
 from Incrementum.utils import calculate_percent_change
 from ..stock_history_service import StockHistoryService
+from ..services.stock_api_client import stock_api_client
 import json
 import logging
 import pandas as pd
@@ -82,6 +83,7 @@ def get_stock_info_controller(request, ticker):
 @require_http_methods(["GET"])
 def get_stock_metadata(request, ticker):
     try:
+        # Try to get stock from database first
         stock = StockModel.objects.get(symbol__iexact=ticker)
         return JsonResponse({
             'symbol': stock.symbol,
@@ -109,10 +111,38 @@ def get_stock_metadata(request, ticker):
             'eps': (float(stock.eps) if stock.eps is not None else None),
         }, status=200)
     except StockModel.DoesNotExist:
-        return JsonResponse(
-            {'error': f'Stock with ticker {ticker} not found'},
-            status=404
-        )
+        # If not in database, try to fetch from API
+        api_response = stock_api_client.get_stock_by_symbol(ticker)
+        
+        if api_response and 'symbol' in api_response:
+            return JsonResponse({
+                'symbol': api_response.get('symbol', ticker),
+                'company_name': api_response.get('company_name'),
+                'description': None,
+                'market_cap': None,
+                'primary_exchange': None,
+                'type': None,
+                'currency_name': None,
+                'cik': None,
+                'composite_figi': None,
+                'share_class_figi': None,
+                'outstanding_shares': None,
+                'homepage_url': None,
+                'total_employees': None,
+                'list_date': None,
+                'locale': None,
+                'sic_code': None,
+                'sic_description': None,
+                'updated_at': api_response.get('updated_at'),
+                'eps': None,
+                'latest_price': api_response.get('latest_price'),
+                'latest_timestamp': api_response.get('latest_timestamp'),
+            }, status=200)
+        else:
+            return JsonResponse(
+                {'error': f'Stock with ticker {ticker} not found in database or API'},
+                status=404
+            )
 
 
 @csrf_exempt
@@ -257,3 +287,86 @@ def get_percent_change(request, ticker):
         }, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_stock_history(request, ticker):
+    """
+    Get stock price history with optional date range and interval filters.
+    Query parameters:
+    - start_date: YYYY-MM-DD format
+    - end_date: YYYY-MM-DD format  
+    - ishourly: true/false (default: false for daily data)
+    - limit: max records (default: 1000)
+    - offset: records to skip (default: 0)
+    """
+    try:
+        # Parse query parameters
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        ishourly = request.GET.get('ishourly', 'false').lower() == 'true'
+        limit = min(int(request.GET.get('limit', 1000)), 10000)  # Cap at 10k
+        offset = int(request.GET.get('offset', 0))
+        
+        history_service = StockHistoryService()
+        
+        # Determine period and interval based on parameters
+        if ishourly:
+            period = "1mo" if not start_date else "1y"
+            interval = "1h" 
+        else:
+            period = "1y" if not start_date else "2y"
+            interval = "1d"
+        
+        history_df, metadata = history_service.history(ticker, period=period, interval=interval)
+        
+        if history_df is None or history_df.empty:
+            return JsonResponse({
+                'error': f'No history data found for {ticker}',
+                'symbol': ticker,
+                'metadata': metadata
+            }, status=404)
+        
+        # Filter by date range if specified
+        if start_date or end_date:
+            if 'day_and_time' in history_df.columns:
+                history_df['day_and_time'] = pd.to_datetime(history_df['day_and_time'])
+                if start_date:
+                    history_df = history_df[history_df['day_and_time'] >= start_date]
+                if end_date:
+                    history_df = history_df[history_df['day_and_time'] <= end_date]
+        
+        # Apply pagination
+        total_records = len(history_df)
+        history_df = history_df.iloc[offset:offset+limit]
+        
+        # Convert to JSON format
+        history_data = []
+        for _, row in history_df.iterrows():
+            record = {
+                'timestamp': row.get('day_and_time', '').isoformat() if hasattr(row.get('day_and_time', ''), 'isoformat') else str(row.get('day_and_time', '')),
+                'open': float(row.get('Open', 0)) / 100 if row.get('Open') else None,
+                'close': float(row.get('Close', 0)) / 100 if row.get('Close') else None, 
+                'high': float(row.get('High', 0)) / 100 if row.get('High') else None,
+                'low': float(row.get('Low', 0)) / 100 if row.get('Low') else None,
+                'volume': int(row.get('Volume', 0)) if row.get('Volume') else 0
+            }
+            history_data.append(record)
+        
+        return JsonResponse({
+            'symbol': ticker,
+            'history': history_data,
+            'total_records': total_records,
+            'returned_records': len(history_data),
+            'limit': limit,
+            'offset': offset,
+            'metadata': metadata
+        }, status=200)
+        
+    except Exception as e:
+        logger.error(f"Error getting stock history for {ticker}: {str(e)}")
+        return JsonResponse({
+            'error': f'Failed to get stock history: {str(e)}',
+            'symbol': ticker
+        }, status=500)

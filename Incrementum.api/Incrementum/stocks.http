@@ -16,7 +16,7 @@ Content-Type: application/json
 ###
 GET {{host}}/getStockInfo/?max=5&offset=0
 ###
-GET {{host}}/searchStocks/a/1
+GET {{host}}/stocks/search/a/1
 ###
 GET  {{host}}/watchlist/
 Content-Type: application/json

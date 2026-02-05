@@ -4,6 +4,7 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods, require_GET
 from ..models.custom_collection import CustomCollection
+from ..models.custom_collection_stock import CustomCollectionStock
 from ..models.account import Account
 from ..stock_history_service import StockHistoryService
 from ..services.custom_collection_service import CustomCollectionService
@@ -253,7 +254,8 @@ def custom_collection_by_id(request, collection_id):
             status=404
         )
 
-    stocks = collection.stocks.all()
+    # Get stocks from CustomCollectionStock through model
+    collection_stocks = CustomCollectionStock.objects.filter(collection=collection)
     try:
         purchase_prices = getattr(collection, 'purchase_prices', {}) or {}
     except Exception:
@@ -261,11 +263,11 @@ def custom_collection_by_id(request, collection_id):
         purchase_prices = {}
     tokens = [
         {
-            'symbol': stock.symbol,
-            'company_name': stock.company_name,
-            'purchasePrice': purchase_prices.get(stock.symbol),
+            'symbol': cs.stock_symbol,
+            'company_name': '',  # stock_symbol is now just a CharField, fetch data separately if needed
+            'purchasePrice': purchase_prices.get(cs.stock_symbol),
         }
-        for stock in stocks
+        for cs in collection_stocks
     ]
 
     date_created = (
