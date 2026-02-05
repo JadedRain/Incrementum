@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from Incrementum.models.stock import StockModel
 from Incrementum.serializers import StockSerializer
-from Incrementum.get_stock_info import get_stock_info, search_stocks, get_stock_by_ticker
+from Incrementum.get_stock_info import search_stocks, get_stock_by_ticker
 from ..services.stock_service import StockService
 logger = logging.getLogger(__name__)
 
@@ -45,30 +45,6 @@ def search_stocks_controller(request, query, page):
     results = search_stocks(query, page)
     logging.info(f"results: {results}")
     return JsonResponse(results, safe=False)
-
-
-@csrf_exempt
-@require_http_methods(["GET"])
-def get_stocks_info(request):
-    try:
-        max_val = int(request.GET.get('max', 10))
-        offset = int(request.GET.get('offset', 0))
-    except (TypeError, ValueError):
-        return JsonResponse({'error': 'Invalid max or offset'}, status=400)
-    filters = None
-    filters_param = request.GET.get('filters')
-    if filters_param:
-        try:
-            filters = json.loads(filters_param)
-        except Exception:
-            return JsonResponse({'error': 'Invalid filters JSON'}, status=400)
-    try:
-        stocks = get_stock_info(max_val, offset, filters)
-        # If result is a list of Stock objects, convert to dicts
-        stocks_out = [s.to_dict() if hasattr(s, 'to_dict') else s for s in stocks]
-        return JsonResponse({'length': len(stocks_out), 'stocks': stocks_out}, status=200)
-    except ValueError as ve:
-        return JsonResponse({'error': str(ve)}, status=500)
 
 
 @csrf_exempt
@@ -127,10 +103,13 @@ def get_stock_graph(request, ticker):
             "error": f"No data found for {ticker} with period={period} and interval={interval}"
         }, status=404)
     try:
-        dates = [ts.strftime("%Y-%m-%dT%H:%M:%S") for ts in history.index.to_pydatetime()]
-    except Exception:
-        # fallback if index not datetime
-        dates = [str(i) for i in history.index]
+        if 'day_and_time' in history.columns:
+            date_series = pd.to_datetime(history['day_and_time'])
+            dates = [ts.strftime("%Y-%m-%dT%H:%M:%S") for ts in date_series]
+        else:
+            dates = [ts.strftime("%Y-%m-%dT%H:%M:%S") for ts in history.index.to_pydatetime()]
+    except Exception as e:
+        dates = [str(i) for i in range(len(history))]
 
     close = [None if (pd.isna(v)) else float(v) for v in history["Close"].tolist()]
     open_ = (
