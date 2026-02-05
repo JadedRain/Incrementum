@@ -1,7 +1,6 @@
 from .stock_history_service import StockHistoryService
 from .stocks_class import Stock
 import logging
-from django.db import connection
 from Screeners.moving_average_52 import fifty_two_high
 from Screeners.numeric_screeners import NumericScreeners
 
@@ -34,7 +33,7 @@ def get_stock_by_ticker(ticker, source=setup):
     try:
         from Incrementum.models import StockModel
         from .services.stock_api_client import stock_api_client
-        
+
         # Try to get stock directly from ORM (API or database)
         try:
             stock = StockModel.objects.get(symbol__iexact=ticker)
@@ -45,7 +44,7 @@ def get_stock_by_ticker(ticker, source=setup):
             return stock
         except StockModel.DoesNotExist:
             logging.warning(f"Stock {ticker} not found via ORM, trying API")
-            
+
             # Fallback to API
             api_response = stock_api_client.get_stock_by_symbol(ticker)
             if api_response and 'symbol' in api_response:
@@ -56,7 +55,7 @@ def get_stock_by_ticker(ticker, source=setup):
                 return Stock(stock_data)
             else:
                 raise ValueError(f"Stock {ticker} not found in ORM or API")
-            
+
     except Exception as e:
         logging.error(f"Error getting stock {ticker}: {str(e)}")
         raise ValueError(f"Failed to get stock {ticker}: {str(e)}")
@@ -65,7 +64,8 @@ def get_stock_by_ticker(ticker, source=setup):
 def fetch_stock_with_ma(symbol, ma_period=50):
     history_service = StockHistoryService()
     history_df, metadata = history_service.history(symbol, period="1y")
-    hist = history_df['Close'] if history_df is not None else None  # last 1 year daily prices
+    # last 1 year daily prices
+    hist = history_df['Close'] if history_df is not None else None
     if hist is None:
         return None
     ma = hist.rolling(window=ma_period).mean()
@@ -117,7 +117,8 @@ def get_stock_info(max, offset, filters=None, source=setup):
         end = min(start + max, len(all_screened_stocks))
         return all_screened_stocks[start:end]
 
-    if isinstance(filters, dict) and filters.get('current_share_price') is not None:
+    if isinstance(filters, dict) and filters.get(
+            'current_share_price') is not None:
         current_share_price = filters.get('current_share_price')
 
         all_screened_stocks = screen_stocks_by_current_share_price(
@@ -139,25 +140,33 @@ def get_stock_info(max, offset, filters=None, source=setup):
         fs_set = {str(s).strip().lower() for s in filters.get('sectors') if s}
         allowed_sectors = fs_set
         tickers = [
-            t for t in tickers
-            if hasattr(t, 'sectorKey') and str(getattr(t, 'sectorKey', '')).lower()
-            in allowed_sectors
-        ]
+            t for t in tickers if hasattr(
+                t,
+                'sectorKey') and str(
+                getattr(
+                    t,
+                    'sectorKey',
+                    '')).lower() in allowed_sectors]
 
     # Industry filtering
     allowed_industries = None
     if filters and filters.get('industries'):
-        fi_set = {str(s).strip().lower() for s in filters.get('industries') if s}
+        fi_set = {str(s).strip().lower()
+                  for s in filters.get('industries') if s}
         allowed_industries = fi_set
         tickers = [
-            t for t in tickers
-            if hasattr(t, 'industryKey')
-            and str(getattr(t, 'industryKey', '')).lower() in allowed_industries
-        ]
+            t for t in tickers if hasattr(
+                t,
+                'industryKey') and str(
+                getattr(
+                    t,
+                    'industryKey',
+                    '')).lower() in allowed_industries]
 
     # Build Stock objects with historical prices
-    for t in tickers[offset:offset+max]:
-        stock_data = fetch_stock_data(t.symbol)  # must return a Stock object with historical prices
+    for t in tickers[offset:offset + max]:
+        # must return a Stock object with historical prices
+        stock_data = fetch_stock_data(t.symbol)
         stocks.append(stock_data)
 
     # Moving average filtering
@@ -167,7 +176,8 @@ def get_stock_info(max, offset, filters=None, source=setup):
         and filters.get('price_52w_high')
         and filters.get('price_52w_high_value') is not None
     ):
-        # You can optionally use the value as threshold, for now we filter by MA
+        # You can optionally use the value as threshold, for now we filter by
+        # MA
         ma_screener = fifty_two_high(filters.get('price_52w_high_value'))
         screeners_list.append(ma_screener)
 
@@ -182,7 +192,7 @@ def ensure_stock_in_db(symbol, company_name):
     """Ensure stock exists in database using ORM models"""
     try:
         from Incrementum.models import StockModel
-        
+
         # Try to get existing stock
         try:
             stock = StockModel.objects.get(symbol=symbol)
@@ -199,7 +209,8 @@ def ensure_stock_in_db(symbol, company_name):
                 return stock
             except Exception as create_error:
                 # Handle case where API models don't support create
-                logging.warning(f"Could not create stock {symbol} via ORM: {create_error}")
+                logging.warning(
+                    f"Could not create stock {symbol} via ORM: {create_error}")
                 return None
     except Exception as e:
         logging.error(f"Error ensuring stock {symbol} exists: {str(e)}")
@@ -213,30 +224,40 @@ def fetch_stock_data(ticker):
         # Get stock from ORM - either external API or database
         stock = StockModel.objects.get(symbol=ticker)
         logging.info(f"Retrieved {ticker} via ORM")
-        
+
         # Convert to Stock class format if it's a model instance
         if hasattr(stock, 'to_dict'):
             return Stock(stock.to_dict())
         return stock
-        
+
     except Exception as e:
         logging.error(f"Error fetching stock data for {ticker}: {str(e)}")
         raise ValueError(f"Failed to fetch data for ticker {ticker}: {str(e)}")
 
 
-def screen_stocks_by_percent_change(percent_change_filter, percent_change_value, max_results=100):
+def screen_stocks_by_percent_change(
+        percent_change_filter,
+        percent_change_value,
+        max_results=100):
     """Screen stocks by percent change using ORM models only"""
-    logging.warning("Percent change screening not implemented without yfinance")
+    logging.warning(
+        "Percent change screening not implemented without yfinance")
     return []
 
 
-def screen_stocks_by_average_volume(average_volume_filter, average_volume_value, max_results=100):
+def screen_stocks_by_average_volume(
+        average_volume_filter,
+        average_volume_value,
+        max_results=100):
     """Screen stocks by average volume using ORM models only"""
-    logging.warning("Average volume screening not implemented without yfinance")
+    logging.warning(
+        "Average volume screening not implemented without yfinance")
     return []
 
 
-def screen_stocks_by_current_share_price(price_filter, price_value, max_results=100):
+def screen_stocks_by_current_share_price(
+        price_filter, price_value, max_results=100):
     """Screen stocks by current share price using ORM models only"""
-    logging.warning("Current share price screening not implemented without yfinance")
+    logging.warning(
+        "Current share price screening not implemented without yfinance")
     return []

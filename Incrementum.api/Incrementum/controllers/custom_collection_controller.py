@@ -16,7 +16,8 @@ from ..graph_utils import generate_overlay_graph
 def custom_collection(request):
     api_key = request.META.get('HTTP_X_USER_ID')
     if not api_key:
-        return JsonResponse({'error': 'User id header X-User-Id required'}, status=401)
+        return JsonResponse(
+            {'error': 'User id header X-User-Id required'}, status=401)
     custom_collection = CustomCollectionService()
 
     collection_name = None
@@ -30,7 +31,8 @@ def custom_collection(request):
             data = json.loads(request.body)
         except Exception:
             return JsonResponse({'error': 'Invalid JSON body'}, status=400)
-        collection_name = data.get('collection') or request.META.get('HTTP_X_COLLECTION_NAME')
+        collection_name = data.get('collection') or request.META.get(
+            'HTTP_X_COLLECTION_NAME')
 
     if not collection_name:
         return JsonResponse(
@@ -48,16 +50,19 @@ def custom_collection(request):
 
     elif request.method == "POST":
         desc = data.get('desc')
-        symbols_field = data.get('symbols') or request.META.get('HTTP_X_SYMBOLS')
+        symbols_field = data.get(
+            'symbols') or request.META.get('HTTP_X_SYMBOLS')
         symbols = None
         if symbols_field:
             if isinstance(symbols_field, str):
-                symbols = [s.strip().upper() for s in symbols_field.split(',') if s.strip()]
+                symbols = [s.strip().upper()
+                           for s in symbols_field.split(',') if s.strip()]
             else:
                 symbols = list(symbols_field)
 
         try:
-            added_count = custom_collection.add_stocks(api_key, collection_name, symbols, desc)
+            added_count = custom_collection.add_stocks(
+                api_key, collection_name, symbols, desc)
         except ValueError as e:
             return JsonResponse({'error': str(e)}, status=400)
         collections = custom_collection.get_all_collections(api_key)
@@ -71,11 +76,13 @@ def custom_collection(request):
         )
 
     elif request.method == "DELETE":
-        symbols_field = data.get('symbols') or request.META.get('HTTP_X_SYMBOLS')
+        symbols_field = data.get(
+            'symbols') or request.META.get('HTTP_X_SYMBOLS')
         symbols = None
         if symbols_field:
             if isinstance(symbols_field, str):
-                symbols = [s.strip().upper() for s in symbols_field.split(',') if s.strip()]
+                symbols = [s.strip().upper()
+                           for s in symbols_field.split(',') if s.strip()]
             else:
                 symbols = list(symbols_field)
 
@@ -84,7 +91,8 @@ def custom_collection(request):
 
         try:
             if symbols:
-                custom_collection.remove_stocks(symbols, api_key, collection_name)
+                custom_collection.remove_stocks(
+                    symbols, api_key, collection_name)
         except ValueError as e:
             return JsonResponse({'error': str(e)}, status=400)
         return JsonResponse({'status': 'ok'}, status=200)
@@ -110,12 +118,18 @@ def custom_collection(request):
             single_symbol = data.get('symbol')
             single_price = data.get('price')
             if purchase_prices and isinstance(purchase_prices, dict):
-                existing = getattr(updated_collection, 'purchase_prices', {}) or {}
+                existing = getattr(
+                    updated_collection,
+                    'purchase_prices',
+                    {}) or {}
                 existing.update(purchase_prices)
                 updated_collection.purchase_prices = existing
                 updated_collection.save()
             elif single_symbol and single_price is not None:
-                existing = getattr(updated_collection, 'purchase_prices', {}) or {}
+                existing = getattr(
+                    updated_collection,
+                    'purchase_prices',
+                    {}) or {}
                 existing[str(single_symbol).upper()] = single_price
                 updated_collection.purchase_prices = existing
                 updated_collection.save()
@@ -136,7 +150,8 @@ def custom_collection(request):
 def custom_collection_aggregate(request):
     api_key = request.META.get('HTTP_X_USER_ID')
     if not api_key:
-        return JsonResponse({'error': 'User id header X-User-Id required'}, status=401)
+        return JsonResponse(
+            {'error': 'User id header X-User-Id required'}, status=401)
     collection_name = (
         request.GET.get('collection')
         or request.META.get('HTTP_X_COLLECTION_NAME')
@@ -160,7 +175,8 @@ def custom_collection_aggregate(request):
 def custom_collection_aggregate_graph(request):
     api_key = request.META.get('HTTP_X_USER_ID')
     if not api_key:
-        return JsonResponse({'error': 'User id header X-User-Id required'}, status=401)
+        return JsonResponse(
+            {'error': 'User id header X-User-Id required'}, status=401)
     collection_name = (
         request.GET.get('collection')
         or request.META.get('HTTP_X_COLLECTION_NAME')
@@ -189,7 +205,8 @@ def custom_collection_aggregate_graph(request):
 
     if history is None or history.empty:
         logger.error(f"No history for ticker {ticker}")
-        return JsonResponse({"error": f"No history for ticker {ticker}"}, status=500)
+        return JsonResponse(
+            {"error": f"No history for ticker {ticker}"}, status=500)
 
 
 @csrf_exempt
@@ -197,7 +214,8 @@ def custom_collection_aggregate_graph(request):
 def custom_collection_overlay_graph(request):
     api_key = request.META.get('HTTP_X_USER_ID')
     if not api_key:
-        return JsonResponse({'error': 'User id header X-User-Id required'}, status=401)
+        return JsonResponse(
+            {'error': 'User id header X-User-Id required'}, status=401)
     collection_name = (
         request.GET.get('collection')
         or request.META.get('HTTP_X_COLLECTION_NAME')
@@ -227,7 +245,8 @@ def custom_collection_overlay_graph(request):
 def custom_collections_list(request):
     api_key = request.META.get('HTTP_X_USER_ID')
     if not api_key:
-        return JsonResponse({'error': 'User id header X-User-Id required'}, status=401)
+        return JsonResponse(
+            {'error': 'User id header X-User-Id required'}, status=401)
     custom_collection = CustomCollectionService()
     collections = custom_collection.get_all_collections(api_key)
     return JsonResponse({'collections': collections})
@@ -238,15 +257,18 @@ def custom_collections_list(request):
 def custom_collection_by_id(request, collection_id):
     api_key = request.META.get('HTTP_X_USER_ID')
     if not api_key:
-        return JsonResponse({'error': 'User id header X-User-Id required'}, status=401)
+        return JsonResponse(
+            {'error': 'User id header X-User-Id required'}, status=401)
 
     try:
         account = Account.objects.get(api_key=api_key)
     except Account.DoesNotExist:
-        return JsonResponse({'error': 'Invalid or expired session'}, status=401)
+        return JsonResponse(
+            {'error': 'Invalid or expired session'}, status=401)
 
     try:
-        collection = CustomCollection.objects.get(id=collection_id, account=account)
+        collection = CustomCollection.objects.get(
+            id=collection_id, account=account)
     except CustomCollection.DoesNotExist:
         return JsonResponse(
             {'error': f'Collection with ID {collection_id}'
@@ -255,16 +277,19 @@ def custom_collection_by_id(request, collection_id):
         )
 
     # Get stocks from CustomCollectionStock through model
-    collection_stocks = CustomCollectionStock.objects.filter(collection=collection)
+    collection_stocks = CustomCollectionStock.objects.filter(
+        collection=collection)
     try:
         purchase_prices = getattr(collection, 'purchase_prices', {}) or {}
     except Exception:
-        logging.exception('Unable to read purchase_prices field from CustomCollection')
+        logging.exception(
+            'Unable to read purchase_prices field from CustomCollection')
         purchase_prices = {}
     tokens = [
         {
             'symbol': cs.stock_symbol,
-            'company_name': '',  # stock_symbol is now just a CharField, fetch data separately if needed
+            'company_name': '',  # stock_symbol is now just a CharField,
+            # fetch data separately if needed
             'purchasePrice': purchase_prices.get(cs.stock_symbol),
         }
         for cs in collection_stocks

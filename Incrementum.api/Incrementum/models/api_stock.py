@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from ..managers.stock_api_manager import StockAPIManager, StockDoesNotExist
-from typing import Optional, Dict, Any
+from typing import Dict
 
 
 class APIStockModel(models.Model):
@@ -26,23 +26,32 @@ class APIStockModel(models.Model):
     locale = models.CharField(max_length=10, null=True, blank=True)
     sic_code = models.CharField(max_length=20, null=True, blank=True)
     sic_description = models.CharField(max_length=255, null=True, blank=True)
-    
+
     objects = StockAPIManager()
-    
+
     class Meta:
         db_table = 'stock'
         managed = False
-    
+
     DoesNotExist = StockDoesNotExist
-    
+
     def __init__(self, **kwargs):
         # Handle API response data mapping
         if kwargs:
             # Map API fields to model fields
             mapped_data = {
-                'symbol': kwargs.get('symbol', ''),
-                'company_name': kwargs.get('company_name', '') or kwargs.get('longName', '') or kwargs.get('shortName', ''),
-                'updated_at': self._parse_datetime(kwargs.get('updated_at')) or timezone.now(),
+                'symbol': kwargs.get(
+                    'symbol',
+                    ''),
+                'company_name': kwargs.get(
+                    'company_name',
+                    '') or kwargs.get(
+                    'longName',
+                    '') or kwargs.get(
+                    'shortName',
+                    ''),
+                'updated_at': self._parse_datetime(
+                    kwargs.get('updated_at')) or timezone.now(),
                 'description': kwargs.get('description'),
                 'market_cap': kwargs.get('market_cap') or kwargs.get('marketCap'),
                 'primary_exchange': kwargs.get('primary_exchange') or kwargs.get('exchange'),
@@ -55,15 +64,17 @@ class APIStockModel(models.Model):
                 'eps': kwargs.get('eps'),
                 'homepage_url': kwargs.get('homepage_url') or kwargs.get('website'),
                 'total_employees': kwargs.get('total_employees'),
-                'list_date': self._parse_date(kwargs.get('list_date')),
+                'list_date': self._parse_date(
+                    kwargs.get('list_date')),
                 'locale': kwargs.get('locale'),
                 'sic_code': kwargs.get('sic_code'),
                 'sic_description': kwargs.get('sic_description'),
             }
             super().__init__(**mapped_data)
-            
+
             # Store additional API fields on the instance (not as model fields)
-            self.currentPrice = kwargs.get('latest_price') or kwargs.get('regularMarketPrice') or kwargs.get('currentPrice')
+            self.currentPrice = kwargs.get('latest_price') or kwargs.get(
+                'regularMarketPrice') or kwargs.get('currentPrice')
             self.dayHigh = kwargs.get('dayHigh')
             self.dayLow = kwargs.get('dayLow')
             self.fiftyDayAverage = kwargs.get('fiftyDayAverage')
@@ -71,27 +82,28 @@ class APIStockModel(models.Model):
             self.industry = kwargs.get('industry')
         else:
             super().__init__(**kwargs)
-    
+
     def _parse_datetime(self, value):
         if not value:
             return None
         if isinstance(value, str):
             try:
-                return timezone.datetime.fromisoformat(value.replace('Z', '+00:00'))
-            except:
+                return timezone.datetime.fromisoformat(
+                    value.replace('Z', '+00:00'))
+            except BaseException:
                 return None
         return value
-    
+
     def _parse_date(self, value):
         if not value:
             return None
         if isinstance(value, str):
             try:
                 return timezone.datetime.fromisoformat(value).date()
-            except:
+            except BaseException:
                 return None
         return value
-    
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             'symbol': self.symbol,
@@ -124,19 +136,21 @@ class APIStockModel(models.Model):
             'sector': getattr(self, 'sector', None),
             'industry': getattr(self, 'industry', None),
         }
-    
+
     def __str__(self):
         return f"{self.symbol} - {self.company_name}"
-    
+
     @classmethod
     def fetch_all(cls):
         return cls.objects.all()
-    
+
     def save(self):
-        raise NotImplementedError("Save operations not supported for API-backed models")
-    
+        raise NotImplementedError(
+            "Save operations not supported for API-backed models")
+
     def delete(self):
-        raise NotImplementedError("Delete operations not supported for API-backed models")
+        raise NotImplementedError(
+            "Delete operations not supported for API-backed models")
 
 
 # Alias for backward compatibility

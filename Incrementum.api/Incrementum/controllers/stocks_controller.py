@@ -66,8 +66,11 @@ def get_stocks_info(request):
     try:
         stocks = get_stock_info(max_val, offset, filters)
         # If result is a list of Stock objects, convert to dicts
-        stocks_out = [s.to_dict() if hasattr(s, 'to_dict') else s for s in stocks]
-        return JsonResponse({'length': len(stocks_out), 'stocks': stocks_out}, status=200)
+        stocks_out = [
+            s.to_dict() if hasattr(
+                s, 'to_dict') else s for s in stocks]
+        return JsonResponse(
+            {'length': len(stocks_out), 'stocks': stocks_out}, status=200)
     except ValueError as ve:
         return JsonResponse({'error': str(ve)}, status=500)
 
@@ -113,7 +116,7 @@ def get_stock_metadata(request, ticker):
     except StockModel.DoesNotExist:
         # If not in database, try to fetch from API
         api_response = stock_api_client.get_stock_by_symbol(ticker)
-        
+
         if api_response and 'symbol' in api_response:
             return JsonResponse({
                 'symbol': api_response.get('symbol', ticker),
@@ -140,7 +143,12 @@ def get_stock_metadata(request, ticker):
             }, status=200)
         else:
             return JsonResponse(
-                {'error': f'Stock with ticker {ticker} not found in database or API'},
+                {
+                    'error': (
+                        f'Stock with ticker {ticker} not found in '
+                        f'database or API'
+                    )
+                },
                 status=404
             )
 
@@ -151,18 +159,21 @@ def get_stock_graph(request, ticker):
     period = request.GET.get("period", "1y")
     interval = request.GET.get("interval", "1d")
     history_service = StockHistoryService()
-    history, metadata = history_service.history(ticker, period=period, interval=interval)
+    history, metadata = history_service.history(
+        ticker, period=period, interval=interval)
     if history is None or history.empty:
         return JsonResponse({
             "error": f"No data found for {ticker} with period={period} and interval={interval}"
         }, status=404)
     try:
-        dates = [ts.strftime("%Y-%m-%dT%H:%M:%S") for ts in history.index.to_pydatetime()]
+        dates = [ts.strftime("%Y-%m-%dT%H:%M:%S")
+                 for ts in history.index.to_pydatetime()]
     except Exception:
         # fallback if index not datetime
         dates = [str(i) for i in history.index]
 
-    close = [None if (pd.isna(v)) else float(v) for v in history["Close"].tolist()]
+    close = [None if (pd.isna(v)) else float(v)
+             for v in history["Close"].tolist()]
     open_ = (
         [None if (pd.isna(v)) else float(v) for v in history["Open"].tolist()]
         if "Open" in history else [None] * len(dates)
@@ -200,7 +211,7 @@ def get_all_stocks_with_info(request):
     limit = min(limit, 1000)
 
     total_count = StockModel.objects.count()
-    stocks = StockModel.objects.all()[offset:offset+limit]
+    stocks = StockModel.objects.all()[offset:offset + limit]
     stocks_data = [stock.to_dict() for stock in stocks]
 
     return JsonResponse({
@@ -221,7 +232,7 @@ def get_database_stocks(request):
     limit = min(limit, 1000)
 
     total_count = StockModel.objects.count()
-    stocks = StockModel.objects.all().order_by('symbol')[offset:offset+limit]
+    stocks = StockModel.objects.all().order_by('symbol')[offset:offset + limit]
     stocks_data = [stock.to_dict() for stock in stocks]
 
     return JsonResponse({
@@ -245,8 +256,14 @@ def get_stocks_by_tickers(request):
     try:
         data = json.loads(request.body)
         tickers = data.get('tickers', [])
-        if not isinstance(tickers, list) or not all(isinstance(t, str) for t in tickers):
-            return JsonResponse({'error': 'tickers must be a list of strings'}, status=400)
+        if not isinstance(
+                tickers,
+                list) or not all(
+                isinstance(
+                t,
+                str) for t in tickers):
+            return JsonResponse(
+                {'error': 'tickers must be a list of strings'}, status=400)
         stocks = StockService.get_stocks_by_symbols(tickers)
         logger.info(f"Got {len(stocks)} stocks")
         serializer = StockSerializer(stocks, many=True)
@@ -260,9 +277,11 @@ def get_stock_eps(request, ticker):
     try:
         stock = StockModel.objects.get(symbol__iexact=ticker)
         eps_val = float(stock.eps) if stock.eps is not None else None
-        return JsonResponse({'symbol': stock.symbol, 'eps': eps_val}, status=200)
+        return JsonResponse(
+            {'symbol': stock.symbol, 'eps': eps_val}, status=200)
     except StockModel.DoesNotExist:
-        return JsonResponse({'error': f'Stock with ticker {ticker} not found'}, status=404)
+        return JsonResponse(
+            {'error': f'Stock with ticker {ticker} not found'}, status=404)
 
 
 @csrf_exempt
@@ -296,7 +315,7 @@ def get_stock_history(request, ticker):
     Get stock price history with optional date range and interval filters.
     Query parameters:
     - start_date: YYYY-MM-DD format
-    - end_date: YYYY-MM-DD format  
+    - end_date: YYYY-MM-DD format
     - ishourly: true/false (default: false for daily data)
     - limit: max records (default: 1000)
     - offset: records to skip (default: 0)
@@ -308,52 +327,74 @@ def get_stock_history(request, ticker):
         ishourly = request.GET.get('ishourly', 'false').lower() == 'true'
         limit = min(int(request.GET.get('limit', 1000)), 10000)  # Cap at 10k
         offset = int(request.GET.get('offset', 0))
-        
+
         history_service = StockHistoryService()
-        
+
         # Determine period and interval based on parameters
         if ishourly:
             period = "1mo" if not start_date else "1y"
-            interval = "1h" 
+            interval = "1h"
         else:
             period = "1y" if not start_date else "2y"
             interval = "1d"
-        
-        history_df, metadata = history_service.history(ticker, period=period, interval=interval)
-        
+
+        history_df, metadata = history_service.history(
+            ticker, period=period, interval=interval)
+
         if history_df is None or history_df.empty:
             return JsonResponse({
                 'error': f'No history data found for {ticker}',
                 'symbol': ticker,
                 'metadata': metadata
             }, status=404)
-        
+
         # Filter by date range if specified
         if start_date or end_date:
             if 'day_and_time' in history_df.columns:
-                history_df['day_and_time'] = pd.to_datetime(history_df['day_and_time'])
+                history_df['day_and_time'] = pd.to_datetime(
+                    history_df['day_and_time'])
                 if start_date:
-                    history_df = history_df[history_df['day_and_time'] >= start_date]
+                    history_df = history_df[history_df['day_and_time']
+                                            >= start_date]
                 if end_date:
                     history_df = history_df[history_df['day_and_time'] <= end_date]
-        
+
         # Apply pagination
         total_records = len(history_df)
-        history_df = history_df.iloc[offset:offset+limit]
-        
+        history_df = history_df.iloc[offset:offset + limit]
+
         # Convert to JSON format
         history_data = []
         for _, row in history_df.iterrows():
+            day_and_time = row.get('day_and_time', '')
+            if hasattr(day_and_time, 'isoformat'):
+                timestamp = day_and_time.isoformat()
+            else:
+                timestamp = str(day_and_time)
             record = {
-                'timestamp': row.get('day_and_time', '').isoformat() if hasattr(row.get('day_and_time', ''), 'isoformat') else str(row.get('day_and_time', '')),
-                'open': float(row.get('Open', 0)) / 100 if row.get('Open') else None,
-                'close': float(row.get('Close', 0)) / 100 if row.get('Close') else None, 
-                'high': float(row.get('High', 0)) / 100 if row.get('High') else None,
-                'low': float(row.get('Low', 0)) / 100 if row.get('Low') else None,
-                'volume': int(row.get('Volume', 0)) if row.get('Volume') else 0
-            }
+                'timestamp': timestamp,
+                'open': float(
+                    row.get(
+                        'Open',
+                        0)) / 100 if row.get('Open') else None,
+                'close': float(
+                    row.get(
+                        'Close',
+                        0)) / 100 if row.get('Close') else None,
+                'high': float(
+                    row.get(
+                        'High',
+                        0)) / 100 if row.get('High') else None,
+                'low': float(
+                    row.get(
+                        'Low',
+                        0)) / 100 if row.get('Low') else None,
+                'volume': int(
+                    row.get(
+                        'Volume',
+                        0)) if row.get('Volume') else 0}
             history_data.append(record)
-        
+
         return JsonResponse({
             'symbol': ticker,
             'history': history_data,
@@ -363,7 +404,7 @@ def get_stock_history(request, ticker):
             'offset': offset,
             'metadata': metadata
         }, status=200)
-        
+
     except Exception as e:
         logger.error(f"Error getting stock history for {ticker}: {str(e)}")
         return JsonResponse({

@@ -4,9 +4,7 @@ from typing import Optional, Tuple
 import pandas as pd
 from django.db import connection
 from django.utils import timezone
-from django.conf import settings
 from datetime import datetime
-from .services.stock_api_client import stock_api_client
 
 
 class StockHistoryService:
@@ -24,53 +22,63 @@ class StockHistoryService:
         """Get stock history using ORM models (API or database based on settings)"""
         try:
             from Incrementum.models import StockHistory
-            
+
             self.logger.info(f"[GET_DB_HISTORY] Starting for ticker={ticker}")
             # Build ORM query
-            self.logger.info(f"[GET_DB_HISTORY] Creating queryset with filter stock_symbol={ticker}")
+            self.logger.info(
+                f"[GET_DB_HISTORY] Creating queryset with filter stock_symbol={ticker}")
             queryset = StockHistory.objects.filter(stock_symbol=ticker)
-            self.logger.info(f"[GET_DB_HISTORY] Queryset type: {type(queryset).__name__}")
-            
+            self.logger.info(
+                f"[GET_DB_HISTORY] Queryset type: {type(queryset).__name__}")
+
             if start_date:
                 queryset = queryset.filter(day_and_time__gte=start_date)
-                self.logger.info(f"[GET_DB_HISTORY] Applied start_date filter: {start_date}")
+                self.logger.info(
+                    f"[GET_DB_HISTORY] Applied start_date filter: {start_date}")
             if end_date:
                 queryset = queryset.filter(day_and_time__lte=end_date)
-                self.logger.info(f"[GET_DB_HISTORY] Applied end_date filter: {end_date}")
+                self.logger.info(
+                    f"[GET_DB_HISTORY] Applied end_date filter: {end_date}")
             if is_hourly is not None:
                 queryset = queryset.filter(is_hourly=is_hourly)
-                self.logger.info(f"[GET_DB_HISTORY] Applied is_hourly filter: {is_hourly}")
-            
+                self.logger.info(
+                    f"[GET_DB_HISTORY] Applied is_hourly filter: {is_hourly}")
+
             queryset = queryset.order_by('day_and_time')
-            self.logger.info(f"[GET_DB_HISTORY] Applied order_by")
-            
-            self.logger.info(f"[GET_DB_HISTORY] Calling queryset.exists()...")
+            self.logger.info("[GET_DB_HISTORY] Applied order_by")
+
+            self.logger.info("[GET_DB_HISTORY] Calling queryset.exists()...")
             exists_result = queryset.exists()
-            self.logger.info(f"[GET_DB_HISTORY] queryset.exists() returned: {exists_result}")
-            
+            self.logger.info(
+                f"[GET_DB_HISTORY] queryset.exists() returned: {exists_result}")
+
             if not exists_result:
-                self.logger.warning(f"[GET_DB_HISTORY] No history found for ticker {ticker}")
+                self.logger.warning(
+                    f"[GET_DB_HISTORY] No history found for ticker {ticker}")
                 return None
-            
-            self.logger.info(f"[GET_DB_HISTORY] Starting iteration...")
+
+            self.logger.info("[GET_DB_HISTORY] Starting iteration...")
             # Convert ORM results to DataFrame
             data = []
             record_count = 0
             for record in queryset:
                 record_count += 1
                 if record_count <= 2 or record_count % 1000 == 0:
-                    self.logger.debug(f"[GET_DB_HISTORY] Processing record {record_count}, type: {type(record).__name__}")
-                
+                    self.logger.debug(
+                        f"[GET_DB_HISTORY] Processing record {record_count}, type: {type(record).__name__}")
+
                 # Handle both dict (from API) and model instance (from DB)
                 if isinstance(record, dict):
                     # Already a dict from API manager
                     if record_count <= 1:
-                        self.logger.debug(f"[GET_DB_HISTORY] Dict record keys: {list(record.keys())}")
+                        self.logger.debug(
+                            f"[GET_DB_HISTORY] Dict record keys: {list(record.keys())}")
                     data.append(record)
                 else:
                     # Model instance from database
                     if record_count <= 1:
-                        self.logger.debug(f"[GET_DB_HISTORY] Model record: {record}")
+                        self.logger.debug(
+                            f"[GET_DB_HISTORY] Model record: {record}")
                     data.append({
                         'stock_symbol': record.stock_symbol,
                         'day_and_time': record.day_and_time,
@@ -81,19 +89,23 @@ class StockHistoryService:
                         'volume': record.volume,
                         'is_hourly': record.is_hourly
                     })
-            
-            self.logger.info(f"[GET_DB_HISTORY] Iteration complete, processed {record_count} records")
-            
+
+            self.logger.info(
+                f"[GET_DB_HISTORY] Iteration complete, processed {record_count} records")
+
             if not data:
-                self.logger.warning(f"[GET_DB_HISTORY] No data collected for {ticker} even though exists()=True")
+                self.logger.warning(
+                    f"[GET_DB_HISTORY] No data collected for {ticker} even though exists()=True")
                 return None
-            
+
             df = pd.DataFrame(data)
-            self.logger.info(f"[GET_DB_HISTORY] Successfully created DataFrame with {len(df)} records for {ticker}")
+            self.logger.info(
+                f"[GET_DB_HISTORY] Successfully created DataFrame with {len(df)} records for {ticker}")
             return df
-            
+
         except Exception as e:
-            self.logger.error(f"Error fetching history for {ticker} via ORM: {str(e)}")
+            self.logger.error(
+                f"Error fetching history for {ticker} via ORM: {str(e)}")
             import traceback
             self.logger.error(traceback.format_exc())
             return None
@@ -162,7 +174,10 @@ class StockHistoryService:
             )
             return False
 
-    def _is_data_current(self, df: pd.DataFrame, max_age_days: int = 1) -> bool:
+    def _is_data_current(
+            self,
+            df: pd.DataFrame,
+            max_age_days: int = 1) -> bool:
         if df is None or df.empty:
             return False
 
@@ -223,7 +238,8 @@ class StockHistoryService:
             df = pd.DataFrame(data)
             return df
         except Exception as e:
-            self.logger.error(f"Error fetching fresh data for {ticker} from Polygon: {str(e)}")
+            self.logger.error(
+                f"Error fetching fresh data for {ticker} from Polygon: {str(e)}")
             return None
 
     def history(
@@ -239,36 +255,42 @@ class StockHistoryService:
             "is_current": True,
             "last_date": None
         }
-        
+
         try:
-            # Use ORM to get history - this will use API or database based on settings
-            history_df = self.get_db_history(ticker, is_hourly=(interval != "1d"))
-            
+            # Use ORM to get history - this will use API or database based on
+            # settings
+            history_df = self.get_db_history(
+                ticker, is_hourly=(interval != "1d"))
+
             if history_df is not None and not history_df.empty:
                 # Convert prices from cents to dollars for compatibility
                 if 'Open' not in history_df.columns:
                     history_df['Open'] = history_df['open_price'] / 100
-                    history_df['Close'] = history_df['close_price'] / 100  
+                    history_df['Close'] = history_df['close_price'] / 100
                     history_df['High'] = history_df['high'] / 100
                     history_df['Low'] = history_df['low'] / 100
                     history_df['Volume'] = history_df['volume']
-                
-                # Set index to day_and_time for compatibility with existing code
+
+                # Set index to day_and_time for compatibility with existing
+                # code
                 if 'day_and_time' in history_df.columns:
                     # Convert day_and_time strings to datetime objects
-                    history_df['day_and_time'] = pd.to_datetime(history_df['day_and_time'])
+                    history_df['day_and_time'] = pd.to_datetime(
+                        history_df['day_and_time'])
                     history_df = history_df.set_index('day_and_time')
-                
+
                 metadata["records_count"] = len(history_df)
                 if len(history_df) > 0:
                     metadata["last_date"] = history_df.index.max().isoformat()
-                
-                self.logger.info(f"Retrieved {len(history_df)} records via ORM for {ticker}")
+
+                self.logger.info(
+                    f"Retrieved {len(history_df)} records via ORM for {ticker}")
                 return history_df, metadata
             else:
                 self.logger.warning(f"No history data found for {ticker}")
                 return None, metadata
-                
+
         except Exception as e:
-            self.logger.error(f"Error getting history for {ticker} via ORM: {str(e)}")
+            self.logger.error(
+                f"Error getting history for {ticker} via ORM: {str(e)}")
             return None, metadata

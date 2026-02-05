@@ -14,7 +14,8 @@ class CustomCollectionService:
         try:
             return Account.objects.get(api_key=account_api_key)
         except Account.DoesNotExist:
-            raise ValueError(f"Account with api_key {account_api_key} does not exist")
+            raise ValueError(
+                f"Account with api_key {account_api_key} does not exist")
 
     def _get_or_create_collection_for_account(
             self,
@@ -31,21 +32,26 @@ class CustomCollectionService:
             defaults=defaults or None
         )
         # Check if collection has any stocks
-        has_stocks = CustomCollectionStock.objects.filter(collection=collection).exists()
+        has_stocks = CustomCollectionStock.objects.filter(
+            collection=collection).exists()
         if created or not has_stocks:
             if symbols is None:
-                raise ValueError("symbols list is required to create/seed a collection")
+                raise ValueError(
+                    "symbols list is required to create/seed a collection")
             if not isinstance(symbols, (list, tuple)):
-                raise ValueError("symbols must be a list when creating a collection")
+                raise ValueError(
+                    "symbols must be a list when creating a collection")
             for sym in symbols:
-                # Note: We don't create StockModel anymore, just store the symbol
+                # Note: We don't create StockModel anymore, just store the
+                # symbol
                 qs = CustomCollectionStock.objects.filter(
                     collection=collection,
                     stock_symbol=sym
                 )
                 if not qs.exists():
                     try:
-                        CustomCollectionStock.objects.create(collection=collection, stock_symbol=sym)
+                        CustomCollectionStock.objects.create(
+                            collection=collection, stock_symbol=sym)
                     except Exception as e:
                         msg = str(e) or ''
                         if ('custom_collection_stock.id' in msg or 'RETURNING' in msg
@@ -57,22 +63,27 @@ class CustomCollectionService:
                                 ON CONFLICT (collection_id, stock_symbol) DO NOTHING
                                 """
                                 with connection.cursor() as cur:
-                                    cur.execute(sql, [collection.id, stock.symbol])
+                                    cur.execute(
+                                        sql, [collection.id, stock.symbol])
                             except IntegrityError:
                                 pass
                         else:
                             raise
         return collection
 
-    def get_stocks(self, account_api_key: str, collection_name: str = 'default'):
+    def get_stocks(
+            self,
+            account_api_key: str,
+            collection_name: str = 'default'):
         account = self._get_account(account_api_key)
         try:
-            collection = CustomCollection.objects.get(collection_name=collection_name,
-                                                      account=account)
+            collection = CustomCollection.objects.get(
+                collection_name=collection_name, account=account)
         except CustomCollection.DoesNotExist:
             return []
         stocks = []
-        for collection_stock in CustomCollectionStock.objects.filter(collection=collection):
+        for collection_stock in CustomCollectionStock.objects.filter(
+                collection=collection):
             symbol = collection_stock.stock_symbol
             try:
                 data = fetch_stock_data(symbol)
@@ -82,9 +93,11 @@ class CustomCollectionService:
                     if isinstance(data, dict):
                         stocks.append(data)
                     else:
-                        stocks.append({'symbol': symbol, 'company_name': stock_obj.company_name})
+                        stocks.append(
+                            {'symbol': symbol, 'company_name': stock_obj.company_name})
             except Exception:
-                stocks.append({'symbol': symbol, 'company_name': stock_obj.company_name})
+                stocks.append({'symbol': symbol,
+                               'company_name': stock_obj.company_name})
         return stocks
 
     def add_stocks(
@@ -111,7 +124,8 @@ class CustomCollectionService:
                     stock=stock
             ).exists():
                 try:
-                    CustomCollectionStock.objects.create(collection=collection, stock=stock)
+                    CustomCollectionStock.objects.create(
+                        collection=collection, stock=stock)
                     added_count += 1
                 except Exception as e:
                     msg = str(e) or ''
@@ -155,13 +169,16 @@ class CustomCollectionService:
                 stock = StockModel.objects.get(symbol=sym)
             except StockModel.DoesNotExist:
                 continue
-            CustomCollectionStock.objects.filter(collection=collection, stock=stock).delete()
+            CustomCollectionStock.objects.filter(
+                collection=collection, stock=stock).delete()
 
     def get_all_collections(self, api_key):
         account = self._get_account(api_key)
         collections = []
         for c in CustomCollection.objects.filter(account=account):
-            stock_symbols = [cs.stock_symbol for cs in CustomCollectionStock.objects.filter(collection=c)]
+            stock_symbols = [
+                cs.stock_symbol for cs in CustomCollectionStock.objects.filter(
+                    collection=c)]
             collections.append({
                 'id': c.id,
                 'name': c.collection_name,
@@ -180,9 +197,15 @@ class CustomCollectionService:
         except CustomCollection.DoesNotExist:
             return
         CustomCollectionStock.objects.filter(collection=collection).delete()
-        CustomCollection.objects.filter(collection_name=collection_name).delete()
+        CustomCollection.objects.filter(
+            collection_name=collection_name).delete()
 
-    def update_collection(self, api_key, collection_name, new_name=None, new_desc=None):
+    def update_collection(
+            self,
+            api_key,
+            collection_name,
+            new_name=None,
+            new_desc=None):
         account = self._get_account(api_key)
         try:
             collection = CustomCollection.objects.get(
@@ -193,7 +216,9 @@ class CustomCollectionService:
 
         # Check if new name already exists (if changing name)
         if new_name and new_name != collection_name:
-            if CustomCollection.objects.filter(collection_name=new_name, account=account).exists():
+            if CustomCollection.objects.filter(
+                    collection_name=new_name,
+                    account=account).exists():
                 raise ValueError(f"Collection '{new_name}' already exists")
             collection.collection_name = new_name
 
@@ -204,14 +229,19 @@ class CustomCollectionService:
         collection.save()
         return collection
 
-    def aggregate_data(self, account_api_key: str, collection_name: str = 'default'):
+    def aggregate_data(
+            self,
+            account_api_key: str,
+            collection_name: str = 'default'):
         stock_objs = self.get_stocks(account_api_key, collection_name)
         aggregate = {}
         if stock_objs:
             aggregate['count'] = len(stock_objs)
             aggregate['symbols'] = [s.get('symbol') for s in stock_objs]
-            aggregate['names'] = [s.get('shortName') or s.get('company_name') for s in stock_objs]
-            market_caps = [s.get('marketCap') for s in stock_objs if s.get('marketCap') is not None]
+            aggregate['names'] = [s.get('shortName') or s.get(
+                'company_name') for s in stock_objs]
+            market_caps = [s.get('marketCap')
+                           for s in stock_objs if s.get('marketCap') is not None]
             aggregate['marketCaps'] = market_caps
             avg_market_cap = None
             if market_caps:
