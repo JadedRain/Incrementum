@@ -3,11 +3,11 @@ type LoadingProps = {
   loadingText?: string;
 };
 
-export default function Loading({ loading, loadingText }: LoadingProps) {
+export default function Loading({ loading }: LoadingProps) {
   return (
-    <div style={{ marginTop: '2rem' }}>
+    <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       {loading && (
-        <p className="text-[hsl(40,61%,55%)] text-lg font-semibold">{loadingText || 'Loading...'}</p>
+        <span className="loader"></span>
       )}
     </div>
   );

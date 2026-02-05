@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import ExpandableSidebarItem from "../ExpandableSidebarItem";
+import Loading from "../Loading";
 import { useFilterData } from "../../Context/FilterDataContext";
 import type { FilterData } from "../../Context/FilterDataContext";
 
 const SectorFilter: React.FC = () => {
   const { addFilter, removeFilter, selectedSectors, setSelectedSectors, fetchInit, filterDataDict } = useFilterData();
   const init = fetchInit("sector") // string[] | null
-  if(init != null)
+  if(init != null && Array.isArray(init))
   {
     setSelectedSectors(init)
   }
@@ -88,7 +89,7 @@ const SectorFilter: React.FC = () => {
     if (loading) {
     return (
       <ExpandableSidebarItem title="Sector Filters">
-        <div>Loading sectors...</div>
+        <Loading loading={true} />
       </ExpandableSidebarItem>
     );
   }
