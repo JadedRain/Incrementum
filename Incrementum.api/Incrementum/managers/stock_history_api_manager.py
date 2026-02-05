@@ -165,16 +165,20 @@ class StockHistoryAPIQuerySet(models.QuerySet):
                                                 False)}
                                         if idx < 1:
                                             logger.debug(
-                                                f"[GET_API_DATA] Sample item keys: {list(item.keys())}")
+                                                f"[GET_API_DATA] Sample keys: "
+                                                f"{list(item.keys())}")
                                             logger.debug(
-                                                f"[GET_API_DATA] Sample transformed keys: {list(transformed.keys())}")
+                                                f"[GET_API_DATA] Transformed: "
+                                                f"{list(transformed.keys())}")
                                         transformed_data.append(transformed)
                                     except Exception as e:
                                         logger.error(
-                                            f"[GET_API_DATA] Error transforming item {idx}: {str(e)}")
+                                            f"[GET_API_DATA] Transform error "
+                                            f"{idx}: {str(e)}")
                                         continue
                                 logger.info(
-                                    f"[GET_API_DATA] Successfully transformed {len(transformed_data)} records")
+                                    f"[GET_API_DATA] Transformed "
+                                    f"{len(transformed_data)} records")
                                 data = transformed_data
                                 break
                 else:
