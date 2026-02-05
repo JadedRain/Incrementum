@@ -1,0 +1,130 @@
+@startuml Database Relationships and Cross-Schema References
+
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Courier
+
+title Database Schema Relationships
+
+package "Stock Database (stock_data schema)" as StockPkg {
+    class "stock" as stock {
+        +symbol : varchar(10) {PK}
+        +company_name : varchar(255)
+        +updated_at : timestamp
+        +description : text
+        +market_cap : bigint
+    }
+    
+    class "stock_history" as history {
+        +stock_symbol : varchar(20) {FK}
+        +day_and_time : timestamp {PK}
+        +open_price : integer
+        +close_price : integer
+        +high : integer
+        +low : integer
+        +volume : integer
+    }
+    
+    class "blacklist" as blacklist {
+        +id : int {PK}
+        +stock_symbol : varchar(10) {FK}
+        +timestamp : timestamp
+        +time_added : timestamp
+    }
+    
+    class "screener" as screener {
+        +id : int {PK}
+        +screener_name : varchar(20)
+        +description : varchar(300)
+    }
+    
+    class "numeric_filter" as nfilter {
+        +id : int {PK}
+        +name : varchar(20)
+    }
+    
+    class "categorical_filter" as cfilter {
+        +id : int {PK}
+        +name : varchar(20)
+    }
+}
+
+package "User Database (user_data schema)" as UserPkg {
+    class "account" as account {
+        +id : int {PK}
+        +name : varchar(20)
+        +email : varchar(50)
+        +phone_number : varchar(15)
+        +password_hash : varchar(255)
+        +api_key : varchar(64)
+    }
+    
+    class "custom_screener" as cscreener {
+        +id : int {PK}
+        +account_id : int {FK}
+        +screener_name : varchar(100)
+        +created_at : timestamp
+        +filters : json
+    }
+    
+    class "custom_collection" as collection {
+        +id : int {PK}
+        +account_id : int {FK}
+        +collection_name : varchar(20)
+        +c_desc : varchar(300)
+        +date_created : date
+    }
+    
+    class "custom_collection_stock" as collstock {
+        +collection_id : int {FK}
+        +stock_symbol : varchar(10)
+    }
+    
+    class "user_stock_potential" as potential {
+        +id : int {PK}
+        +account_id : int {FK}
+        +stock_symbol : varchar(10)
+        +purchase_date : date
+        +quantity : numeric(15,4)
+        +purchase_price : numeric(15,2)
+    }
+    
+    class "custom_screener_numeric" as csnum {
+        +id : int {PK}
+        +custom_screener_id : int {FK}
+        +numeric_filter_id : int
+        +numeric_value : integer
+    }
+    
+    class "custom_screener_categorical" as cscat {
+        +id : int {PK}
+        +custom_screener_id : int {FK}
+        +categorical_filter_id : int
+        +category_value : varchar(20)
+    }
+}
+
+' Internal relationships within stock_data
+stock ||--o{ history : stock_symbol
+stock ||--o{ blacklist : stock_symbol
+
+' Internal relationships within user_data
+account ||--o{ cscreener : account_id
+account ||--o{ collection : account_id
+account ||--o{ potential : account_id
+collection ||--o{ collstock : collection_id
+cscreener ||--o{ csnum : custom_screener_id
+cscreener ||--o{ cscat : custom_screener_id
+
+' Cross-schema relationships (shown with dashed lines)
+stock ||..o{ collstock : "stock_symbol\n(cross-schema)"
+stock ||..o{ potential : "stock_symbol\n(cross-schema)"
+nfilter ||..o{ csnum : "numeric_filter_id\n(cross-schema)"
+cfilter ||..o{ cscat : "categorical_filter_id\n(cross-schema)"
+
+note top of collstock : Cross-schema FK to\nstock_data.stock(symbol)
+note top of potential : Cross-schema FK to\nstock_data.stock(symbol)
+note right of csnum : Cross-schema FK to\nstock_data.numeric_filter(id)
+note right of cscat : Cross-schema FK to\nstock_data.categorical_filter(id)
+
+@enduml

@@ -1,0 +1,79 @@
+@startuml Docker Infrastructure with Split Databases
+
+!theme plain
+
+package "Docker Environment" {
+    
+    package "Database Layer" {
+        database "Stock Database\n(PostgreSQL)" as StockDB {
+            folder "stock_data schema" {
+                [Stock Data Tables]
+                [Stock History]
+                [Blacklists]
+                [Screener Definitions]
+            }
+        }
+        
+        database "User Database\n(PostgreSQL)" as UserDB {
+            folder "user_data schema" {
+                [User Accounts]
+                [Custom Screeners]
+                [User Collections]
+                [User Stock Positions]
+            }
+        }
+        
+        note right of StockDB : Port 5433\nRead-heavy operations\nStock market data
+        note left of UserDB : Port 5434\nUser-specific data\nWrite operations
+    }
+    
+    package "Application Layer" {
+        component "Django API" as API {
+            [Database Router]
+            [Stock Models]
+            [User Models]
+            [Cross-Schema Queries]
+        }
+        
+        component "Dash Analytics" as Dash {
+            [Interactive Graphs]
+            [Data Visualization]
+            [Multi-DB Connections]
+        }
+        
+        note bottom of API : Uses DATABASE_ROUTER\nto direct queries to\ncorrect database
+    }
+    
+    package "Client Layer" {
+        component "React Client" as Client {
+            [User Interface]
+            [Stock Screeners]
+            [Portfolio Management]
+        }
+    }
+    
+    package "Data Sources" {
+        cloud "External APIs" as ExtAPI {
+            [Polygon.io]
+            [Stock Market Data]
+            [Real-time Feeds]
+        }
+    }
+}
+
+' Connections
+Client --> API : HTTP/REST API
+API --> StockDB : Stock Data Queries
+API --> UserDB : User Data Queries
+Dash --> StockDB : Analytics Queries
+Dash --> UserDB : User Analytics
+API <-- ExtAPI : Market Data Ingestion
+StockDB <-- ExtAPI : Direct Data Loading
+
+' Cross-database queries
+API ..> StockDB : Join Operations
+API ..> UserDB : (via application logic)
+
+note bottom of API : Cross-schema joins handled\nat application level using\nDjango's multi-database support
+
+@enduml

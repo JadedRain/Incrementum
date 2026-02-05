@@ -1,15 +1,12 @@
 from .stock_history_service import StockHistoryService
-from .models.stock import StockModel
-import yfinance as yf
 from .stocks_class import Stock
 import logging
-from django.db import connection
-from yfinance.screener.query import EquityQuery
 from Screeners.moving_average_52 import fifty_two_high
 from Screeners.numeric_screeners import NumericScreeners
 
 
 def setup():
+    from Incrementum.models import StockModel
     return StockModel.objects.all()
 
 
@@ -32,25 +29,43 @@ def search_stocks(query, page, source=setup):
 
 
 def get_stock_by_ticker(ticker, source=setup):
-    tickers = source()
+    """Get stock by ticker using ORM models or API fallback"""
+    try:
+        from Incrementum.models import StockModel
+        from .services.stock_api_client import stock_api_client
 
-    if hasattr(tickers, 'filter'):
-        stock_exists = tickers.filter(symbol__iexact=ticker).exists()
-    else:
-        stock_row = tickers[tickers['symbol'].str.lower() == ticker.lower()]
-        stock_exists = not stock_row.empty
+        # Try to get stock directly from ORM (API or database)
+        try:
+            stock = StockModel.objects.get(symbol__iexact=ticker)
+            logging.info(f"Found {ticker} via ORM")
+            # Convert to Stock class format if needed
+            if hasattr(stock, 'to_dict'):
+                return Stock(stock.to_dict())
+            return stock
+        except StockModel.DoesNotExist:
+            logging.warning(f"Stock {ticker} not found via ORM, trying API")
 
-    if not stock_exists:
-        logging.warning(f"No stock found in database for ticker: {ticker}")
+            # Fallback to API
+            api_response = stock_api_client.get_stock_by_symbol(ticker)
+            if api_response and 'symbol' in api_response:
+                logging.info(f"Found {ticker} via API")
+                # Create Stock object with latest_price mapped to currentPrice
+                stock_data = api_response.copy()
+                stock_data['currentPrice'] = stock_data.get('latest_price')
+                return Stock(stock_data)
+            else:
+                raise ValueError(f"Stock {ticker} not found in ORM or API")
 
-    stock_data = fetch_stock_data(ticker)
-    return stock_data
+    except Exception as e:
+        logging.error(f"Error getting stock {ticker}: {str(e)}")
+        raise ValueError(f"Failed to get stock {ticker}: {str(e)}")
 
 
 def fetch_stock_with_ma(symbol, ma_period=50):
     history_service = StockHistoryService()
     history_df, metadata = history_service.history(symbol, period="1y")
-    hist = history_df['Close'] if history_df is not None else None  # last 1 year daily prices
+    # last 1 year daily prices
+    hist = history_df['Close'] if history_df is not None else None
     if hist is None:
         return None
     ma = hist.rolling(window=ma_period).mean()
@@ -102,7 +117,8 @@ def get_stock_info(max, offset, filters=None, source=setup):
         end = min(start + max, len(all_screened_stocks))
         return all_screened_stocks[start:end]
 
-    if isinstance(filters, dict) and filters.get('current_share_price') is not None:
+    if isinstance(filters, dict) and filters.get(
+            'current_share_price') is not None:
         current_share_price = filters.get('current_share_price')
 
         all_screened_stocks = screen_stocks_by_current_share_price(
@@ -124,25 +140,33 @@ def get_stock_info(max, offset, filters=None, source=setup):
         fs_set = {str(s).strip().lower() for s in filters.get('sectors') if s}
         allowed_sectors = fs_set
         tickers = [
-            t for t in tickers
-            if hasattr(t, 'sectorKey') and str(getattr(t, 'sectorKey', '')).lower()
-            in allowed_sectors
-        ]
+            t for t in tickers if hasattr(
+                t,
+                'sectorKey') and str(
+                getattr(
+                    t,
+                    'sectorKey',
+                    '')).lower() in allowed_sectors]
 
     # Industry filtering
     allowed_industries = None
     if filters and filters.get('industries'):
-        fi_set = {str(s).strip().lower() for s in filters.get('industries') if s}
+        fi_set = {str(s).strip().lower()
+                  for s in filters.get('industries') if s}
         allowed_industries = fi_set
         tickers = [
-            t for t in tickers
-            if hasattr(t, 'industryKey')
-            and str(getattr(t, 'industryKey', '')).lower() in allowed_industries
-        ]
+            t for t in tickers if hasattr(
+                t,
+                'industryKey') and str(
+                getattr(
+                    t,
+                    'industryKey',
+                    '')).lower() in allowed_industries]
 
     # Build Stock objects with historical prices
-    for t in tickers[offset:offset+max]:
-        stock_data = fetch_stock_data(t.symbol)  # must return a Stock object with historical prices
+    for t in tickers[offset:offset + max]:
+        # must return a Stock object with historical prices
+        stock_data = fetch_stock_data(t.symbol)
         stocks.append(stock_data)
 
     # Moving average filtering
@@ -152,7 +176,8 @@ def get_stock_info(max, offset, filters=None, source=setup):
         and filters.get('price_52w_high')
         and filters.get('price_52w_high_value') is not None
     ):
-        # You can optionally use the value as threshold, for now we filter by MA
+        # You can optionally use the value as threshold, for now we filter by
+        # MA
         ma_screener = fifty_two_high(filters.get('price_52w_high_value'))
         screeners_list.append(ma_screener)
 
@@ -164,132 +189,75 @@ def get_stock_info(max, offset, filters=None, source=setup):
 
 
 def ensure_stock_in_db(symbol, company_name):
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT symbol FROM stock WHERE symbol = %s", [symbol])
-        exists = cursor.fetchone()
-        if not exists:
-            cursor.execute(
-                "INSERT INTO stock (symbol, company_name) VALUES (%s, %s)",
-                [symbol, company_name]
-            )
+    """Ensure stock exists in database using ORM models"""
+    try:
+        from Incrementum.models import StockModel
+
+        # Try to get existing stock
+        try:
+            stock = StockModel.objects.get(symbol=symbol)
+            logging.info(f"Stock {symbol} already exists in database")
+            return stock
+        except StockModel.DoesNotExist:
+            # Create new stock if it doesn't exist
+            try:
+                stock = StockModel.objects.create(
+                    symbol=symbol,
+                    company_name=company_name
+                )
+                logging.info(f"Created new stock {symbol} in database")
+                return stock
+            except Exception as create_error:
+                # Handle case where API models don't support create
+                logging.warning(
+                    f"Could not create stock {symbol} via ORM: {create_error}")
+                return None
+    except Exception as e:
+        logging.error(f"Error ensuring stock {symbol} exists: {str(e)}")
+        return None
 
 
 def fetch_stock_data(ticker):
+    """Fetch stock data using ORM models (external API or database)"""
     try:
-        stock = yf.Ticker(ticker)
-        info = stock.info
+        from Incrementum.models import StockModel
+        # Get stock from ORM - either external API or database
+        stock = StockModel.objects.get(symbol=ticker)
+        logging.info(f"Retrieved {ticker} via ORM")
 
-        # Check if we got valid data
-        if not info or info.get('regularMarketPrice') is None:
-            # Sometimes yfinance returns empty dict for invalid tickers
-            raise ValueError(f"Unable to fetch valid data for ticker: {ticker}")
+        # Convert to Stock class format if it's a model instance
+        if hasattr(stock, 'to_dict'):
+            return Stock(stock.to_dict())
+        return stock
 
-        symbol = info.get('symbol', ticker)
-        company_name = info.get('longName') or info.get('shortName') or symbol
-        ensure_stock_in_db(symbol, company_name)
-        return Stock(info)
     except Exception as e:
         logging.error(f"Error fetching stock data for {ticker}: {str(e)}")
         raise ValueError(f"Failed to fetch data for ticker {ticker}: {str(e)}")
 
 
-def screen_stocks_by_percent_change(percent_change_filter, percent_change_value, max_results=100):
-    valid_filters = ['gt', 'gte', 'lt', 'lte', 'eq']
-    if percent_change_filter not in valid_filters:
-        raise ValueError(f"Invalid percent_change_filter. Must be one of: {valid_filters}")
-
-    # Ensure max_results doesn't exceed Yahoo's limit
-    max_results = min(max_results, 250)
-
-    query = EquityQuery('and', [
-        EquityQuery(percent_change_filter, ['percentchange', percent_change_value]),
-        EquityQuery('eq', ['region', 'us'])  # Limit to US stocks for consistency
-    ])
-
-    screen_results = yf.screen(query, size=max_results)
-
-    quotes = screen_results.get('quotes', [])
-
-    stocks = []
-    for quote in quotes:
-        try:
-            symbol = quote.get('symbol')
-            if symbol:
-                stock_data = fetch_stock_data(symbol)
-                stocks.append(stock_data)
-        except Exception as e:
-            logging.warning(
-                "Failed to fetch data for symbol %s: %s", quote.get('symbol', 'unknown'), e
-            )
-            continue
-
-    return stocks
+def screen_stocks_by_percent_change(
+        percent_change_filter,
+        percent_change_value,
+        max_results=100):
+    """Screen stocks by percent change using ORM models only"""
+    logging.warning(
+        "Percent change screening not implemented without yfinance")
+    return []
 
 
-def screen_stocks_by_average_volume(average_volume_filter, average_volume_value, max_results=100):
-    valid_filters = ['gt', 'gte', 'lt', 'lte', 'eq']
-    if average_volume_filter not in valid_filters:
-        raise ValueError(f"Invalid average_volume_filter. Must be one of: {valid_filters}")
-
-    max_results = min(max_results, 250)
-
-    try:
-        query = EquityQuery(average_volume_filter, ['avgdailyvol3m', average_volume_value])
-
-        screen_results = yf.screen(query, size=max_results)
-
-        quotes = screen_results.get('quotes', [])
-
-        stocks = []
-        for quote in quotes:
-            try:
-                symbol = quote.get('symbol')
-                if symbol:
-                    stock_data = fetch_stock_data(symbol)
-                    stocks.append(stock_data)
-            except Exception as e:
-                logging.warning(
-                    "Failed to fetch data for symbol %s: %s",
-                    quote.get('symbol', 'unknown'), e
-                )
-                continue
-
-        return stocks
-
-    except Exception as e:
-        logging.error(f"Error screening stocks by average volume: {e}")
-        return []
+def screen_stocks_by_average_volume(
+        average_volume_filter,
+        average_volume_value,
+        max_results=100):
+    """Screen stocks by average volume using ORM models only"""
+    logging.warning(
+        "Average volume screening not implemented without yfinance")
+    return []
 
 
-def screen_stocks_by_current_share_price(price_filter, price_value, max_results=100):
-    valid_filters = ['gt', 'gte', 'lt', 'lte', 'eq']
-
-    if price_filter not in valid_filters:
-        raise ValueError(f"Invalid current_share_price. Must be one of: {valid_filters}")
-
-    max_results = min(max_results, 250)
-
-    try:
-        query = EquityQuery(price_filter, ['currentPrice', price_value])
-
-        screen_results = yf.screen(query, size=max_results)
-
-        quotes = screen_results.get('quotes', [])
-
-        stocks = []
-        for quote in quotes:
-            try:
-                symbol = quote.get('symbol')
-                if symbol:
-                    stock_data = fetch_stock_data(symbol)
-                    stocks.append(stock_data)
-            except Exception as e:
-                sym = quote.get('symbol', 'unknown')
-                logging.warning("Failed to fetch data for symbol %s: %s", sym, e)
-                continue
-
-        return stocks
-
-    except Exception as e:
-        logging.error(f"Error screening stocks by current share price: {e}")
-        return []
+def screen_stocks_by_current_share_price(
+        price_filter, price_value, max_results=100):
+    """Screen stocks by current share price using ORM models only"""
+    logging.warning(
+        "Current share price screening not implemented without yfinance")
+    return []

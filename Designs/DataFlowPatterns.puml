@@ -1,0 +1,75 @@
+@startuml Data Flow and Query Patterns
+
+!theme plain
+
+actor User
+participant "React Client" as Client
+participant "Django API" as API
+participant "Database Router" as Router
+database "Stock DB" as StockDB
+database "User DB" as UserDB
+
+== Stock Data Query Example ==
+User -> Client : Search for stocks
+Client -> API : GET /api/stocks/search
+API -> Router : Route stock query
+Router -> StockDB : Query stock_data.stock
+StockDB -> Router : Return stock results
+Router -> API : Stock data
+API -> Client : JSON response
+Client -> User : Display stocks
+
+== User Collection Query Example ==
+User -> Client : View my watchlist
+Client -> API : GET /api/collections/1
+API -> Router : Route user query
+Router -> UserDB : Query user_data.custom_collection
+UserDB -> Router : Collection info
+Router -> UserDB : Query custom_collection_stock
+UserDB -> Router : Stock symbols
+Router -> API : Collection data
+API -> Router : Need stock details
+Router -> StockDB : Query by symbols
+StockDB -> Router : Stock details
+Router -> API : Complete data
+API -> Client : Enriched collection
+Client -> User : Display watchlist
+
+== Complex Screener Query Example ==
+User -> Client : Create custom screener
+Client -> API : POST /api/screeners/custom
+API -> Router : Route user write
+Router -> UserDB : Insert custom_screener
+UserDB -> Router : Screener created
+Router -> UserDB : Insert filter criteria
+UserDB -> Router : Criteria saved
+API -> Router : Run screener logic
+Router -> StockDB : Query with filters
+StockDB -> Router : Matching stocks
+Router -> UserDB : Log screener results
+UserDB -> Router : Results saved
+Router -> API : Screener results
+API -> Client : JSON response
+Client -> User : Display results
+
+note over API, Router
+Cross-database joins are handled
+at the application level using
+Django ORM with database routing
+end note
+
+note over StockDB
+Optimized for:
+- Read-heavy operations
+- Complex stock queries
+- Historical data analysis
+end note
+
+note over UserDB
+Optimized for:
+- User-specific data
+- Session management
+- Personal preferences
+end note
+
+@enduml
