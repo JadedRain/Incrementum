@@ -108,7 +108,7 @@ def get_stock_graph(request, ticker):
             dates = [ts.strftime("%Y-%m-%dT%H:%M:%S") for ts in date_series]
         else:
             dates = [ts.strftime("%Y-%m-%dT%H:%M:%S") for ts in history.index.to_pydatetime()]
-    except Exception as e:
+    except Exception:
         dates = [str(i) for i in range(len(history))]
 
     close = [None if (pd.isna(v)) else float(v) for v in history["Close"].tolist()]

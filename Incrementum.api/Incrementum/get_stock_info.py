@@ -62,6 +62,7 @@ def fetch_stock_with_ma(symbol, ma_period=50):
         f"MA_{ma_period}": ma.iloc[-1]
     }
 
+
 def ensure_stock_in_db(symbol, company_name):
     with connection.cursor() as cursor:
         cursor.execute("SELECT symbol FROM stock WHERE symbol = %s", [symbol])
