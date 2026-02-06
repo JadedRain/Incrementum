@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import Loading from "../Loading";
 import "../../styles/PotentialGains.css";
 
 
@@ -125,7 +126,7 @@ const StockTable: React.FC<StockTableProps> = ({ filteredSymbols = [] }) => {
     <div className="w-full">
       <div className="stock-table-wrapper">
         {error && <div className="text-red-500 mb-2">{error}</div>}
-        {loading && <div>Loading...</div>}
+        {loading && <Loading loading={true} />}
         <table className="stock-table">
           <thead>
             <tr className="stock-table-header-row">

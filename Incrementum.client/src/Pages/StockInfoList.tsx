@@ -3,13 +3,14 @@ import React, { useState } from 'react';
 import { useFetchStocks } from '../useFetchStocks';
 import Toast from '../Components/Toast';
 import { FilterDataProvider } from '../Context/FilterDataContext';
+import Loading from '../Components/Loading';
 
 
 const StockInfoList: React.FC = () => {
     const { stocks, loading } = useFetchStocks();
     const [toast] = useState<string | null>(null);
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <Loading loading={true} />;
 
     return (
         <FilterDataProvider>

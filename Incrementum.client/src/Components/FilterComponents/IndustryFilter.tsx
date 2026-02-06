@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
 import FilterChip from '../FilterChip';
+import Loading from '../Loading';
 import { useDatabaseScreenerContext } from '../../Context/DatabaseScreenerContext';
 import { fetchWrapper, apiString } from '../../Context/FetchingHelper';
 
@@ -101,7 +102,7 @@ const IndustryFilter: React.FC = () => {
             ))}
           </div>
         )}
-        {loading && <div>Loading industries...</div>}
+        {loading && <Loading loading={true} />}
         {error && <div style={{ color: 'red' }}>{error}</div>}
         {activeIndustryFilters.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem' }}>
