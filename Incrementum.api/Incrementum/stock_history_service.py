@@ -260,14 +260,28 @@ class StockHistoryService:
                 return None, metadata
             client = RESTClient(api_key)
             end_date = timezone.now()
-            if period.endswith('d'):
+
+            if period == 'ytd':
+                start_date = end_date.replace(month=1, day=1)
+            elif period == 'max':
+                start_date = end_date - pd.DateOffset(years=10)
+            elif period.endswith('d'):
                 days = int(period[:-1])
                 start_date = end_date - pd.Timedelta(days=days)
+            elif period.endswith('wk'):
+                weeks = int(period[:-2])
+                start_date = end_date - pd.Timedelta(weeks=weeks)
+            elif period.endswith('w'):
+                weeks = int(period[:-1])
+                start_date = end_date - pd.Timedelta(weeks=weeks)
+            elif period.endswith('mo'):
+                months = int(period[:-2])
+                start_date = end_date - pd.DateOffset(months=months)
             elif period.endswith('y'):
                 years = int(period[:-1])
                 start_date = end_date - pd.DateOffset(years=years)
             else:
-                start_date = end_date - pd.Timedelta(days=365)
+                start_date = end_date - pd.DateOffset(years=1)
             timespan = 'hour' if interval != '1d' else 'day'
             resp = client.get_aggs(
                 ticker,

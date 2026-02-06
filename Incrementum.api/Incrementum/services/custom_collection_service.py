@@ -1,7 +1,7 @@
-from Incrementum.get_stock_info import fetch_stock_data
 from Incrementum.models.stock import StockModel
 from Incrementum.models.custom_collection import CustomCollection
 from Incrementum.models.custom_collection_stock import CustomCollectionStock
+from Incrementum.services.stock_service import StockService
 from django.db import connection
 from django.db.utils import IntegrityError
 
@@ -72,20 +72,14 @@ class CustomCollectionService:
                                                       account=account)
         except CustomCollection.DoesNotExist:
             return []
-        stocks = []
-        for stock_obj in collection.stocks.all():
-            symbol = stock_obj.symbol
-            try:
-                data = fetch_stock_data(symbol)
-                try:
-                    stocks.append(data.to_dict())
-                except Exception:
-                    if isinstance(data, dict):
-                        stocks.append(data)
-                    else:
-                        stocks.append({'symbol': symbol, 'company_name': stock_obj.company_name})
-            except Exception:
-                stocks.append({'symbol': symbol, 'company_name': stock_obj.company_name})
+
+        symbols = [stock.symbol for stock in collection.stocks.all()]
+        if not symbols:
+            return []
+
+        stock_objs = StockService.get_stocks_by_symbols(symbols)
+
+        stocks = [stock.to_dict() for stock in stock_objs]
         return stocks
 
     def add_stocks(
