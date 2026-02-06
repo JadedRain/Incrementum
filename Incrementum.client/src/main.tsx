@@ -6,7 +6,7 @@ import {
   SearchResults, StocksPage, Stock, ScreenerPage, ScreenerTestPage,
   IndividualScreenPage, CustomScreenerPage, SignInPage, SignupPage,
   IndividualCustomCollectionPage, CustomCollectionsPage, SettingsPage,
-  CreateCustomCollectionPage, FilterPage, SidebarTestPage, AdminPage
+  CreateCustomCollectionPage, SidebarTestPage, AdminPage
 } from "./Pages";
 import AdminRoute from "./Components/AdminRoute";
 import ProtectedRoute from "./Components/ProtectedRoute";
@@ -43,7 +43,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route path="/custom-collection/:id" element={<ProtectedRoute><FilterDataProvider><IndividualCustomCollectionPage /></FilterDataProvider></ProtectedRoute>} />
             <Route path="/custom-collections" element={<ProtectedRoute><CustomCollectionsPage /></ProtectedRoute>} />
             <Route path="/create-custom-collection" element={<ProtectedRoute><CreateCustomCollectionPage /></ProtectedRoute>} />
-            <Route path="/filter-test" element={<ProtectedRoute><FilterPage /></ProtectedRoute>} />
             <Route path="/sidebar-test" element={<ProtectedRoute><SidebarTestPage /></ProtectedRoute>} />
             <Route path="/admin-page" element={<AdminRoute><AdminPage /></AdminRoute>} />
           </Routes>

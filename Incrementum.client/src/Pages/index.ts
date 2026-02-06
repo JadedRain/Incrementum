@@ -11,6 +11,5 @@ export { default as IndividualCustomCollectionPage } from "./IndividualCustomCol
 export { default as CustomCollectionsPage } from "./CustomCollectionsPage";
 export { default as SettingsPage } from "./SettingsPage";
 export { default as CreateCustomCollectionPage } from "./CreateCustomCollectionPage";
-export { default as FilterPage } from "./FilterPageTest";
 export { default as SidebarTestPage } from "./SidebarTestPage";
 export { default as AdminPage } from "./AdminPage";
