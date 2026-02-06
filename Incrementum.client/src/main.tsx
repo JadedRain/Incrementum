@@ -2,22 +2,12 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import {Toaster} from "react-hot-toast";
 import App from "./App";
-import SearchResults from "./Pages/SearchResults";
-import StocksPage from './Pages/StocksPage'
-import Stock from "./Pages/Stock";
-import ScreenerPage from "./Pages/ScreenerPage";
-import ScreenerTestPage from "./Pages/ScreenerTestPage";
-import IndividualScreenPage from "./Pages/IndividualScreenPage";
-import CustomScreenerPage from "./Pages/CustomScreenerPage";
-import SignInPage from "./Pages/LogInPage";
-import SignupPage from "./Pages/SignupPage";
-import IndividualCustomCollectionPage from "./Pages/IndividualCustomCollectionPage";
-import CustomCollectionsPage from "./Pages/CustomCollectionsPage";
-import SettingsPage from "./Pages/SettingsPage";
-import CreateCustomCollectionPage from "./Pages/CreateCustomCollectionPage";
-import FilterPage from "./Pages/FilterPageTest";
-import SidebarTestPage from "./Pages/SidebarTestPage";
-import AdminPage from "./Pages/AdminPage";
+import {
+  SearchResults, StocksPage, Stock, ScreenerPage, ScreenerTestPage,
+  IndividualScreenPage, CustomScreenerPage, SignInPage, SignupPage,
+  IndividualCustomCollectionPage, CustomCollectionsPage, SettingsPage,
+  CreateCustomCollectionPage, FilterPage, SidebarTestPage, AdminPage
+} from "./Pages";
 import AdminRoute from "./Components/AdminRoute";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import { AuthProvider } from "./Context/AuthContext";
