@@ -7,6 +7,7 @@ import { useFetchStockData } from "../hooks/useFetchStockData";
 import { FilterDataProvider } from '../Context/FilterDataContext';
 import InteractiveGraph from "../Components/InteractiveGraph"
 import StockInfoSidebar from '../Components/StockInfoSidebar';
+import Loading from "../Components/Loading";
 
 export default function Stock({ token: propToken }: { token?: string; }) {
   const params = useParams<{ token: string }>();
@@ -14,7 +15,7 @@ export default function Stock({ token: propToken }: { token?: string; }) {
   const { results, loading } = useFetchStockData(token);
   const [toast] = useState<string | null>(null);
 
-  if (loading) return <div className="bg-[hsl(40,13%,53%)] min-h-screen flex items-center justify-center" style={{ fontFamily: "serif" }}><p className="text-[hsl(40,66%,60%)]">Loading...</p></div>;
+  if (loading) return <div className="bg-[hsl(40,13%,53%)] min-h-screen flex items-center justify-center" style={{ fontFamily: "serif" }}><Loading loading={true} /></div>;
   if (!results) return <div className="bg-[hsl(40,13%,53%)] min-h-screen flex items-center justify-center" style={{ fontFamily: "serif" }}><p className="text-[hsl(40,66%,60%)]">No stock data found.</p></div>;
 
   return (

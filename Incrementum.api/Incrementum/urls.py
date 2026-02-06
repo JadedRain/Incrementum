@@ -5,7 +5,6 @@ from .views_auth import (
 from . import views, screener_views, filter_views, views_user_stock_potential
 from .controllers import stocks_controller as stocks
 from .controllers import custom_collection_controller as collections
-from .controllers.screener_run_controller import run_screener
 
 urlpatterns = [
     # Authentication endpoints
@@ -29,6 +28,9 @@ urlpatterns = [
     path('stock/<str:ticker>/',
          stocks.get_stock_info_controller,
          name='get_stock_info'),
+    path('getStocks/<str:ticker>/',
+         stocks.get_stock_graph,
+         name='get_stock_graph'),
     path('stock/<str:ticker>/metadata/',
          stocks.get_stock_metadata,
          name='get_stock_metadata'),
@@ -87,9 +89,6 @@ urlpatterns = [
     path('screeners/custom/<int:screener_id>/delete/',
          screener_views.delete_custom_screener,
          name='delete_custom_screener'),
-    path('screeners/run/',
-         run_screener,
-         name='run_screener'),
     path('screeners/database/',
          screener_views.run_database_screener,
          name='run_database_screener'),
@@ -116,12 +115,6 @@ urlpatterns = [
          views.fetch_and_update_database,
          name='fetch_and_update_database'),
 
-    # DEPRECATED - Outdated filter endpoint
-    # TODO: Remove once filter system migration is complete
-    # Currently updating the way filters are processed
-    path('stocks/getfilteredstocks',
-         run_screener,
-         name='get_filtered_stocks'),
     path('custom-screeners',
          screener_views.custom_screener_list_create,
          name='custom_screener_list_create'),

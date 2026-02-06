@@ -10,6 +10,7 @@ import useSaveCollection from '../hooks/useSaveCollection';
 import NavigationBar from '../Components/NavigationBar'
 import StockTable from '../Components/StockTable'
 import Toast from '../Components/Toast'
+import Loading from '../Components/Loading';
 import { fetchCustomScreener } from "../Query/apiScreener"
 import type { CustomScreener, NumericFilter, CategoricalFilter } from '../Types/ScreenerTypes';
 import { DatabaseScreenerProvider, useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
@@ -29,8 +30,8 @@ function IndividualScreenPageContent() {
   const { id } = useParams<{ id: string }>();
   const { collections, loading: collectionsLoading } = useCustomCollections();
   const [selectedCollectionId, setSelectedCollectionId] = useState<number | null>(id ? Number(id) : null);
-  const { data: bulkStockData, loading: loadingBulkStocks } = useBulkStockDataForCollection(selectedCollectionId);
-  const { stocks, addFilter, isLoading } = useDatabaseScreenerContext();
+  const { data: bulkStockData } = useBulkStockDataForCollection(selectedCollectionId);
+  const { stocks, addFilter} = useDatabaseScreenerContext();
   const { saveCollection } = useSaveCollection({ apiKey, setTokens: () => { }, resetForm: () => { }, onError: setSaveError });
 
   const handleSelectCollection = (collectionId: number | null) => {
@@ -100,8 +101,6 @@ function IndividualScreenPageContent() {
             operand: filter.operand || filter.filter_name || '',
             operator: filter.operator || 'between',
             filter_type: 'numeric',
-            value_high: filter.value_high ?? null,
-            value_low: filter.value_low ?? null,
             value: filter.value ?? null,
           });
         });
@@ -114,8 +113,6 @@ function IndividualScreenPageContent() {
             operator: filter.operator || 'eq',
             filter_type: 'categoric',
             value: filter.value ?? null,
-            value_high: null,
-            value_low: null,
           });
         });
       }
@@ -141,7 +138,7 @@ function IndividualScreenPageContent() {
   };
 
   if (!id) {
-    return <div>Loading screener...</div>;
+    return <Loading loading={true} />;
   }
 
   return (
@@ -177,7 +174,6 @@ function IndividualScreenPageContent() {
             <>
                 <StockTable
                   stocks={paginatedStocks}
-                  loading={loadingBulkStocks || isLoading}
                   onRowClick={(symbol: string) =>
                     navigate(`/stock/${symbol}`)
                   }

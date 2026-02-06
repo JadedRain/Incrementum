@@ -366,3 +366,24 @@ body { padding-top: var(--header-height); background-color: hsl(40,13%,53%);}
     max-height: calc(100vh - 300px);
   }
 }
+
+/* Loading Spinner */
+.loader {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: inline-block;
+  border-top: 3px solid hsl(41,61%,9%);
+  border-right: 3px solid transparent;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

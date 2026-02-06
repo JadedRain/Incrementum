@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import NavigationBar from '../Components/NavigationBar';
 import FilterChip from '../Components/FilterChip';
+import Loading from '../Components/Loading';
 import '../App.css';
 import type { Stock, ScreenerResponse, FilterData } from './ScreenerTestPage.types';
 
@@ -417,7 +418,7 @@ function ScreenerTestPage() {
                             </div>
                         )}
 
-                        {loading && <div className="text-center py-4">Loading...</div>}
+                        {loading && <div className="text-center py-4"><Loading loading={true} /></div>}
 
                         {!loading && stocks.length > 0 && (
                             <div>

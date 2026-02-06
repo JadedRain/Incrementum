@@ -6,6 +6,7 @@ import { useCustomCollections } from '../hooks/useCustomCollections';
 import { useAuth } from '../Context/AuthContext';
 import { CollectionCard } from '../Components/CollectionCard';
 import { apiString, fetchWrapper } from "../Context/FetchingHelper";
+import Loading from '../Components/Loading';
 
 
 const CustomCollectionsPage: React.FC = () => {
@@ -14,7 +15,6 @@ const CustomCollectionsPage: React.FC = () => {
     const auth = useAuth();
     const [removing, setRemoving] = useState(false);
     
-    // Listen for localStorage changes from other components
     useEffect(() => {
         const handleStorageChange = () => {
             const stored = localStorage.getItem('customCollections');
@@ -32,7 +32,7 @@ const CustomCollectionsPage: React.FC = () => {
         return () => window.removeEventListener('storage', handleStorageChange);
     }, [setCollections]);
 
-    if (loading) return <div style={{ textAlign: 'center', margin: '2rem' }}>Loading...</div>;
+    if (loading) return <Loading loading={true} />;
     // debug: show state in console
     console.debug('CustomCollectionsPage: loading=', loading, 'collections=', collections);
 
