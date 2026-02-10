@@ -40,7 +40,7 @@ def get_stock_by_ticker(ticker, source=setup):
         logging.warning(f"No stock found in database for ticker: {ticker}")
         return None
 
-    # Fetch directly from database instead of yfinance
+    # Fetch directly from database
     try:
         stock = StockModel.objects.get(symbol__iexact=ticker)
         return Stock(stock.to_dict())

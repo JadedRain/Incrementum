@@ -23,7 +23,6 @@ class Migration(migrations.Migration):
             },
         ),
 
-        # Add Polygon API fields
         migrations.AddField(
             model_name='stockmodel',
             name='cik',
