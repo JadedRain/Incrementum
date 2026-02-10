@@ -100,7 +100,7 @@ if db_conn_string:
     db_config['OPTIONS'] = {
         'options': '-c search_path=incrementum'
     }
-    
+
     DATABASES = {
         'default': db_config
     }

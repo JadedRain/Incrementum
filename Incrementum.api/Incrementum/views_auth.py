@@ -10,6 +10,7 @@ from logging import Logger
 
 logger = Logger('my logger')
 
+
 @csrf_exempt
 def signup(request):
     if request.method == 'POST':
