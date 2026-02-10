@@ -4,7 +4,7 @@ from django.utils import timezone
 
 class StockModel(models.Model):
     symbol = models.CharField(max_length=10, primary_key=True)
-    company_name = models.CharField(max_length=255)
+    company_name = models.CharField(max_length=100)
     updated_at = models.DateTimeField(default=timezone.now)
     description = models.TextField(
         null=True, blank=True, db_column='description'
@@ -13,7 +13,7 @@ class StockModel(models.Model):
         null=True, blank=True, db_column='market_cap'
     )
     primary_exchange = models.CharField(
-        max_length=50, null=True, blank=True,
+        max_length=100, null=True, blank=True,
         db_column='primary_exchange'
     )
     type = models.CharField(
@@ -23,7 +23,7 @@ class StockModel(models.Model):
         max_length=50, null=True, blank=True, db_column='currency_name'
     )
     cik = models.CharField(
-        max_length=20, null=True, blank=True, db_column='cik'
+        max_length=50, null=True, blank=True, db_column='cik'
     )
     composite_figi = models.CharField(
         max_length=50, null=True, blank=True, db_column='composite_figi'
@@ -35,10 +35,10 @@ class StockModel(models.Model):
         null=True, blank=True, db_column='outstanding_shares'
     )
     eps = models.DecimalField(
-        max_digits=20, decimal_places=4, null=True, blank=True, db_column='eps'
+        max_digits=20, decimal_places=6, null=True, blank=True, db_column='eps'
     )
     homepage_url = models.CharField(
-        max_length=500, null=True, blank=True, db_column='homepage_url'
+        max_length=255, null=True, blank=True, db_column='homepage_url'
     )
     total_employees = models.IntegerField(
         null=True, blank=True, db_column='total_employees'
@@ -47,7 +47,7 @@ class StockModel(models.Model):
         null=True, blank=True, db_column='list_date'
     )
     locale = models.CharField(
-        max_length=10, null=True, blank=True, db_column='locale'
+        max_length=20, null=True, blank=True, db_column='locale'
     )
     sic_code = models.CharField(
         max_length=20, null=True, blank=True, db_column='sic_code'

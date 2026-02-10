@@ -20,7 +20,6 @@ export interface CategoricalFilter {
 
 export interface CustomScreener {
   id: number;
-  name?: string;
   screener_name?: string;
   created_at?: string;
   numeric_filters?: NumericFilter[];

@@ -105,19 +105,6 @@ def custom_collection(request):
                 new_name=new_name,
                 new_desc=new_desc
             )
-            purchase_prices = data.get('purchase_prices')
-            single_symbol = data.get('symbol')
-            single_price = data.get('price')
-            if purchase_prices and isinstance(purchase_prices, dict):
-                existing = getattr(updated_collection, 'purchase_prices', {}) or {}
-                existing.update(purchase_prices)
-                updated_collection.purchase_prices = existing
-                updated_collection.save()
-            elif single_symbol and single_price is not None:
-                existing = getattr(updated_collection, 'purchase_prices', {}) or {}
-                existing[str(single_symbol).upper()] = single_price
-                updated_collection.purchase_prices = existing
-                updated_collection.save()
             return JsonResponse({
                 'status': 'ok',
                 'collection': {
@@ -254,16 +241,10 @@ def custom_collection_by_id(request, collection_id):
         )
 
     stocks = collection.stocks.all()
-    try:
-        purchase_prices = getattr(collection, 'purchase_prices', {}) or {}
-    except Exception:
-        logging.exception('Unable to read purchase_prices field from CustomCollection')
-        purchase_prices = {}
     tokens = [
         {
             'symbol': stock.symbol,
             'company_name': stock.company_name,
-            'purchasePrice': purchase_prices.get(stock.symbol),
         }
         for stock in stocks
     ]

@@ -12,7 +12,6 @@ class CustomCollection(models.Model):
     )
     collection_name = models.CharField(max_length=20)
     c_desc = models.CharField(max_length=300, null=True, blank=True)
-    purchase_prices = models.JSONField(default=dict, blank=True)
     date_created = models.DateField(db_column='date_created', auto_now_add=True)
     stocks = models.ManyToManyField(
         'StockModel',
