@@ -1,17 +1,4 @@
 services:
-  db:
-    image: postgres:latest
-    container_name: incrementum_db
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_DB: Incr_DB
-      POSTGRES_USER: Incr
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - ./db_init:/docker-entrypoint-initdb.d
-      - db_data:/var/lib/postgresql
-
   api:
     build:
       context: ./Incrementum.api
@@ -20,18 +7,12 @@ services:
       - "8000:8000"
     environment:
       - DJANGO_ENV=development
-      - DATABASE_NAME=Incr_DB
-      - DATABASE_USER=Incr
-      - DATABASE_PASSWORD=${POSTGRES_PASSWORD}
-      - DATABASE_HOST=db
-      - DATABASE_PORT=5432
+      - DB_CONN_STRING=${DB_CONN_STRING}
       - KEYCLOAK_REALM_URL=https://auth-dev.snowse.io/realms/incrementum
       - KEYCLOAK_CLIENT_ID=incrementum-client
       - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-}
       - POLYGON_API_KEY=${POLYGON_API_KEY}
     restart: unless-stopped
-    depends_on:
-      - db
     volumes:
       - ./Incrementum.api:/Incrementum.api
   client:
@@ -56,9 +37,6 @@ services:
       - "8050:8050"
     volumes:
       - ./Incrementum.api:/Incrementum.api:ro
-    depends_on:
-      - db
 
 volumes:
   client_node_modules:
-  db_data:
