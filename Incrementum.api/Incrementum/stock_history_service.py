@@ -1,10 +1,8 @@
 from logging import Logger
-import os
 from typing import Optional, Tuple
 import pandas as pd
 from django.db import connection
 from django.utils import timezone
-from datetime import datetime
 
 
 class StockHistoryService:

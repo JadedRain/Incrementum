@@ -1,8 +1,6 @@
 import csv
 import json
 import os
-import threading
-import time
 import traceback
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -18,6 +16,7 @@ fetch_status = {
     'errors': 0,
     'started_at': None
 }
+
 
 @csrf_exempt
 @require_http_methods(["POST", "GET"])

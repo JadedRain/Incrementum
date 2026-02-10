@@ -1,8 +1,4 @@
-import os
-import traceback
 from django.utils import timezone
-from Incrementum.models.stock import StockModel
-from decimal import Decimal
 from Incrementum.stock_history_service import StockHistoryService
 from logging import Logger
 
