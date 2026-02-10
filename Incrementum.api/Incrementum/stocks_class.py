@@ -28,7 +28,7 @@ class Stock:
             or json.get('avgDailyVolume3Month')
         )
 
-        # Frontend expects these yfinance field names
+        # Frontend expects these field names
         self.regularMarketPrice = json.get('regularMarketPrice')
         self.fiftyTwoWeekHigh = json.get('fiftyTwoWeekHigh')
         self.fiftyTwoWeekLow = json.get('fiftyTwoWeekLow')

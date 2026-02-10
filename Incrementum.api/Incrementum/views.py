@@ -1,30 +1,11 @@
 import csv
 import json
 import os
-import threading
-import time
 import traceback
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from Incrementum.models.stock import StockModel
-from Incrementum.utils import fetch_new_stocks_from_polygon, update_stocks_in_db_from_polygon
-
-
-@csrf_exempt
-@require_http_methods(["GET"])
-def fetch_update_and_list_stocks(request):
-    data = fetch_new_stocks_from_polygon()
-    update_stocks_in_db_from_polygon(data)
-    all_stocks = [s.to_dict() for s in StockModel.objects.all()]
-    return JsonResponse({'stocks': all_stocks})
-
-
-@csrf_exempt
-@require_http_methods(["GET"])
-def fetch_polygon_stocks_view(request):
-    data = fetch_new_stocks_from_polygon()
-    return JsonResponse({'length': len(data), 'polygon_stocks': data})
 
 
 fetch_status = {
@@ -35,29 +16,6 @@ fetch_status = {
     'errors': 0,
     'started_at': None
 }
-
-
-def run_fetch_in_background():
-    try:
-        fetch_status['running'] = True
-        fetch_status['started_at'] = time.time()
-
-        # Fetch ticker list
-        data = fetch_new_stocks_from_polygon()
-        if not data:
-            print("ERROR: No data fetched from Polygon")
-            return
-
-        saved_count = update_stocks_in_db_from_polygon(
-            data, fetch_status
-        )
-        fetch_status['saved'] = saved_count
-
-    except Exception as e:
-        print(f"Background fetch error: {e}")
-        traceback.print_exc()
-    finally:
-        fetch_status['running'] = False
 
 
 @csrf_exempt
@@ -87,9 +45,6 @@ def fetch_and_update_database(request):
         }, status=400)
 
     try:
-        # Start background thread
-        thread = threading.Thread(target=run_fetch_in_background, daemon=False)
-        thread.start()
 
         return JsonResponse({
             'success': True,
