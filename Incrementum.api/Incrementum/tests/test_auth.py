@@ -80,7 +80,7 @@ class TestSignup:
 
         assert response.status_code == 400
         response_data = json.loads(response.content)
-        assert 'Email already exists' in response_data['error']
+        assert 'Email already in use' in response_data['error']
 
 
 class TestLogin:
