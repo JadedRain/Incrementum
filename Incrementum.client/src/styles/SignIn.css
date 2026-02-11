@@ -30,8 +30,13 @@
 .signin-wrapper {
   @apply flex;
   @apply h-[620px];
-  @apply ml-[350px];
-  @apply -mt-[100px];
+  @apply relative;
+  @apply z-10;
+}
+
+.signup-wrapper {
+  @apply flex;
+  @apply h-[770px];
   @apply relative;
   @apply z-10;
 }
@@ -39,6 +44,12 @@
 .signin-left-section {
   @apply w-[315px];
   @apply h-[620px];
+  @apply bg-[hsl(40,62%,26%)];
+}
+
+.signup-left-section {
+  @apply w-[315px];
+  @apply h-[770px];
   @apply bg-[hsl(40,62%,26%)];
 }
 
@@ -52,6 +63,18 @@
   @apply gap-5;
   @apply w-[420px];
   @apply h-[620px];
+}
+
+.signup-form {
+  @apply bg-[hsl(40,63%,63%)];
+  @apply p-10;
+  @apply rounded-[2px];
+  @apply shadow-[0_4px_24px_0_rgba(187,24,24,0.12)];
+  @apply flex;
+  @apply flex-col;
+  @apply gap-5;
+  @apply w-[420px];
+  @apply h-[770px];
 }
 
 .signin-title {
@@ -83,6 +106,18 @@
   @apply text-[#d32f2f];
   @apply text-[0.95rem];
   @apply text-center;
+}
+
+.signin-form > div .signin-error {
+  @apply text-left;
+  @apply mt-1;
+  @apply mb-0;
+}
+
+.signin-form > div {
+  @apply flex;
+  @apply flex-col;
+  @apply gap-1;
 }
 
 .signin-button {

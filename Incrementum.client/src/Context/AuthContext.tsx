@@ -81,11 +81,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = useCallback(async (name: string, phoneNumber: string, email: string, password: string) => {
     // Legacy signup only - Keycloak users register directly in Keycloak
     const result = await signUpApi(name, phoneNumber, email, password);
-    if (result) {
+    if (result && result.apiKey && !result.error) {
       setUserAndPersist(result.apiKey, result.email);
-      return true;
+      return { success: true, error: null };
     }
-    return false;
+    return { success: false, error: result?.error || 'Signup failed' };
   }, []);
 
   const signOut = useCallback(() => {
