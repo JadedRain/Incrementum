@@ -1,4 +1,4 @@
-import { fetchWrapper, apiString } from "./FetchingHelper";
+import { apiString } from "./FetchingHelper";
 export const signInApi = async (email: string, password: string) => {
   // Don't use fetchWrapper for login - we want to handle errors in the UI, not show a toast
   const res = await fetch(apiString("/api/login"), {
