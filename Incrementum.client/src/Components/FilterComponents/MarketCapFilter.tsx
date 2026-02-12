@@ -20,10 +20,17 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
     });
   };
   const [min_market_cap, setMinMarketCap] = useState<number | null>(null);
+  const [min_market_cap_temp, setMinMarketCapTemp] = useState<number | null>(null);
   const [max_market_cap, setMaxMarketCap] = useState<number | null>(null);
+  const [max_market_cap_temp, setMaxMarketCapTemp] = useState<number | null>(null);
+  const [scaleLabelMin, setScaleLabelMin] = useState<number>(1);
+  const [scaleLabelMax, setScaleLabelMax] = useState<number>(1);
 
   const showWarning = min_market_cap !== null && max_market_cap !== null && min_market_cap > max_market_cap;
-
+  useEffect(() => {
+    setMinMarketCap(min_market_cap_temp !== null ? min_market_cap_temp * scaleLabelMin : null);
+    setMaxMarketCap(max_market_cap_temp !== null ? max_market_cap_temp * scaleLabelMax : null);
+  }, [min_market_cap_temp, max_market_cap_temp, scaleLabelMin, scaleLabelMax]);
   useEffect(() => {
     if (min_market_cap !== null) {
       addFilter({
@@ -58,31 +65,51 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
     <ExpandableSidebarItem title="Market Cap">
       <div style={{ marginBottom: '0.5rem' }}>
         <div style={{ fontWeight: 600 }}>Market Cap</div>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "0.5rem",
-            width: "100%",
-            boxSizing: "border-box",
-          }}>
+        
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
           <input
             type="number"
             placeholder="Min"
-            value={min_market_cap ?? ''}
-            onChange={e => setMinMarketCap(e.target.value ? Number(e.target.value) : null)}
+            value={min_market_cap_temp ?? ''}
+            onChange={e => setMinMarketCapTemp(e.target.value ? Number(e.target.value) : null)}
+            className="sidebar-input"
+            style={{ flex: 3, padding: '0.4rem', minWidth: 0 }}
+          />
+          <select
+            value={scaleLabelMin}
+            onChange={e => setScaleLabelMin(Number(e.target.value))}
             className="sidebar-input"
             style={{ flex: 1, padding: '0.4rem', minWidth: 0 }}
-          />
+          >
+            <option value={1}></option>
+            <option value={1000}>k</option>
+            <option value={1000000}>m</option>
+            <option value={1000000000}>b</option>
+            <option value={1000000000000}>t</option>
+          </select>
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
           <input
             type="number"
             placeholder="Max"
-            value={max_market_cap ?? ''}
-            onChange={e => setMaxMarketCap(e.target.value ? Number(e.target.value) : null)}
+            value={max_market_cap_temp ?? ''}
+            onChange={e => setMaxMarketCapTemp(e.target.value ? Number(e.target.value) : null)}
+            className="sidebar-input"
+            style={{ flex: 3, padding: '0.4rem', minWidth: 0 }}
+          />
+          <select
+            value={scaleLabelMax}
+            onChange={e => setScaleLabelMax(Number(e.target.value))}
             className="sidebar-input"
             style={{ flex: 1, padding: '0.4rem', minWidth: 0 }}
-          />
+          >
+            <option value={1}></option>
+            <option value={1000}>k</option>
+            <option value={1000000}>m</option>
+            <option value={1000000000}>b</option>
+            <option value={1000000000000}>t</option>
+          </select>
         </div>
       </div>
       {showWarning && (
