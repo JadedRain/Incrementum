@@ -3,10 +3,12 @@ import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
 import requests
+import logging
 from urllib.parse import parse_qs
 import json
 
 API_BASE = 'http://api:8000'
+logger = logging.getLogger("dash")
 
 
 def fetch_data_from_api():
@@ -208,8 +210,12 @@ def update_graph(ticker, period, interval, graph_type):
         return fig.update_layout(title="No ticker provided")
 
     try:
+        normalized_period = (period or "").lower()
+        if normalized_period in ("3mo", "ytd", "1y"):
+            interval = "1d"
+
         intervals_to_try = [interval]
-        if (period or "").lower() == "1d" and interval not in ("1h", "60m", "30m", "15m"):
+        if normalized_period == "1d" and interval not in ("1h", "60m", "30m", "15m"):
             intervals_to_try = ["1h", "60m", "30m", "15m", "5m", interval]
 
         data = None
@@ -220,7 +226,7 @@ def update_graph(ticker, period, interval, graph_type):
                 resp = requests.get(url, params=params, timeout=10)
                 resp.raise_for_status()
                 candidate = resp.json()
-                close = candidate.get("close", []) or []
+                close = candidate.get("close", []) or candidate.get("close_price", []) or []
                 if len(close) >= 2:
                     data = candidate
                     break
@@ -240,13 +246,22 @@ def update_graph(ticker, period, interval, graph_type):
                 return empty_fig.update_layout(title=title)
 
         dates = pd.to_datetime(data.get("dates", []))
-        open_ = data.get("open", []) or []
+        open_ = data.get("open", []) or data.get("open_price", []) or []
         high = data.get("high", []) or []
         low = data.get("low", []) or []
-        close = data.get("close", []) or []
+        close = data.get("close", []) or data.get("close_price", []) or []
 
         n = min(len(dates), len(open_), len(high), len(low), len(close))
         if n == 0:
+            logger.info(
+                "No data after normalization for %s: dates=%d open=%d high=%d low=%d close=%d",
+                ticker,
+                len(dates),
+                len(open_),
+                len(high),
+                len(low),
+                len(close),
+            )
             return px.line(
                 pd.DataFrame({"x": [], "y": []}), x="x", y="y"
             ).update_layout(
