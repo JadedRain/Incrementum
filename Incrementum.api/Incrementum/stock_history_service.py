@@ -195,7 +195,7 @@ class StockHistoryService:
         }
         end_date = datetime.now()
         start_date = self.calculate_start_date(period, end_date)
-            
+
         if interval == "1d":
             db_history = self.get_db_history(
                 ticker,
