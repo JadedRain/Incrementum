@@ -20,14 +20,14 @@ def signup(request):
         email = data.get('email')
         password = data.get('password')
         if not name or not phone_number or not email or not password:
-            return JsonResponse({'error': 'All fields required'}, status=400)
+            return JsonResponse({'error': 'Missing required fields'}, status=400)
 
         existing = Account.objects.filter(email=email).first()
         if existing:
-            return JsonResponse({'error': 'Email already exists'}, status=400)
+            return JsonResponse({'error': 'Email already in use'}, status=400)
 
         if Account.objects.filter(phone_number=phone_number).exists():
-            return JsonResponse({'error': 'Phone number already exists'}, status=400)
+            return JsonResponse({'error': 'Phone number already in use'}, status=400)
 
         # Create user in database only
         password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()

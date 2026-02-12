@@ -10,33 +10,38 @@ const SignupPage: React.FC = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
   const navigate = useNavigate();
   const { signUp, signIn } = useAuth();
   const { redirectToRegistration } = useKeycloak();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    const signupSuccess = await signUp(name, phoneNumber, email, password);
-    if (signupSuccess) {
-      // Immediately log in the user after signup to ensure context is set as with login
+    setEmailError("");
+    setPhoneError("");
+
+    const result = await signUp(name, phoneNumber, email, password);
+    if (result.success) {
       const loginSuccess = await signIn(email, password);
       if (loginSuccess) {
         navigate("/screener");
-      } else {
-        setError("Login failed after signup");
       }
     } else {
-      setError("Signup failed");
+      const errorMsg = result.error || "Signup failed";
+      if (errorMsg.includes("Email already in use")) {
+        setEmailError(errorMsg);
+      } else if (errorMsg.includes("Phone number already in use")) {
+        setPhoneError(errorMsg);
+      }
     }
   };
 
   return (
     <div className="signin-container">
-      <div className="signin-wrapper">
-        <div className="signin-left-section" />
-        <form className="signin-form" onSubmit={handleSubmit}>
+      <div className="signup-wrapper">
+        <div className="signup-left-section" />
+        <form className="signup-form" onSubmit={handleSubmit}>
           <h2 className="signin-title">Sign Up</h2>
         <input
           className="signin-input"
@@ -44,22 +49,30 @@ const SignupPage: React.FC = () => {
           placeholder="Name"
           value={name}
           onChange={e => setName(e.target.value)}
+            required
         />
-        <input
-          className="signin-input"
-          type="text"
-          placeholder="Phone Number"
-          value={phoneNumber}
-          onChange={e => setPhoneNumber(e.target.value)}
-        />
-        <input
-          className="signin-input"
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-        />
+        <div>
+          <input
+            className="signin-input"
+            type="text"
+            placeholder="Phone Number"
+            value={phoneNumber}
+            onChange={e => setPhoneNumber(e.target.value)}
+            required
+          />
+          {phoneError && <div className="signin-error">{phoneError}</div>}
+        </div>
+        <div>
+          <input
+            className="signin-input"
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+          />
+          {emailError && <div className="signin-error">{emailError}</div>}
+        </div>
         <input
           className="signin-input"
           type="password"
@@ -68,7 +81,6 @@ const SignupPage: React.FC = () => {
           onChange={e => setPassword(e.target.value)}
           required
         />
-        {error && <div className="signin-error">{error}</div>}
         <button className="signin-button" type="submit">Sign Up</button>
           <button
             className="signin-button mt-2"
