@@ -111,18 +111,19 @@ def get_stock_graph(request, ticker):
     except Exception:
         dates = [str(i) for i in range(len(history))]
 
-    close = [None if (pd.isna(v)) else float(v) for v in history["Close"].tolist()]
+    # Convert from cents to dollars
+    close = [None if (pd.isna(v)) else float(v) / 100 for v in history["close_price"].tolist()]
     open_ = (
-        [None if (pd.isna(v)) else float(v) for v in history["Open"].tolist()]
-        if "Open" in history else [None] * len(dates)
+        [None if (pd.isna(v)) else float(v) / 100 for v in history["open_price"].tolist()]
+        if "open_price" in history.columns else [None] * len(dates)
     )
     high = (
-        [None if (pd.isna(v)) else float(v) for v in history["High"].tolist()]
-        if "High" in history else [None] * len(dates)
+        [None if (pd.isna(v)) else float(v) / 100 for v in history["high"].tolist()]
+        if "high" in history.columns else [None] * len(dates)
     )
     low = (
-        [None if (pd.isna(v)) else float(v) for v in history["Low"].tolist()]
-        if "Low" in history else [None] * len(dates)
+        [None if (pd.isna(v)) else float(v) / 100 for v in history["low"].tolist()]
+        if "low" in history.columns else [None] * len(dates)
     )
 
     graphdata = {
