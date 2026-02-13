@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import Loading from './Loading';
 import StockRow from './StockRow';
 import ColumnVisibilityProvider from '../Context/ColumnVisibilityContext';
 import { useColumnVisibility } from '../Context/useColumnVisibility';
 import '../styles/stock-table-extras.css';
+import '../styles/PaginationControls.css';
 import { useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
 
 type Stock = {
@@ -57,6 +59,17 @@ function InnerStockTable({ onRowClick, cols, stocks, isLoading, sortBy, setSortB
   setSortAsc: (v: boolean) => void;
 }) {
   const { visibleColumns, toggleColumn, menuOpen, setMenuOpen, menuRef, btnRef, columnOrder, moveColumn } = useColumnVisibility();
+  
+  // Pagination
+  const pageSize = 12;
+  const stocksArray = Array.isArray(stocks) ? (stocks as Stock[]) : [];
+  const totalPages = Math.ceil(stocksArray.length / pageSize);
+  const [currentPage, setCurrentPage] = useState(1);
+  const paginatedStocks = stocksArray.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
 
   // Map column keys to backend sort fields
   const colToSortField = (k: string): string | null => {
@@ -148,10 +161,17 @@ function InnerStockTable({ onRowClick, cols, stocks, isLoading, sortBy, setSortB
         })}
       </div>
       <Loading loading={isLoading} />
-      {Array.isArray(stocks) && stocks.length === 0 && <div>Select some filters to get started!</div>}
-      {!isLoading && Array.isArray(stocks) && stocks.map((s: Stock, idx: number) => (
+      {stocksArray.length === 0 && <div>Select some filters to get started!</div>}
+      {!isLoading && paginatedStocks.map((s: Stock, idx: number) => (
         <StockRow key={s.symbol ?? idx} stock={s} onClick={() => onRowClick?.(s.symbol ?? '')} />
       ))}
+      {stocksArray.length > 0 && (
+        <div className="pagination-controls">
+          <button className="pagination-button pagination-options" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>Prev</button>
+          <span className='pagination-options'>Page {currentPage} of {totalPages}</span>
+          <button className="pagination-button pagination-options" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>Next</button>
+        </div>
+      )}
     </div>
   );
 }

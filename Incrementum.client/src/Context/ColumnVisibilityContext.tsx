@@ -5,7 +5,7 @@ export function ColumnVisibilityProvider({ children }: { children: React.ReactNo
   const LS_KEY = 'stockTable.visibleColumns.v2';
   const defaultCols = { symbol: true, market_cap: true, eps: true } as Record<string, boolean>;
 
-  const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean> | undefined>(() => {
+  const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>(() => {
     try {
       const raw = localStorage.getItem(LS_KEY);
       if (raw) {
@@ -22,8 +22,8 @@ export function ColumnVisibilityProvider({ children }: { children: React.ReactNo
     }
     catch(e) {
       console.log(`Unable to set visible columns: ${e}`)
-      return;
     }
+    return defaultCols;
   });
 
   const toggleColumnWithOrder = (k: string) => {
