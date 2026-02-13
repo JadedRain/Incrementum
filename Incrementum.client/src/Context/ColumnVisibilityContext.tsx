@@ -2,21 +2,28 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ColumnVisibilityContext } from './columnVisibilityCore';
 
 export function ColumnVisibilityProvider({ children }: { children: React.ReactNode; }) {
-  const LS_KEY = 'stockTable.visibleColumns.v1';
-  const defaultCols = { symbol: true, price: true, eps: true, purchasePrice: false, high52: true, low52: true, percentChange: true, volume: true, marketCap: true} as Record<string, boolean>;
+  const LS_KEY = 'stockTable.visibleColumns.v2';
+  const defaultCols = { symbol: true, market_cap: true, eps: true } as Record<string, boolean>;
 
-  const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>(() => {
+  const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean> | undefined>(() => {
     try {
       const raw = localStorage.getItem(LS_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
         if (parsed && Array.isArray(parsed.columnOrder)) {
-          return { ...defaultCols, ...(parsed.visibleColumns || {}) };
+          const loaded = { ...defaultCols, ...(parsed.visibleColumns || {}) };
+          const filtered: Record<string, boolean> = {};
+          for (const key of Object.keys(defaultCols)) {
+            filtered[key] = loaded[key] !== false;
+          }
+          return filtered;
         }
-        return { ...defaultCols, ...(parsed || {}) };
       }
-    } catch { void 0; }
-    return defaultCols;
+    }
+    catch(e) {
+      console.log(`Unable to set visible columns: ${e}`)
+      return;
+    }
   });
 
   const toggleColumnWithOrder = (k: string) => {
@@ -57,7 +64,11 @@ export function ColumnVisibilityProvider({ children }: { children: React.ReactNo
       const raw = localStorage.getItem(LS_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed && Array.isArray(parsed.columnOrder)) return parsed.columnOrder as import('./columnVisibilityCore').ColKey[];
+        if (parsed && Array.isArray(parsed.columnOrder)) {
+          // Filter to only include columns that exist in defaultCols
+          const filtered = (parsed.columnOrder as string[]).filter((col: string) => col in defaultCols);
+          return filtered as import('./columnVisibilityCore').ColKey[];
+        }
       }
     } catch { void 0; }
     return defaultOrder;
