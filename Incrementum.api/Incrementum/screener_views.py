@@ -8,7 +8,7 @@ from Incrementum.screener import Screener
 from Incrementum.DTOs.ifilterdata import FilterData
 import json
 import logging
-from .yrhilo import fifty_two_week_high, fifty_two_week_low, fifty_two_week_high_dict, fifty_two_week_low_dict
+from .yrhilo import fifty_two_week_high_dict, fifty_two_week_low_dict
 screener_service = ScreenerService()
 
 
@@ -203,14 +203,14 @@ def run_database_screener(request):
 
     screener = Screener()
     all_stocks = screener.query(filters, sort_by=sort_by, sort_order=sort_order)
-    
+
     # Calculate pagination
     total_count = len(all_stocks)
     total_pages = (total_count + per_page - 1) // per_page
     start_idx = (page - 1) * per_page
     end_idx = start_idx + per_page
     stocks = all_stocks[start_idx:end_idx]
-    
+
     # Batch fetch all highs and lows at once
     symbols = [stock.symbol for stock in stocks]
     logging.info(f"DEBUG: Fetching highs/lows for symbols: {symbols}")
@@ -218,14 +218,17 @@ def run_database_screener(request):
     lows = fifty_two_week_low_dict(stocks=symbols) if symbols else {}
     logging.info(f"DEBUG: Highs dict: {highs}")
     logging.info(f"DEBUG: Lows dict: {lows}")
-    
+
+    for stock in stocks:
+        stock.high52 = highs.get(stock.symbol)
+        stock.low52 = lows.get(stock.symbol)
 
     stocks_dict = [stock.to_dict() for stock in stocks]
-    
+
     # Add high52 and low52 to each stock dict
     for i, stock in enumerate(stocks):
-        stocks_dict[i]['high52'] = highs.get(stock.symbol)
-        stocks_dict[i]['low52'] = lows.get(stock.symbol)
+        stocks_dict[i]['high52'] = stock.high52
+        stocks_dict[i]['low52'] = stock.low52
 
     return JsonResponse(
         {

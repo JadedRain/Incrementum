@@ -1,5 +1,6 @@
 from django.db import connection
 
+
 def fifty_two_week_high(stock: str):
     query = """
         SELECT high
@@ -12,6 +13,7 @@ def fifty_two_week_high(stock: str):
         cursor.execute(query, [stock])
         result = cursor.fetchone()
     return result[0] if result else None
+
 
 def fifty_two_week_low(stock: str):
     query = """
@@ -26,13 +28,14 @@ def fifty_two_week_low(stock: str):
         result = cursor.fetchone()
     return result[0] if result else None
 
+
 def fifty_two_week_high_dict(stock=None, stocks=None):
     if stocks is None:
         stocks = [stock] if stock else []
-    
+
     if not stocks:
         return {}
-    
+
     query = """
         SELECT DISTINCT ON (stock_symbol) stock_symbol, high
         FROM incrementum.stock_history
@@ -42,16 +45,17 @@ def fifty_two_week_high_dict(stock=None, stocks=None):
     with connection.cursor() as cursor:
         cursor.execute(query, [stocks])
         results = cursor.fetchall()
-    
+
     return {row[0]: row[1] for row in results}
+
 
 def fifty_two_week_low_dict(stock=None, stocks=None):
     if stocks is None:
         stocks = [stock] if stock else []
-    
+
     if not stocks:
         return {}
-    
+
     query = """
         SELECT DISTINCT ON (stock_symbol) stock_symbol, low
         FROM incrementum.stock_history
@@ -61,5 +65,5 @@ def fifty_two_week_low_dict(stock=None, stocks=None):
     with connection.cursor() as cursor:
         cursor.execute(query, [stocks])
         results = cursor.fetchall()
-    
+
     return {row[0]: row[1] for row in results}
