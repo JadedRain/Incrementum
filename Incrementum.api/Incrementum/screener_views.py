@@ -8,7 +8,7 @@ from Incrementum.screener import Screener
 from Incrementum.DTOs.ifilterdata import FilterData
 import json
 import logging
-
+from .yrhilo import fifty_two_week_high, fifty_two_week_low, fifty_two_week_high_dict, fifty_two_week_low_dict
 screener_service = ScreenerService()
 
 
@@ -149,6 +149,7 @@ def run_database_screener(request):
     """
     Run screener using database queries with the new Screener class.
     Accepts a list of FilterData objects and returns matching stocks from the database.
+    Supports pagination with page and per_page parameters.
     """
     try:
         payload = json.loads(request.body or b"{}")
@@ -159,12 +160,23 @@ def run_database_screener(request):
         filters_payload = payload
         sort_by = None
         sort_order = 'asc'
+        page = 1
+        per_page = 25
     elif isinstance(payload, dict):
         filters_payload = payload.get('filters', [])
         sort_by = payload.get('sort_by')
         sort_order = payload.get('sort_order', 'asc')
+        page = payload.get('page', 1)
+        per_page = payload.get('per_page', 25)
     else:
         return JsonResponse({"error": "Body must be a JSON array or object"}, status=400)
+
+    # Validate pagination params
+    try:
+        page = max(1, int(page))
+        per_page = max(1, min(500, int(per_page)))  # Cap at 500 per page
+    except (ValueError, TypeError):
+        return JsonResponse({"error": "page and per_page must be integers"}, status=400)
 
     filters = []
     for index, item in enumerate(filters_payload):
@@ -190,14 +202,43 @@ def run_database_screener(request):
         filters.append(FilterData(operator, operand, filter_type, value))
 
     screener = Screener()
-    stocks = screener.query(filters, sort_by=sort_by, sort_order=sort_order)
+    all_stocks = screener.query(filters, sort_by=sort_by, sort_order=sort_order)
+    
+    # Calculate pagination
+    total_count = len(all_stocks)
+    total_pages = (total_count + per_page - 1) // per_page
+    start_idx = (page - 1) * per_page
+    end_idx = start_idx + per_page
+    stocks = all_stocks[start_idx:end_idx]
+    
+    # Batch fetch all highs and lows at once
+    symbols = [stock.symbol for stock in stocks]
+    logging.info(f"DEBUG: Fetching highs/lows for symbols: {symbols}")
+    highs = fifty_two_week_high_dict(stocks=symbols) if symbols else {}
+    lows = fifty_two_week_low_dict(stocks=symbols) if symbols else {}
+    logging.info(f"DEBUG: Highs dict: {highs}")
+    logging.info(f"DEBUG: Lows dict: {lows}")
+    
 
     stocks_dict = [stock.to_dict() for stock in stocks]
+    
+    # Add high52 and low52 to each stock dict
+    for i, stock in enumerate(stocks):
+        stocks_dict[i]['high52'] = highs.get(stock.symbol)
+        stocks_dict[i]['low52'] = lows.get(stock.symbol)
 
     return JsonResponse(
         {
             "stocks": stocks_dict,
-            "count": len(stocks_dict)
+            "count": len(stocks_dict),
+            "pagination": {
+                "page": page,
+                "per_page": per_page,
+                "total_count": total_count,
+                "total_pages": total_pages,
+                "has_next": page < total_pages,
+                "has_prev": page > 1
+            }
         },
         status=200
     )
