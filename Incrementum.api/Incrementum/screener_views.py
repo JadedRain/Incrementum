@@ -159,10 +159,15 @@ def run_database_screener(request):
         filters_payload = payload
         sort_by = None
         sort_order = 'asc'
+        page = 1
+        page_size = 15
     elif isinstance(payload, dict):
         filters_payload = payload.get('filters', [])
         sort_by = payload.get('sort_by')
         sort_order = payload.get('sort_order', 'asc')
+        page = int(payload.get('page', 1) or 1)
+        page_size = payload.get('page_size', 15)
+        page_size = int(page_size) if page_size is not None else None
     else:
         return JsonResponse({"error": "Body must be a JSON array or object"}, status=400)
 
@@ -190,14 +195,23 @@ def run_database_screener(request):
         filters.append(FilterData(operator, operand, filter_type, value))
 
     screener = Screener()
-    stocks = screener.query(filters, sort_by=sort_by, sort_order=sort_order)
+    stocks, total = screener.query(
+        filters,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        page=page,
+        page_size=page_size,
+    )
 
     stocks_dict = [stock.to_dict() for stock in stocks]
 
     return JsonResponse(
         {
             "stocks": stocks_dict,
-            "count": len(stocks_dict)
+            "count": len(stocks_dict),
+            "total_count": total,
+            "page": page,
+            "page_size": page_size,
         },
         status=200
     )

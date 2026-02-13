@@ -10,13 +10,20 @@ logger = logging.getLogger(__name__)
 
 class Screener:
     def query(self, filters: List[FilterData],
-              sort_by: str = None, sort_order: str = 'asc') -> List[StockModel]:
+              sort_by: str = None, sort_order: str = 'asc',
+              page: int = 1, page_size: int | None = None) -> tuple[List[StockModel], int]:
+
         if not filters:
-            qs = StockModel.objects.all()
-            if sort_by:
-                order = '' if sort_order == 'asc' else '-'
-                qs = qs.order_by(f'{order}{sort_by}')
-            return list(qs)
+            # Default behaviour when no filters are provided:
+            # return the first page of stocks ordered alphabetically by symbol
+            base_qs = StockModel.objects.order_by('symbol')
+            total = base_qs.count()
+            if page_size:
+                offset = (max(page, 1) - 1) * page_size
+                qs = base_qs[offset: offset + page_size]
+            else:
+                qs = base_qs
+            return list(qs), total
 
         grouped_filters = {}
         for filter_data in filters:
@@ -66,9 +73,13 @@ class Screener:
         if sort_by:
             order = '' if sort_order == 'asc' else '-'
             qs = qs.order_by(f'{order}{sort_by}')
+        total = qs.count()
+        if page_size:
+            offset = (max(page, 1) - 1) * page_size
+            qs = qs[offset: offset + page_size]
         result = list(qs)
-        logger.error(f"Query returned {len(result)} stocks")
-        return result
+        logger.error(f"Query returned {len(result)} stocks (total {total})")
+        return result, total
 
     def _build_q_object(self, filter_data: FilterData) -> Q:
         operand = filter_data.operand
