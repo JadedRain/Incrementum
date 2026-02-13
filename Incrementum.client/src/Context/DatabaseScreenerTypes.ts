@@ -18,4 +18,9 @@ export interface DatabaseScreenerContextType {
   setSortBy: (value: string | null) => void;
   sortAsc: boolean;
   setSortAsc: (value: boolean) => void;
+  page: number;
+  setPage: (p: number) => void;
+  pageSize: number | null;
+  setPageSize: (s: number | null) => void;
+  totalCount: number;
 }
