@@ -71,7 +71,7 @@ const IndustryFilter: React.FC = () => {
 
   return (
     <ExpandableSidebarItem title="Industry Search">
-      <div className="mb-4 relative" ref={suggestionBoxRef}>
+      <div className="mb-4" style={{ position: 'relative' }} ref={suggestionBoxRef}>
         <label className="block text-sm font-medium mb-2">Industry Search:</label>
         <input
           type="text"
@@ -89,13 +89,46 @@ const IndustryFilter: React.FC = () => {
         <p className="text-xs text-gray-500 mt-1">
           Type to search for industries (e.g., "banking", "software")
         </p>
+        
+        {/* Spacer to push content down when suggestions are visible */}
         {showSuggestions && industrySuggestions.length > 0 && (
-          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded shadow-lg max-h-60 overflow-y-auto">
+          <div style={{ height: Math.min(industrySuggestions.length * 48 + 8, 248) + 'px' }} />
+        )}
+        
+        {showSuggestions && industrySuggestions.length > 0 && (
+          <div 
+            style={{
+              position: 'absolute',
+              zIndex: 1000,
+              width: '100%',
+              marginTop: '-' + (Math.min(industrySuggestions.length * 48 + 8, 248)) + 'px',
+              backgroundColor: 'hsl(40,65%,97%)',
+              border: '2px solid hsl(40,30%,50%)',
+              borderRadius: '0.375rem',
+              boxShadow: '0 12px 40px rgba(0,0,0,0.3)',
+              maxHeight: '240px',
+              overflowY: 'auto',
+            }}
+          >
             {industrySuggestions.map((industry, index) => (
               <div
                 key={index}
                 onClick={() => selectIndustry(industry)}
-                className="px-3 py-2 hover:bg-blue-100 cursor-pointer"
+                style={{
+                  padding: '0.75rem 1rem',
+                  cursor: 'pointer',
+                  borderBottom: index < industrySuggestions.length - 1 ? '1px solid hsl(40,20%,85%)' : 'none',
+                  fontSize: '0.875rem',
+                  fontFamily: '"Newsreader", serif',
+                  transition: 'background-color 120ms ease',
+                  backgroundColor: 'transparent',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'hsl(40,50%,85%)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
               >
                 {industry}
               </div>
