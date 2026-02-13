@@ -128,15 +128,6 @@ function IndividualScreenPageContent() {
     }
   }, [selectedCollectionId, bulkStockData, stocks]);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 12;
-  const totalPages = Math.ceil(displayStocks.length / pageSize);
-  const paginatedStocks = displayStocks.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
-  };
-
   if (!id) {
     return <Loading loading={true} />;
   }
@@ -173,16 +164,11 @@ function IndividualScreenPageContent() {
             {!potentialGainsToggled &&
             <>
                 <StockTable
-                  stocks={paginatedStocks}
+                  stocks={displayStocks}
                   onRowClick={(symbol: string) =>
                     navigate(`/stock/${symbol}`)
                   }
                 />
-                <div className="pagination-controls" style={{ display: 'flex', justifyContent: 'center', margin: '16px 0' }}>
-                  <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>&lt; Prev</button>
-                  <span style={{ margin: '0 12px' }}>Page {currentPage} of {totalPages}</span>
-                  <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>&gt; Next</button>
-                </div>
               </>
             }
             {potentialGainsToggled && (
