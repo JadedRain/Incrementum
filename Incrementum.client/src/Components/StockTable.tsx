@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Loading from './Loading';
 import StockRow from './StockRow';
 import ColumnVisibilityProvider from '../Context/ColumnVisibilityContext';
@@ -70,6 +70,11 @@ function InnerStockTable({ onRowClick, cols, stocks, isLoading, sortBy, setSortB
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
   };
+
+  // Reset to page 1 when stock count changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [stocksArray.length]);
 
   // Map column keys to backend sort fields
   const colToSortField = (k: string): string | null => {
