@@ -7,6 +7,8 @@ type Stock = {
   regularMarketPrice?: number;
   fiftyTwoWeekHigh?: number;
   fiftyTwoWeekLow?: number;
+  high52?: number;
+  low52?: number;
   market_cap?: number;
   regularMarketVolume?: number;
   averageDailyVolume3Month?: number;
@@ -36,8 +38,8 @@ export default function StockRow({ stock, onClick }: Props) {
   const symbol = (s.symbol || 'N/A').toUpperCase();
   const o = {
     price: s.regularMarketPrice,
-    high52: s.fiftyTwoWeekHigh,
-    low52: s.fiftyTwoWeekLow,
+    high52: s.high52 ?? s.fiftyTwoWeekHigh,
+    low52: s.low52 ?? s.fiftyTwoWeekLow,
     percentChange: s.regularMarketChangePercent,
     volume: s.regularMarketVolume ?? s.averageDailyVolume3Month ?? s.averageVolume ?? s.volume,
     market_cap: s.market_cap,
