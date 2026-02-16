@@ -5,6 +5,13 @@ export interface DatabaseScreenerFilter {
   value?: string | number | boolean | null;
 }
 
+export interface PaginationInfo {
+  total_count: number;
+  total_pages: number;
+  has_next: boolean;
+  has_prev: boolean;
+}
+
 export interface DatabaseScreenerContextType {
   filterList: DatabaseScreenerFilter[];
   filterDict: Record<string, DatabaseScreenerFilter>;
@@ -19,8 +26,8 @@ export interface DatabaseScreenerContextType {
   sortAsc: boolean;
   setSortAsc: (value: boolean) => void;
   page: number;
-  setPage: (p: number) => void;
-  pageSize: number | null;
-  setPageSize: (s: number | null) => void;
-  totalCount: number;
+  setPage: (value: number) => void;
+  perPage: number;
+  setPerPage: (value: number) => void;
+  pagination: PaginationInfo | null;
 }

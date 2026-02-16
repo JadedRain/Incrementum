@@ -137,8 +137,8 @@ export default function CollectionStockRow({ stock, onClick, collectionId, colle
           }
           case 'volume':
             return <StockColumn key={k} variableName="volume" displayName="Vol." />;
-          case 'marketCap':
-            return <StockColumn key={k} variableName="marketCap" displayName="Mkt. Cap" />;
+          case 'market_cap':
+            return <StockColumn key={k} variableName="market_cap" displayName="Mkt. Cap" />;
           default:
             return null;
         }

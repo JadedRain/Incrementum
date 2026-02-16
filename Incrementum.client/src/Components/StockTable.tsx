@@ -1,8 +1,10 @@
+import { useState, useEffect } from 'react';
 import Loading from './Loading';
 import StockRow from './StockRow';
 import ColumnVisibilityProvider from '../Context/ColumnVisibilityContext';
 import { useColumnVisibility } from '../Context/useColumnVisibility';
 import '../styles/stock-table-extras.css';
+import '../styles/PaginationControls.css';
 import { useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
 
 type Stock = {
@@ -57,7 +59,22 @@ function InnerStockTable({ onRowClick, cols, stocks, isLoading, sortBy, setSortB
   setSortAsc: (v: boolean) => void;
 }) {
   const { visibleColumns, toggleColumn, menuOpen, setMenuOpen, menuRef, btnRef, columnOrder, moveColumn } = useColumnVisibility();
-  const { page, setPage, pageSize, totalCount } = useDatabaseScreenerContext();
+  
+  // Pagination
+  const pageSize = 12;
+  const stocksArray = Array.isArray(stocks) ? (stocks as Stock[]) : [];
+  const totalPages = Math.ceil(stocksArray.length / pageSize);
+  const [currentPage, setCurrentPage] = useState(1);
+  const paginatedStocks = stocksArray.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  // Reset to page 1 when stock count changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [stocksArray.length]);
 
   // Map column keys to backend sort fields
   const colToSortField = (k: string): string | null => {
@@ -149,27 +166,17 @@ function InnerStockTable({ onRowClick, cols, stocks, isLoading, sortBy, setSortB
         })}
       </div>
       <Loading loading={isLoading} />
-      {Array.isArray(stocks) && stocks.length === 0 && <div>Select some filters to get started!</div>}
-      {!isLoading && Array.isArray(stocks) && (stocks as Stock[]).map((s: Stock, idx: number) => (
+      {stocksArray.length === 0 && <div>Select some filters to get started!</div>}
+      {!isLoading && paginatedStocks.map((s: Stock, idx: number) => (
         <StockRow key={s.symbol ?? idx} stock={s} onClick={() => onRowClick?.(s.symbol ?? '')} />
       ))}
-
-      {/* Pagination controls integrated into the table footer */}
-      <div className="StockTable-footer" style={{ display: 'flex', justifyContent: 'center', marginTop: 12, gap: 12, alignItems: 'center' }}>
-        {(() => {
-          const ps = pageSize || 15;
-          const totalPages = Math.max(1, Math.ceil((totalCount || 0) / ps));
-          const btnBase: React.CSSProperties = { padding: '8px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', background: '#4a3711', color: '#ffffff' };
-          const btnDisabled: React.CSSProperties = { opacity: 0.5, cursor: 'not-allowed' };
-          return (
-            <>
-              <button style={{ ...btnBase, ...(page === 1 ? btnDisabled : {}) }} onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}>&lt; Prev</button>
-              <span style={{ margin: '0 8px', color: '#e6c884' }}>Page {page} of {totalPages}</span>
-              <button style={{ ...btnBase, ...(page === totalPages ? btnDisabled : {}) }} onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}>Next &gt;</button>
-            </>
-          );
-        })()}
-      </div>
+      {stocksArray.length > 0 && (
+        <div className="pagination-controls">
+          <button className="pagination-button pagination-options" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>Prev</button>
+          <span className='pagination-options'>Page {currentPage} of {totalPages}</span>
+          <button className="pagination-button pagination-options" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>Next</button>
+        </div>
+      )}
     </div>
   );
 }

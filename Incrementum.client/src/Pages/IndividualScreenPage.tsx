@@ -169,7 +169,6 @@ function IndividualScreenPageContent() {
                     navigate(`/stock/${symbol}`)
                   }
                 />
-                {/* Pagination handled inside the StockTable footer */}
               </>
             }
             {potentialGainsToggled && (

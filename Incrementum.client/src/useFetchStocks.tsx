@@ -13,7 +13,6 @@ export function useFetchStocks() {
         const data = await response.json();
         const mappedStocks = data.stocks.slice(0, 11).map((stock: StockInfo) => ({
           ...stock,
-          marketCap: stock.market_cap
         }));
         setStocks(mappedStocks);
       } finally {
