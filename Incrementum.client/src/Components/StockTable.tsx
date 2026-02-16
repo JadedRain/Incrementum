@@ -24,11 +24,11 @@ type Stock = {
 type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps';
 type Col = { k: ColKey; l: string };
 
-type Props = { onRowClick?: (s: string) => void; stocks?: Stock[] };
+type Props = { onRowClick?: (s: string) => void; stocks?: unknown[] };
 
 export default function StockTable({ onRowClick, stocks: overrideStocks }: Props) {
   const { stocks: contextStocks, isLoading, sortBy, setSortBy, sortAsc, setSortAsc } = useDatabaseScreenerContext();
-  const stocks = overrideStocks ?? contextStocks;
+  const stocks = (overrideStocks ?? contextStocks) as unknown[];
 
   const cols: Col[] = [
     { k: 'symbol', l: 'Symbol' },
@@ -51,7 +51,7 @@ export default function StockTable({ onRowClick, stocks: overrideStocks }: Props
 function InnerStockTable({ onRowClick, cols, stocks, isLoading, sortBy, setSortBy, sortAsc, setSortAsc }: {
   onRowClick?: (s: string) => void;
   cols: Col[];
-  stocks: Stock[] | unknown;
+  stocks: unknown;
   isLoading: boolean;
   sortBy: string | null;
   setSortBy: (v: string | null) => void;

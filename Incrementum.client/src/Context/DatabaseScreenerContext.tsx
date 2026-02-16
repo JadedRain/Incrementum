@@ -37,8 +37,10 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
       console.log('Filter added:', updated);
       return updated;
     });
+    // reset to first page when filters change
+    setPage(1);
     return key;
-  }, []);
+  }, [setPage]);
 
   const removeFilter = useCallback((key: string) => {
     setFilterDict((prev) => {
@@ -47,12 +49,15 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
       console.log('Filter removed:', updated);
       return updated;
     });
-  }, []);
+    // reset to first page when filters change
+    setPage(1);
+  }, [setPage]);
 
   const clearFilters = useCallback(() => {
     setFilterDict({});
+    // reset to first page when filters are cleared
     setPage(1);
-  }, []);
+  }, [setPage]);
 
   // Reset page to 1 when filters change
   useEffect(() => {
@@ -117,6 +122,11 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
         isLoading,
         error,
         clearFilters,
+        page,
+        setPage,
+        pageSize,
+        setPageSize,
+        totalCount,
         sortBy,
         setSortBy,
         sortAsc,

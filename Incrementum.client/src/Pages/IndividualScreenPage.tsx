@@ -31,7 +31,7 @@ function IndividualScreenPageContent() {
   const { collections, loading: collectionsLoading } = useCustomCollections();
   const [selectedCollectionId, setSelectedCollectionId] = useState<number | null>(id ? Number(id) : null);
   const { data: bulkStockData } = useBulkStockDataForCollection(selectedCollectionId);
-  const { stocks, addFilter} = useDatabaseScreenerContext();
+  const { stocks, addFilter } = useDatabaseScreenerContext();
   const { saveCollection } = useSaveCollection({ apiKey, setTokens: () => { }, resetForm: () => { }, onError: setSaveError });
 
   const handleSelectCollection = (collectionId: number | null) => {
