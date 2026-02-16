@@ -1,0 +1,29 @@
+/* Industry Filter Suggestion Dropdown */
+.industry-suggestions-container {
+  position: absolute;
+  z-index: 1000;
+  width: 100%;
+  background-color: hsl(40, 65%, 97%);
+  border: 2px solid hsl(40, 30%, 50%);
+  border-radius: 0.375rem;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.industry-suggestion-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-family: "Newsreader", serif;
+  transition: background-color 120ms ease;
+  background-color: transparent;
+}
+
+.industry-suggestion-item:not(:last-child) {
+  border-bottom: 1px solid hsl(40, 20%, 85%);
+}
+
+.industry-suggestion-item:hover {
+  background-color: hsl(40, 50%, 85%);
+}
