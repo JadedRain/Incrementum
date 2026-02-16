@@ -4,6 +4,7 @@ import FilterChip from '../FilterChip';
 import Loading from '../Loading';
 import { useDatabaseScreenerContext } from '../../Context/DatabaseScreenerContext';
 import { fetchWrapper, apiString } from '../../Context/FetchingHelper';
+import '../../styles/IndustryFilter.css';
 
 const IndustryFilter: React.FC = () => {
   const [industryQuery, setIndustryQuery] = useState('');
@@ -71,7 +72,7 @@ const IndustryFilter: React.FC = () => {
 
   return (
     <ExpandableSidebarItem title="Industry Search">
-      <div className="mb-4" style={{ position: 'relative' }} ref={suggestionBoxRef}>
+      <div className="mb-4 relative" ref={suggestionBoxRef}>
         <label className="block text-sm font-medium mb-2">Industry Search:</label>
         <input
           type="text"
@@ -97,38 +98,16 @@ const IndustryFilter: React.FC = () => {
         
         {showSuggestions && industrySuggestions.length > 0 && (
           <div 
+            className="industry-suggestions-container"
             style={{
-              position: 'absolute',
-              zIndex: 1000,
-              width: '100%',
               marginTop: '-' + (Math.min(industrySuggestions.length * 48 + 8, 248)) + 'px',
-              backgroundColor: 'hsl(40,65%,97%)',
-              border: '2px solid hsl(40,30%,50%)',
-              borderRadius: '0.375rem',
-              boxShadow: '0 12px 40px rgba(0,0,0,0.3)',
-              maxHeight: '240px',
-              overflowY: 'auto',
             }}
           >
             {industrySuggestions.map((industry, index) => (
               <div
                 key={index}
                 onClick={() => selectIndustry(industry)}
-                style={{
-                  padding: '0.75rem 1rem',
-                  cursor: 'pointer',
-                  borderBottom: index < industrySuggestions.length - 1 ? '1px solid hsl(40,20%,85%)' : 'none',
-                  fontSize: '0.875rem',
-                  fontFamily: '"Newsreader", serif',
-                  transition: 'background-color 120ms ease',
-                  backgroundColor: 'transparent',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'hsl(40,50%,85%)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }}
+                className="industry-suggestion-item"
               >
                 {industry}
               </div>
@@ -136,9 +115,9 @@ const IndustryFilter: React.FC = () => {
           </div>
         )}
         {loading && <Loading loading={true} />}
-        {error && <div style={{ color: 'red' }}>{error}</div>}
+        {error && <div className="text-red-600">{error}</div>}
         {activeIndustryFilters.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem' }}>
+          <div className="flex flex-wrap gap-2 mt-3">
             {activeIndustryFilters.map(industry => (
               <FilterChip
                 key={industry}
