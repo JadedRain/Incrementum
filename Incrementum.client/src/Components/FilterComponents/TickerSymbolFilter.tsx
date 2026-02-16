@@ -24,9 +24,13 @@ const TickerSymbolFilter: React.FC = () => {
       return;
     }
     symbols.forEach(symbol => {
+      var op = 'equals';
+      if (symbol.includes('*')) {
+        op = 'contains';
+      }
       if (!activeTickerFilters.includes(symbol)) {
         addFilter({
-          operator: 'equals',
+          operator: op,
           operand: 'ticker',
           filter_type: 'categoric',
           value: symbol,

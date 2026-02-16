@@ -115,18 +115,13 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
     <DatabaseScreenerContext.Provider
       value={{
         filterList: Object.values(filterDict),
-        filterDict, // expose for filter components
+        filterDict,
         addFilter,
         removeFilter,
         stocks,
         isLoading,
         error,
         clearFilters,
-        page,
-        setPage,
-        pageSize,
-        setPageSize,
-        totalCount,
         sortBy,
         setSortBy,
         sortAsc,

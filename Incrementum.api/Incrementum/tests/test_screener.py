@@ -769,3 +769,228 @@ class TestScreener:
         result, total = screener.query(filters)
         symbols = [stock.symbol for stock in result]
         assert set(symbols) == {"A"}
+
+
+class TestWildcardFiltering:
+    """Test wildcard filtering for ticker symbols."""
+
+    @pytest.fixture
+    def wildcard_test_stocks(self, db):
+        """Create test stocks with various ticker symbols."""
+        stocks = [
+            StockModel.objects.create(
+                symbol="AAPL",
+                company_name="Apple Inc.",
+                market_cap=3000000000000
+            ),
+            StockModel.objects.create(
+                symbol="AMD",
+                company_name="Advanced Micro Devices",
+                market_cap=150000000000
+            ),
+            StockModel.objects.create(
+                symbol="AMZN",
+                company_name="Amazon.com Inc.",
+                market_cap=1700000000000
+            ),
+            StockModel.objects.create(
+                symbol="MSFT",
+                company_name="Microsoft Corporation",
+                market_cap=2800000000000
+            ),
+            StockModel.objects.create(
+                symbol="META",
+                company_name="Meta Platforms Inc.",
+                market_cap=900000000000
+            ),
+            StockModel.objects.create(
+                symbol="GOOGL",
+                company_name="Alphabet Inc.",
+                market_cap=1800000000000
+            ),
+            StockModel.objects.create(
+                symbol="TSLA",
+                company_name="Tesla Inc.",
+                market_cap=800000000000
+            ),
+            StockModel.objects.create(
+                symbol="ABNB",
+                company_name="Airbnb Inc.",
+                market_cap=80000000000
+            ),
+        ]
+        return stocks
+
+    def test_wildcard_filter_ticker_starts_with_a(self, wildcard_test_stocks):
+        """Test filtering ticker symbols that start with 'A' (A*)."""
+        screener = Screener()
+
+        ticker_filter = FilterData(
+            operator="contains",
+            operand="ticker",
+            filter_type="string",
+            value="A*"
+        )
+
+        filters = [ticker_filter]
+        result, total = screener.query(filters)
+
+        assert len(result) == 4
+        assert total == 4
+        symbols = {stock.symbol for stock in result}
+        assert symbols == {"AAPL", "AMD", "AMZN", "ABNB"}
+
+    def test_wildcard_filter_ticker_starts_with_m(self, wildcard_test_stocks):
+        """Test filtering ticker symbols that start with 'M' (M*)."""
+        screener = Screener()
+
+        ticker_filter = FilterData(
+            operator="contains",
+            operand="ticker",
+            filter_type="string",
+            value="M*"
+        )
+
+        filters = [ticker_filter]
+        result, total = screener.query(filters)
+
+        assert len(result) == 2
+        assert total == 2
+        symbols = {stock.symbol for stock in result}
+        assert symbols == {"MSFT", "META"}
+
+    def test_wildcard_filter_ticker_case_insensitive(self, wildcard_test_stocks):
+        """Test that wildcard filtering is case insensitive."""
+        screener = Screener()
+
+        ticker_filter = FilterData(
+            operator="contains",
+            operand="ticker",
+            filter_type="string",
+            value="A*"
+        )
+
+        filters = [ticker_filter]
+        result, total = screener.query(filters)
+
+        assert len(result) == 4
+        assert total == 4
+        symbols = {stock.symbol for stock in result}
+        assert symbols == {"AAPL", "AMD", "AMZN", "ABNB"}
+
+    def test_wildcard_filter_ticker_no_matches(self, wildcard_test_stocks):
+        """Test filtering ticker symbols with no matches."""
+        screener = Screener()
+
+        ticker_filter = FilterData(
+            operator="contains",
+            operand="ticker",
+            filter_type="string",
+            value="Z*"
+        )
+
+        filters = [ticker_filter]
+        result, total = screener.query(filters)
+
+        assert len(result) == 0
+        assert total == 0
+
+    def test_wildcard_filter_ticker_multi_character_prefix(self, wildcard_test_stocks):
+        """Test filtering ticker symbols with multi-character prefix (AM*)."""
+        screener = Screener()
+
+        ticker_filter = FilterData(
+            operator="contains",
+            operand="ticker",
+            filter_type="string",
+            value="AM*"
+        )
+
+        filters = [ticker_filter]
+        result, total = screener.query(filters)
+
+        assert len(result) == 2
+        assert total == 2
+        symbols = {stock.symbol for stock in result}
+        assert symbols == {"AMD", "AMZN"}
+
+    def test_wildcard_filter_combined_with_market_cap(self, wildcard_test_stocks):
+        """Test wildcard filter combined with market cap filter."""
+        screener = Screener()
+
+        ticker_filter = FilterData(
+            operator="contains",
+            operand="ticker",
+            filter_type="string",
+            value="A*"
+        )
+
+        market_cap_filter = FilterData(
+            operator="greater_than",
+            operand="market_cap",
+            filter_type="numeric",
+            value=1000000000000
+        )
+
+        filters = [ticker_filter, market_cap_filter]
+        result, total = screener.query(filters)
+
+        assert len(result) == 2
+        assert total == 2
+        symbols = {stock.symbol for stock in result}
+        assert symbols == {"AAPL", "AMZN"}
+
+    def test_wildcard_filter_ticker_exact_match(self, wildcard_test_stocks):
+        """Test wildcard filter with exact ticker symbol."""
+        screener = Screener()
+
+        ticker_filter = FilterData(
+            operator="contains",
+            operand="ticker",
+            filter_type="string",
+            value="AAPL*"
+        )
+
+        filters = [ticker_filter]
+        result, total = screener.query(filters)
+
+        assert len(result) == 1
+        assert total == 1
+        assert result[0].symbol == "AAPL"
+
+    def test_wildcard_filter_ticker_single_match(self, wildcard_test_stocks):
+        """Test wildcard filter that matches single ticker."""
+        screener = Screener()
+
+        ticker_filter = FilterData(
+            operator="contains",
+            operand="ticker",
+            filter_type="string",
+            value="G*"
+        )
+
+        filters = [ticker_filter]
+        result, total = screener.query(filters)
+
+        assert len(result) == 1
+        assert total == 1
+        assert result[0].symbol == "GOOGL"
+
+    def test_wildcard_endswith_filter(self, wildcard_test_stocks):
+        """Test filtering ticker symbols that end with a pattern."""
+        screener = Screener()
+
+        ticker_filter = FilterData(
+            operator="contains",
+            operand="ticker",
+            filter_type="string",
+            value="*L"
+        )
+
+        filters = [ticker_filter]
+        result, total = screener.query(filters)
+
+        assert len(result) == 2
+        assert total == 2
+        symbols = {stock.symbol for stock in result}
+        assert symbols == {"AAPL", "GOOGL"}

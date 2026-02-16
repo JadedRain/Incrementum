@@ -14,8 +14,6 @@ class Screener:
               page: int = 1, page_size: int | None = None) -> tuple[List[StockModel], int]:
 
         if not filters:
-            # Default behaviour when no filters are provided:
-            # return the first page of stocks ordered alphabetically by symbol
             base_qs = StockModel.objects.order_by('symbol')
             total = base_qs.count()
             if page_size:
@@ -113,6 +111,15 @@ class Screener:
             return Q(**{f'{field_name}__lte': value})
 
         elif operator == 'contains':
-            return Q(**{f'{field_name}__icontains': value})
+            logger.error(value.endswith('*'))
+            if value.endswith('*'):
+                prefix = value.rstrip('*')
+                return Q(**{f'{field_name}__istartswith': prefix})
+            elif value.startswith('*'):
+                suffix = value.lstrip('*')
+                return Q(**{f'{field_name}__iendswith': suffix})
+            else:
+                filter_value = value.strip('*')
+                return Q(**{f'{field_name}__icontains': filter_value})
 
         return Q()
