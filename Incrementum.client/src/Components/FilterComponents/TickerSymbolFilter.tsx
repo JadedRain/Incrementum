@@ -24,7 +24,7 @@ const TickerSymbolFilter: React.FC = () => {
       return;
     }
     symbols.forEach(symbol => {
-      var op = 'equals';
+      let op = 'equals';
       if (symbol.includes('*')) {
         op = 'contains';
       }
