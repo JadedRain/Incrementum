@@ -1,7 +1,17 @@
 @import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap");
 @import "tailwindcss";
 
-.pagination-button {
+.pagination-controls {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  margin: 16px 0;
+  z-index: 100;
+}
+
+.pagination-options {
+  @apply m-2;
   @apply px-4;
   @apply py-2;
   @apply bg-[#E8CB92];

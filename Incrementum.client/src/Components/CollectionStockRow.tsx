@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../Context/AuthContext';
 import { fetchWrapper } from '../Context/FetchingHelper';
 import { useColumnVisibility } from '../Context/useColumnVisibility';
@@ -137,8 +137,8 @@ export default function CollectionStockRow({ stock, onClick, collectionId, colle
           }
           case 'volume':
             return <StockColumn key={k} variableName="volume" displayName="Vol." />;
-          case 'marketCap':
-            return <StockColumn key={k} variableName="marketCap" displayName="Mkt. Cap" />;
+          case 'market_cap':
+            return <StockColumn key={k} variableName="market_cap" displayName="Mkt. Cap" />;
           default:
             return null;
         }

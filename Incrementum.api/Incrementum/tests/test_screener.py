@@ -61,7 +61,7 @@ class TestScreener:
         )
 
         filters = [ticker_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 1
         assert result[0].symbol == "AAPL"
@@ -79,7 +79,7 @@ class TestScreener:
 
         filters = [ticker_filter]
 
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 0
 
@@ -103,7 +103,7 @@ class TestScreener:
 
         filters = [ticker_filter, market_cap_filter]
 
-        result = screener.query(filters)
+        result, total = screener.query(filters)
         assert len(result) == 1
 
     def test_filter_empty_filter_list(self, test_stocks):
@@ -111,7 +111,7 @@ class TestScreener:
         screener = Screener()
         filters = []
 
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 4
 
@@ -128,7 +128,7 @@ class TestScreener:
 
         filters = [ticker_filter]
 
-        result = screener.query(filters)
+        result, total = screener.query(filters)
         assert len(result) == 1
         assert result[0].symbol == "AAPL"
 
@@ -193,7 +193,7 @@ class TestScreener:
             value=1600
         )
 
-        result = screener.query([pps_filter])
+        result, total = screener.query([pps_filter])
 
         assert len(result) == 1
         assert result[0].symbol == "BBB"
@@ -210,7 +210,7 @@ class TestScreener:
         )
 
         filters = [market_cap_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 2
         symbols = [stock.symbol for stock in result]
@@ -229,7 +229,7 @@ class TestScreener:
         )
 
         filters = [market_cap_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 1
         assert result[0].symbol == "TSLA"
@@ -246,7 +246,7 @@ class TestScreener:
         )
 
         filters = [market_cap_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 1
         assert result[0].symbol == "TSLA"
@@ -263,7 +263,7 @@ class TestScreener:
         )
 
         filters = [market_cap_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 3
         symbols = [stock.symbol for stock in result]
@@ -283,7 +283,7 @@ class TestScreener:
         )
 
         filters = [market_cap_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 2
         symbols = [stock.symbol for stock in result]
@@ -302,7 +302,7 @@ class TestScreener:
         )
 
         filters = [shares_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 2
         symbols = [stock.symbol for stock in result]
@@ -321,7 +321,7 @@ class TestScreener:
         )
 
         filters = [shares_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 1
         assert result[0].symbol == "TSLA"
@@ -338,7 +338,7 @@ class TestScreener:
         )
 
         filters = [shares_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 1
         assert result[0].symbol == "MSFT"
@@ -355,7 +355,7 @@ class TestScreener:
         )
 
         filters = [employees_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 2
         symbols = [stock.symbol for stock in result]
@@ -374,7 +374,7 @@ class TestScreener:
         )
 
         filters = [employees_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 2
         symbols = [stock.symbol for stock in result]
@@ -393,7 +393,7 @@ class TestScreener:
         )
 
         filters = [employees_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 2
         symbols = [stock.symbol for stock in result]
@@ -419,7 +419,7 @@ class TestScreener:
         )
 
         filters = [market_cap_filter, employees_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 2
         symbols = [stock.symbol for stock in result]
@@ -445,7 +445,7 @@ class TestScreener:
         )
 
         filters = [shares_filter, market_cap_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 1
         assert result[0].symbol == "GOOGL"
@@ -462,7 +462,7 @@ class TestScreener:
         )
 
         filters = [employees_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 1
         assert result[0].symbol == "TSLA"
@@ -480,7 +480,7 @@ class TestScreener:
         )
 
         filters = [market_cap_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 0
 
@@ -496,7 +496,7 @@ class TestScreener:
         )
 
         filters = [market_cap_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 2
         symbols = [stock.symbol for stock in result]
@@ -573,21 +573,21 @@ class TestScreener:
         )
 
         filters = [industry_filter, ticker_filter_tsla]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
         assert len(result) == 1
         assert result[0].symbol == "TSLA"
 
         filters = [industry_filter, ticker_filter_f]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
         assert len(result) == 1
         assert result[0].symbol == "F"
 
         filters = [industry_filter, ticker_filter_intc]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
         assert len(result) == 0
 
         filters = [industry_filter, ticker_filter_msft]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
         assert len(result) == 0
 
         airline_filter = FilterData(
@@ -598,7 +598,7 @@ class TestScreener:
         )
 
         filters = [airline_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 0
 
@@ -649,7 +649,7 @@ class TestScreener:
         )
 
         filters = [industry_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
 
         assert len(result) == 2
         symbols = [stock.symbol for stock in result]
@@ -668,7 +668,7 @@ class TestScreener:
             value=2000000000000
         )
         filters = [min_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
         assert len(result) == 2
         symbols = [stock.symbol for stock in result]
         assert "AAPL" in symbols
@@ -684,7 +684,7 @@ class TestScreener:
             value=1800000000000
         )
         filters = [max_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
         assert len(result) == 2
         symbols = [stock.symbol for stock in result]
         assert "GOOGL" in symbols
@@ -706,7 +706,7 @@ class TestScreener:
             value=1800000000000
         )
         filters = [min_filter, max_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
         assert len(result) == 2
         symbols = [stock.symbol for stock in result]
         assert "GOOGL" in symbols
@@ -726,7 +726,7 @@ class TestScreener:
             value=2.0
         )
         filters = [min_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
         symbols = [stock.symbol for stock in result]
         assert set(symbols) == {"A", "B"}
 
@@ -743,7 +743,7 @@ class TestScreener:
             value=2.0
         )
         filters = [max_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
         symbols = [stock.symbol for stock in result]
         assert set(symbols) == {"A", "C"}
 
@@ -766,6 +766,6 @@ class TestScreener:
             value=3.0
         )
         filters = [min_filter, max_filter]
-        result = screener.query(filters)
+        result, total = screener.query(filters)
         symbols = [stock.symbol for stock in result]
         assert set(symbols) == {"A"}
