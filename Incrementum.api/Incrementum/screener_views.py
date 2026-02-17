@@ -176,7 +176,6 @@ def run_database_screener(request):
     else:
         return JsonResponse({"error": "Body must be a JSON array or object"}, status=400)
 
-    # Validate pagination params
     try:
         page = max(1, int(page))
         per_page = max(1, min(500, int(per_page)))  # Cap at 500 per page
@@ -207,10 +206,8 @@ def run_database_screener(request):
         filters.append(FilterData(operator, operand, filter_type, value))
 
     screener = Screener()
-    all_stocks = screener.query(filters, sort_by=sort_by, sort_order=sort_order)
+    all_stocks, total_count = screener.query(filters, sort_by=sort_by, sort_order=sort_order)
 
-    # Calculate pagination
-    total_count = len(all_stocks)
     total_pages = (total_count + per_page - 1) // per_page
     start_idx = (page - 1) * per_page
     end_idx = start_idx + per_page

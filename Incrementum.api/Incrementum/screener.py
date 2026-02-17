@@ -1,4 +1,5 @@
 from typing import List
+import re
 from django.db.models import Q, OuterRef, Subquery
 from Incrementum.DTOs.ifilterdata import FilterData
 from Incrementum.models.stock import StockModel
@@ -14,8 +15,6 @@ class Screener:
               page: int = 1, page_size: int | None = None) -> tuple[List[StockModel], int]:
 
         if not filters:
-            # Default behaviour when no filters are provided:
-            # return the first page of stocks ordered alphabetically by symbol
             base_qs = StockModel.objects.order_by('symbol')
             total = base_qs.count()
             if page_size:
@@ -113,6 +112,10 @@ class Screener:
             return Q(**{f'{field_name}__lte': value})
 
         elif operator == 'contains':
+            if isinstance(value, str) and '*' in value:
+                parts = [re.escape(part) for part in value.split('*')]
+                pattern = '^' + '.*'.join(parts) + '$'
+                return Q(**{f'{field_name}__iregex': pattern})
             return Q(**{f'{field_name}__icontains': value})
 
         return Q()
