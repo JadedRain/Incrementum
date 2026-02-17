@@ -1,4 +1,5 @@
 from typing import List
+import re
 from django.db.models import Q, OuterRef, Subquery
 from Incrementum.DTOs.ifilterdata import FilterData
 from Incrementum.models.stock import StockModel
@@ -111,15 +112,10 @@ class Screener:
             return Q(**{f'{field_name}__lte': value})
 
         elif operator == 'contains':
-            logger.error(value.endswith('*'))
-            if value.endswith('*'):
-                prefix = value.rstrip('*')
-                return Q(**{f'{field_name}__istartswith': prefix})
-            elif value.startswith('*'):
-                suffix = value.lstrip('*')
-                return Q(**{f'{field_name}__iendswith': suffix})
-            else:
-                filter_value = value.strip('*')
-                return Q(**{f'{field_name}__icontains': filter_value})
+            if isinstance(value, str) and '*' in value:
+                parts = [re.escape(part) for part in value.split('*')]
+                pattern = '^' + '.*'.join(parts) + '$'
+                return Q(**{f'{field_name}__iregex': pattern})
+            return Q(**{f'{field_name}__icontains': value})
 
         return Q()

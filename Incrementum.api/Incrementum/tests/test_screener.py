@@ -994,3 +994,29 @@ class TestWildcardFiltering:
         assert total == 2
         symbols = {stock.symbol for stock in result}
         assert symbols == {"AAPL", "GOOGL"}
+
+    def test_wildcard_filter_ticker_middle_asterisk(self, wildcard_test_stocks):
+        StockModel.objects.create(
+            symbol="QB",
+            company_name="QB Corp",
+            market_cap=1000000
+        )
+        StockModel.objects.create(
+            symbol="QXYB",
+            company_name="QXYB Corp",
+            market_cap=1000000
+        )
+
+        screener = Screener()
+        ticker_filter = FilterData(
+            operator="contains",
+            operand="ticker",
+            filter_type="string",
+            value="Q*B"
+        )
+
+        result, total = screener.query([ticker_filter])
+
+        assert total == 2
+        symbols = {stock.symbol for stock in result}
+        assert symbols == {"QB", "QXYB"}
