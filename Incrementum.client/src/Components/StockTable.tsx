@@ -11,6 +11,8 @@ type Stock = {
   regularMarketPrice?: number;
   fiftyTwoWeekHigh?: number;
   fiftyTwoWeekLow?: number;
+  price?: number;
+  dayPercentChange?: number;
   market_cap?: number;
   regularMarketVolume?: number;
   averageDailyVolume3Month?: number;
