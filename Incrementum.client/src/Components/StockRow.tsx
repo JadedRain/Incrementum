@@ -59,7 +59,7 @@ export default function StockRow({ stock, onClick }: Props) {
           case 'symbol':
             return <div key={k} className="StockTable-cell font-mono text-sm uppercase tracking-wider">{symbol}</div>;
           case 'price':
-            return <Cell key={k}>{o.price != null ? `$${o.price.toFixed(2)}` : 'N/A'}</Cell>;
+            return <Cell key={k}>{o.price != null ? `$${(o.price / 100).toFixed(2)}` : 'N/A'}</Cell>;
           case 'eps':
             return <Cell key={k}>{o.eps != null ? `$${o.eps.toFixed(2)}` : 'N/A'}</Cell>;
           case 'high52':
