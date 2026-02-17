@@ -8,7 +8,12 @@ from Incrementum.screener import Screener
 from Incrementum.DTOs.ifilterdata import FilterData
 import json
 import logging
-from .yrhilo import fifty_two_week_high_dict, fifty_two_week_low_dict, current_price_dict, day_percent_change
+from .yrhilo import (
+    fifty_two_week_high_dict,
+    fifty_two_week_low_dict,
+    current_price_dict,
+    day_percent_change,
+)
 screener_service = ScreenerService()
 
 

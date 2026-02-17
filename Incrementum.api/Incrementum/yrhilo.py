@@ -39,6 +39,8 @@ def fifty_two_week_low_dict(stock=None, stocks=None):
         results = cursor.fetchall()
 
     return {row[0]: row[1] for row in results}
+
+
 def current_price_dict(stock=None, stocks=None):
     if stocks is None:
         stocks = [stock] if stock else []
@@ -76,18 +78,18 @@ def day_percent_change(stock=None, stocks=None):
     with connection.cursor() as cursor:
         cursor.execute(query, [stocks])
         results = cursor.fetchall()
-    
+
     stock_prices = {}
     for row in results:
         symbol = row[0]
         if symbol not in stock_prices:
             stock_prices[symbol] = []
         stock_prices[symbol].append(row[1])
-    
+
     percent_changes = {}
     for symbol, prices in stock_prices.items():
         if len(prices) >= 2 and prices[1] != 0:
             percent_change = ((prices[0] - prices[1]) / prices[1]) * 100
             percent_changes[symbol] = percent_change
-    
+
     return percent_changes
