@@ -167,7 +167,6 @@ function InnerStockTable({ onRowClick, cols, stocks, isLoading, sortBy, setSortB
         })}
       </div>
       <Loading loading={isLoading} />
-      {stocksArray.length === 0 && <div>Select some filters to get started!</div>}
       {!isLoading && paginatedStocks.map((s: Stock, idx: number) => (
         <StockRow key={s.symbol ?? idx} stock={s} onClick={() => onRowClick?.(s.symbol ?? '')} />
       ))}

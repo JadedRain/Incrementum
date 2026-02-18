@@ -27,12 +27,10 @@ Content-Type: application/json
 ###
 Get {{host}}/stock/aapl
 ###
-POST {{host}}/stocks/getfilteredstocks
+POST {{host}}/screeners/database/
 Content-Type: application/json
 
 [
-  { "operator": "eq", "operand": "sector", "value": "Financial Services", "filter_type": "categoric" },
-  { "operator": "gt", "operand": "lastclose52weekhigh.lasttwelvemonths", "value": 35, "filter_type": "numeric" }
 ]
 
 ###
