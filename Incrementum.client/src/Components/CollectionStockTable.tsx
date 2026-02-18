@@ -56,7 +56,7 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
     { k: 'low52', l: '52W Low' },
     { k: 'percentChange', l: '1 Day % Chg.' },
     { k: 'volume', l: 'Vol.' },
-    { k: 'marketCap', l: 'Mkt. Cap' },
+    { k: 'market_cap', l: 'Mkt. Cap' },
   ];
 
   const sortOptions: { value: SortField; label: string }[] = [
@@ -96,7 +96,7 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
       price: 'price',
       percentChange: 'percentChange',
       volume: 'volume',
-      marketCap: 'marketCap',
+      market_cap: 'marketCap',
     };
     return mapping[colKey] ?? null;
   };
@@ -191,7 +191,7 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
           {menuOpen && (
             <div ref={menuRef} className="kebab-menu">
               <div className="kebab-title">Columns</div>
-              {cols.filter(c => c.k !== 'symbol' && c.k !== 'watchlist').map((c) => (
+              {cols.filter(c => c.k !== 'symbol').map((c) => (
                 <label key={c.k} className="column-label">
                   <input className="column-checkbox" type="checkbox" checked={!!visibleColumns[c.k]} onChange={() => toggleColumn(c.k)} />
                   <span className="text-[15px] text-[var(--text-primary)]">{c.l}</span>
@@ -205,10 +205,8 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
 
         {columnOrder.map((k, idx) => {
           const labelMap: Record<string, string> = Object.fromEntries(cols.map(c => [c.k, c.l]));
-          labelMap.watchlist = 'Remove';
           if (!visibleColumns[k]) return null;
-          const isRemove = k === 'watchlist';
-          const draggable = !isRemove;
+          const draggable = true;
           const sortable = colToSortField(k) !== null;
           return (
             <div

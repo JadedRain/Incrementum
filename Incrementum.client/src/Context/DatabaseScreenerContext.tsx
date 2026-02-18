@@ -12,6 +12,14 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortAsc, setSortAsc] = useState(true);
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(50);
+  const [pagination, setPagination] = useState<{
+    total_count: number;
+    total_pages: number;
+    has_next: boolean;
+    has_prev: boolean;
+  } | null>(null);
   const getKey = (filter: DatabaseScreenerFilter) => {
     if (filter.filter_type === 'numeric') {
       return `${filter.operand}__${filter.operator}`;
@@ -29,8 +37,10 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
       console.log('Filter added:', updated);
       return updated;
     });
+    // reset to first page when filters change
+    setPage(1);
     return key;
-  }, []);
+  }, [setPage]);
 
   const removeFilter = useCallback((key: string) => {
     setFilterDict((prev) => {
@@ -39,24 +49,36 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
       console.log('Filter removed:', updated);
       return updated;
     });
-  }, []);
+    // reset to first page when filters change
+    setPage(1);
+  }, [setPage]);
 
   const clearFilters = useCallback(() => {
     setFilterDict({});
-  }, []);
+    // reset to first page when filters are cleared
+    setPage(1);
+  }, [setPage]);
+
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [filterDict]);
 
   useEffect(() => {
     const fetchStocks = async () => {
       const filterList = Object.values(filterDict);
       if (filterList.length === 0) {
         setStocks([]);
+        setPagination(null);
         return;
       }
       setIsLoading(true);
       setError(null);
       try {
-        const body: { filters: DatabaseScreenerFilter[]; sort_by?: string; sort_order?: string } = {
+        const body: { filters: DatabaseScreenerFilter[]; sort_by?: string; sort_order?: string; page: number; per_page: number } = {
           filters: filterList,
+          page,
+          per_page: perPage,
         };
         if (sortBy) {
           body.sort_by = sortBy;
@@ -70,7 +92,15 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
           })
         );
         const data = await resp.json();
+        console.log('API Response data:', data);
+        console.log('Stocks received:', data.stocks);
+        console.log('Pagination:', data.pagination);
+        if (data.stocks && data.stocks.length > 0) {
+          console.log('First stock:', data.stocks[0]);
+          console.log('Stock keys:', Object.keys(data.stocks[0]));
+        }
         setStocks(data.stocks || []);
+        setPagination(data.pagination || null);
       } catch (err: unknown) {
         if (err instanceof Error) setError(err.message);
         else setError(String(err));
@@ -79,13 +109,13 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
       }
     };
     fetchStocks();
-  }, [filterDict, sortBy, sortAsc]);
+  }, [filterDict, sortBy, sortAsc, page, perPage]);
 
   return (
     <DatabaseScreenerContext.Provider
       value={{
         filterList: Object.values(filterDict),
-        filterDict, // expose for filter components
+        filterDict,
         addFilter,
         removeFilter,
         stocks,
@@ -96,6 +126,11 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
         setSortBy,
         sortAsc,
         setSortAsc,
+        page,
+        setPage,
+        perPage,
+        setPerPage,
+        pagination,
       }}
     >
       {children}
