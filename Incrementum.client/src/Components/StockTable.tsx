@@ -117,7 +117,7 @@ function InnerStockTable({ onRowClick, cols, stocks, isLoading, sortBy, setSortB
     }
   };
   const btnStyle = 'bg-transparent border-none cursor-pointer p-1';
-  const menuStyle = 'absolute right-0 mt-1 bg-[#e6c884] rounded-lg shadow-lg p-3 min-w-[240px]';
+  const menuStyle = 'absolute right-0 mt-1 bg-[var(--bg-surface)] rounded-lg shadow-lg p-3 min-w-[240px]';
 
   return (
     <div className="StockTable-container stocktable-flex">
@@ -126,11 +126,11 @@ function InnerStockTable({ onRowClick, cols, stocks, isLoading, sortBy, setSortB
           <button ref={btnRef} aria-label="Columns" onClick={() => setMenuOpen(!menuOpen)} className={btnStyle}><span className="text-[20px]">⋮</span></button>
           {menuOpen && (
             <div ref={menuRef} className={menuStyle}>
-              <div className="font-bold mb-2 text-[15px] text-[#3f2a10]">Columns</div>
+              <div className="font-bold mb-2 text-[15px] text-[var(--text-primary)]">Columns</div>
               {cols.filter(c => c.k !== 'symbol').map((c: Col) => (
                 <label key={c.k} className="flex items-center gap-3 mb-2">
                   <input className="transform scale-125 accent-[#6b4c1b]" type="checkbox" checked={!!visibleColumns[c.k]} onChange={() => toggleColumn(c.k)} />
-                  <span className="text-[15px] text-[#3f2a10]">{c.l}</span>
+                  <span className="text-[15px] text-[var(--text-primary)]">{c.l}</span>
                 </label>
               ))}
             </div>
@@ -145,7 +145,7 @@ function InnerStockTable({ onRowClick, cols, stocks, isLoading, sortBy, setSortB
           return (
             <div
               key={k}
-              className="StockTable-header cursor-grab"
+              className={`StockTable-header ${sortableField ? 'col-sortable' : 'col-draggable'}`}
               draggable={true}
               data-index={idx}
               onDragStart={(e) => {
@@ -160,7 +160,6 @@ function InnerStockTable({ onRowClick, cols, stocks, isLoading, sortBy, setSortB
               }}
               onClick={() => { if (sortableField) handleHeaderClick(sortableField); }}
               role={sortableField ? 'button' : undefined}
-              style={{ cursor: sortableField ? 'pointer' : 'grab' }}
             >
               {(labelMap[k] ?? k) + (sortableField ? getSortIndicator(sortableField) : '')}
             </div>

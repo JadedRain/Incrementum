@@ -7,9 +7,9 @@
   max-width: none;
   min-width: 0;
   margin: 8px 0;
-  background: #E8CB92;
-  color: hsl(40 62% 20%);
-  border: 1px solid rgba(37,28,9,0.06);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid rgba(0,0,0,0.1);
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.28);
   transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease, border-color 150ms ease;
@@ -28,8 +28,8 @@
 .search-stock-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-  background: hsl(38 70% 86%);
-  border-color: hsl(38 70% 86%);
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
 .newsreader-font {
@@ -92,7 +92,7 @@
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: hsl(40 62% 20%);
+  color: var(--text-secondary);
   font-size: 1.00rem; /* slightly reduced to keep card compact */
 }
 
@@ -109,8 +109,8 @@
 }
 
 .search-stock-card .card-action {
-  background: #E8CB92;
-  color: hsl(40 62% 20%);
+  background: var(--accent);
+  color: var(--bg-base);
   border: none;
   width: 52px;
   height: 52px;
@@ -139,7 +139,7 @@
 }
 
 .search-stock-card .card-action:hover {
-  background: #E8CB92;
+  background: var(--accent-hover);
   transform: translateY(-2px);
 }
 
@@ -177,7 +177,7 @@
   font-size: 0.66rem; /* small label so it doesn't add much height */
   font-weight: 700;
   /* improve contrast so labels are visible on the card background */
-  color: rgba(37,28,9,0.75);
+  color: #8A9688;
   opacity: 0.95;
   letter-spacing: 0.02em;
   text-transform: none;

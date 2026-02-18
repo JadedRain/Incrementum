@@ -102,7 +102,7 @@ const IndividualCustomCollectionPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[hsl(40,13%,53%)] pb-8">
+    <div className="page-shell">
       <NavigationBar />
       {error && (
         <div className="w-full max-w-[1800px] mx-auto px-8 pt-4">
@@ -117,9 +117,9 @@ const IndividualCustomCollectionPage: React.FC = () => {
           </div>
         </div>
       )}
-      <div className="w-full max-w-[1800px] mx-auto px-8 flex gap-6 pt-24" style={{ height: 'calc(100vh - 200px)' }}>
-        <div className="w-80 flex-shrink-0 flex flex-col gap-4" style={{ height: '100%' }}>
-          <div className="bg-[hsl(40,63%,63%)] shadow-[5px_5px_5px_#3F3A30] p-6 flex-shrink-0" style={{ borderRadius: '2px' }}>
+      <div className="collection-page-layout">
+        <div className="panel-left">
+          <div className="panel">
             <CollectionNameEditor
               collectionName={collectionName}
               description={collectionDesc}
@@ -134,7 +134,7 @@ const IndividualCustomCollectionPage: React.FC = () => {
             />
           </div>
 
-          <div className="bg-[hsl(40,63%,63%)] shadow-[5px_5px_5px_#3F3A30] p-4 flex-1 overflow-hidden flex flex-col" style={{ borderRadius: '2px' }}>
+          <div className="panel-search">
             <StockSearchPanel
               searchQuery={newToken}
               onSearchQueryChange={setNewToken}

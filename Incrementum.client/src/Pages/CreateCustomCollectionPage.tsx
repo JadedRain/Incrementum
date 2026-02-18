@@ -87,7 +87,7 @@ const CreateCustomCollectionPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[hsl(40,13%,53%)] pb-8">
+    <div className="page-shell">
       <NavigationBar />
       {error && (
         <div className="w-full max-w-[1800px] mx-auto px-8 pt-4">
@@ -102,7 +102,7 @@ const CreateCustomCollectionPage = () => {
           </div>
         </div>
       )}
-      <div className="w-full max-w-[1800px] mx-auto px-8 flex gap-6 pt-24" style={{ height: 'calc(100vh - 200px)' }}>
+      <div className="page-layout-full">
         <CreateCollectionLeftPanel
           collectionName={collectionName}
           collectionDesc={collectionDesc}

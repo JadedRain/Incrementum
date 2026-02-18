@@ -16,8 +16,6 @@ function clamp(n: number, lo = 0, hi = 100) {
 const FearGreedGauge: React.FC = () => {
     const { value, loading, error } = useFearGreed();
 
-    const accentColor = '#222';
-
     const size = 220;
     const stroke = 16;
     const radius = (size - stroke) / 2;
@@ -34,10 +32,10 @@ const FearGreedGauge: React.FC = () => {
     const label = value !== null ? valueToLabel(value) : '';
 
     return (
-        <div style={{ width: size, textAlign: 'center', fontFamily: 'Arial, sans-serif' }}>
-            <h3 style={{ color: accentColor, marginBottom: 8 }}>Fear Greed Index</h3>
+    <div className="fear-greed-gauge">
+            <h3 className="fear-greed-title">Fear Greed Index</h3>
             {loading && <div>Loading gauge…</div>}
-            {error && <div style={{ color: 'red' }}>{error}</div>}
+            {error && <div className="filter-warning">{error}</div>}
             {!loading && value === null && !error && <div>No data available</div>}
 
             {!loading && value !== null && (
@@ -82,9 +80,9 @@ const FearGreedGauge: React.FC = () => {
                 </svg>
             )}
 
-            <div style={{ marginTop: 8 }}>
-                <div style={{ fontSize: 28, fontWeight: 700, color: accentColor }}>{value !== null ? value : '—'}</div>
-                <div style={{ color: accentColor }}>{label}</div>
+            <div className="fear-greed-footer">
+                <div className="fear-greed-value">{value !== null ? value : '—'}</div>
+                <div className="fear-greed-label">{label}</div>
             </div>
         </div>
     );

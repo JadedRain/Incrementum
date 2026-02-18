@@ -20,19 +20,21 @@
     position: absolute;
     right: 0;
     top: 2rem;
-    background: #e6c884;
+    background: var(--bg-surface);
     border-radius: 10px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.18);
     padding: 12px;
     min-width: 240px;
     z-index: 50;
     white-space: nowrap;
+    max-height: 400px;
+    overflow-y: auto;
   }
   .kebab-title {
     font-weight: 800;
     margin-bottom: 10px;
     font-size: 15px;
-    color: #3f2a10;
+    color: var(--text-secondary);
   }
   .column-label {
     display: flex;
@@ -42,7 +44,7 @@
   }
   .column-checkbox {
     transform: scale(1.2);
-    accent-color: #6b4c1b;
+    accent-color: var(--accent);
   }
   .header-draggable {
     cursor: grab;
@@ -54,7 +56,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    box-shadow: 5px 5px 5px #3F3A30;
+    box-shadow: 5px 5px 5px rgba(0,0,0,0.5);
   }
   .stocktable-header-row-relative {
     position: relative;

@@ -46,8 +46,8 @@ const CreateCollectionLeftPanel: React.FC<Props> = ({
   saving,
 }) => {
   return (
-    <div className="w-80 flex-shrink-0 flex flex-col gap-4" style={{ height: '100%' }}>
-      <div className="bg-[hsl(40,63%,63%)] shadow-[5px_5px_5px_#3F3A30] p-6 flex-shrink-0" style={{ borderRadius: '2px' }}>
+    <div className="panel-left">
+      <div className="panel">
         <CollectionNameEditor
           collectionName={collectionName}
           description={collectionDesc}
@@ -62,7 +62,7 @@ const CreateCollectionLeftPanel: React.FC<Props> = ({
         />
       </div>
 
-      <div className="bg-[hsl(40,63%,63%)] shadow-[5px_5px_5px_#3F3A30] p-4 flex-1 overflow-hidden flex flex-col" style={{ borderRadius: '2px' }}>
+      <div className="panel-search">
         <StockSearchPanel
           searchQuery={newToken}
           onSearchQueryChange={setNewToken}

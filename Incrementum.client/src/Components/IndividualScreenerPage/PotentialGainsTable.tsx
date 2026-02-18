@@ -209,7 +209,7 @@ const StockTable: React.FC<StockTableProps> = ({ filteredSymbols = [] }) => {
                                   onChange={e => handleInputChange(symbol, "purchase_date", e.target.value)}
                                 />
                                 <button
-                                  className="bg-blue-500 text-white px-2 py-1 rounded"
+                                  className="bg-[var(--accent)] text-[var(--bg-base)] px-2 py-1 rounded hover:bg-[var(--accent-hover)]"
                                   onClick={e => { e.stopPropagation(); handleAddEntry(symbol); }}
                                   disabled={loading}
                                 >Add</button>

@@ -14,13 +14,12 @@ function SearchResults() {
   const [toast, setToast] = useState<string | null>(null);
 
   return (
-    <div style={{ padding: "20px", fontFamily: "serif" }}
-      className="bg-[hsl(40,13%,53%)] min-h-screen">
+    <div className="page-shell">
       <NavigationBar />
       <Toast message={toast} />
       <div className="SearchResults-main-content">
         {loading && (
-          <div className="w-full flex items-center justify-center" style={{ height: '120px' }}>
+          <div className="loading-placeholder">
             <Loading loading={true} loadingText="Loading stocks..." />
           </div>
         )}
@@ -28,8 +27,8 @@ function SearchResults() {
 
         {!loading && results.length >= 1 && (
           <>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px' }}>
-              <div style={{ flex: 1 }} />
+            <div className="search-results-row">
+              <div className="search-results-spacer" />
             </div>
             <ul>
               {results.map((stock: { symbol: string; name: string }) => (

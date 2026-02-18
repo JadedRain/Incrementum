@@ -63,23 +63,21 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
 
   return (
     <ExpandableSidebarItem title="Market Cap">
-      <div style={{ marginBottom: '0.5rem' }}>
-        <div style={{ fontWeight: 600 }}>Market Cap</div>
-        
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+      <div className="filter-block">
+        <div className="filter-block-label">Market Cap</div>
+
+        <div className="filter-row">
           <input
             type="number"
             placeholder="Min"
             value={min_market_cap_temp ?? ''}
             onChange={e => setMinMarketCapTemp(e.target.value ? Number(e.target.value) : null)}
-            className="sidebar-input"
-            style={{ flex: 3, padding: '0.4rem', minWidth: 0 }}
+            className="sidebar-input filter-input-main"
           />
           <select
             value={scaleLabelMin}
             onChange={e => setScaleLabelMin(Number(e.target.value))}
-            className="sidebar-input"
-            style={{ flex: 1, padding: '0.4rem', minWidth: 0 }}
+            className="sidebar-input filter-input-scale"
           >
             <option value={1}></option>
             <option value={1000}>k</option>
@@ -89,20 +87,18 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
           </select>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div className="filter-row">
           <input
             type="number"
             placeholder="Max"
             value={max_market_cap_temp ?? ''}
             onChange={e => setMaxMarketCapTemp(e.target.value ? Number(e.target.value) : null)}
-            className="sidebar-input"
-            style={{ flex: 3, padding: '0.4rem', minWidth: 0 }}
+            className="sidebar-input filter-input-main"
           />
           <select
             value={scaleLabelMax}
             onChange={e => setScaleLabelMax(Number(e.target.value))}
-            className="sidebar-input"
-            style={{ flex: 1, padding: '0.4rem', minWidth: 0 }}
+            className="sidebar-input filter-input-scale"
           >
             <option value={1}></option>
             <option value={1000}>k</option>
@@ -113,13 +109,10 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
         </div>
       </div>
       {showWarning && (
-        <div style={{ color: 'red', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+        <div className="filter-warning">
           Warning: Min cannot be greater than Max.
         </div>
       )}
-      <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#2b2b2b' }}>
-        (Min filter uses &gt;=, Max filter uses &lt;=. Empty inputs remove the filter.)
-      </div>
     </ExpandableSidebarItem>
   );
 };

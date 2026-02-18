@@ -1,10 +1,23 @@
 @import "tailwindcss";
 
+.settings-page {
+  min-height: 100vh;
+  background-color: var(--bg-base);
+  padding-top: 40px;
+}
+
+.settings-layout {
+  padding: 0 2rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
 .SettingsPage-left-sidebar {
-  width: 325px;
+  width: var(--sidebar-width);
   height: calc(100vh - var(--header-height) - 80px);
-  background-color: hsl(40,63%,63%);
-  border-radius: 0.125rem;
+  background-color: var(--bg-sunken);
+  border-radius: var(--border-radius-sm);
   box-shadow: none;
   padding: 1.5rem;
   position: sticky;
@@ -16,8 +29,8 @@
 .Settings-main-content {
   flex: 1 1 auto;
   min-height: calc(100vh - var(--header-height) - 80px);
-  background-color: hsl(40,63%,63%);
-  border-radius: 0.125rem;
+  background-color: var(--bg-surface);
+  border-radius: var(--border-radius-sm);
   padding: 1.5rem;
   box-shadow: none;
   display: flex;

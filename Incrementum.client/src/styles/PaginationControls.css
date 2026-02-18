@@ -14,15 +14,15 @@
   @apply m-2;
   @apply px-4;
   @apply py-2;
-  @apply bg-[#E8CB92];
-  @apply text-[#533E13];
+  @apply bg-[var(--accent)];
+  @apply text-[var(--bg-base)];
   @apply rounded;
   @apply disabled:opacity-50;
   font-family: 'Newsreader', serif;
 }
 
 .pagination-button:hover {
-  background: hsl(38 70% 86%);
+  background: var(--accent-hover);
   cursor: pointer;
 }
 
@@ -32,5 +32,11 @@
 }
 
 .pagination-button:disabled:hover {
-  background: #E8CB92;
+  background: var(--accent);
+}
+
+.pagination-info {
+  margin-left: 8px;
+  color: var(--text-primary);
+  font-family: var(--font-serif);
 }

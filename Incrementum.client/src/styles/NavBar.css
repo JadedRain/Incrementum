@@ -7,7 +7,7 @@
   left: 0;
   right: 0;
   width: 100%;
-  background: hsl(41, 61%, 9%);
+  background: var(--bg-surface);
   display: flex;
   align-items: center;
   padding: 1rem 2rem;
@@ -51,7 +51,7 @@
 }
 
 .navbar-logo {
-  color: hsl(40, 66%, 60%);
+  color: var(--text-secondary);
   font-size: 1.8rem;
   font-weight: bold;
   text-decoration: none;
@@ -60,7 +60,7 @@
 }
 
 .navbar-logo:hover {
-  color: hsl(40, 66%, 70%);
+  color: var(--accent-hover);
 }
 
 @media (max-width: 768px) {
@@ -120,7 +120,7 @@
 
 .nav-button-active {
   text-decoration: underline !important;
-  text-decoration-color: hsl(40, 66%, 70%) !important;
+  text-decoration-color: var(--accent-hover) !important;
   text-underline-offset: 4px !important;
 }
 
@@ -128,7 +128,7 @@
   @apply absolute;
   @apply top-4;
   @apply right-4;
-  @apply text-white;
+  @apply text-[var(--accent-hover)];
   @apply px-4;
   @apply py-2;
   @apply rounded;
@@ -137,7 +137,7 @@
 }
 
 .nav-button {
-  @apply text-[#DCAF56];
+  @apply text-[var(--text-secondary)];
   @apply rounded-lg;
   @apply w-[100px];
   @apply h-[40px];
@@ -145,7 +145,7 @@
   @apply px-4;
   padding-bottom: 4px;
   padding-bottom: 4px;
-  @apply hover:bg-[#6C5019];
+  @apply hover:bg-[var(--bg-sunken)];
   @apply duration-200;
   display: flex;
   align-items: flex-end;
@@ -175,13 +175,13 @@
 }
 
 .back-button {
-  @apply text-[#DCAF56];
+  @apply text-[var(--bg-base)];
   @apply rounded-lg;
   @apply w-[100px];
   @apply h-[40px];
   @apply px-4;
   padding-bottom: 4px;
-  background: #AF8228;
+  background: var(--accent);
   @apply duration-200;
   display: flex;
   align-items: flex-end;
@@ -191,7 +191,8 @@
 }
 
 .back-button:hover {
-  background: hsl(40, 62%, 26%) !important;
+  background: var(--bg-sunken) !important;
+  color: var(--accent-hover) !important;
 }
 
 .nav-button.nav-button-logout:hover {

@@ -54,8 +54,8 @@ const CollectionNameEditor: React.FC<CollectionNameEditorProps> = ({
 
   return (
     <>
-      <h2 className="text-2xl font-bold text-[hsl(40,62%,20%)] mb-2">{collectionName || 'Name'}</h2>
-      <p className="text-sm text-[hsl(40,62%,30%)] mb-4">{description || pendingDescription || 'Description'}</p>
+      <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2">{collectionName || 'Name'}</h2>
+      <p className="text-sm text-[var(--text-primary)] mb-4">{description || pendingDescription || 'Description'}</p>
       <button className="keyword-tag" onClick={onEdit}>
         Edit
       </button>

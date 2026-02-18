@@ -15,18 +15,17 @@ export default function Stock({ token: propToken }: { token?: string; }) {
   const { results, loading } = useFetchStockData(token);
   const [toast] = useState<string | null>(null);
 
-  if (loading) return <div className="bg-[hsl(40,13%,53%)] min-h-screen flex items-center justify-center" style={{ fontFamily: "serif" }}><Loading loading={true} /></div>;
-  if (!results) return <div className="bg-[hsl(40,13%,53%)] min-h-screen flex items-center justify-center" style={{ fontFamily: "serif" }}><p className="text-[hsl(40,66%,60%)]">No stock data found.</p></div>;
+  if (loading) return <div className="stock-page-loading"><Loading loading={true} /></div>;
+  if (!results) return <div className="stock-page-loading"><p>No stock data found.</p></div>;
 
   return (
     <FilterDataProvider>
-      <div className="bg-[hsl(40,13%,53%)] min-h-screen" style={{ fontFamily: "serif" }}>
+      <div className="stock-page-wrapper">
         <NavigationBar />
-        <div className="main-content" style={{ padding: "20px" }}>
+        <div className="stock-page-content">
           <Toast message={toast} />
 
-          {/* Back button in a full-width header row above the two-column content */}
-          <div style={{ width: '100%', marginBottom: '12px' }}>
+          <div className="stock-page-header">
             <button
               onClick={() => window.history.back()}
               className="back-button"
@@ -35,15 +34,11 @@ export default function Stock({ token: propToken }: { token?: string; }) {
             </button>
           </div>
 
-          {/* Two-column layout: sidebar (fixed width) + graph (fluid). Align tops and give both the same height */}
-          <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-            <div style={{ flexShrink: 0 }}>
-              <StockInfoSidebar
-                results={results}
-              />
+          <div className="stock-page-body">
+            <div className="stock-page-sidebar">
+              <StockInfoSidebar results={results} />
             </div>
-
-            <div style={{ flex: 1, height: '800px' }}>
+            <div className="stock-page-graph">
               <InteractiveGraph height="800px" />
             </div>
           </div>

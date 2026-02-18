@@ -21,7 +21,7 @@ const StockInfoList: React.FC = () => {
                 {stocks.map((item, idx) => {
                     const name = item.displayName || item.longName || item.shortName || 'Unnamed Stock';
                     return (
-                        <li className="stock-card" key={idx} style={{ marginBottom: '1rem' }}>
+                        <li className="stock-card" key={idx}>
                             <span className='p-1 newsreader-font'>{name} </span>
                         </li>
                     );

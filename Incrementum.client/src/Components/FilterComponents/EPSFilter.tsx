@@ -43,43 +43,30 @@ const EPSFilter: React.FC = () => {
 
   return (
     <ExpandableSidebarItem title="EPS">
-      <div style={{ marginBottom: '0.5rem' }}>
-        <div style={{ fontWeight: 600 }}>Earnings Per Share (EPS)</div>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "0.5rem",
-            width: "100%",
-            boxSizing: "border-box",
-          }}>
+      <div className="filter-block">
+        <div className="filter-block-label">Earnings Per Share (EPS)</div>
+        <div className="filter-row">
           <input
             type="number"
             placeholder="Min"
             value={min_eps ?? ''}
             onChange={e => setMinEPS(e.target.value ? Number(e.target.value) : null)}
-            className="sidebar-input"
-            style={{ flex: 1, padding: '0.4rem', minWidth: 0 }}
+            className="sidebar-input filter-input-main"
           />
           <input
             type="number"
             placeholder="Max"
             value={max_eps ?? ''}
             onChange={e => setMaxEPS(e.target.value ? Number(e.target.value) : null)}
-            className="sidebar-input"
-            style={{ flex: 1, padding: '0.4rem', minWidth: 0 }}
+            className="sidebar-input filter-input-main"
           />
         </div>
       </div>
       {showWarning && (
-        <div style={{ color: 'red', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+        <div className="filter-warning">
           Warning: Min cannot be greater than Max.
         </div>
       )}
-      <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#2b2b2b' }}>
-        (Min filter uses &gt;=, Max filter uses &lt;=. Empty inputs remove the filter.)
-      </div>
     </ExpandableSidebarItem>
   );
 };

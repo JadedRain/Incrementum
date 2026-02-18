@@ -143,7 +143,7 @@ function IndividualScreenPageContent() {
         onSave={handleSaveCollection}
       />
       {saveError && showSavePopup && (
-        <div style={{ color: 'red', textAlign: 'center', marginBottom: 8 }}>{saveError}</div>
+        <div className="error-banner">{saveError}</div>
       )}
 
       <div className="screener-container">
@@ -169,6 +169,11 @@ function IndividualScreenPageContent() {
                     navigate(`/stock/${symbol}`)
                   }
                 />
+                <div className="pagination-controls">
+                  <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>&lt; Prev</button>
+                  <span className="pagination-page-label">Page {currentPage} of {totalPages}</span>
+                  <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>&gt; Next</button>
+                </div>
               </>
             }
             {potentialGainsToggled && (

@@ -47,17 +47,17 @@ function ScreenerPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[hsl(40,13%,53%)]">
+        <div className="page-shell">
             <NavigationBar />
             <div className="main-content">
                 <Link to="/account" className="navbar-link">Account</Link>
                 <div className="ScreenerPage-container pt-4">
-                    <div className="screener-layout" style={{ display: 'flex', gap: 48, alignItems: 'flex-start' }}>
-                        <div style={{ flex: 1 }}>
+                    <div className="screener-layout">
+                        <div className="screener-layout-main">
                             <div className="ScreenerPage-card-grid">
 
                                 {loading && (
-                                    <div className="w-full flex items-center justify-center" style={{ height: '120px' }}>
+                                <div className="loading-placeholder">
                                         <Loading loading={true} loadingText="Loading screeners..." />
                                     </div>
                                 )}
@@ -114,11 +114,11 @@ function ScreenerPage() {
                                 )}
                             </div>
                         </div>
-                                        <aside style={{ width: 300, display: 'flex', justifyContent: 'center' }}>
-                                            <div className="FearGreedBox">
-                                                <FearGreedGauge />
-                                            </div>
-                                        </aside>
+                        <aside className="screener-layout-aside">
+                            <div className="FearGreedBox">
+                                <FearGreedGauge />
+                            </div>
+                        </aside>
                     </div>
                 </div>
                                 {/* Screener main rendered below so users can see stocks on one page */}

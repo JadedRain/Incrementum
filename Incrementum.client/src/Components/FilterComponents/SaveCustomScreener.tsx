@@ -68,7 +68,7 @@ const SaveCustomScreener: React.FC<SaveCustomScreenerProps> = ({
 
   return (
     <ExpandableSidebarItem title="Save Custom Screener">
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <div className="save-screener-form">
         <div>
           <input
             type="text"
@@ -76,62 +76,28 @@ const SaveCustomScreener: React.FC<SaveCustomScreenerProps> = ({
             onChange={(e) => setScreenerNameInput(e.target.value)}
             placeholder="Enter screener name"
             className="sidebar-input"
-            style={{
-              width: '100%',
-              padding: '0.5rem',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              fontSize: '0.875rem'
-            }}
+            className="sidebar-input filter-input-full"
             disabled={saving}
           />
         </div>
 
         {error && (
-          <div style={{
-            padding: '0.5rem',
-            backgroundColor: '#fee',
-            border: '1px solid #fcc',
-            color: '#c33',
-            borderRadius: '4px',
-            fontSize: '0.875rem'
-          }}>
-            {error}
-          </div>
+          <div className="save-screener-error">{error}</div>
         )}
 
         {success && (
-          <div style={{
-            padding: '0.5rem',
-            backgroundColor: '#efe',
-            border: '1px solid #cfc',
-            color: '#363',
-            borderRadius: '4px',
-            fontSize: '0.875rem'
-          }}>
-            {success}
-          </div>
+          <div className="save-screener-success">{success}</div>
         )}
 
         <button
           onClick={saveCustomScreener}
           disabled={saving || !screenerNameInput.trim()}
-          style={{
-            padding: '0.6rem 1rem',
-            backgroundColor: saving || !screenerNameInput.trim() ? '#ccc' : '#0066cc',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            fontSize: '0.875rem',
-            fontWeight: 600,
-            cursor: saving || !screenerNameInput.trim() ? 'not-allowed' : 'pointer',
-            transition: 'background-color 0.2s'
-          }}
+          className="save-screener-btn"
         >
           {saving ? 'Saving...' : 'Save Screener'}
         </button>
 
-        <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.25rem' }}>
+        <div className="save-screener-hint">
           Save the current filters as a custom screener. Filters will be added in future updates.
         </div>
       </div>

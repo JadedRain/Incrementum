@@ -279,7 +279,7 @@ function ScreenerTestPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[hsl(40,13%,53%)]">
+        <div className="min-h-screen bg-[var(--bg-base)]">
             <NavigationBar />
             <div className="main-content">
                 <div className="max-w-2xl mx-auto p-8">
@@ -371,7 +371,7 @@ function ScreenerTestPage() {
                                         <div
                                             key={index}
                                             onClick={() => selectIndustry(industry)}
-                                            className="px-3 py-2 hover:bg-blue-100 cursor-pointer"
+                                            className="px-3 py-2 hover:bg-[var(--bg-sunken)] cursor-pointer"
                                         >
                                             {industry}
                                         </div>
@@ -442,7 +442,7 @@ function ScreenerTestPage() {
                                                 <button
                                                     onClick={() => addToSelected(stock)}
                                                     disabled={!!already}
-                                                    className={`ml-4 px-2 py-1 rounded ${already ? 'bg-gray-300 text-gray-600' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                                                    className={`ml-4 px-2 py-1 rounded ${already ? 'bg-gray-300 text-gray-600' : 'bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)]'}`}
                                                 >
                                                     {already ? 'Added' : 'Add'}
                                                 </button>

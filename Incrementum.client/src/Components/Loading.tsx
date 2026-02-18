@@ -5,7 +5,7 @@ type LoadingProps = {
 
 export default function Loading({ loading }: LoadingProps) {
   return (
-    <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <div className="loading-wrapper">
       {loading && (
         <span className="loader"></span>
       )}

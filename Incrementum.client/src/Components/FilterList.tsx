@@ -5,14 +5,14 @@ const FilterList: React.FC = () => {
   const { filterDataDict } = useFilterData();
 
   return (
-    <div style={{ marginTop: "2rem" }}>
+    <div className="filter-list">
       <h2>Current Filters</h2>
       {Object.keys(filterDataDict).length === 0 ? (
         <p>No filters added.</p>
       ) : (
         <ul>
           {Object.entries(filterDataDict).map(([key, f]) => (
-            <li key={key} style={{ marginBottom: "0.5rem" }}>
+            <li key={key} className="filter-list-item">
               <strong>{key}</strong>: {f.operand} {f.operee} ({f.type}) [High:{" "}
               {f.value_high ?? "-"}, Low: {f.value_low ?? "-"}, Value:{" "}
               {f.value ?? "-"}]

@@ -21,7 +21,6 @@ export const CollectionCard = ({ collection, onRemove }: CollectionCardProps) =>
     >
       <button
         className="xbutton"
-        style={{ pointerEvents: 'auto' }}
         onClick={e => { e.stopPropagation(); onRemove(collection.id); }}
         tabIndex={-1}
         aria-label="Remove collection"

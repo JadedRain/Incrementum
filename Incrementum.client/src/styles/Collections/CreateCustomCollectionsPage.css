@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 .buttons {
-    @apply bg-[hsl(40,62%,26%)];
-    @apply text-[hsl(40,65%,74%)];
+    @apply bg-[var(--accent)];
+    @apply text-[var(--bg-base)];
     @apply px-3;
     @apply py-1;
     @apply rounded-sm;
@@ -20,8 +20,8 @@
 }
 
 .buttons.primary {
-    @apply bg-[hsl(40,62%,26%)];
-    @apply text-[hsl(40,65%,74%)];
+    @apply bg-[var(--accent)];
+    @apply text-[var(--bg-base)];
 }
 
 .buttons:focus,
@@ -40,11 +40,13 @@
 .buttons:hover {
     transform: translateY(-4px);
     box-shadow: 0 10px 30px rgba(0,0,0,0.28);
+    background: var(--accent-hover);
 }
 
 .buttons.primary:hover {
     transform: translateY(-4px);
     box-shadow: 0 10px 30px rgba(0,0,0,0.28);
+    background: var(--accent-hover);
 }
 
 .keyword-tag {
@@ -54,8 +56,8 @@
   @apply px-3;
   @apply py-1.5;
   @apply rounded;
-  @apply bg-[#E8CB92];
-  color: hsl(40, 62%, 18%);
+  @apply bg-[var(--bg-surface)];
+  color: var(--text-primary);
   @apply text-sm;
   @apply font-medium;
   @apply transition-all;
