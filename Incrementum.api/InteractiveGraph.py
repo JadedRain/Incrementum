@@ -7,7 +7,7 @@ import logging
 from urllib.parse import parse_qs
 import json
 from tokens import (
-    BG_SURFACE, TEXT_PRIMARY, TEXT_SECONDARY, 
+    BG_SURFACE, TEXT_PRIMARY, TEXT_SECONDARY,
     ACCENT, STATUS_ERROR
 )
 
@@ -40,12 +40,21 @@ app.layout = html.Div([
                         html.H1(
                             id="ticker-title",
                             children="TICKER",
-                            style={"fontSize": "36px", "fontWeight": "700", "margin": 0, "color": TEXT_SECONDARY}
+                            style={
+                                "fontSize": "36px",
+                                "fontWeight": "700",
+                                "margin": 0,
+                                "color": TEXT_SECONDARY
+                            }
                         ),
                         html.Div(
                             id="price-display",
                             children="",
-                            style={"fontSize": "24px", "marginTop": "6px", "color": TEXT_PRIMARY}
+                            style={
+                                "fontSize": "24px",
+                                "marginTop": "6px",
+                                "color": TEXT_PRIMARY
+                            }
                         ),
                     ],
                     style={"textAlign": "left", "padding": "6px 10px", "marginRight": "auto"},
