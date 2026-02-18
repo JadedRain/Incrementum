@@ -6,6 +6,10 @@ import requests
 import logging
 from urllib.parse import parse_qs
 import json
+from tokens import (
+    BG_SURFACE, TEXT_PRIMARY, TEXT_SECONDARY, 
+    ACCENT, STATUS_ERROR
+)
 
 API_BASE = 'http://api:8000'
 logger = logging.getLogger("dash")
@@ -36,12 +40,12 @@ app.layout = html.Div([
                         html.H1(
                             id="ticker-title",
                             children="TICKER",
-                            style={"fontSize": "36px", "fontWeight": "700", "margin": 0}
+                            style={"fontSize": "36px", "fontWeight": "700", "margin": 0, "color": TEXT_SECONDARY}
                         ),
                         html.Div(
                             id="price-display",
                             children="",
-                            style={"fontSize": "24px", "marginTop": "6px"}
+                            style={"fontSize": "24px", "marginTop": "6px", "color": TEXT_PRIMARY}
                         ),
                     ],
                     style={"textAlign": "left", "padding": "6px 10px", "marginRight": "auto"},
@@ -62,16 +66,16 @@ app.layout = html.Div([
                             style={
                                 "padding": "2px 6px",
                                 "fontSize": "11px",
-                                "color": "#251C09",
+                                "color": TEXT_PRIMARY,
                                 "border": "none",
                                 "minWidth": "28px",
                                 "lineHeight": "1",
                                 "textAlign": "center"
                             },
                             selected_style={
-                                "color": "#16A34A",
+                                "color": ACCENT,
                                 "border": "none",
-                                "borderBottom": "2px solid #16A34A",
+                                "borderBottom": f"2px solid {ACCENT}",
                                 "fontWeight": "600"
                             }),
                         dcc.Tab(
@@ -80,15 +84,15 @@ app.layout = html.Div([
                             style={
                                 "padding": "4px 8px",
                                 "fontSize": "12px",
-                                "color": "#251C09",
+                                "color": TEXT_PRIMARY,
                                 "border": "none",
                                 "minWidth": "34px",
                                 "textAlign": "center"
                             },
                             selected_style={
-                                "color": "#16A34A",
+                                "color": ACCENT,
                                 "border": "none",
-                                "borderBottom": "3px solid #16A34A",
+                                "borderBottom": f"3px solid {ACCENT}",
                                 "fontWeight": "600"
                             }),
                         dcc.Tab(
@@ -97,15 +101,15 @@ app.layout = html.Div([
                             style={
                                 "padding": "4px 8px",
                                 "fontSize": "12px",
-                                "color": "#251C09",
+                                "color": TEXT_PRIMARY,
                                 "border": "none",
                                 "minWidth": "34px",
                                 "textAlign": "center"
                             },
                             selected_style={
-                                "color": "#16A34A",
+                                "color": ACCENT,
                                 "border": "none",
-                                "borderBottom": "3px solid #16A34A",
+                                "borderBottom": f"3px solid {ACCENT}",
                                 "fontWeight": "600"
                             }),
                         dcc.Tab(
@@ -114,15 +118,15 @@ app.layout = html.Div([
                             style={
                                 "padding": "4px 8px",
                                 "fontSize": "12px",
-                                "color": "#251C09",
+                                "color": TEXT_PRIMARY,
                                 "border": "none",
                                 "minWidth": "34px",
                                 "textAlign": "center"
                             },
                             selected_style={
-                                "color": "#16A34A",
+                                "color": ACCENT,
                                 "border": "none",
-                                "borderBottom": "3px solid #16A34A",
+                                "borderBottom": f"3px solid {ACCENT}",
                                 "fontWeight": "600"
                             }),
                         dcc.Tab(
@@ -131,15 +135,15 @@ app.layout = html.Div([
                             style={
                                 "padding": "4px 8px",
                                 "fontSize": "12px",
-                                "color": "#251C09",
+                                "color": TEXT_PRIMARY,
                                 "border": "none",
                                 "minWidth": "34px",
                                 "textAlign": "center"
                             },
                             selected_style={
-                                "color": "#16A34A",
+                                "color": ACCENT,
                                 "border": "none",
-                                "borderBottom": "3px solid #16A34A",
+                                "borderBottom": f"3px solid {ACCENT}",
                                 "fontWeight": "600"
                             }),
                         dcc.Tab(
@@ -148,15 +152,15 @@ app.layout = html.Div([
                             style={
                                 "padding": "4px 8px",
                                 "fontSize": "12px",
-                                "color": "#251C09",
+                                "color": TEXT_PRIMARY,
                                 "border": "none",
                                 "minWidth": "34px",
                                 "textAlign": "center"
                             },
                             selected_style={
-                                "color": "#16A34A",
+                                "color": ACCENT,
                                 "border": "none",
-                                "borderBottom": "3px solid #16A34A",
+                                "borderBottom": f"3px solid {ACCENT}",
                                 "fontWeight": "600"
                             })
                     ],
@@ -175,8 +179,8 @@ app.layout = html.Div([
         dcc.Graph(id="graph-content", config={"displayModeBar": False}, style={"width": "100%"}),
     ], style={"marginLeft": "250px", "width": "calc(100% - 250px)"}),
 ], style={
-    "backgroundColor": "#DCB465",
-    "color": "#251C09",
+    "backgroundColor": BG_SURFACE,
+    "color": TEXT_SECONDARY,
     "minHeight": "100vh",
     "paddingTop": "12px"
 })
@@ -283,8 +287,8 @@ def update_graph(ticker, period, interval, graph_type):
                 high=df["high"],
                 low=df["low"],
                 close=df["close"],
-                increasing_line_color="#16A34A",  # green
-                decreasing_line_color="#B91C1C",  # red
+                increasing_line_color=ACCENT,  # green
+                decreasing_line_color=STATUS_ERROR,  # red
             )])
             fig.update_layout(
                 title=f"Candlestick Chart: {ticker}",
@@ -296,7 +300,7 @@ def update_graph(ticker, period, interval, graph_type):
                     zeroline=False,
                     showline=True,
                     title="Date",
-                    tickfont={"color": "#251C09"},
+                    tickfont={"color": TEXT_SECONDARY},
                 ),
                 yaxis=dict(
                     showticklabels=True,
@@ -304,11 +308,11 @@ def update_graph(ticker, period, interval, graph_type):
                     zeroline=False,
                     showline=True,
                     title="Price $",
-                    tickfont={"color": "#251C09"},
+                    tickfont={"color": TEXT_SECONDARY},
                 ),
-                paper_bgcolor="#DCB465",
-                plot_bgcolor="#DCB465",
-                font_color="#251C09",
+                paper_bgcolor=BG_SURFACE,
+                plot_bgcolor=BG_SURFACE,
+                font_color=TEXT_SECONDARY,
             )
             return fig
         else:
@@ -316,7 +320,7 @@ def update_graph(ticker, period, interval, graph_type):
                 df,
                 x="date",
                 y="close",
-                color_discrete_sequence=["#251C09"],
+                color_discrete_sequence=[TEXT_PRIMARY],
                 labels={"date": "Date", "close": "Price"},
             )
             fig.update_layout(
@@ -326,7 +330,7 @@ def update_graph(ticker, period, interval, graph_type):
                     zeroline=False,
                     showline=True,
                     title="Date",
-                    tickfont={"color": "#251C09"},
+                    tickfont={"color": TEXT_SECONDARY},
                 ),
                 yaxis=dict(
                     showticklabels=True,
@@ -334,11 +338,11 @@ def update_graph(ticker, period, interval, graph_type):
                     zeroline=False,
                     showline=True,
                     title="Price $",
-                    tickfont={"color": "#251C09"},
+                    tickfont={"color": TEXT_SECONDARY},
                 ),
-                paper_bgcolor="#DCB465",
-                plot_bgcolor="#DCB465",
-                font_color="#251C09",
+                paper_bgcolor=BG_SURFACE,
+                plot_bgcolor=BG_SURFACE,
+                font_color=TEXT_SECONDARY,
             )
             if fig.data:
                 fig.data[0].update(hovertemplate="$%{y:.2f}<extra></extra>")
