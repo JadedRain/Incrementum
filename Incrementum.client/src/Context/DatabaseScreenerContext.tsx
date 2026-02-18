@@ -67,11 +67,6 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
   useEffect(() => {
     const fetchStocks = async () => {
       const filterList = Object.values(filterDict);
-      if (filterList.length === 0) {
-        setStocks([]);
-        setPagination(null);
-        return;
-      }
       setIsLoading(true);
       setError(null);
       try {
