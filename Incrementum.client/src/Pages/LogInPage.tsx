@@ -32,7 +32,7 @@ const LogInPage: React.FC = () => {
           <div className="signin-wrapper">
             <div className="signin-form">
               <h2 className="signin-title">✓ Logged In</h2>
-              <p style={{ color: '#4CAF50', margin: '1rem 0' }}>{userEmail}</p>
+              <p className="signin-success-email">{userEmail}</p>
               <button className="signin-button" onClick={() => navigate("/screener")}>
                 Go to Screener
               </button>

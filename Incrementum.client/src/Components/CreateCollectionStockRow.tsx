@@ -32,7 +32,7 @@ export default function CreateCollectionStockRow({ stock, onClick, onRemove, isP
           onClick={handleRemoveClick}
           className='watch-btn'
           disabled={isPending}
-          style={{ opacity: isPending ? 0.5 : 1 }}
+          className={isPending ? 'watch-btn--pending' : undefined}
         >
           −
         </button>

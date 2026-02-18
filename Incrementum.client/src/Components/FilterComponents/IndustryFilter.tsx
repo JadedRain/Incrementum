@@ -95,7 +95,7 @@ const IndustryFilter: React.FC = () => {
               <div
                 key={index}
                 onClick={() => selectIndustry(industry)}
-                className="px-3 py-2 hover:bg-blue-100 cursor-pointer"
+                className="px-3 py-2 hover:bg-[var(--bg-sunken)] cursor-pointer"
               >
                 {industry}
               </div>
@@ -103,9 +103,9 @@ const IndustryFilter: React.FC = () => {
           </div>
         )}
         {loading && <Loading loading={true} />}
-        {error && <div style={{ color: 'red' }}>{error}</div>}
+        {error && <div className="filter-warning">{error}</div>}
         {activeIndustryFilters.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem' }}>
+          <div className="filter-chips">
             {activeIndustryFilters.map(industry => (
               <FilterChip
                 key={industry}

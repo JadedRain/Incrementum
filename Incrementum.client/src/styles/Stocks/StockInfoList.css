@@ -3,34 +3,34 @@
 .stock-card {
   @apply w-[900px];
   @apply min-h-[70px];
-  @apply bg-[#6B7469];
+  @apply bg-[var(--bg-surface)];
   @apply rounded-2xl;
   @apply shadow-lg;
-  @apply text-[#A8B5A1];
+  @apply text-[var(--text-primary)];
   @apply p-6;
   @apply flex;
   @apply items-center;
   @apply justify-between;
   @apply border;
-  @apply border-[#4F564B];
+  @apply border-[var(--bg-sunken)];
   @apply transition-all;
   @apply duration-200;
-  @apply hover:bg-[#8FDA7C];
-  @apply hover:text-[#C8D5C1];
+  @apply hover:bg-[var(--accent-hover)];
+  @apply hover:text-[var(--text-secondary)];
   @apply hover:shadow-xl;
   @apply font-medium;
 }
 
 .add-to-watchlist-button {
   @apply ml-4;
-  @apply bg-[#66BB6A];
-  @apply text-[#1F2220];
+  @apply bg-[var(--accent)];
+  @apply text-[var(--bg-base)];
   @apply rounded-lg;
   @apply px-4;
   @apply py-2;
   @apply font-medium;
-  @apply hover:bg-[#8FDA7C];
-  @apply hover:text-[#1F2220];
+  @apply hover:bg-[var(--accent-hover)];
+  @apply hover:text-[var(--bg-base)];
   @apply hover:shadow-md;
   @apply duration-200;
   @apply transition-all;

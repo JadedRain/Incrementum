@@ -1,0 +1,56 @@
+/**
+ * Design Tokens — single source of truth for the Incrementum color system.
+ * All colours, spacing, shadow, and typography values live here.
+ *
+ * Usage in CSS:   background-color: var(--bg-base);
+ * Usage in Tailwind arbitrary values is avoided in favour of CSS classes.
+ */
+
+:root {
+  /* ── Backgrounds ───────────────────────────────────── */
+  --bg-base:          #1A1C1A;   /* page / outermost background        */
+  --bg-surface:       #5E6960;   /* cards, panels, modals              */
+  --bg-sunken:        #454C45;   /* sidebar, secondary panels          */
+  --bg-row-alt:       #3E4A3D;   /* alternating table rows             */
+  --bg-overlay:       rgba(26, 28, 26, 0.85); /* modal backdrop        */
+
+  /* ── Text ──────────────────────────────────────────── */
+  --text-primary:     #B8D4A8;   /* standard body / label text         */
+  --text-secondary:   #D5E8CC;   /* headers, prominent labels          */
+  --text-muted:       #8FA88A;   /* de-emphasised / placeholder text   */
+  --text-on-accent:   #1A1C1A;   /* text placed on green buttons       */
+
+  /* ── Accent / Interactive ──────────────────────────── */
+  --accent:           #66BB6A;   /* primary buttons, active states     */
+  --accent-hover:     #8FDA7C;   /* button hover                       */
+  --accent-muted:     #4E4E4E;   /* dotted borders, secondary outlines */
+
+  /* ── Borders ───────────────────────────────────────── */
+  --border-divider:   #454C45;   /* section dividers                   */
+  --border-card:      #4E4E4E;   /* card dotted borders                */
+
+  /* ── Shadows ───────────────────────────────────────── */
+  --shadow-card:      4px 8px 6px rgba(0, 0, 0, 0.5);
+  --shadow-panel:     5px 5px 5px rgba(0, 0, 0, 0.3);
+  --shadow-nav:       0 2px 4px rgba(0, 0, 0, 0.5);
+  --shadow-hover:     0 4px 24px 0 rgba(102, 187, 106, 0.3);
+
+  /* ── Layout ────────────────────────────────────────── */
+  --header-height:    64px;
+  --sidebar-width:    325px;
+  --content-max-width: 1800px;
+  --card-width:       325px;
+  --card-height:      357px;
+  --border-radius-sm: 2px;
+  --border-radius-md: 4px;
+  --border-radius-lg: 8px;
+
+  /* ── Typography ────────────────────────────────────── */
+  --font-serif:       'Newsreader', serif;
+  --font-sans:        system-ui, sans-serif;
+
+  /* ── Status ────────────────────────────────────────── */
+  --status-error:     #ef4444;   /* error / destructive red            */
+  --status-error-hover: #dc2626;
+  --status-success:   #66BB6A;
+}

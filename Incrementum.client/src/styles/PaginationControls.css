@@ -4,15 +4,15 @@
 .pagination-button {
   @apply px-4;
   @apply py-2;
-  @apply bg-[#66BB6A];
-  @apply text-[#1F2220];
+  @apply bg-[var(--accent)];
+  @apply text-[var(--bg-base)];
   @apply rounded;
   @apply disabled:opacity-50;
   font-family: 'Newsreader', serif;
 }
 
 .pagination-button:hover {
-  background: #8FDA7C;
+  background: var(--accent-hover);
   cursor: pointer;
 }
 
@@ -22,5 +22,11 @@
 }
 
 .pagination-button:disabled:hover {
-  background: #66BB6A;
+  background: var(--accent);
+}
+
+.pagination-info {
+  margin-left: 8px;
+  color: var(--text-primary);
+  font-family: var(--font-serif);
 }

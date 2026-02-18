@@ -93,10 +93,10 @@ const CustomCollectionsPage: React.FC = () => {
     const cancelRemove = () => setShowConfirm({ id: null, visible: false });
 
     return (
-        <div className="min-h-screen bg-[hsl(40,13%,53%)]">
+        <div className="collections-page">
             <NavigationBar />
             <div className="ScreenerPage-container">
-                <h1 className="ScreenerPage-h1" style={{ position: 'absolute', top: '1.5rem', left: '50%', transform: 'translateX(-50%)', width: '100%', textAlign: 'center' }}>My Custom Collections</h1>
+                <h1 className="ScreenerPage-h1 collections-page-title">My Custom Collections</h1>
                 <div className="ScreenerPage-card-grid">
                     <CreateCollectionButton />
                     {displayCollections.length > 0 ? (
@@ -104,20 +104,19 @@ const CustomCollectionsPage: React.FC = () => {
                             <CollectionCard key={collection.id} collection={collection} onRemove={handleRemove} />
                         ))
                     ) : (
-                        <div style={{ padding: 24, color: '#222' }}>No collections to show.</div>
+                        <div className="no-collections-text">No collections to show.</div>
                     )}
                 </div>
             </div>
 
             {showConfirm.visible && (
-                <div className="fixed inset-0 flex items-center justify-center z-50">
-                    <div className="absolute inset-0"
-                        style={{ background: 'hsla(40, 62%, 26%, 0.53)' }} />
-                    <div className="relative bg-[hsl(42,15%,70%)] rounded-lg shadow-lg p-8 flex flex-col items-center z-10">
-                        <p className="mb-4 text-lg">Are you sure you want to remove this collection?</p>
-                        <div className="flex gap-4">
-                            <button className="px-4 py-2 bg-red-500 text-white rounded cursor-pointer" onClick={confirmRemove} disabled={removing}>{removing ? 'Removing...' : 'Yes, Remove'}</button>
-                            <button className="px-4 py-2 bg-gray-300 text-gray-800 rounded cursor-pointer" onClick={cancelRemove} disabled={removing}>Cancel</button>
+                <div className="modal-overlay">
+                    <div className="modal-backdrop" />
+                    <div className="modal-card">
+                        <p>Are you sure you want to remove this collection?</p>
+                        <div className="modal-actions">
+                            <button className="btn-danger" onClick={confirmRemove} disabled={removing}>{removing ? 'Removing...' : 'Yes, Remove'}</button>
+                            <button className="btn-cancel" onClick={cancelRemove} disabled={removing}>Cancel</button>
                         </div>
                     </div>
                 </div>

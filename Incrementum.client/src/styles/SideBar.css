@@ -20,8 +20,8 @@
   @apply z-10; 
   @apply hidden;
   @apply group-hover:block;
-  @apply bg-[#4F564B];
-  @apply text-[#8FDA7C];
+  @apply bg-[var(--bg-sunken)];
+  @apply text-[var(--accent-hover)];
   @apply rounded; 
   @apply shadow-lg;
   @apply min-w-[120px];
@@ -32,7 +32,7 @@
   @apply block;
   @apply px-4;
   @apply py-2;
-  @apply hover:bg-[#66BB6A];
+  @apply hover:bg-[var(--accent)];
 }
 
 .sidebar {
@@ -41,8 +41,8 @@
   right: 50px;
   /* @apply w-[300px]; */
   height: calc(100vh - var(--header-height) - 80px);
-  @apply bg-[#4F564B];
-  @apply text-[#8FDA7C];
+  @apply bg-[var(--bg-sunken)];
+  @apply text-[var(--accent-hover)];
   @apply font-semibold;
   @apply rounded-sm;
   @apply shadow-[5px_5px_5px_rgba(0,0,0,0.5)];
@@ -98,11 +98,11 @@
 /* Firefox */
 .sidebar {
   scrollbar-width: thin;
-  scrollbar-color: #66BB6A #4F564B;
+  scrollbar-color: var(--accent) var(--bg-sunken);
 }
 
 .sidebar-links {
-  @apply text-[#282B28];
+  @apply text-[var(--bg-base)];
   @apply no-underline;
   @apply text-base;
   @apply py-2;
@@ -110,7 +110,7 @@
   @apply rounded-md;
   @apply transition-colors;
   @apply duration-200;
-  @apply bg-[#66BB6A];
+  @apply bg-[var(--accent)];
   @apply hover:shadow-sm;
 }
 
@@ -143,7 +143,7 @@
   @apply text-sm;
   @apply font-semibold;
   @apply mb-2;
-  @apply text-[#8FDA7C];
+  @apply text-[var(--accent-hover)];
 }
 
 .keywords-container {
@@ -159,8 +159,8 @@
   @apply px-3;
   @apply py-1.5;
   @apply rounded;
-  @apply bg-[#66BB6A];
-  color: #1F2220;
+  @apply bg-[var(--accent)];
+  color: var(--bg-base);
   @apply text-sm;
   @apply font-medium;
   @apply transition-all;
@@ -174,7 +174,7 @@
 .keyword-remove-btn {
   @apply bg-transparent;
   @apply border-0;
-  color: #1F2220;
+  color: var(--bg-base);
   @apply font-bold;
   @apply leading-none;
   @apply cursor-pointer;
@@ -198,3 +198,103 @@
 .keyword-remove-btn:focus {
   @apply outline-none;
 }
+
+/* ─── ExpandableSidebarItem ─── */
+.sidebar-chevron {
+  transform: rotate(0);
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+.sidebar-chevron.open {
+  transform: rotate(180deg);
+}
+
+.sidebar-expandable-content {
+  position: relative;
+  display: block;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+}
+
+/* ─── ChartArea ─── */
+.chart-area {
+  margin-bottom: 2rem;
+  background-color: var(--bg-surface);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+}
+
+.chart-area h2 {
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.chart-area img {
+  max-width: 100%;
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ─── Filter components (MarketCap, EPS, TickerSymbol …) ─── */
+.filter-block {
+  margin-bottom: 0.5rem;
+}
+
+.filter-block-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.filter-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.filter-input-main {
+  flex: 3;
+  padding: 0.4rem;
+  min-width: 0;
+}
+
+.filter-input-scale {
+  flex: 1;
+  padding: 0.4rem;
+  min-width: 0;
+}
+
+.filter-input-full {
+  width: 100%;
+  padding: 0.4rem;
+  border-radius: var(--border-radius-md);
+  min-width: 0;
+  margin-bottom: 8px;
+}
+
+.filter-btn-add {
+  padding: 6px 16px;
+  border-radius: var(--border-radius-md);
+  background-color: var(--accent);
+  color: var(--text-on-accent);
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  font-family: var(--font-serif);
+  transition: background-color 0.15s;
+}
+.filter-btn-add:hover { background-color: var(--accent-hover); }
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.filter-warning {
+  color: var(--status-error);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+

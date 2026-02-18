@@ -16,9 +16,9 @@ const SettingsSidebar: React.FC<Props> = ({ active, setActive }) => {
                         <button
                             type="button"
                             onClick={() => setActive("account")}
-                            className={`w-full text-left py-4 border-b border-[hsl(40,46%,36%)] px-1 ${active === "account"
-                                ? "font-semibold text-[hsl(40,46%,36%)]"
-                                : "text-[hsl(40,46%,36%)]"
+                            className={`w-full text-left py-4 border-b border-[var(--text-primary)] px-1 ${active === "account"
+                                ? "font-semibold text-[var(--text-primary)]"
+                                : "text-[var(--text-primary)]"
                                 }`}
                         >
                             Account

@@ -10,8 +10,8 @@
 }
 
 .screener-topbar-btn {
-  @apply bg-[#66BB6A]; 
-  @apply text-[#1F2220];
+  @apply bg-[var(--accent)]; 
+  @apply text-[var(--bg-base)];
   @apply shadow-none;
   @apply px-4;
   @apply py-2;
@@ -20,8 +20,8 @@
 }
 
 .screener-topbar-select {
-  @apply bg-[#66BB6A];
-  @apply text-[#1F2220];
+  @apply bg-[var(--accent)];
+  @apply text-[var(--bg-base)];
   @apply min-w-[180px];
   @apply px-4;
   @apply py-2;

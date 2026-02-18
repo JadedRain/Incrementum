@@ -5,11 +5,11 @@
 }
 
 .custom-screener-form {
-  @apply max-w-2xl mx-auto bg-[#6B7469] rounded-lg shadow-lg p-8;
+  @apply max-w-2xl mx-auto bg-[var(--bg-surface)] rounded-lg shadow-lg p-8;
 }
 
 .custom-screener-title {
-  @apply text-2xl font-bold mb-6 text-[#C8D5C1];
+  @apply text-2xl font-bold mb-6 text-[var(--text-secondary)];
 }
 
 .custom-screener-error {
@@ -25,15 +25,15 @@
 }
 
 .custom-screener-label {
-  @apply block text-sm font-medium text-[#A8B5A1] mb-2;
+  @apply block text-sm font-medium text-[var(--text-primary)] mb-2;
 }
 
 .custom-screener-input {
-  @apply w-full px-3 py-2 border border-[#4F564B] rounded-md focus:outline-none focus:ring-2 focus:ring-[#66BB6A] focus:border-transparent bg-[#5D6A5B] text-[#C8D5C1];
+  @apply w-full px-3 py-2 border border-[var(--bg-sunken)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent bg-[var(--bg-row-alt)] text-[var(--text-secondary)];
 }
 
 .custom-screener-help-text {
-  @apply mt-1 text-sm text-[#4F564B];
+  @apply mt-1 text-sm text-[var(--bg-sunken)];
 }
 
 .custom-screener-button-group {
@@ -41,21 +41,21 @@
 }
 
 .custom-screener-cancel-button {
-  @apply px-6 py-2 border border-[#4F564B] text-[#A8B5A1] rounded hover:bg-[#4F564B] hover:text-[#8FDA7C] transition;
+  @apply px-6 py-2 border border-[var(--bg-sunken)] text-[var(--text-primary)] rounded hover:bg-[var(--bg-sunken)] hover:text-[var(--accent-hover)] transition;
 }
 
 .custom-screener-save-button {
-  @apply px-6 py-2 bg-[#66BB6A] text-[#1F2220] rounded hover:bg-[#8FDA7C] transition disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply px-6 py-2 bg-[var(--accent)] text-[var(--bg-base)] rounded hover:bg-[var(--accent-hover)] transition disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
 .custom-screener-note-section {
-  @apply mt-6 p-4 bg-[#5D6A5B] rounded-lg;
+  @apply mt-6 p-4 bg-[var(--bg-row-alt)] rounded-lg;
 }
 
 .custom-screener-note-title {
-  @apply text-sm font-medium text-[#C8D5C1] mb-2;
+  @apply text-sm font-medium text-[var(--text-secondary)] mb-2;
 }
 
 .custom-screener-note-text {
-  @apply text-sm text-[#4F564B];
+  @apply text-sm text-[var(--bg-sunken)];
 }

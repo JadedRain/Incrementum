@@ -20,19 +20,21 @@
     position: absolute;
     right: 0;
     top: 2rem;
-    background: #6B7469;
+    background: var(--bg-surface);
     border-radius: 10px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.18);
     padding: 12px;
     min-width: 240px;
     z-index: 50;
     white-space: nowrap;
+    max-height: 400px;
+    overflow-y: auto;
   }
   .kebab-title {
     font-weight: 800;
     margin-bottom: 10px;
     font-size: 15px;
-    color: #C8D5C1;
+    color: var(--text-secondary);
   }
   .column-label {
     display: flex;
@@ -42,7 +44,7 @@
   }
   .column-checkbox {
     transform: scale(1.2);
-    accent-color: #66BB6A;
+    accent-color: var(--accent);
   }
   .header-draggable {
     cursor: grab;

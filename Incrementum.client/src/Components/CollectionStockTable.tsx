@@ -161,11 +161,11 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
     <div className="StockTable-container stocktable-flex">
       <div className="mb-3 flex justify-between items-center px-2">
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-[#3f2a10]">Sort by:</label>
+          <label className="text-sm font-medium text-[var(--text-primary)]">Sort by:</label>
           <select
             value={sortField ?? ''}
             onChange={handleSortChange}
-            className="px-3 py-1.5 text-sm border border-[#3f2a10] rounded bg-[hsl(40,63%,63%)] text-[#3f2a10] cursor-pointer hover:bg-[hsl(40,63%,58%)] focus:outline-none focus:ring-2 focus:ring-[#3f2a10]"
+            className="px-3 py-1.5 text-sm border border-[var(--text-primary)] rounded bg-[var(--bg-surface)] text-[var(--text-primary)] cursor-pointer hover:bg-[var(--bg-sunken)] focus:outline-none focus:ring-2 focus:ring-[var(--text-primary)]"
             aria-label="Sort by"
           >
             <option value="">Default Order</option>
@@ -178,7 +178,7 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
           {sortField && sortDirection && (
             <button
               onClick={toggleSortDirection}
-              className="px-2 py-1.5 text-sm border border-[#3f2a10] rounded bg-[hsl(40,63%,63%)] text-[#3f2a10] cursor-pointer hover:bg-[hsl(40,63%,58%)] focus:outline-none focus:ring-2 focus:ring-[#3f2a10] font-bold"
+              className="px-2 py-1.5 text-sm border border-[var(--text-primary)] rounded bg-[var(--bg-surface)] text-[var(--text-primary)] cursor-pointer hover:bg-[var(--bg-sunken)] focus:outline-none focus:ring-2 focus:ring-[var(--text-primary)] font-bold"
               aria-label="Toggle sort direction"
               title={sortDirection === 'asc' ? 'Ascending (click for descending)' : 'Descending (click for ascending)'}
             >
@@ -189,12 +189,12 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
         <div className="relative">
           <button ref={btnRef} aria-label="Columns" onClick={() => setMenuOpen(!menuOpen)} className="kebab-btn"><span className="kebab-icon">⋮</span></button>
           {menuOpen && (
-            <div ref={menuRef} className="kebab-menu" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+            <div ref={menuRef} className="kebab-menu">
               <div className="kebab-title">Columns</div>
               {cols.filter(c => c.k !== 'symbol' && c.k !== 'watchlist').map((c) => (
                 <label key={c.k} className="column-label">
                   <input className="column-checkbox" type="checkbox" checked={!!visibleColumns[c.k]} onChange={() => toggleColumn(c.k)} />
-                  <span className="text-[15px] text-[#3f2a10]">{c.l}</span>
+                  <span className="text-[15px] text-[var(--text-primary)]">{c.l}</span>
                 </label>
               ))}
             </div>
@@ -213,7 +213,7 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
           return (
             <div
               key={k}
-              className={`StockTable-header ${draggable ? 'header-draggable' : 'header-default'}`}
+              className={`StockTable-header ${draggable ? 'col-draggable' : sortable ? 'col-sortable' : ''}`}
               draggable={draggable}
               data-index={idx}
               onDragStart={(e) => {
@@ -230,7 +230,6 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
               }}
               onClick={() => sortable && handleHeaderClick(k)}
               role={sortable ? 'button' : undefined}
-              style={{ cursor: draggable ? 'grab' : sortable ? 'pointer' : 'default' }}
             >
               {labelMap[k] ?? k}{getSortIndicator(k)}
             </div>

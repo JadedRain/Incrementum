@@ -1,11 +1,11 @@
 @reference "tailwindcss";
 
 .screener-page {
-  @apply min-h-screen bg-[#1F2220];
+  @apply min-h-screen bg-[var(--bg-base)];
 }
 
 .screener-container {
-  @apply mx-auto max-w-[1500px];
+  @apply mx-auto max-w-[1500px] pt-24;
 }
 
 .screener-grid {
@@ -15,7 +15,7 @@
 
 .screener-topbar {
   @apply sticky top-0 z-40 col-span-2;
-  @apply bg-[#6B7469];
+  @apply bg-[var(--bg-surface)];
   @apply px-2;
   @apply py-2;
   @apply shadow-[5px_5px_5px_rgba(0,0,0,0.5)];
@@ -30,3 +30,112 @@
   @apply w-full;
 }
 
+/* StockTable Styles for Screener Pages */
+.StockTable-container {
+  @apply bg-[var(--bg-surface)];
+  @apply text-[var(--text-primary)];
+  @apply w-full;
+  @apply max-w-full;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+  border-radius: 2px;
+  box-shadow: 5px 5px 5px rgba(0,0,0,0.5) !important;
+}
+
+.StockTable-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.StockTable-container::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.05);
+  border-radius: 2px;
+}
+
+.StockTable-container::-webkit-scrollbar-thumb {
+  background: rgba(102,187,106,0.7);
+  border-radius: 2px;
+  border: 2px solid rgba(79,86,75,0.3);
+}
+
+.StockTable-container {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) var(--bg-sunken);
+}
+
+.StockTable-header-row {
+  @apply flex;
+  @apply text-[var(--text-secondary)];
+  @apply font-semibold;
+  @apply text-sm;
+}
+
+.StockTable-header {
+  @apply flex-1;
+  @apply px-4;
+  @apply py-3;
+  @apply text-center;
+  @apply w-[98%];
+  @apply mx-auto;
+  @apply border-b-[#251C09];
+  position: relative;
+}
+
+.StockTable-header.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.StockTable-header.sortable:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.StockTable-header:after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 6px;
+  height: 2px;
+  background: rgba(0,0,0,0.08);
+}
+
+.StockTable-row {
+  @apply flex;
+  @apply bg-[var(--bg-row-alt)];
+  @apply text-[var(--text-secondary)];
+  @apply border-b;
+  @apply border-[var(--bg-sunken)];
+  @apply border-b-[var(--bg-sunken)];
+  @apply transition-all;
+  @apply duration-150;
+  @apply hover:bg-[var(--bg-sunken)];
+  @apply hover:shadow-sm;
+  @apply w-[98%];
+  @apply mx-auto;
+  border-radius: 2px;
+}
+
+.StockTable-row:last-child {
+  @apply border-b-0;
+}
+
+.StockTable-cell {
+  @apply flex-1;
+  @apply px-4;
+  @apply py-3;
+  @apply text-center;
+  @apply font-medium;
+  @apply justify-center;
+  display: flex;
+  align-items: center;
+}
+
+.StockTable-row:hover .text-green-500 {
+  @apply text-green-400;
+}
+
+.StockTable-row:hover .text-red-500 {
+  @apply text-red-400;
+}

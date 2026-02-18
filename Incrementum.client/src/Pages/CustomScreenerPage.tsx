@@ -21,7 +21,7 @@ const CustomScreenerPageContent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[hsl(40,13%,53%)]">
+    <div className="min-h-screen bg-[var(--bg-base)]">
       <NavigationBar />
       <div className="custom-screener-container">
         <ScreenerForm

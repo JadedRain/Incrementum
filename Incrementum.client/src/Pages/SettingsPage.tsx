@@ -20,14 +20,12 @@ const SettingsPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[hsl(40,13%,53%)] pt-[40px]">
+    <div className="settings-page">
       <NavigationBar />
-      <div className="px-8">
-        <div className="flex items-start gap-8">
-          <SettingsSidebar active={active} setActive={setActive} />
-          <div className="Settings-main-content flex-1 flex flex-col items-start justify-start">
-            <SettingsMainContent title={mainContent.title} sections={mainContent.sections} />
-          </div>
+      <div className="settings-layout">
+        <SettingsSidebar active={active} setActive={setActive} />
+        <div className="Settings-main-content">
+          <SettingsMainContent title={mainContent.title} sections={mainContent.sections} />
         </div>
       </div>
     </div>

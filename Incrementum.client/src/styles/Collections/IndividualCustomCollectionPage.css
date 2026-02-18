@@ -10,19 +10,19 @@
   @apply left-0;
   @apply right-0;
   @apply w-full;
-  @apply bg-[#6B7469];
+  @apply bg-[var(--bg-surface)];
   @apply flex;
   @apply items-center;
   @apply py-4;
   @apply z-[1000];
   @apply shadow-[0_2px_4px_rgba(0,0,0,0.5)];
   @apply border-b-2;
-  @apply border-[#4F564B]
+  @apply border-[var(--bg-sunken)]
 }
 
 .IndividualCustomCollectionPage-h1 {
-  @apply text-[#C8D5C1];
-  @apply bg-[#6B7469]; 
+  @apply text-[var(--text-secondary)];
+  @apply bg-[var(--bg-surface)]; 
   @apply text-4xl; 
   @apply m-0; 
   @apply flex-1; 
@@ -34,8 +34,8 @@
     @apply ml-0;
     @apply px-4;
     @apply py-2;
-    @apply bg-[#66BB6A];
-    @apply text-[#1F2220];
+    @apply bg-[var(--accent)];
+    @apply text-[var(--bg-base)];
     @apply cursor-pointer;
     @apply hover:shadow-[0_4px_24px_0_rgba(163,222,148,0.4)];
     @apply text-sm;
@@ -43,8 +43,8 @@
 }
 
 .StockTable-container {
-  @apply bg-[#6B7469]; /* lighter tan */
-  @apply text-[#A8B5A1];
+  @apply bg-[var(--bg-surface)]; /* lighter tan */
+  @apply text-[var(--text-primary)];
   @apply w-full;
   @apply max-w-full;
   overflow-x: hidden;
@@ -71,12 +71,12 @@
 /* Firefox */
 .StockTable-container {
   scrollbar-width: thin;
-  scrollbar-color: #66BB6A #4F564B;
+  scrollbar-color: var(--accent) var(--bg-sunken);
 }
 
 .StockTable-header-row {
   @apply flex;
-  @apply text-[#C8D5C1];
+  @apply text-[var(--text-secondary)];
   @apply font-semibold;
   @apply text-sm;
 }
@@ -109,14 +109,14 @@
 }
 .StockTable-row {
   @apply flex;
-  @apply bg-[#5D6A5B]; /* row background light */
-  @apply text-[#A8B5A1];
+  @apply bg-[var(--bg-row-alt)]; /* row background light */
+  @apply text-[var(--text-secondary)];
   @apply border-b;
-  @apply border-[#4F564B];
-  @apply border-b-[#4F564B];
+  @apply border-[var(--bg-sunken)];
+  @apply border-b-[var(--bg-sunken)];
   @apply transition-all;
   @apply duration-150;
-  @apply hover:bg-[#8FDA7C];
+  @apply hover:bg-[var(--bg-sunken)];
   @apply hover:shadow-sm;
   /* inset the rows to 90% of the container to create the 'card' look */
   @apply w-[98%];
@@ -138,7 +138,7 @@
 }
 
 .watch-btn {
-  @apply text-[#C8D5C1];
+  @apply text-[var(--text-secondary)];
   @apply font-bold;
   @apply text-4xl;
   @apply cursor-pointer;
@@ -156,8 +156,8 @@
 }
 
 .StockTable-row:hover .text-green-500 {
-  @apply text-green-300;
+  @apply text-green-400;
 }
 .StockTable-row:hover .text-red-500 {
-  @apply text-red-300;
+  @apply text-red-400;
 }

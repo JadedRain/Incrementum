@@ -46,8 +46,8 @@ const TickerSymbolFilter: React.FC = () => {
 
   return (
     <ExpandableSidebarItem title="Ticker Symbol">
-      <div style={{ marginBottom: '0.5rem' }}>
-        <div style={{ fontWeight: 600 }}>Ticker Symbols</div>
+      <div className="filter-block">
+        <div className="filter-block-label">Ticker Symbols</div>
         <input
           type="text"
           value={input}
@@ -59,21 +59,14 @@ const TickerSymbolFilter: React.FC = () => {
             }
           }}
           placeholder="e.g. AAPL, MSFT, GOOGL"
-          className="sidebar-input"
-          style={{ width: '100%', padding: '0.4rem', borderRadius: 4, minWidth: 0, marginBottom: 8 }}
+          className="sidebar-input filter-input-full"
         />
-        <button
-          onClick={handleAdd}
-          style={{ padding: '6px 16px', borderRadius: 4, background: '#1976d2', color: '#fff', border: 'none', width: '100%' }}
-        >
+        <button onClick={handleAdd} className="filter-btn-add">
           Add Filter
         </button>
-        {error && <div style={{ color: 'red', marginTop: 4 }}>{error}</div>}
-        <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#2b2b2b' }}>
-          Enter multiple symbols separated by commas or spaces.
-        </div>
+        {error && <div className="filter-warning">{error}</div>}
         {activeTickerFilters.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem' }}>
+          <div className="filter-chips">
             {activeTickerFilters.map(ticker => (
               <FilterChip
                 key={ticker}

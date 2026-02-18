@@ -21,20 +21,11 @@ const InteractiveGraph: React.FC<Props> = ({ url = dashString(), period = "1y", 
       : `${url}/`;
 
   return (
-    <div style={{ width: "100%", height }}>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+    <div className="interactive-graph-wrapper" style={{ height }}>
+      <div className="interactive-graph-toolbar">
         <button
+          className="interactive-graph-btn"
           onClick={() => setGraphType(graphType === 'line' ? 'candle' : 'line')}
-          style={{
-            padding: '6px 16px',
-            borderRadius: 6,
-            border: '1px solid #bfa76a',
-            background: graphType === 'line' ? '#f5e6c5' : '#e0c48f',
-            color: '#5a4a1b',
-            fontWeight: 600,
-            cursor: 'pointer',
-            marginRight: 8
-          }}
         >
           {graphType === 'line' ? 'Show Candlestick' : 'Show Line Graph'}
         </button>
@@ -43,7 +34,7 @@ const InteractiveGraph: React.FC<Props> = ({ url = dashString(), period = "1y", 
         key={graphType + ticker}
         src={src}
         title="Dash App"
-        className="w-full h-full border-0  bg-[hsl(40, 63%, 63%)]"
+        className="w-full h-full border-0 bg-[var(--bg-surface)]"
         scrolling="no"
         sandbox="allow-same-origin allow-scripts allow-forms"
       />

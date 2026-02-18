@@ -7,8 +7,8 @@
   max-width: none;
   min-width: 0;
   margin: 8px 0;
-  background: #6B7469;
-  color: #A8B5A1;
+  background: var(--bg-surface);
+  color: var(--text-primary);
   border: 1px solid rgba(0,0,0,0.1);
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.28);
@@ -28,8 +28,8 @@
 .search-stock-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-  background: #8FDA7C;
-  border-color: #8FDA7C;
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
 .newsreader-font {
@@ -92,7 +92,7 @@
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #C8D5C1;
+  color: var(--text-secondary);
   font-size: 1.00rem; /* slightly reduced to keep card compact */
 }
 
@@ -109,8 +109,8 @@
 }
 
 .search-stock-card .card-action {
-  background: #66BB6A;
-  color: #1F2220;
+  background: var(--accent);
+  color: var(--bg-base);
   border: none;
   width: 52px;
   height: 52px;
@@ -139,7 +139,7 @@
 }
 
 .search-stock-card .card-action:hover {
-  background: #8FDA7C;
+  background: var(--accent-hover);
   transform: translateY(-2px);
 }
 

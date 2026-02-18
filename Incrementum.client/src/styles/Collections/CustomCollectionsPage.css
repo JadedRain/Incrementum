@@ -1,24 +1,109 @@
 @import "tailwindcss";
 
+/* ─── Page shell ─── */
+.collections-page {
+  min-height: 100vh;
+  background-color: var(--bg-base);
+}
+
+/* ─── Page title centred within the grid area ─── */
+.collections-page-title {
+  position: absolute;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  text-align: center;
+}
+
+/* ─── Empty state text ─── */
+.no-collections-text {
+  padding: 24px;
+  color: var(--text-primary);
+}
+
+/* ─── Delete-confirm modal ─── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-overlay);
+}
+
+.modal-card {
+  position: relative;
+  background-color: var(--bg-surface);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+}
+
+.modal-card p {
+  margin-bottom: 1rem;
+  font-size: 1.125rem;
+  color: var(--text-primary);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-danger {
+  padding: 0.5rem 1rem;
+  background-color: var(--status-error);
+  color: #fff;
+  border-radius: var(--border-radius-md);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-serif);
+  transition: background-color 0.15s;
+}
+.btn-danger:hover { background-color: var(--status-error-hover); }
+
+.btn-cancel {
+  padding: 0.5rem 1rem;
+  background-color: var(--bg-sunken);
+  color: var(--text-secondary);
+  border-radius: var(--border-radius-md);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-serif);
+  transition: background-color 0.15s;
+}
+.btn-cancel:hover { background-color: var(--accent); color: var(--text-on-accent); }
+
 .CustomCollectionsPage-header {
   @apply fixed;
   @apply top-0;
   @apply left-0;
   @apply right-0;
   @apply w-full;
-  @apply bg-[#6B7469];
+  @apply bg-[var(--bg-surface)];
   @apply flex;
   @apply items-center;
   @apply py-4;
   @apply z-[1000];
   @apply shadow-[0_2px_4px_rgba(0,0,0,0.5)];
   @apply border-b-2;
-  @apply border-[#4F564B]
+  @apply border-[var(--bg-sunken)]
 }
 
 .CustomCollectionsPage-h1 {
-  @apply text-[#C8D5C1];
-  @apply bg-[#6B7469]; 
+  @apply text-[var(--text-secondary)];
+  @apply bg-[var(--bg-surface)]; 
   @apply text-4xl; 
   @apply m-0; 
   @apply flex-1; 
