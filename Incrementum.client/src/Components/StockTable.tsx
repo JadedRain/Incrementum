@@ -1,8 +1,10 @@
+import { useState, useEffect } from 'react';
 import Loading from './Loading';
 import StockRow from './StockRow';
 import ColumnVisibilityProvider from '../Context/ColumnVisibilityContext';
 import { useColumnVisibility } from '../Context/useColumnVisibility';
 import '../styles/stock-table-extras.css';
+import '../styles/PaginationControls.css';
 import { useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
 
 type Stock = {
@@ -11,6 +13,8 @@ type Stock = {
   regularMarketPrice?: number;
   fiftyTwoWeekHigh?: number;
   fiftyTwoWeekLow?: number;
+  price?: number;
+  dayPercentChange?: number;
   market_cap?: number;
   regularMarketVolume?: number;
   averageDailyVolume3Month?: number;
@@ -22,11 +26,11 @@ type Stock = {
 type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps';
 type Col = { k: ColKey; l: string };
 
-type Props = { onRowClick?: (s: string) => void; stocks?: Stock[] };
+type Props = { onRowClick?: (s: string) => void; stocks?: unknown[] };
 
 export default function StockTable({ onRowClick, stocks: overrideStocks }: Props) {
   const { stocks: contextStocks, isLoading, sortBy, setSortBy, sortAsc, setSortAsc } = useDatabaseScreenerContext();
-  const stocks = overrideStocks ?? contextStocks;
+  const stocks = (overrideStocks ?? contextStocks) as unknown[];
 
   const cols: Col[] = [
     { k: 'symbol', l: 'Symbol' },
@@ -49,7 +53,7 @@ export default function StockTable({ onRowClick, stocks: overrideStocks }: Props
 function InnerStockTable({ onRowClick, cols, stocks, isLoading, sortBy, setSortBy, sortAsc, setSortAsc }: {
   onRowClick?: (s: string) => void;
   cols: Col[];
-  stocks: Stock[] | unknown;
+  stocks: unknown;
   isLoading: boolean;
   sortBy: string | null;
   setSortBy: (v: string | null) => void;
@@ -57,6 +61,22 @@ function InnerStockTable({ onRowClick, cols, stocks, isLoading, sortBy, setSortB
   setSortAsc: (v: boolean) => void;
 }) {
   const { visibleColumns, toggleColumn, menuOpen, setMenuOpen, menuRef, btnRef, columnOrder, moveColumn } = useColumnVisibility();
+  
+  // Pagination
+  const pageSize = 12;
+  const stocksArray = Array.isArray(stocks) ? (stocks as Stock[]) : [];
+  const totalPages = Math.ceil(stocksArray.length / pageSize);
+  const [currentPage, setCurrentPage] = useState(1);
+  const paginatedStocks = stocksArray.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  // Reset to page 1 when stock count changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [stocksArray.length]);
 
   // Map column keys to backend sort fields
   const colToSortField = (k: string): string | null => {
@@ -147,10 +167,17 @@ function InnerStockTable({ onRowClick, cols, stocks, isLoading, sortBy, setSortB
         })}
       </div>
       <Loading loading={isLoading} />
-      {Array.isArray(stocks) && stocks.length === 0 && <div>Select some filters to get started!</div>}
-      {!isLoading && Array.isArray(stocks) && stocks.map((s: Stock, idx: number) => (
+      {stocksArray.length === 0 && <div>Select some filters to get started!</div>}
+      {!isLoading && paginatedStocks.map((s: Stock, idx: number) => (
         <StockRow key={s.symbol ?? idx} stock={s} onClick={() => onRowClick?.(s.symbol ?? '')} />
       ))}
+      {stocksArray.length > 0 && (
+        <div className="pagination-controls">
+          <button className="pagination-button pagination-options" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>Prev</button>
+          <span className='pagination-options'>Page {currentPage} of {totalPages}</span>
+          <button className="pagination-button pagination-options" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>Next</button>
+        </div>
+      )}
     </div>
   );
 }
