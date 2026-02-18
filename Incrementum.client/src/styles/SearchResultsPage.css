@@ -2,10 +2,10 @@
 @import "tailwindcss";
 
 .SearchResults-main-content {
-  background: hsl(40 63% 63%);
+  background: #6B7469;
   border-radius: 6px;
-  box-shadow: 5px 5px 5px #3F3A30;
-  color: hsl(40 62% 20%);
+  box-shadow: 5px 5px 5px rgba(0,0,0,0.5);
+  color: #A8B5A1;
   position: relative;
   width: min(700px, calc(100% - 80px));
   margin: 4px auto 40px;
@@ -21,7 +21,7 @@
 .SearchResults-main-content .field-label {
   font-size: 0.72rem;
   font-weight: 700;
-  color: rgba(37,28,9,0.75);
+  color: #4F564B;
   opacity: 0.95;
   line-height: 1;
 }

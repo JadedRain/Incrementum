@@ -4,16 +4,16 @@
     @apply px-4; 
     @apply py-2;
     @apply rounded; 
-    @apply bg-blue-700; 
-    @apply text-white; 
-    @apply hover:bg-blue-800;
+    @apply bg-[#66BB6A]; 
+    @apply text-[#1F2220]; 
+    @apply hover:bg-[#8FDA7C];
     @apply transition-colors; 
-    @apply disabled:bg-gray-300; 
-    @apply disabled:text-gray-500; 
+    @apply disabled:bg-[#4F564B]; 
+    @apply disabled:text-[#758E71]; 
     @apply disabled:cursor-not-allowed;
 }
 
 .cancel-button {
-    @apply px-4 py-2 rounded bg-gray-300 text-gray-800 hover:bg-gray-400 transition-colors;
+    @apply px-4 py-2 rounded bg-[#4F564B] text-[#8FDA7C] hover:bg-[#4E4E4E] transition-colors;
 }
 

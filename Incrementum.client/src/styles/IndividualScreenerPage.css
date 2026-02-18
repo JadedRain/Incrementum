@@ -1,7 +1,7 @@
 @reference "tailwindcss";
 
 .screener-page {
-  @apply min-h-screen bg-[hsl(40,13%,53%)];
+  @apply min-h-screen bg-[#1F2220];
 }
 
 .screener-container {
@@ -15,10 +15,10 @@
 
 .screener-topbar {
   @apply sticky top-0 z-40 col-span-2;
-  @apply bg-[hsl(40,63%,63%)];
+  @apply bg-[#6B7469];
   @apply px-2;
   @apply py-2;
-  @apply shadow-[5px_5px_5px_#3F3A30];
+  @apply shadow-[5px_5px_5px_rgba(0,0,0,0.5)];
   @apply rounded-sm;
 }
 

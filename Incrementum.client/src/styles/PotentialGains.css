@@ -1,9 +1,9 @@
 @reference "tailwindcss";
 
 .stock-table-wrapper {
-  @apply min-h-[700px] bg-[#eac67a];
-  @apply shadow-[5px_5px_5px_#3F3A30];
-  @apply bg-[hsl(40,63%,63%)];
+  @apply min-h-[700px] bg-[#6B7469];
+  @apply shadow-[5px_5px_5px_rgba(0,0,0,0.5)];
+  @apply bg-[#6B7469];
   @apply rounded-sm;
 }
 
@@ -12,7 +12,7 @@
 }
 
 .stock-table-header-row {
-  @apply bg-[#deb86c] text-[#6b4a1b] max-h-[10px];
+  @apply bg-[#4F564B] text-[#8FDA7C] max-h-[10px];
 }
 
 .stock-table-header-cell {
@@ -20,7 +20,7 @@
 }
 
 .stock-table-row {
-  @apply bg-[#E8CB92] text-[#6b4a1b] cursor-pointer;
+  @apply bg-[#5D6A5B] text-[#A8B5A1] cursor-pointer;
 }
 
 .stock-table-cell {
@@ -44,5 +44,5 @@
 }
 
 .stock-table-collapsible-content {
-  @apply bg-[#9c7017] text-[#eac67a] p-8 transition-all duration-300;
+  @apply bg-[#4F564B] text-[#8FDA7C] p-8 transition-all duration-300;
 }

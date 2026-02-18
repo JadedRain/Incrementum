@@ -10,19 +10,19 @@
   @apply left-0;
   @apply right-0;
   @apply w-full;
-  @apply bg-[hsl(41,61%,9%)];
+  @apply bg-[#6B7469];
   @apply flex;
   @apply items-center;
   @apply py-4;
   @apply z-[1000];
   @apply shadow-[0_2px_4px_rgba(0,0,0,0.5)];
   @apply border-b-2;
-  @apply border-[hsl(42,15%,70%)]
+  @apply border-[#4F564B]
 }
 
 .IndividualCustomCollectionPage-h1 {
-  @apply text-[hsl(40,66%,60%)];
-  @apply bg-[hsl(41,61%,9%)]; 
+  @apply text-[#C8D5C1];
+  @apply bg-[#6B7469]; 
   @apply text-4xl; 
   @apply m-0; 
   @apply flex-1; 
@@ -34,24 +34,24 @@
     @apply ml-0;
     @apply px-4;
     @apply py-2;
-    @apply bg-[hsl(79,26%,36%)];
-    @apply text-[hsl(78,41%,73%)];
+    @apply bg-[#66BB6A];
+    @apply text-[#1F2220];
     @apply cursor-pointer;
-    @apply hover:shadow-[0_4px_24px_0_hsl(220,9%,46%)];
+    @apply hover:shadow-[0_4px_24px_0_rgba(163,222,148,0.4)];
     @apply text-sm;
     border-radius: 2px;
 }
 
 .StockTable-container {
-  @apply bg-[hsl(40,63%,63%)]; /* lighter tan */
-  @apply text-[hsl(40,62%,20%)];
+  @apply bg-[#6B7469]; /* lighter tan */
+  @apply text-[#A8B5A1];
   @apply w-full;
   @apply max-w-full;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   box-sizing: border-box;
   border-radius: 2px;
-  box-shadow: 5px 5px 5px #3F3A30 !important;
+  box-shadow: 5px 5px 5px rgba(0,0,0,0.5) !important;
 }
 
 /* Scrollbar styling for StockTable */
@@ -63,20 +63,20 @@
   border-radius: 2px;
 }
 .StockTable-container::-webkit-scrollbar-thumb {
-  background: rgba(175,130,40,0.95);
+  background: rgba(102,187,106,0.7);
   border-radius: 2px;
-  border: 2px solid rgba(235,203,146,0.3);
+  border: 2px solid rgba(79,86,75,0.3);
 }
 
 /* Firefox */
 .StockTable-container {
   scrollbar-width: thin;
-  scrollbar-color: #DABB7C #AF8228;
+  scrollbar-color: #66BB6A #4F564B;
 }
 
 .StockTable-header-row {
   @apply flex;
-  @apply text-[hsl(40,62%,18%)];
+  @apply text-[#C8D5C1];
   @apply font-semibold;
   @apply text-sm;
 }
@@ -109,14 +109,14 @@
 }
 .StockTable-row {
   @apply flex;
-  @apply bg-[#E8CB92]; /* row background light */
-  @apply text-[hsl(40,62%,20%)];
+  @apply bg-[#5D6A5B]; /* row background light */
+  @apply text-[#A8B5A1];
   @apply border-b;
-  @apply border-[hsl(40,61%,65%)];
-  @apply border-b-[#251C09];
+  @apply border-[#4F564B];
+  @apply border-b-[#4F564B];
   @apply transition-all;
   @apply duration-150;
-  @apply hover:bg-[hsl(38,70%,86%)];
+  @apply hover:bg-[#8FDA7C];
   @apply hover:shadow-sm;
   /* inset the rows to 90% of the container to create the 'card' look */
   @apply w-[98%];
@@ -138,7 +138,7 @@
 }
 
 .watch-btn {
-  @apply text-[hsl(40,62%,20%)];
+  @apply text-[#C8D5C1];
   @apply font-bold;
   @apply text-4xl;
   @apply cursor-pointer;

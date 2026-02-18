@@ -3,17 +3,17 @@
 .search-bar {
   @apply p-2;
   @apply rounded-[6px];
-  @apply text-[#302D27];
-  @apply bg-[#C5BCA5];
+  @apply text-[#C8D5C1];
+  @apply bg-[#5D6A5B];
   @apply w-full;
   @apply max-w-[400px];
-  @apply border-[#302D27];
+  @apply border-[#4F564B];
   @apply focus:outline-none;
   @apply focus:ring-2;
-  @apply focus:ring-[hsl(40,66%,60%)];
+  @apply focus:ring-[#66BB6A];
   @apply focus:outline-none;
   @apply focus:ring-2;
-  @apply focus:ring-[hsl(40,66%,60%)];
+  @apply focus:ring-[#66BB6A];
 }
 
 @media (max-width: 1024px) {

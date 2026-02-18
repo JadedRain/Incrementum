@@ -20,8 +20,8 @@
   @apply z-10; 
   @apply hidden;
   @apply group-hover:block;
-  @apply bg-[#AF8228];
-  @apply text-[#EBCB92];
+  @apply bg-[#4F564B];
+  @apply text-[#8FDA7C];
   @apply rounded; 
   @apply shadow-lg;
   @apply min-w-[120px];
@@ -32,7 +32,7 @@
   @apply block;
   @apply px-4;
   @apply py-2;
-  @apply hover:bg-[#DABB7C];
+  @apply hover:bg-[#66BB6A];
 }
 
 .sidebar {
@@ -41,11 +41,11 @@
   right: 50px;
   /* @apply w-[300px]; */
   height: calc(100vh - var(--header-height) - 80px);
-  @apply bg-[hsl(40,63%,63%)];
-  @apply text-[hsl(40,62%,18%)];
+  @apply bg-[#4F564B];
+  @apply text-[#8FDA7C];
   @apply font-semibold;
   @apply rounded-sm;
-  @apply shadow-[5px_5px_5px_#3F3A30];
+  @apply shadow-[5px_5px_5px_rgba(0,0,0,0.5)];
   @apply py-6;
   @apply px-6;
   @apply flex;
@@ -90,19 +90,19 @@
   background: transparent; /* keep track transparent to blend with page edge */
 }
 .sidebar::-webkit-scrollbar-thumb {
-  background: rgba(175,130,40,0.95); /* slightly darker thumb to match panel */
+  background: rgba(102,187,106,0.7); /* green thumb */
   border-radius: 8px;
-  border: 3px solid rgba(243,224,192,0.9);
+  border: 3px solid rgba(79,86,75,0.9);
 }
 
 /* Firefox */
 .sidebar {
   scrollbar-width: thin;
-  scrollbar-color: #DABB7C #AF8228;
+  scrollbar-color: #66BB6A #4F564B;
 }
 
 .sidebar-links {
-  @apply text-[hsl(40,62%,26%)];
+  @apply text-[#282B28];
   @apply no-underline;
   @apply text-base;
   @apply py-2;
@@ -110,7 +110,7 @@
   @apply rounded-md;
   @apply transition-colors;
   @apply duration-200;
-  @apply bg-[#E8CB92];
+  @apply bg-[#66BB6A];
   @apply hover:shadow-sm;
 }
 
@@ -143,7 +143,7 @@
   @apply text-sm;
   @apply font-semibold;
   @apply mb-2;
-  @apply text-[hsl(40,62%,18%)];
+  @apply text-[#8FDA7C];
 }
 
 .keywords-container {
@@ -159,8 +159,8 @@
   @apply px-3;
   @apply py-1.5;
   @apply rounded;
-  @apply bg-[#E8CB92];
-  color: hsl(40, 62%, 18%);
+  @apply bg-[#66BB6A];
+  color: #1F2220;
   @apply text-sm;
   @apply font-medium;
   @apply transition-all;
@@ -174,7 +174,7 @@
 .keyword-remove-btn {
   @apply bg-transparent;
   @apply border-0;
-  color: hsl(40, 62%, 18%);
+  color: #1F2220;
   @apply font-bold;
   @apply leading-none;
   @apply cursor-pointer;
@@ -192,7 +192,7 @@
 .keyword-remove-btn:hover {
   @apply transform;
   @apply scale-125;
-  color: hsl(0, 50%, 40%);
+  color: #ff4d4d;
 }
 
 .keyword-remove-btn:focus {

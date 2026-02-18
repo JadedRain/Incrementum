@@ -3,7 +3,7 @@
 .SettingsPage-left-sidebar {
   width: 325px;
   height: calc(100vh - var(--header-height) - 80px);
-  background-color: hsl(40,63%,63%);
+  background-color: #4F564B;
   border-radius: 0.125rem;
   box-shadow: none;
   padding: 1.5rem;
@@ -16,7 +16,7 @@
 .Settings-main-content {
   flex: 1 1 auto;
   min-height: calc(100vh - var(--header-height) - 80px);
-  background-color: hsl(40,63%,63%);
+  background-color: #6B7469;
   border-radius: 0.125rem;
   padding: 1.5rem;
   box-shadow: none;

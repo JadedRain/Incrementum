@@ -20,7 +20,7 @@
     position: absolute;
     right: 0;
     top: 2rem;
-    background: #e6c884;
+    background: #6B7469;
     border-radius: 10px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.18);
     padding: 12px;
@@ -32,7 +32,7 @@
     font-weight: 800;
     margin-bottom: 10px;
     font-size: 15px;
-    color: #3f2a10;
+    color: #C8D5C1;
   }
   .column-label {
     display: flex;
@@ -42,7 +42,7 @@
   }
   .column-checkbox {
     transform: scale(1.2);
-    accent-color: #6b4c1b;
+    accent-color: #66BB6A;
   }
   .header-draggable {
     cursor: grab;
@@ -54,7 +54,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    box-shadow: 5px 5px 5px #3F3A30;
+    box-shadow: 5px 5px 5px rgba(0,0,0,0.5);
   }
   .stocktable-header-row-relative {
     position: relative;

@@ -7,18 +7,18 @@
   @apply left-0;
   @apply right-0;
   @apply w-full;
-  @apply bg-[hsl(41,61%,9%)];
+  @apply bg-[#6B7469];
   @apply flex;
   @apply items-center;
   @apply py-4;
   @apply z-[1000];
   @apply shadow-[0_2px_4px_rgba(0,0,0,0.5)];
   @apply border-b-2;
-  @apply border-[hsl(42,15%,70%)]
+  @apply border-[#4F564B]
 }
 
 .StocksPage-h1 {
-  @apply text-[hsl(40,66%,60%)];
+  @apply text-[#C8D5C1];
   @apply text-[2.5rem];
   @apply m-0;
   @apply flex-1;

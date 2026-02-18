@@ -18,7 +18,7 @@ function ScreenerPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[hsl(40,13%,53%)]">
+        <div className="min-h-screen bg-[#1F2220]">
             <NavigationBar />
             <div className="main-content">
                 <Link to="/account" className="navbar-link">Account</Link>
