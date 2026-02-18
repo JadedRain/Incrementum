@@ -169,11 +169,6 @@ function IndividualScreenPageContent() {
                     navigate(`/stock/${symbol}`)
                   }
                 />
-                <div className="pagination-controls">
-                  <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>&lt; Prev</button>
-                  <span className="pagination-page-label">Page {currentPage} of {totalPages}</span>
-                  <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>&gt; Next</button>
-                </div>
               </>
             }
             {potentialGainsToggled && (

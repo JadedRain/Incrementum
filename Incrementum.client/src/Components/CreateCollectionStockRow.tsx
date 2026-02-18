@@ -30,9 +30,8 @@ export default function CreateCollectionStockRow({ stock, onClick, onRemove, isP
         <button
           aria-label={`Remove ${symbol} from collection`}
           onClick={handleRemoveClick}
-          className='watch-btn'
+          className={isPending ? 'watch-btn watch-btn--pending' : 'watch-btn'}
           disabled={isPending}
-          className={isPending ? 'watch-btn--pending' : undefined}
         >
           −
         </button>
