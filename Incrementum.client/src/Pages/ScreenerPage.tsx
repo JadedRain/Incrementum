@@ -121,10 +121,6 @@ function ScreenerPage() {
                                         </aside>
                     </div>
                 </div>
-                                {/* Screener main rendered below so users can see stocks on one page */}
-                                <DatabaseScreenerProvider>
-                                  <ScreenerMain />
-                                </DatabaseScreenerProvider>
             </div>
         </div>
     );
