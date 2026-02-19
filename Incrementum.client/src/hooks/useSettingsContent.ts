@@ -1,4 +1,5 @@
-import { useMemo, type ReactNode } from "react";
+import { useMemo, type ReactNode, createElement } from "react";
+import ThemeToggle from "../Components/ThemeToggle";
 
 type Account = { 
   name: string; 
@@ -34,19 +35,10 @@ export default function useSettingsContent(active: "account" | "notification" | 
       return { title: "Account Settings", sections };
     }
 
-    if (active === "notification") {
-      return {
-        title: "Notification Settings",
-        sections: [
-          { title: undefined, rows: [ { label: "Email Notifications", value: "Enabled" }, { label: "Push Notifications", value: "Disabled" } ] },
-        ],
-      };
-    }
-
     return {
       title: "Customize",
       sections: [
-        { title: undefined, rows: [ { label: "Theme", value: "Golden" }, { label: "Compact Layout", value: "Off" } ] },
+        { title: undefined, rows: [ { label: "Theme", value: createElement(ThemeToggle) } ] },
       ],
     };
   }, [active, account]);

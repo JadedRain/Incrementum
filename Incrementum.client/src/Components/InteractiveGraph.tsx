@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { dashString } from "../Context/FetchingHelper";
+import { useTheme } from "../Context/ThemeContext";
 
 type Props = {
   url?: string;
@@ -12,13 +13,14 @@ type Props = {
 
 const InteractiveGraph: React.FC<Props> = ({ url = dashString(), period = "1y", interval = "1d", height = "600px" }) => {
   const { token } = useParams<{ token: string }>();
+  const { theme } = useTheme();
   const ticker = token ?? "";
   const [graphType, setGraphType] = useState<'line' | 'candle'>('line');
 
   const src =
     ticker && ticker.length
-      ? `${url}/?ticker=${encodeURIComponent(ticker)}&period=${encodeURIComponent(period)}&interval=${encodeURIComponent(interval)}&type=${graphType}`
-      : `${url}/`;
+      ? `${url}/?ticker=${encodeURIComponent(ticker)}&period=${encodeURIComponent(period)}&interval=${encodeURIComponent(interval)}&type=${graphType}&theme=${theme}`
+      : `${url}/?theme=${theme}`;
 
   return (
     <div className="interactive-graph-wrapper" style={{ height }}>
@@ -31,7 +33,7 @@ const InteractiveGraph: React.FC<Props> = ({ url = dashString(), period = "1y", 
         </button>
       </div>
       <iframe
-        key={graphType + ticker}
+        key={graphType + ticker + theme}
         src={src}
         title="Dash App"
         className="w-full h-full border-0 bg-[var(--bg-surface)]"

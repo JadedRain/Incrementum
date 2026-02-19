@@ -54,3 +54,45 @@
   --status-error-hover: #dc2626;
   --status-success:   #66BB6A;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+ * Light Mode Theme Override (Placeholders)
+ * ═══════════════════════════════════════════════════════════════════
+ * When data-theme="light" is set on the root element, these values
+ * override the default dark theme colors above.
+ * Layout, shadows, and typography remain the same.
+ */
+[data-theme="light"] {
+  /* ── Backgrounds ───────────────────────────────────── */
+  --bg-base:          #E1EFE2;   /* page / outermost background        */
+  --bg-surface:       #CAE0CB;   /* cards, panels, modals              */
+  --bg-sunken:        #D5E3D1;   /* navbar, sidebar, secondary panels  */
+  --bg-row-alt:       #D8E8D9;   /* alternating table rows             */
+  --bg-overlay:       rgba(0, 0, 0, 0.3); /* modal backdrop            */
+
+  /* ── Text ──────────────────────────────────────────── */
+  --text-primary:     #0E250E;   /* standard body / label text         */
+  --text-secondary:   #0A2207;   /* headers, prominent labels          */
+  --text-muted:       #5C5C5C;   /* de-emphasised / placeholder text   */
+  --text-on-accent:   #FFFFFF;   /* text placed on green buttons       */
+
+  /* ── Accent / Interactive ──────────────────────────── */
+  --accent:           #66BB6A;   /* primary buttons, active states     */
+  --accent-hover:     #4CAF50;   /* button hover                       */
+  --accent-muted:     #A0A0A0;   /* dotted borders, secondary outlines */
+
+  /* ── Borders ───────────────────────────────────────── */
+  --border-divider:   #A8C9A9;   /* section dividers                   */
+  --border-card:      #B0D0B1;   /* card dotted borders                */
+
+  /* ── Shadows ───────────────────────────────────────── */
+  --shadow-card:      0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-panel:     0 1px 4px rgba(0, 0, 0, 0.05);
+  --shadow-nav:       0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-hover:     0 4px 12px rgba(102, 187, 106, 0.15);
+
+  /* ── Status ────────────────────────────────────────── */
+  --status-error:     #D32F2F;   /* error / destructive red            */
+  --status-error-hover: #B71C1C;
+  --status-success:   #66BB6A;
+}
