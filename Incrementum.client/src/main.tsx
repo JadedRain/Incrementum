@@ -11,6 +11,7 @@ import {
 import AdminRoute from "./Components/AdminRoute";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import { AuthProvider } from "./Context/AuthContext";
+import { ThemeProvider } from "./Context/ThemeContext";
 import { FilterDataProvider } from "./Context/FilterDataContext";
 import { ErrorBoundary } from "./ErrorBoundry";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -19,15 +20,16 @@ const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <ErrorBoundary>
-    <AuthProvider>
-      <Toaster 
-                  position="top-right"
-                  toastOptions={{
-                    duration: 3000
-                  }}
-              />
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
+    <ThemeProvider>
+      <AuthProvider>
+        <Toaster 
+                    position="top-right"
+                    toastOptions={{
+                      duration: 3000
+                    }}
+                />
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
           <Routes>
             <Route path="/screener" element={<ScreenerPage />} />
             <Route path="/screener-test" element={<ProtectedRoute><ScreenerTestPage /></ProtectedRoute>} />
@@ -49,5 +51,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </BrowserRouter>
       </QueryClientProvider>
     </AuthProvider>
-  </ ErrorBoundary>
+    </ThemeProvider>
+  </ErrorBoundary>
 );

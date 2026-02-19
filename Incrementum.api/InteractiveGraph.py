@@ -6,10 +6,7 @@ import requests
 import logging
 from urllib.parse import parse_qs
 import json
-from tokens import (
-    BG_SURFACE, TEXT_PRIMARY, TEXT_SECONDARY,
-    ACCENT, STATUS_ERROR
-)
+from tokens import get_theme, DARK_THEME
 
 API_BASE = 'http://api:8000'
 logger = logging.getLogger("dash")
@@ -33,8 +30,9 @@ app.layout = html.Div([
         dcc.Location(id="url", refresh=False),
         dcc.Input(id="ticker-input", type="text", value="", style={"display": "none"}),
         dcc.Input(id="type-input", type="hidden", value="line"),
+        dcc.Input(id="theme-input", type="hidden", value="dark"),
         html.Div(
-            [
+            children=[
                 html.Div(
                     [
                         html.H1(
@@ -44,7 +42,7 @@ app.layout = html.Div([
                                 "fontSize": "36px",
                                 "fontWeight": "700",
                                 "margin": 0,
-                                "color": TEXT_SECONDARY
+                                "color": DARK_THEME["TEXT_SECONDARY"]
                             }
                         ),
                         html.Div(
@@ -53,7 +51,7 @@ app.layout = html.Div([
                             style={
                                 "fontSize": "24px",
                                 "marginTop": "6px",
-                                "color": TEXT_PRIMARY
+                                "color": DARK_THEME["TEXT_PRIMARY"]
                             }
                         ),
                     ],
@@ -75,16 +73,16 @@ app.layout = html.Div([
                             style={
                                 "padding": "2px 6px",
                                 "fontSize": "11px",
-                                "color": TEXT_PRIMARY,
+                                "color": DARK_THEME["TEXT_PRIMARY"],
                                 "border": "none",
                                 "minWidth": "28px",
                                 "lineHeight": "1",
                                 "textAlign": "center"
                             },
                             selected_style={
-                                "color": ACCENT,
+                                "color": DARK_THEME["ACCENT"],
                                 "border": "none",
-                                "borderBottom": f"2px solid {ACCENT}",
+                                "borderBottom": f"2px solid {DARK_THEME['ACCENT']}",
                                 "fontWeight": "600"
                             }),
                         dcc.Tab(
@@ -93,15 +91,15 @@ app.layout = html.Div([
                             style={
                                 "padding": "4px 8px",
                                 "fontSize": "12px",
-                                "color": TEXT_PRIMARY,
+                                "color": DARK_THEME["TEXT_PRIMARY"],
                                 "border": "none",
                                 "minWidth": "34px",
                                 "textAlign": "center"
                             },
                             selected_style={
-                                "color": ACCENT,
+                                "color": DARK_THEME["ACCENT"],
                                 "border": "none",
-                                "borderBottom": f"3px solid {ACCENT}",
+                                "borderBottom": f"3px solid {DARK_THEME['ACCENT']}",
                                 "fontWeight": "600"
                             }),
                         dcc.Tab(
@@ -110,15 +108,15 @@ app.layout = html.Div([
                             style={
                                 "padding": "4px 8px",
                                 "fontSize": "12px",
-                                "color": TEXT_PRIMARY,
+                                "color": DARK_THEME["TEXT_PRIMARY"],
                                 "border": "none",
                                 "minWidth": "34px",
                                 "textAlign": "center"
                             },
                             selected_style={
-                                "color": ACCENT,
+                                "color": DARK_THEME["ACCENT"],
                                 "border": "none",
-                                "borderBottom": f"3px solid {ACCENT}",
+                                "borderBottom": f"3px solid {DARK_THEME['ACCENT']}",
                                 "fontWeight": "600"
                             }),
                         dcc.Tab(
@@ -127,15 +125,15 @@ app.layout = html.Div([
                             style={
                                 "padding": "4px 8px",
                                 "fontSize": "12px",
-                                "color": TEXT_PRIMARY,
+                                "color": DARK_THEME["TEXT_PRIMARY"],
                                 "border": "none",
                                 "minWidth": "34px",
                                 "textAlign": "center"
                             },
                             selected_style={
-                                "color": ACCENT,
+                                "color": DARK_THEME["ACCENT"],
                                 "border": "none",
-                                "borderBottom": f"3px solid {ACCENT}",
+                                "borderBottom": f"3px solid {DARK_THEME['ACCENT']}",
                                 "fontWeight": "600"
                             }),
                         dcc.Tab(
@@ -144,15 +142,15 @@ app.layout = html.Div([
                             style={
                                 "padding": "4px 8px",
                                 "fontSize": "12px",
-                                "color": TEXT_PRIMARY,
+                                "color": DARK_THEME["TEXT_PRIMARY"],
                                 "border": "none",
                                 "minWidth": "34px",
                                 "textAlign": "center"
                             },
                             selected_style={
-                                "color": ACCENT,
+                                "color": DARK_THEME["ACCENT"],
                                 "border": "none",
-                                "borderBottom": f"3px solid {ACCENT}",
+                                "borderBottom": f"3px solid {DARK_THEME['ACCENT']}",
                                 "fontWeight": "600"
                             }),
                         dcc.Tab(
@@ -161,15 +159,15 @@ app.layout = html.Div([
                             style={
                                 "padding": "4px 8px",
                                 "fontSize": "12px",
-                                "color": TEXT_PRIMARY,
+                                "color": DARK_THEME["TEXT_PRIMARY"],
                                 "border": "none",
                                 "minWidth": "34px",
                                 "textAlign": "center"
                             },
                             selected_style={
-                                "color": ACCENT,
+                                "color": DARK_THEME["ACCENT"],
                                 "border": "none",
-                                "borderBottom": f"3px solid {ACCENT}",
+                                "borderBottom": f"3px solid {DARK_THEME['ACCENT']}",
                                 "fontWeight": "600"
                             })
                     ],
@@ -186,10 +184,10 @@ app.layout = html.Div([
             },
         ),
         dcc.Graph(id="graph-content", config={"displayModeBar": False}, style={"width": "100%"}),
-    ], style={"marginLeft": "250px", "width": "calc(100% - 250px)"}),
-], style={
-    "backgroundColor": BG_SURFACE,
-    "color": TEXT_SECONDARY,
+    ], id="main-content", style={"marginLeft": "250px", "width": "calc(100% - 250px)"}),
+], id="root-container", style={
+    "backgroundColor": DARK_THEME["BG_SURFACE"],
+    "color": DARK_THEME["TEXT_SECONDARY"],
     "minHeight": "100vh",
     "paddingTop": "12px"
 })
@@ -198,15 +196,17 @@ app.layout = html.Div([
 @callback(
     Output("ticker-input", "value"),
     Output("type-input", "value"),
+    Output("theme-input", "value"),
     Input("url", "search")
 )
 def set_ticker_and_type_from_search(search):
     if not search:
-        return "", "line"
+        return "", "line", "dark"
     qs = parse_qs(search.lstrip("?"))
     ticker = qs.get("ticker", [""])[0]
     graph_type = qs.get("type", ["line"])[0]
-    return ticker, graph_type
+    theme = qs.get("theme", ["dark"])[0]
+    return ticker, graph_type, theme
 
 
 @callback(
@@ -215,8 +215,16 @@ def set_ticker_and_type_from_search(search):
     Input("period-tabs", "value"),
     Input("interval-dropdown", "value"),
     Input("type-input", "value"),
+    Input("theme-input", "value"),
 )
-def update_graph(ticker, period, interval, graph_type):
+def update_graph(ticker, period, interval, graph_type, theme):
+    # Get theme colors
+    colors = get_theme(theme)
+    BG_SURFACE = colors["BG_SURFACE"]
+    TEXT_PRIMARY = colors["TEXT_PRIMARY"]
+    TEXT_SECONDARY = colors["TEXT_SECONDARY"]
+    ACCENT = colors["ACCENT"]
+    STATUS_ERROR = colors["STATUS_ERROR"]
     if not ticker:
         empty_df = pd.DataFrame({"x": [], "y": []})
         fig = px.line(empty_df, x="x", y="y")
@@ -365,6 +373,49 @@ def update_graph(ticker, period, interval, graph_type):
 def update_title_from_input(ticker_value):
     # show the ticker or fallback text; format as you like
     return (ticker_value or "TICKER").upper()
+
+
+@callback(
+    Output("root-container", "style"),
+    Input("theme-input", "value")
+)
+def update_root_style(theme):
+    colors = get_theme(theme)
+    return {
+        "backgroundColor": colors["BG_SURFACE"],
+        "color": colors["TEXT_SECONDARY"],
+        "minHeight": "100vh",
+        "paddingTop": "12px"
+    }
+
+
+@callback(
+    Output("ticker-title", "style"),
+    Input("theme-input", "value"),
+    prevent_initial_call=True
+)
+def update_title_style(theme):
+    colors = get_theme(theme)
+    return {
+        "fontSize": "36px",
+        "fontWeight": "700",
+        "margin": 0,
+        "color": colors["TEXT_SECONDARY"]
+    }
+
+
+@callback(
+    Output("price-display", "style"),
+    Input("theme-input", "value"),
+    prevent_initial_call=True
+)
+def update_price_style(theme):
+    colors = get_theme(theme)
+    return {
+        "fontSize": "24px",
+        "marginTop": "6px",
+        "color": colors["TEXT_PRIMARY"]
+    }
 
 
 if __name__ == "__main__":

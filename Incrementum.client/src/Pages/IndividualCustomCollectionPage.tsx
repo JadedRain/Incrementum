@@ -33,8 +33,10 @@ interface StockItem {
 
 const IndividualCustomCollectionPage: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id: idParam } = useParams();
   const { apiKey } = useAuth();
+  
+  const collectionId = idParam ? parseInt(idParam, 10) : null;
   
   const [editNameMode, setEditNameMode] = useState(false);
   const [pendingName, setPendingName] = useState("");
@@ -44,7 +46,7 @@ const IndividualCustomCollectionPage: React.FC = () => {
   const [searching, setSearching] = useState(false);
   
   const { tokens, setTokens, collectionName, collectionDesc, updateCollectionName, error, setError, refreshCollection } = 
-    useCustomCollection({ id, apiKey });
+    useCustomCollection({ id: collectionId, apiKey });
   
   const { stocksData, loadingStocks } = useStockDetails(tokens);
   
@@ -79,7 +81,7 @@ const IndividualCustomCollectionPage: React.FC = () => {
     onRefresh: refreshCollection,
     onError: setError,
     onClearSearch: clearSearch,
-    id,
+    id: idParam,
     setTokens
   });
   
@@ -151,7 +153,7 @@ const IndividualCustomCollectionPage: React.FC = () => {
           loadingStocks={loadingStocks}
           tokens={tokens}
           onStockClick={(symbol) => navigate(`/stock/${symbol}`)}
-          collectionId={id}
+          collectionId={idParam}
           collectionName={collectionName}
         />
       </div>
