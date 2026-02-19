@@ -63,9 +63,9 @@ export default function StockRow({ stock, onClick }: Props) {
           case 'eps':
             return <Cell key={k}>{o.eps != null ? `$${o.eps.toFixed(2)}` : 'N/A'}</Cell>;
           case 'high52':
-            return <Cell key={k}>{o.high52 != null ? `$${o.high52.toFixed(2)}` : 'N/A'}</Cell>;
+            return <Cell key={k}>{o.high52 != null ? `$${(o.high52 / 100).toFixed(2)}` : 'N/A'}</Cell>;
           case 'low52':
-            return <Cell key={k}>{o.low52 != null ? `$${o.low52.toFixed(2)}` : 'N/A'}</Cell>;
+            return <Cell key={k}>{o.low52 != null ? `$${(o.low52 / 100).toFixed(2)}` : 'N/A'}</Cell>;
           case 'percentChange':
             return <Cell key={k}><span className={o.percentChange != null && o.percentChange >= 0 ? 'text-green-500' : 'text-red-500'}>{o.percentChange != null ? (o.percentChange >= 0 ? `+${o.percentChange.toFixed(2)}%` : `${o.percentChange.toFixed(2)}%`) : 'N/A'}</span></Cell>;
           case 'volume':
