@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { dashString } from "../Context/FetchingHelper";
-import { useTheme } from "../Context/ThemeContext";
+import { useTheme } from "../hooks/useTheme";
 
 type Props = {
   url?: string;
