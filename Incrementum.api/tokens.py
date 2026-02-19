@@ -16,22 +16,22 @@ DARK_THEME = {
     "BG_SURFACE": "#5E6960",        # cards, panels, modals
     "BG_SUNKEN": "#454C45",         # sidebar, secondary panels
     "BG_ROW_ALT": "#3E4A3D",        # alternating table rows
-    
+
     # Text
     "TEXT_PRIMARY": "#B8D4A8",      # standard body / label text
     "TEXT_SECONDARY": "#D5E8CC",    # headers, prominent labels
     "TEXT_MUTED": "#8FA88A",        # de-emphasised / placeholder text
     "TEXT_ON_ACCENT": "#1A1C1A",    # text placed on green buttons
-    
+
     # Accent / Interactive
     "ACCENT": "#66BB6A",            # primary buttons, active states
     "ACCENT_HOVER": "#8FDA7C",      # button hover
     "ACCENT_MUTED": "#4E4E4E",      # dotted borders, secondary outlines
-    
+
     # Borders
     "BORDER_DIVIDER": "#454C45",    # section dividers
     "BORDER_CARD": "#4E4E4E",       # card dotted borders
-    
+
     # Status
     "STATUS_ERROR": "#ef4444",      # error / destructive red
     "STATUS_ERROR_HOVER": "#dc2626",
@@ -48,22 +48,22 @@ LIGHT_THEME = {
     "BG_SURFACE": "#CAE0CB",        # cards, panels, modals
     "BG_SUNKEN": "#D5E3D1",         # navbar, sidebar, secondary panels
     "BG_ROW_ALT": "#D8E8D9",        # alternating table rows
-    
+
     # Text
     "TEXT_PRIMARY": "#0E250E",      # standard body / label text
     "TEXT_SECONDARY": "#0A2207",    # headers, prominent labels
     "TEXT_MUTED": "#5C5C5C",        # de-emphasised / placeholder text
     "TEXT_ON_ACCENT": "#FFFFFF",    # text placed on green buttons
-    
+
     # Accent / Interactive
     "ACCENT": "#66BB6A",            # primary buttons, active states
     "ACCENT_HOVER": "#4CAF50",      # button hover
     "ACCENT_MUTED": "#A0A0A0",      # dotted borders, secondary outlines
-    
+
     # Borders
     "BORDER_DIVIDER": "#A8C9A9",    # section dividers
     "BORDER_CARD": "#B0D0B1",       # card dotted borders
-    
+
     # Status
     "STATUS_ERROR": "#D32F2F",      # error / destructive red
     "STATUS_ERROR_HOVER": "#B71C1C",
