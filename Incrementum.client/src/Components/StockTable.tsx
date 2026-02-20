@@ -166,17 +166,21 @@ function InnerStockTable({ onRowClick, cols, stocks, isLoading, sortBy, setSortB
           );
         })}
       </div>
-      <Loading loading={isLoading} />
-      {!isLoading && paginatedStocks.map((s: Stock, idx: number) => (
-        <StockRow key={s.symbol ?? idx} stock={s} onClick={() => onRowClick?.(s.symbol ?? '')} />
-      ))}
-      {stocksArray.length > 0 && (
-        <div className="pagination-controls">
-          <button className="pagination-button pagination-options" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>Prev</button>
-          <span className='pagination-options'>Page {currentPage} of {totalPages}</span>
-          <button className="pagination-button pagination-options" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>Next</button>
-        </div>
-      )}
+      <div className="stocktable-body">
+        <Loading loading={isLoading} />
+        {!isLoading && paginatedStocks.map((s: Stock, idx: number) => (
+          <StockRow key={s.symbol ?? idx} stock={s} onClick={() => onRowClick?.(s.symbol ?? '')} />
+        ))}
+      </div>
+      <div className="pagination-controls">
+        {(stocksArray.length > 0 || isLoading) && (
+          <>
+            <button className="pagination-button pagination-options" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1 || isLoading}>Prev</button>
+            <span className='pagination-options'>Page {currentPage} of {totalPages}</span>
+            <button className="pagination-button pagination-options" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages || isLoading}>Next</button>
+          </>
+        )}
+      </div>
     </div>
   );
 }
