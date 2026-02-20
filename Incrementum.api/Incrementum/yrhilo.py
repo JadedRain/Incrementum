@@ -3,8 +3,10 @@ from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal
 from Incrementum.models.stock import StockModel
+from logging import Logger
 
 
+logger = Logger("stock_data")
 PERCENT_CHANGE_CACHE_TTL_MINUTES = 60
 
 
@@ -138,13 +140,16 @@ def day_percent_change(stock=None, stocks=None):
             percent_change = ((prices[0] - prices[1]) / prices[1]) * 100
             recalculated_changes[symbol] = percent_change
 
-    if recalculated_changes:
+    if stale_or_missing_symbols:
         stocks_to_update = StockModel.objects.filter(
-            symbol__in=recalculated_changes.keys()
+            symbol__in=stale_or_missing_symbols
         )
         for stock_obj in stocks_to_update:
-            stock_obj.day_percent_change = Decimal(
-                str(recalculated_changes[stock_obj.symbol])
+            recalculated_value = recalculated_changes.get(stock_obj.symbol)
+            stock_obj.day_percent_change = (
+                Decimal(str(recalculated_value))
+                if recalculated_value is not None
+                else None
             )
             stock_obj.updated_at = now
         StockModel.objects.bulk_update(
