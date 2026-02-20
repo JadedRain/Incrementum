@@ -6,6 +6,13 @@ class StockModel(models.Model):
     symbol = models.CharField(max_length=10, primary_key=True)
     company_name = models.CharField(max_length=100)
     updated_at = models.DateTimeField(default=timezone.now)
+    day_percent_change = models.DecimalField(
+        max_digits=12,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        db_column='day_percent_change',
+    )
     description = models.TextField(
         null=True, blank=True, db_column='description'
     )
@@ -68,6 +75,11 @@ class StockModel(models.Model):
             'company_name': self.company_name,
             'updated_at': (
                 self.updated_at.isoformat() if self.updated_at else None
+            ),
+            'day_percent_change': (
+                float(self.day_percent_change)
+                if self.day_percent_change is not None
+                else None
             ),
             'description': self.description,
             'market_cap': self.market_cap,
