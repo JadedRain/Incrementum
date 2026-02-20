@@ -7,7 +7,15 @@ const TickerSymbolFilter: React.FC = () => {
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [activeTickerFilters, setActiveTickerFilters] = useState<string[]>([]);
-  const { addFilter, removeFilter } = useDatabaseScreenerContext();
+  const { addFilter, removeFilter, filterDict } = useDatabaseScreenerContext();
+
+  // Clear local state when filters are reset
+  React.useEffect(() => {
+    const tickerKeys = Object.keys(filterDict).filter(key => key.startsWith('ticker__'));
+    if (tickerKeys.length === 0 && activeTickerFilters.length > 0) {
+      setActiveTickerFilters([]);
+    }
+  }, [filterDict, activeTickerFilters.length]);
 
   const handleAdd = () => {
     const trimmed = input.trim();

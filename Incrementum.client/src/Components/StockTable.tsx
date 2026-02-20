@@ -197,10 +197,12 @@ function InnerStockTable({
           );
         })}
       </div>
-      <Loading loading={isLoading} />
-      {!isLoading && stocksArray.map((s: Stock, idx: number) => (
-        <StockRow key={s.symbol ?? idx} stock={s} onClick={() => onRowClick?.(s.symbol ?? '')} />
-      ))}
+      <div className="stocktable-body">
+        <Loading loading={isLoading} />
+        {!isLoading && paginatedStocks.map((s: Stock, idx: number) => (
+          <StockRow key={s.symbol ?? idx} stock={s} onClick={() => onRowClick?.(s.symbol ?? '')} />
+        ))}
+      </div>
       {useBackendPagination && pagination && pagination.total_pages > 0 && (
         <div className="pagination-controls">
           <button
