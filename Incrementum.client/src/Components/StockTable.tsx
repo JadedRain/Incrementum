@@ -106,7 +106,6 @@ function InnerStockTable({
   useBackendPagination: boolean;
 }) {
   const { visibleColumns, toggleColumn, menuOpen, setMenuOpen, menuRef, btnRef, columnOrder, moveColumn } = useColumnVisibility();
-
   const stocksArray = Array.isArray(stocks) ? (stocks as Stock[]) : [];
 
   // Map column keys to backend sort fields
@@ -199,7 +198,7 @@ function InnerStockTable({
       </div>
       <div className="stocktable-body">
         <Loading loading={isLoading} />
-        {!isLoading && paginatedStocks.map((s: Stock, idx: number) => (
+        {!isLoading && stocksArray.map((s: Stock, idx: number) => (
           <StockRow key={s.symbol ?? idx} stock={s} onClick={() => onRowClick?.(s.symbol ?? '')} />
         ))}
       </div>
