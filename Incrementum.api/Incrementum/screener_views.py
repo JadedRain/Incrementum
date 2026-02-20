@@ -1,4 +1,5 @@
 from Incrementum.models.stock import StockModel
+from django.utils import timezone
 from django.db.models import Q
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -8,11 +9,13 @@ from Incrementum.screener import Screener
 from Incrementum.DTOs.ifilterdata import FilterData
 import json
 import logging
+from datetime import timedelta
 from .yrhilo import (
     fifty_two_week_high_dict,
     fifty_two_week_low_dict,
     current_price_dict,
     day_percent_change,
+    PERCENT_CHANGE_CACHE_TTL_MINUTES,
 )
 screener_service = ScreenerService()
 
@@ -166,13 +169,13 @@ def run_database_screener(request):
         sort_by = None
         sort_order = 'asc'
         page = 1
-        per_page = 25
+        per_page = 12
     elif isinstance(payload, dict):
         filters_payload = payload.get('filters', [])
         sort_by = payload.get('sort_by')
         sort_order = payload.get('sort_order', 'asc')
         page = payload.get('page', 1)
-        per_page = payload.get('per_page', 25)
+        per_page = payload.get('per_page', 12)
     else:
         return JsonResponse({"error": "Body must be a JSON array or object"}, status=400)
 
@@ -206,12 +209,15 @@ def run_database_screener(request):
         filters.append(FilterData(operator, operand, filter_type, value))
 
     screener = Screener()
-    all_stocks, total_count = screener.query(filters, sort_by=sort_by, sort_order=sort_order)
+    stocks, total_count = screener.query(
+        filters,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        page=page,
+        page_size=per_page,
+    )
 
     total_pages = (total_count + per_page - 1) // per_page
-    start_idx = (page - 1) * per_page
-    end_idx = start_idx + per_page
-    stocks = all_stocks[start_idx:end_idx]
 
     # Batch fetch all highs, lows, price, and percent change at once
     symbols = [stock.symbol for stock in stocks]
@@ -219,7 +225,34 @@ def run_database_screener(request):
     highs = fifty_two_week_high_dict(stocks=symbols) if symbols else {}
     lows = fifty_two_week_low_dict(stocks=symbols) if symbols else {}
     prices = current_price_dict(stocks=symbols) if symbols else {}
-    percent_changes = day_percent_change(stocks=symbols) if symbols else {}
+
+    now = timezone.now()
+    fresh_after = now - timedelta(minutes=PERCENT_CHANGE_CACHE_TTL_MINUTES)
+    percent_changes = {}
+    stale_or_missing_symbols = []
+
+    for stock in stocks:
+        stock_updated_at = stock.updated_at
+        if stock_updated_at and timezone.is_naive(stock_updated_at):
+            stock_updated_at = timezone.make_aware(
+                stock_updated_at,
+                timezone.get_current_timezone(),
+            )
+
+        if (
+            stock.day_percent_change is not None
+            and stock_updated_at is not None
+            and stock_updated_at >= fresh_after
+        ):
+            percent_changes[stock.symbol] = float(stock.day_percent_change)
+        else:
+            stale_or_missing_symbols.append(stock.symbol)
+
+    if stale_or_missing_symbols:
+        percent_changes.update(
+            day_percent_change(stocks=stale_or_missing_symbols)
+        )
+
     logging.info(f"DEBUG: Highs dict: {highs}")
     logging.info(f"DEBUG: Lows dict: {lows}")
     logging.info(f"DEBUG: Prices dict: {prices}")

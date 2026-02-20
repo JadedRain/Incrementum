@@ -72,12 +72,14 @@ class Screener:
         if sort_by:
             order = '' if sort_order == 'asc' else '-'
             qs = qs.order_by(f'{order}{sort_by}')
+        else:
+            qs = qs.order_by('symbol')
         total = qs.count()
         if page_size:
             offset = (max(page, 1) - 1) * page_size
             qs = qs[offset: offset + page_size]
         result = list(qs)
-        logger.error(f"Query returned {len(result)} stocks (total {total})")
+        logger.info(f"Query returned {len(result)} stocks (total {total})")
         return result, total
 
     def _build_q_object(self, filter_data: FilterData) -> Q:

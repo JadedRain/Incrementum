@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import Loading from './Loading';
 import StockRow from './StockRow';
 import ColumnVisibilityProvider from '../Context/ColumnVisibilityContext';
@@ -29,8 +28,19 @@ type Col = { k: ColKey; l: string };
 type Props = { onRowClick?: (s: string) => void; stocks?: unknown[] };
 
 export default function StockTable({ onRowClick, stocks: overrideStocks }: Props) {
-  const { stocks: contextStocks, isLoading, sortBy, setSortBy, sortAsc, setSortAsc } = useDatabaseScreenerContext();
+  const {
+    stocks: contextStocks,
+    isLoading,
+    sortBy,
+    setSortBy,
+    sortAsc,
+    setSortAsc,
+    page,
+    setPage,
+    pagination,
+  } = useDatabaseScreenerContext();
   const stocks = (overrideStocks ?? contextStocks) as unknown[];
+  const useBackendPagination = overrideStocks === undefined;
 
   const cols: Col[] = [
     { k: 'symbol', l: 'Symbol' },
@@ -45,12 +55,38 @@ export default function StockTable({ onRowClick, stocks: overrideStocks }: Props
 
   return (
     <ColumnVisibilityProvider>
-      <InnerStockTable onRowClick={onRowClick} cols={cols} stocks={stocks} isLoading={isLoading} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} />
+      <InnerStockTable
+        onRowClick={onRowClick}
+        cols={cols}
+        stocks={stocks}
+        isLoading={isLoading}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        sortAsc={sortAsc}
+        setSortAsc={setSortAsc}
+        page={page}
+        setPage={setPage}
+        pagination={pagination}
+        useBackendPagination={useBackendPagination}
+      />
     </ColumnVisibilityProvider>
   );
 }
 
-function InnerStockTable({ onRowClick, cols, stocks, isLoading, sortBy, setSortBy, sortAsc, setSortAsc }: {
+function InnerStockTable({
+  onRowClick,
+  cols,
+  stocks,
+  isLoading,
+  sortBy,
+  setSortBy,
+  sortAsc,
+  setSortAsc,
+  page,
+  setPage,
+  pagination,
+  useBackendPagination,
+}: {
   onRowClick?: (s: string) => void;
   cols: Col[];
   stocks: unknown;
@@ -59,24 +95,18 @@ function InnerStockTable({ onRowClick, cols, stocks, isLoading, sortBy, setSortB
   setSortBy: (v: string | null) => void;
   sortAsc: boolean;
   setSortAsc: (v: boolean) => void;
+  page: number;
+  setPage: (v: number) => void;
+  pagination: {
+    total_count: number;
+    total_pages: number;
+    has_next: boolean;
+    has_prev: boolean;
+  } | null;
+  useBackendPagination: boolean;
 }) {
   const { visibleColumns, toggleColumn, menuOpen, setMenuOpen, menuRef, btnRef, columnOrder, moveColumn } = useColumnVisibility();
-  
-  // Pagination
-  const pageSize = 12;
   const stocksArray = Array.isArray(stocks) ? (stocks as Stock[]) : [];
-  const totalPages = Math.ceil(stocksArray.length / pageSize);
-  const [currentPage, setCurrentPage] = useState(1);
-  const paginatedStocks = stocksArray.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-  
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
-  };
-
-  // Reset to page 1 when stock count changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [stocksArray.length]);
 
   // Map column keys to backend sort fields
   const colToSortField = (k: string): string | null => {
@@ -168,19 +198,29 @@ function InnerStockTable({ onRowClick, cols, stocks, isLoading, sortBy, setSortB
       </div>
       <div className="stocktable-body">
         <Loading loading={isLoading} />
-        {!isLoading && paginatedStocks.map((s: Stock, idx: number) => (
+        {!isLoading && stocksArray.map((s: Stock, idx: number) => (
           <StockRow key={s.symbol ?? idx} stock={s} onClick={() => onRowClick?.(s.symbol ?? '')} />
         ))}
       </div>
-      <div className="pagination-controls">
-        {(stocksArray.length > 0 || isLoading) && (
-          <>
-            <button className="pagination-button pagination-options" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1 || isLoading}>Prev</button>
-            <span className='pagination-options'>Page {currentPage} of {totalPages}</span>
-            <button className="pagination-button pagination-options" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages || isLoading}>Next</button>
-          </>
-        )}
-      </div>
+      {useBackendPagination && pagination && pagination.total_pages > 0 && (
+        <div className="pagination-controls">
+          <button
+            className="pagination-button pagination-options"
+            onClick={() => setPage(page - 1)}
+            disabled={!pagination.has_prev || isLoading}
+          >
+            Prev
+          </button>
+          <span className='pagination-options'>Page {page} of {pagination.total_pages}</span>
+          <button
+            className="pagination-button pagination-options"
+            onClick={() => setPage(page + 1)}
+            disabled={!pagination.has_next || isLoading}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }
