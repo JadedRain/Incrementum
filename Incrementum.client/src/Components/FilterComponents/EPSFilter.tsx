@@ -15,6 +15,17 @@ const EPSFilter: React.FC = () => {
 
   const showWarning = min_eps !== null && max_eps !== null && min_eps > max_eps;
 
+  // Clear local state when filters are reset
+  useEffect(() => {
+    const epsKeys = Object.keys(filterDict).filter(key => key.startsWith('eps__'));
+    if (epsKeys.length === 0) {
+      if (min_eps !== null || max_eps !== null) {
+        setMinEPS(null);
+        setMaxEPS(null);
+      }
+    }
+  }, [filterDict, min_eps, max_eps]);
+
   useEffect(() => {
     if (min_eps !== null) {
       addFilter({

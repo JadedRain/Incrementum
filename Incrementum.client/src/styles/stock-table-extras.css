@@ -58,9 +58,17 @@
     flex-direction: column;
     box-shadow: 5px 5px 5px rgba(0,0,0,0.5);
   }
+  .StockTable-header-row {
+    flex-shrink: 0;
+  }
   .stocktable-header-row-relative {
     position: relative;
     flex-shrink: 0;
+  }
+  .stocktable-body {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
   }
   .stocktable-scroll {
     flex: 1;

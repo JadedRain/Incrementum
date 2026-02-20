@@ -2,8 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ColumnVisibilityContext } from './columnVisibilityCore';
 
 export function ColumnVisibilityProvider({ children }: { children: React.ReactNode; }) {
-  const LS_KEY = 'stockTable.visibleColumns.v2';
-  const defaultCols = { symbol: true, market_cap: true, eps: true } as Record<string, boolean>;
+  const LS_KEY = 'stockTable.visibleColumns.v3';
+  const defaultCols = {
+    symbol: true,
+    price: true,
+    percentChange: true,
+    market_cap: true,
+    eps: true,
+  } as Record<string, boolean>;
 
   const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>(() => {
     try {

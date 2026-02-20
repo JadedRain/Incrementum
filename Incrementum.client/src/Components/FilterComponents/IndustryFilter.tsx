@@ -13,8 +13,17 @@ const IndustryFilter: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeIndustryFilters, setActiveIndustryFilters] = useState<string[]>([]);
-  const { addFilter, removeFilter } = useDatabaseScreenerContext();
+  const { addFilter, removeFilter, filterDict } = useDatabaseScreenerContext();
   const suggestionBoxRef = useRef<HTMLDivElement>(null);
+
+  // Clear local state when filters are reset
+  useEffect(() => {
+    const industryKeys = Object.keys(filterDict).filter(key => key.startsWith('industry__'));
+    if (industryKeys.length === 0 && activeIndustryFilters.length > 0) {
+      setActiveIndustryFilters([]);
+      setIndustryQuery('');
+    }
+  }, [filterDict, activeIndustryFilters.length]);
 
   useEffect(() => {
     const fetchIndustrySuggestions = async () => {

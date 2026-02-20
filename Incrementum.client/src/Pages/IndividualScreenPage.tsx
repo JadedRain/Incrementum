@@ -29,7 +29,8 @@ function IndividualScreenPageContent() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const { id } = useParams<{ id: string }>();
   const { collections, loading: collectionsLoading } = useCustomCollections();
-  const [selectedCollectionId, setSelectedCollectionId] = useState<number | null>(id ? Number(id) : null);
+  const initialCollectionId = id && !isNaN(Number(id)) ? Number(id) : null;
+  const [selectedCollectionId, setSelectedCollectionId] = useState<number | null>(initialCollectionId);
   const { data: bulkStockData } = useBulkStockDataForCollection(selectedCollectionId);
   const { stocks, addFilter } = useDatabaseScreenerContext();
   const { saveCollection } = useSaveCollection({ apiKey, setTokens: () => { }, resetForm: () => { }, onError: setSaveError });
@@ -128,6 +129,8 @@ function IndividualScreenPageContent() {
     }
   }, [selectedCollectionId, bulkStockData, stocks]);
 
+  const isCollectionView = !!selectedCollectionId && Array.isArray(bulkStockData);
+
   if (!id) {
     return <Loading loading={true} />;
   }
@@ -163,12 +166,20 @@ function IndividualScreenPageContent() {
           <div className="screener-table">
             {!potentialGainsToggled &&
             <>
+              {isCollectionView ? (
                 <StockTable
                   stocks={displayStocks}
                   onRowClick={(symbol: string) =>
                     navigate(`/stock/${symbol}`)
                   }
                 />
+              ) : (
+                <StockTable
+                  onRowClick={(symbol: string) =>
+                    navigate(`/stock/${symbol}`)
+                  }
+                />
+              )}
               </>
             }
             {potentialGainsToggled && (
