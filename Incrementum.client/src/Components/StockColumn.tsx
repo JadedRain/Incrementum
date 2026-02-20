@@ -4,6 +4,7 @@ export type CollectionStock = { [k: string]: unknown };
 
 export type Formatter = (value: unknown, row: CollectionStock) => React.ReactNode;
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const StockTableContext = createContext<{
   sortBy: string | null;
   sortDir: 'asc' | 'desc' | null;
@@ -11,6 +12,7 @@ export const StockTableContext = createContext<{
   formatters?: Record<string, Formatter>;
 } | null>(null);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const StockRowContext = createContext<CollectionStock | null>(null);
 
 interface Props {
