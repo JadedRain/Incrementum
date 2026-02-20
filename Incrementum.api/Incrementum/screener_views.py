@@ -155,6 +155,7 @@ def run_database_screener(request):
     Run screener using database queries with the new Screener class.
     Accepts a list of FilterData objects and returns matching stocks from the database.
     Supports pagination with page and per_page parameters.
+    Query parameters override body parameters.
     """
     try:
         payload = json.loads(request.body or b"{}")
@@ -175,6 +176,16 @@ def run_database_screener(request):
         per_page = payload.get('per_page', 25)
     else:
         return JsonResponse({"error": "Body must be a JSON array or object"}, status=400)
+
+    # Query parameters override body parameters
+    if 'sort_by' in request.GET:
+        sort_by = request.GET.get('sort_by')
+    if 'sort_order' in request.GET:
+        sort_order = request.GET.get('sort_order', 'asc')
+    if 'page' in request.GET:
+        page = request.GET.get('page', 1)
+    if 'page_size' in request.GET:
+        per_page = request.GET.get('page_size', 25)
 
     try:
         page = max(1, int(page))

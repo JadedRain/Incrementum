@@ -15,7 +15,15 @@ class Screener:
               page: int = 1, page_size: int | None = None) -> tuple[List[StockModel], int]:
 
         if not filters:
-            base_qs = StockModel.objects.order_by('symbol')
+            base_qs = StockModel.objects
+            if sort_by:
+                # Exclude NULL values when sorting by a nullable field
+                base_qs = base_qs.exclude(**{f'{sort_by}__isnull': True})
+                order = '' if sort_order == 'asc' else '-'
+                base_qs = base_qs.order_by(f'{order}{sort_by}')
+            else:
+                base_qs = base_qs.order_by('symbol')
+            
             total = base_qs.count()
             if page_size:
                 offset = (max(page, 1) - 1) * page_size
@@ -31,7 +39,7 @@ class Screener:
                 grouped_filters[operand] = []
             grouped_filters[operand].append(filter_data)
 
-        needs_latest_pps = any(f.operand == 'pps' for f in filters)
+        needs_latest_pps = any(f.operand == 'pps' for f in filters) or sort_by == 'latest_close'
         base_qs = StockModel.objects
         if needs_latest_pps:
             latest_history_qs = StockHistory.objects.filter(
@@ -69,9 +77,13 @@ class Screener:
 
         logger.info(f"Final query: {combined_q}")
         qs = base_qs.filter(combined_q)
+        
+        # Exclude NULL values when sorting by a nullable field
         if sort_by:
+            qs = qs.exclude(**{f'{sort_by}__isnull': True})
             order = '' if sort_order == 'asc' else '-'
             qs = qs.order_by(f'{order}{sort_by}')
+        
         total = qs.count()
         if page_size:
             offset = (max(page, 1) - 1) * page_size
