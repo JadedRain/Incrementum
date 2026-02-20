@@ -32,7 +32,8 @@ def test_day_percent_change_uses_fresh_cached_value(mock_stock_model, mock_curso
 
 @patch('Incrementum.yrhilo.connection.cursor')
 @patch('Incrementum.yrhilo.StockModel')
-def test_day_percent_change_recalculates_and_persists_when_cache_stale(mock_stock_model, mock_cursor):
+def test_day_percent_change_recalculates_and_persists_when_cache_stale(mock_stock_model, 
+                                                                       mock_cursor):
     now = timezone.now()
 
     cache_qs = MagicMock()
@@ -101,7 +102,8 @@ def test_day_percent_change_accepts_naive_updated_at(mock_stock_model, mock_curs
 
 @patch('Incrementum.yrhilo.connection.cursor')
 @patch('Incrementum.yrhilo.StockModel')
-def test_day_percent_change_persists_null_when_no_recalculation_available(mock_stock_model, mock_cursor):
+def test_day_percent_change_persists_null_when_no_recalculation_available(mock_stock_model, 
+                                                                          mock_cursor):
     now = timezone.now()
 
     cache_qs = MagicMock()
