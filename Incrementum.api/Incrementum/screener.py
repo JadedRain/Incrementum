@@ -23,7 +23,7 @@ class Screener:
                 base_qs = base_qs.order_by(f'{order}{sort_by}')
             else:
                 base_qs = base_qs.order_by('symbol')
-            
+
             total = base_qs.count()
             if page_size:
                 offset = (max(page, 1) - 1) * page_size
@@ -77,13 +77,12 @@ class Screener:
 
         logger.info(f"Final query: {combined_q}")
         qs = base_qs.filter(combined_q)
-        
-        # Exclude NULL values when sorting by a nullable field
+
         if sort_by:
             qs = qs.exclude(**{f'{sort_by}__isnull': True})
             order = '' if sort_order == 'asc' else '-'
             qs = qs.order_by(f'{order}{sort_by}')
-        
+
         total = qs.count()
         if page_size:
             offset = (max(page, 1) - 1) * page_size
