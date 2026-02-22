@@ -1,4 +1,3 @@
-from Incrementum.utils import calculate_percent_change
 from ..stock_history_service import StockHistoryService
 import json
 import logging
@@ -143,27 +142,6 @@ def get_stock_graph(request, ticker):
 
 @csrf_exempt
 @require_http_methods(["GET"])
-def get_all_stocks_with_info(request):
-    limit = int(request.GET.get('limit', 100))
-    offset = int(request.GET.get('offset', 0))
-
-    limit = min(limit, 1000)
-
-    total_count = StockModel.objects.count()
-    stocks = StockModel.objects.all()[offset:offset+limit]
-    stocks_data = [stock.to_dict() for stock in stocks]
-
-    return JsonResponse({
-        'total': total_count,
-        'count': len(stocks_data),
-        'limit': limit,
-        'offset': offset,
-        'stocks': stocks_data
-    }, status=200)
-
-
-@csrf_exempt
-@require_http_methods(["GET"])
 def get_database_stocks(request):
     limit = int(request.GET.get('limit', 100))
     offset = int(request.GET.get('offset', 0))
@@ -184,12 +162,6 @@ def get_database_stocks(request):
 
 
 @csrf_exempt
-@require_http_methods(["GET"])
-def hello_world(request):
-    return JsonResponse({"message": "Hello, world!"})
-
-
-@csrf_exempt
 @require_http_methods(["POST"])
 def get_stocks_by_tickers(request):
     try:
@@ -201,39 +173,5 @@ def get_stocks_by_tickers(request):
         logger.info(f"Got {len(stocks)} stocks")
         serializer = StockSerializer(stocks, many=True)
         return JsonResponse({'stocks': serializer.data}, status=200)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-
-@require_http_methods(["GET"])
-def get_stock_eps(request, ticker):
-    try:
-        stock = StockModel.objects.get(symbol__iexact=ticker)
-        eps_val = float(stock.eps) if stock.eps is not None else None
-        return JsonResponse({'symbol': stock.symbol, 'eps': eps_val}, status=200)
-    except StockModel.DoesNotExist:
-        return JsonResponse({'error': f'Stock with ticker {ticker} not found'}, status=404)
-
-
-@csrf_exempt
-@require_http_methods(["GET"])
-def get_percent_change(request, ticker):
-    mode = request.GET.get('mode', 'day')
-    try:
-        pct, calc_time = calculate_percent_change(ticker, mode=mode)
-        if pct is None:
-            return JsonResponse({
-                'symbol': ticker,
-                'mode': mode,
-                'percent_change': None,
-                'calculation_time': str(calc_time),
-                'error': 'Not enough data or unavailable.'
-            }, status=404)
-        return JsonResponse({
-            'symbol': ticker,
-            'mode': mode,
-            'percent_change': pct,
-            'calculation_time': str(calc_time)
-        }, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)

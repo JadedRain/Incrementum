@@ -32,16 +32,14 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
   useEffect(() => {
     const marketCapKeys = Object.keys(filterDict).filter(key => key.startsWith('market_cap__'));
     if (marketCapKeys.length === 0) {
-      if (min_market_cap !== null || max_market_cap !== null || min_market_cap_temp !== null || max_market_cap_temp !== null) {
-        setMinMarketCap(null);
-        setMaxMarketCap(null);
-        setMinMarketCapTemp(null);
-        setMaxMarketCapTemp(null);
-        setScaleLabelMin(1);
-        setScaleLabelMax(1);
-      }
+      setMinMarketCap(null);
+      setMaxMarketCap(null);
+      setMinMarketCapTemp(null);
+      setMaxMarketCapTemp(null);
+      setScaleLabelMin(1);
+      setScaleLabelMax(1);
     }
-  }, [filterDict, min_market_cap, max_market_cap, min_market_cap_temp, max_market_cap_temp]);
+  }, [filterDict]);
   useEffect(() => {
     setMinMarketCap(min_market_cap_temp !== null ? min_market_cap_temp * scaleLabelMin : null);
     setMaxMarketCap(max_market_cap_temp !== null ? max_market_cap_temp * scaleLabelMax : null);

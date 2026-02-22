@@ -185,13 +185,11 @@ class CustomCollectionService:
         except CustomCollection.DoesNotExist:
             raise ValueError(f"Collection '{collection_name}' not found")
 
-        # Check if new name already exists (if changing name)
         if new_name and new_name != collection_name:
             if CustomCollection.objects.filter(collection_name=new_name, account=account).exists():
                 raise ValueError(f"Collection '{new_name}' already exists")
             collection.collection_name = new_name
 
-        # Update description if provided
         if new_desc is not None:
             collection.c_desc = new_desc
 

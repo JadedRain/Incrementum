@@ -3,10 +3,8 @@ from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal
 from Incrementum.models.stock import StockModel
-from logging import Logger
 
 
-logger = Logger("stock_data")
 PERCENT_CHANGE_CACHE_TTL_MINUTES = 60
 
 
