@@ -1,4 +1,3 @@
-from Incrementum.utils import calculate_percent_change
 from ..stock_history_service import StockHistoryService
 import json
 import logging
