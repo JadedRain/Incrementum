@@ -19,52 +19,6 @@ fetch_status = {
 
 
 @csrf_exempt
-@require_http_methods(["POST", "GET"])
-def fetch_and_update_database(request):
-
-    if request.method == "GET":
-        # Return current status
-        stock_count = StockModel.objects.count()
-        return JsonResponse({
-            'running': fetch_status['running'],
-            'progress': fetch_status['progress'],
-            'total': fetch_status['total'],
-            'saved': fetch_status['saved'],
-            'errors': fetch_status['errors'],
-            'stocks_in_db': stock_count,
-            'started_at': fetch_status['started_at']
-        }, status=200)
-
-    # POST - start the fetch
-    if fetch_status['running']:
-        return JsonResponse({
-            'success': False,
-            'error': 'Fetch already running',
-            'progress': fetch_status['progress'],
-            'total': fetch_status['total']
-        }, status=400)
-
-    try:
-
-        return JsonResponse({
-            'success': True,
-            'message': (
-                'Fetch started in background. '
-                'Use GET to check progress.'
-            ),
-        }, status=200)
-
-    except Exception as e:
-        print(f"\nERROR in fetch_and_update_database: {e}")
-        traceback.print_exc()
-
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
-
-
-@csrf_exempt
 @require_http_methods(["GET"])
 def get_fear_greed_from_csv(request):
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))

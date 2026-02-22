@@ -8,7 +8,6 @@ from django.utils import timezone
 
 class StockHistoryService:
     def __init__(self):
-        # self.logger = logging.getLogger("django")
         self.logger = Logger("logs")
 
     def get_db_history(
