@@ -35,7 +35,7 @@ class TestValidateTickerSymbols:
             data=json.dumps({'symbols': ['AAPL', 'MSFT']}),
             content_type='application/json'
         )
-        
+
         assert response.status_code == 200
         data = json.loads(response.content)
         assert set(data['valid']) == {'AAPL', 'MSFT'}
@@ -48,7 +48,7 @@ class TestValidateTickerSymbols:
             data=json.dumps({'symbols': ['INVALID', 'NOTFOUND']}),
             content_type='application/json'
         )
-        
+
         assert response.status_code == 200
         data = json.loads(response.content)
         assert data['valid'] == []
@@ -61,7 +61,7 @@ class TestValidateTickerSymbols:
             data=json.dumps({'symbols': ['AAPL', 'INVALID', 'GOOGL']}),
             content_type='application/json'
         )
-        
+
         assert response.status_code == 200
         data = json.loads(response.content)
         assert set(data['valid']) == {'AAPL', 'GOOGL'}
@@ -74,7 +74,7 @@ class TestValidateTickerSymbols:
             data=json.dumps({'symbols': ['aapl', 'MsFt']}),
             content_type='application/json'
         )
-        
+
         assert response.status_code == 200
         data = json.loads(response.content)
         assert set(data['valid']) == {'AAPL', 'MSFT'}
@@ -87,7 +87,7 @@ class TestValidateTickerSymbols:
             data=json.dumps({'symbols': []}),
             content_type='application/json'
         )
-        
+
         assert response.status_code == 200
         data = json.loads(response.content)
         assert data['valid'] == []
@@ -100,7 +100,7 @@ class TestValidateTickerSymbols:
             data='invalid json',
             content_type='application/json'
         )
-        
+
         assert response.status_code == 400
         data = json.loads(response.content)
         assert 'error' in data
@@ -112,7 +112,7 @@ class TestValidateTickerSymbols:
             data=json.dumps({'symbols': 'AAPL'}),
             content_type='application/json'
         )
-        
+
         assert response.status_code == 400
         data = json.loads(response.content)
         assert 'error' in data
