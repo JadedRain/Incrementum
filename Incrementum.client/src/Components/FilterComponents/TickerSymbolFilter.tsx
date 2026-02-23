@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useDatabaseScreenerContext } from '../../Context/DatabaseScreenerContext';
+import { apiString, fetchWrapper } from '../../Context/FetchingHelper';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
 import FilterChip from '../FilterChip';
 
@@ -17,7 +18,7 @@ const TickerSymbolFilter: React.FC = () => {
     }
   }, [filterDict, activeTickerFilters.length]);
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     const trimmed = input.trim();
     if (!trimmed) {
       setError('Please enter at least one ticker symbol.');
@@ -31,14 +32,61 @@ const TickerSymbolFilter: React.FC = () => {
       setError('No valid symbols found.');
       return;
     }
-    symbols.forEach(symbol => {
-      let op = 'equals';
-      if (symbol.includes('*')) {
-        op = 'contains';
+
+    // Separate wildcards from regular symbols
+    const wildcardSymbols = symbols.filter(s => s.includes('*'));
+    const regularSymbols = symbols.filter(s => !s.includes('*'));
+
+    // Validate regular ticker symbols against the database
+    if (regularSymbols.length > 0) {
+      try {
+        const response = await fetchWrapper(() => 
+          fetch(apiString('/stocks/validate-tickers/'), {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ symbols: regularSymbols }),
+          })
+        );
+
+        if (!response.ok) {
+          setError('Failed to validate ticker symbols.');
+          return;
+        }
+
+        const data = await response.json();
+        const { valid, invalid } = data;
+
+        if (invalid.length > 0) {
+          setError(`No information for the following symbols: ${invalid.join(', ')}`);
+          return;
+        }
+
+        // Add valid regular symbols to the filter
+        valid.forEach((symbol: string) => {
+          if (!activeTickerFilters.includes(symbol)) {
+            addFilter({
+              operator: 'equals',
+              operand: 'ticker',
+              filter_type: 'categoric',
+              value: symbol,
+            });
+            setActiveTickerFilters(prev => [...prev, symbol]);
+          }
+        });
+      } catch (err) {
+        console.error('Error validating ticker symbols:', err);
+        setError('An error occurred while validating ticker symbols.');
+        return;
       }
+    }
+
+    // Add wildcard symbols without validation
+    wildcardSymbols.forEach(symbol => {
       if (!activeTickerFilters.includes(symbol)) {
         addFilter({
-          operator: op,
+          operator: 'contains',
           operand: 'ticker',
           filter_type: 'categoric',
           value: symbol,
@@ -46,6 +94,7 @@ const TickerSymbolFilter: React.FC = () => {
         setActiveTickerFilters(prev => [...prev, symbol]);
       }
     });
+
     setInput('');
     setError(null);
   };

@@ -82,12 +82,8 @@ class Screener:
             qs = qs.exclude(**{f'{sort_by}__isnull': True})
             order = '' if sort_order == 'asc' else '-'
             qs = qs.order_by(f'{order}{sort_by}')
-<<<<<<< fix-sorting
-
-=======
         else:
             qs = qs.order_by('symbol')
->>>>>>> main
         total = qs.count()
         if page_size:
             offset = (max(page, 1) - 1) * page_size

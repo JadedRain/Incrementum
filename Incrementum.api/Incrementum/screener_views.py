@@ -317,3 +317,31 @@ def industry_autocomplete(request):
     industries = [stock['sic_description'] for stock in stocks if stock['sic_description']]
 
     return JsonResponse({"industries": industries}, status=200)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def validate_ticker_symbols(request):
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    symbols = data.get("symbols", [])
+    if not isinstance(symbols, list):
+        return JsonResponse({"error": "symbols must be a list"}, status=400)
+
+    # Normalize symbols to uppercase
+    symbols = [s.upper() for s in symbols if isinstance(s, str)]
+
+    # Check which symbols exist in the database
+    existing_stocks = StockModel.objects.filter(symbol__in=symbols).values_list('symbol', flat=True)
+    existing_set = set(existing_stocks)
+
+    valid_symbols = [s for s in symbols if s in existing_set]
+    invalid_symbols = [s for s in symbols if s not in existing_set]
+
+    return JsonResponse({
+        "valid": valid_symbols,
+        "invalid": invalid_symbols
+    }, status=200)
