@@ -17,9 +17,12 @@ class TestValidateTickerSymbols:
     def test_stocks(self):
         """Create test stocks in the database."""
         stocks = [
-            StockModel(symbol='AAPL', company_name='Apple Inc.', market_cap=3000000000000),
-            StockModel(symbol='MSFT', company_name='Microsoft Corporation', market_cap=2800000000000),
-            StockModel(symbol='GOOGL', company_name='Alphabet Inc.', market_cap=1700000000000),
+            StockModel(symbol='AAPL', company_name='Apple Inc.',
+                       market_cap=3000000000000),
+            StockModel(symbol='MSFT', company_name='Microsoft Corporation',
+                       market_cap=2800000000000),
+            StockModel(symbol='GOOGL', company_name='Alphabet Inc.',
+                       market_cap=1700000000000),
         ]
         for stock in stocks:
             stock.save()
