@@ -22,7 +22,7 @@ class ScreenerService:
             return None
 
         final_name = name or 'Untitled Screener'
-        logging.debug(f"Creating screener with name: {final_name}")
+        logging.info(f"Creating screener with name: {final_name}")
 
         with transaction.atomic():
             custom_screener = CustomScreener.objects.create(

@@ -19,12 +19,10 @@ const EPSFilter: React.FC = () => {
   useEffect(() => {
     const epsKeys = Object.keys(filterDict).filter(key => key.startsWith('eps__'));
     if (epsKeys.length === 0) {
-      if (min_eps !== null || max_eps !== null) {
-        setMinEPS(null);
-        setMaxEPS(null);
-      }
+      setMinEPS(null);
+      setMaxEPS(null);
     }
-  }, [filterDict, min_eps, max_eps]);
+  }, [filterDict]);
 
   useEffect(() => {
     if (min_eps !== null) {

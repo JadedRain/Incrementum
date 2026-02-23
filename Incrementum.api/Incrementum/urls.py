@@ -34,9 +34,6 @@ urlpatterns = [
     path('stock/<str:ticker>/metadata/',
          stocks.get_stock_metadata,
          name='get_stock_metadata'),
-    path('stock/<str:ticker>/eps/',
-         stocks.get_stock_eps,
-         name='get_stock_eps'),
     path('stocks/',
          stocks.stock_list_create,
          name='stock_list_create'),
@@ -117,8 +114,4 @@ urlpatterns = [
     path('api/user-stock-potentials/',
          views_user_stock_potential.user_stock_potential_list_create,
          name='user_stock_potential_list_create'),
-
-    path('stock/<str:ticker>/percent-change/',
-         stocks.get_percent_change,
-         name='get_percent_change'),
 ]

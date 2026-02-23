@@ -6,9 +6,6 @@ from django.views.decorators.csrf import csrf_exempt
 from .models.account import Account
 from .keycloak_service import verify_keycloak_token, get_token_with_password
 from Incrementum.services.custom_collection_service import CustomCollectionService
-from logging import Logger
-
-logger = Logger('my logger')
 
 
 @csrf_exempt
@@ -29,7 +26,6 @@ def signup(request):
         if Account.objects.filter(phone_number=phone_number).exists():
             return JsonResponse({'error': 'Phone number already in use'}, status=400)
 
-        # Create user in database only
         password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
         api_key = str(uuid.uuid4())
         account = Account.objects.create(
@@ -38,7 +34,7 @@ def signup(request):
             email=email,
             password_hash=password_hash,
             api_key=api_key,
-            keycloak_id=None  # Legacy users have no Keycloak ID
+            keycloak_id=None
         )
         serv = CustomCollectionService()
         serv._get_or_create_collection_for_account(
@@ -84,7 +80,6 @@ def sync_keycloak_user(request):
         if not token:
             return JsonResponse({'error': 'Token required'}, status=400)
 
-        # Verify token and get user info
         token_info = verify_keycloak_token(token)
         if not token_info:
             return JsonResponse({'error': 'Invalid token'}, status=401)
@@ -96,29 +91,25 @@ def sync_keycloak_user(request):
         if not email or not keycloak_id:
             return JsonResponse({'error': 'Invalid token data'}, status=400)
 
-        # Check if user already exists by keycloak_id
         account = Account.objects.filter(keycloak_id=keycloak_id).first()
 
         if account:
             return JsonResponse({'api_key': account.api_key, 'user_id': account.id})
 
-        # Check if user exists by email (legacy user converting to Keycloak)
         account = Account.objects.filter(email=email).first()
         if account:
-            # Link existing account to Keycloak
             account.keycloak_id = keycloak_id
             account.save()
             return JsonResponse({'api_key': account.api_key, 'user_id': account.id})
 
-        # Create new account for Keycloak user
         name = token_info.get('name', preferred_username)
 
         api_key = str(uuid.uuid4())
         account = Account.objects.create(
             name=name or email.split('@')[0],
-            phone_number=f"kc_{keycloak_id[:10]}",  # Unique placeholder for Keycloak users
+            phone_number=f"kc_{keycloak_id[:10]}",
             email=email,
-            password_hash='',  # No password hash for Keycloak-only users
+            password_hash='',
             api_key=api_key,
             keycloak_id=keycloak_id
         )

@@ -232,7 +232,7 @@ def run_database_screener(request):
 
     # Batch fetch all highs, lows, price, and percent change at once
     symbols = [stock.symbol for stock in stocks]
-    logging.info(f"DEBUG: Fetching highs/lows/price/percent_change for symbols: {symbols}")
+    logging.info(f"DEBUG: Fetching highs/lows/price/percent_change for {len(symbols)} symbols")
     highs = fifty_two_week_high_dict(stocks=symbols) if symbols else {}
     lows = fifty_two_week_low_dict(stocks=symbols) if symbols else {}
     prices = current_price_dict(stocks=symbols) if symbols else {}
@@ -264,11 +264,6 @@ def run_database_screener(request):
             day_percent_change(stocks=stale_or_missing_symbols)
         )
 
-    logging.info(f"DEBUG: Highs dict: {highs}")
-    logging.info(f"DEBUG: Lows dict: {lows}")
-    logging.info(f"DEBUG: Prices dict: {prices}")
-    logging.info(f"DEBUG: Percent changes dict: {percent_changes}")
-
     for stock in stocks:
         stock.high52 = highs.get(stock.symbol)
         stock.low52 = lows.get(stock.symbol)
@@ -277,7 +272,6 @@ def run_database_screener(request):
 
     stocks_dict = [stock.to_dict() for stock in stocks]
 
-    # Add high52, low52, price, and dayPercentChange to each stock dict
     for i, stock in enumerate(stocks):
         stocks_dict[i]['high52'] = stock.high52
         stocks_dict[i]['low52'] = stock.low52
