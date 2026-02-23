@@ -13,7 +13,7 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortAsc, setSortAsc] = useState(true);
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(50);
+  const [perPage, setPerPage] = useState(12);
   const [pagination, setPagination] = useState<{
     total_count: number;
     total_pages: number;

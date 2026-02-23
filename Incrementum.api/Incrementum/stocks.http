@@ -27,11 +27,10 @@ Content-Type: application/json
 ###
 Get {{host}}/stock/aapl
 ###
-POST {{host}}/screeners/database/
+POST {{host}}/screeners/database/?sort_by=eps&sort_order=desc&page=1&page_size=10
 Content-Type: application/json
 
-[
-]
+[]
 
 ###
 DELETE {{host}}/watchlist/remove/
