@@ -67,13 +67,13 @@ def get_stock_metadata(request, ticker):
     try:
         stock = StockModel.objects.get(symbol__iexact=ticker)
         symbol = stock.symbol
-        
+
         # Get financial data from stock_history using yrhilo functions
         current_prices = current_price_dict(stock=symbol)
         highs_52w = fifty_two_week_high_dict(stock=symbol)
         lows_52w = fifty_two_week_low_dict(stock=symbol)
         percent_changes = day_percent_change(stock=symbol)
-        
+
         # Get open, high, low from most recent day
         query = """
             SELECT open_price, high, low
@@ -85,12 +85,12 @@ def get_stock_metadata(request, ticker):
         with connection.cursor() as cursor:
             cursor.execute(query, [symbol])
             result = cursor.fetchone()
-        
+
         current_price = current_prices.get(symbol)
         high_52w = highs_52w.get(symbol)
         low_52w = lows_52w.get(symbol)
         percent_change = percent_changes.get(symbol)
-        
+
         # Convert from cents to dollars
         open_price = result[0] / 100 if result and result[0] else None
         day_high = result[1] / 100 if result and result[1] else None
@@ -98,14 +98,14 @@ def get_stock_metadata(request, ticker):
         current_price = current_price / 100 if current_price else None
         high_52w = high_52w / 100 if high_52w else None
         low_52w = low_52w / 100 if low_52w else None
-        
+
         # Calculate previous close from current and percent change
         previous_close = None
         change = None
         if current_price and percent_change is not None:
             previous_close = current_price / (1 + percent_change / 100)
             change = current_price - previous_close
-        
+
         return JsonResponse({
             'symbol': stock.symbol,
             'company_name': stock.company_name,
