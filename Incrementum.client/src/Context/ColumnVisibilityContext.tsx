@@ -6,9 +6,13 @@ export function ColumnVisibilityProvider({ children }: { children: React.ReactNo
   const defaultCols = {
     symbol: true,
     price: true,
+    high52: false,
+    low52: false,
     percentChange: true,
+    volume: false,
     market_cap: true,
     eps: true,
+    purchasePrice: false,
   } as Record<string, boolean>;
 
   const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>(() => {
@@ -16,7 +20,7 @@ export function ColumnVisibilityProvider({ children }: { children: React.ReactNo
       const raw = localStorage.getItem(LS_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed && Array.isArray(parsed.columnOrder)) {
+        if (parsed) {
           const loaded = { ...defaultCols, ...(parsed.visibleColumns || {}) };
           const filtered: Record<string, boolean> = {};
           for (const key of Object.keys(defaultCols)) {
@@ -73,7 +77,11 @@ export function ColumnVisibilityProvider({ children }: { children: React.ReactNo
         if (parsed && Array.isArray(parsed.columnOrder)) {
           // Filter to only include columns that exist in defaultCols
           const filtered = (parsed.columnOrder as string[]).filter((col: string) => col in defaultCols);
-          return filtered as import('./columnVisibilityCore').ColKey[];
+          const merged = [...filtered];
+          for (const col of defaultOrder) {
+            if (!merged.includes(col)) merged.push(col);
+          }
+          return merged as import('./columnVisibilityCore').ColKey[];
         }
       }
     } catch { void 0; }

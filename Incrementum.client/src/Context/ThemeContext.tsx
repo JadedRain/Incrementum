@@ -2,17 +2,27 @@ import React, { useEffect, useState, type ReactNode } from "react";
 import { ThemeContext, type Theme } from "./themeContext";
 
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const THEME_STORAGE_KEY = "incrementum-theme";
+
   const [theme, setThemeState] = useState<Theme>(() => {
     // Load theme from localStorage or default to dark
-    const saved = localStorage.getItem("incrementum-theme");
-    return (saved === "light" || saved === "dark") ? saved : "dark";
+    try {
+      const saved = localStorage.getItem(THEME_STORAGE_KEY);
+      return (saved === "light" || saved === "dark") ? saved : "dark";
+    } catch {
+      return "dark";
+    }
   });
 
   useEffect(() => {
     // Apply theme to document root
     document.documentElement.setAttribute("data-theme", theme);
     // Persist to localStorage
-    localStorage.setItem("incrementum-theme", theme);
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch {
+      // ignore storage write errors
+    }
   }, [theme]);
 
   const setTheme = (newTheme: Theme) => {
