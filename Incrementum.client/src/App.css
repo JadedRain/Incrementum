@@ -357,6 +357,57 @@ body {
   width: 100%;
   margin-bottom: 12px;
 }
+
+/* Stock Financials Section */
+.stock-financials {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.stock-financials-loading {
+  padding: 16px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.stock-financials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.stock-financials-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: var(--bg-base);
+  border-radius: 4px;
+}
+
+.stock-financials-label {
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.stock-financials-value {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.stock-financials-value.positive {
+  color: #22c55e;
+}
+
+.stock-financials-value.negative {
+  color: #ef4444;
+}
+
 .stock-page-body {
   display: flex;
   gap: 20px;

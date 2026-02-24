@@ -34,6 +34,51 @@ export default function Stock({ token: propToken }: { token?: string; }) {
             </button>
           </div>
 
+          {/* Financial Data Section */}
+          {results.currentPrice !== undefined && results.currentPrice !== null ? (
+            <div className="stock-financials">
+              <div className="stock-financials-grid">
+                <div className="stock-financials-item">
+                  <span className="stock-financials-label">Current Price:</span>
+                  <span className="stock-financials-value">
+                    ${results.currentPrice?.toFixed(2) ?? 'N/A'}
+                  </span>
+                </div>
+                <div className="stock-financials-item">
+                  <span className="stock-financials-label">Change:</span>
+                  <span className={`stock-financials-value ${results.change !== null && results.change !== undefined && results.change >= 0 ? 'positive' : 'negative'}`}>
+                    {results.change !== null && results.change !== undefined ? `${results.change >= 0 ? '+' : ''}${results.change.toFixed(2)}` : 'N/A'}
+                    {results.changePercent !== null && results.changePercent !== undefined && ` (${results.changePercent >= 0 ? '+' : ''}${results.changePercent.toFixed(2)}%)`}
+                  </span>
+                </div>
+                <div className="stock-financials-item">
+                  <span className="stock-financials-label">Open:</span>
+                  <span className="stock-financials-value">
+                    ${results.open?.toFixed(2) ?? 'N/A'}
+                  </span>
+                </div>
+                <div className="stock-financials-item">
+                  <span className="stock-financials-label">Previous Close:</span>
+                  <span className="stock-financials-value">
+                    ${results.previousClose?.toFixed(2) ?? 'N/A'}
+                  </span>
+                </div>
+                <div className="stock-financials-item">
+                  <span className="stock-financials-label">Day High:</span>
+                  <span className="stock-financials-value">
+                    ${results.high?.toFixed(2) ?? 'N/A'}
+                  </span>
+                </div>
+                <div className="stock-financials-item">
+                  <span className="stock-financials-label">Day Low:</span>
+                  <span className="stock-financials-value">
+                    ${results.low?.toFixed(2) ?? 'N/A'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
           <div className="stock-page-body">
             <div className="stock-page-sidebar">
               <StockInfoSidebar results={results} />
