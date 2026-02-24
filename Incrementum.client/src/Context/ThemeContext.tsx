@@ -17,12 +17,8 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   useEffect(() => {
     // Apply theme to document root
     document.documentElement.setAttribute("data-theme", theme);
-    // Persist to localStorage
-    try {
-      localStorage.setItem(THEME_STORAGE_KEY, theme);
-    } catch {
-      // ignore storage write errors
-    }
+    
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
   }, [theme]);
 
   const setTheme = (newTheme: Theme) => {
