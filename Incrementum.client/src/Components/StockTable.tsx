@@ -20,9 +20,13 @@ type Stock = {
   averageVolume?: number;
   volume?: number;
   eps?: number;
+  list_date?: string | null;
+  outstanding_shares?: number | null;
+  share_class_figi?: string | null;
+  sic_description?: string | null;
 };
 
-type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps';
+type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps' | 'list_date' | 'outstanding_shares' | 'share_class_figi' | 'sic_description';
 type Col = { k: ColKey; l: string };
 
 type Props = { onRowClick?: (s: string) => void; stocks?: unknown[] };
@@ -51,6 +55,10 @@ export default function StockTable({ onRowClick, stocks: overrideStocks }: Props
     { k: 'percentChange', l: '1 Day % Chg.' },
     { k: 'volume', l: 'Vol.' },
     { k: 'market_cap', l: 'Mkt. Cap' },
+    { k: 'list_date', l: 'Listed Date' },
+    { k: 'outstanding_shares', l: 'Outstanding Shares' },
+    { k: 'share_class_figi', l: 'Share Class' },
+    { k: 'sic_description', l: 'Industry' },
   ];
 
   return (
@@ -127,6 +135,14 @@ function InnerStockTable({
         return 'fiftyTwoWeekHigh';
       case 'low52':
         return 'fiftyTwoWeekLow';
+      case 'list_date':
+        return 'list_date';
+      case 'outstanding_shares':
+        return 'outstanding_shares';
+      case 'share_class_figi':
+        return 'share_class_figi';
+      case 'sic_description':
+        return 'sic_description';
       default:
         return null;
     }
