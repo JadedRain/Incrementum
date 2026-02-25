@@ -147,6 +147,29 @@
   hyphens: none;
 }
 
+.StockTable-cell--truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  justify-content: flex-start;
+  text-align: left;
+  direction: ltr;
+}
+
+.StockTable-cell--truncate .StockTable-cell__text {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  direction: ltr;
+  unicode-bidi: plaintext;
+}
+
 .StockTable-row:hover .text-green-500 {
   @apply text-green-400;
 }

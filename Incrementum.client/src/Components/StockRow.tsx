@@ -50,6 +50,12 @@ const fmtDate = (value?: string | null) => {
   return parsed.toLocaleDateString('en-US');
 };
 
+const fmtIndustry = (value?: string | null) => {
+  if (!value) return 'N/A';
+  const normalized = value.toLowerCase();
+  return normalized.replace(/\b([a-z])/g, (match) => match.toUpperCase());
+};
+
 export default function StockRow({ stock, onClick }: Props) {
   const { visibleColumns, columnOrder } = useColumnVisibility();
   const s = stock;
@@ -67,8 +73,8 @@ export default function StockRow({ stock, onClick }: Props) {
     share_class_figi: s.share_class_figi,
     sic_description: s.sic_description,
   } as Record<string, number | undefined>;
-  const Cell = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
-    <div className={`StockTable-cell ${className}`.trim()}>{children}</div>
+  const Cell = ({ children, className = '', title }: { children: React.ReactNode; className?: string; title?: string }) => (
+    <div className={`StockTable-cell ${className}`.trim()} title={title}>{children}</div>
   );
 
   return (
@@ -99,7 +105,11 @@ export default function StockRow({ stock, onClick }: Props) {
           case 'share_class_figi':
             return <Cell key={k}>{s.share_class_figi || 'N/A'}</Cell>;
           case 'sic_description':
-            return <Cell key={k}>{s.sic_description || 'N/A'}</Cell>;
+            return (
+              <Cell key={k} className="StockTable-cell--truncate" title={fmtIndustry(s.sic_description)}>
+                <span className="StockTable-cell__text">{fmtIndustry(s.sic_description)}</span>
+              </Cell>
+            );
           default:
             return null;
         }
