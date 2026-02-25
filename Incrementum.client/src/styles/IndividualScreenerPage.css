@@ -75,10 +75,14 @@
   @apply px-4;
   @apply py-3;
   @apply text-center;
-  @apply w-[98%];
-  @apply mx-auto;
   @apply border-b-[#251C09];
   position: relative;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+  hyphenate-character: "-";
 }
 
 .StockTable-header.sortable {
@@ -112,8 +116,6 @@
   @apply duration-150;
   @apply hover:bg-[var(--bg-sunken)];
   @apply hover:shadow-sm;
-  @apply w-[98%];
-  @apply mx-auto;
   border-radius: 2px;
 }
 
@@ -130,6 +132,42 @@
   @apply justify-center;
   display: flex;
   align-items: center;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+  hyphenate-character: "-";
+}
+
+.StockTable-cell--numeric {
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+
+.StockTable-cell--truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  justify-content: flex-start;
+  text-align: left;
+  direction: ltr;
+}
+
+.StockTable-cell--truncate .StockTable-cell__text {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  direction: ltr;
+  unicode-bidi: plaintext;
 }
 
 .StockTable-row:hover .text-green-500 {
