@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatMarketCap, formatWithCommas, formatDate, formatCurrency, formatLargeNumber } from '../utils/formatUtils';
 
 interface StockMeta {
   symbol: string;
@@ -29,60 +30,92 @@ const StockInfoSidebar: React.FC<StockInfoSidebarProps> = ({ results }) => {
   const fmt = (v: unknown) => (v === null || v === undefined ? 'N/A' : String(v));
 
   return (
-    <div className="w-full md:w-80 flex-shrink-0">
+    <div className="stock-info-sidebar-wrapper">
       <div className="stock-info-sidebar-panel">
         <div>
           <h2 className="stock-info-sidebar-title">
             {fmt(results.company_name)}
           </h2>
-          <p className="stock-info-sidebar-symbol">({results.symbol})</p>
+          <p className="stock-info-sidebar-symbol">{results.symbol}</p>
 
-          <div className="space-y-3">
-            <div className="stock-info-sidebar-row">
-              <p><strong>Market Cap:</strong> {fmt(results.market_cap)}</p>
-            </div>
-
-            <div className="stock-info-sidebar-row">
-              <p><strong>Primary Exchange:</strong> {fmt(results.primary_exchange)}</p>
-            </div>
-
-            <div className="stock-info-sidebar-row">
-              <p><strong>Type:</strong> {fmt(results.type)}</p>
-            </div>
-
-            <div className="stock-info-sidebar-row">
-              <p><strong>Currency:</strong> {fmt(results.currency_name)}</p>
-            </div>
-
-            <div className="stock-info-sidebar-row-last">
-              <p><strong>Outstanding Shares:</strong> {fmt(results.outstanding_shares)}</p>
-            </div>
-
-            <div className="stock-info-sidebar-row-last">
-              <p><strong>Homepage:</strong> {results.homepage_url ? <a href={results.homepage_url} target="_blank" rel="noreferrer">{results.homepage_url}</a> : 'N/A'}</p>
-            </div>
-
-            <div className="stock-info-sidebar-row-last">
-              <p><strong>Total Employees:</strong> {fmt(results.total_employees)}</p>
-            </div>
-
-            <div className="stock-info-sidebar-row-last">
-              <p><strong>List Date:</strong> {fmt(results.list_date)}</p>
-            </div>
-
-            <div className="stock-info-sidebar-row-last">
-              <p><strong>Locale:</strong> {fmt(results.locale)}</p>
-            </div>
-
-            <div className="stock-info-sidebar-row-last">
-              <p><strong>SIC:</strong> {fmt(results.sic_code)} — {fmt(results.sic_description)}</p>
-            </div>
-
-            <div className="stock-info-sidebar-row-last">
-              <p><strong>EPS:</strong> {results.eps !== null && results.eps !== undefined ? String(results.eps) : 'N/A'}</p>
-            </div>
-
+          <div className="stock-info-section">
+            <h3 className="stock-info-section-header">Key Metrics</h3>
             
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">Market Cap</span>
+              <span className="stock-info-value">{formatMarketCap(results.market_cap)}</span>
+            </div>
+
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">Outstanding Shares</span>
+              <span className="stock-info-value">{formatLargeNumber(results.outstanding_shares)}</span>
+            </div>
+
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">EPS</span>
+              <span className="stock-info-value">{formatCurrency(results.eps)}</span>
+            </div>
+
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">Total Employees</span>
+              <span className="stock-info-value">{formatWithCommas(results.total_employees)}</span>
+            </div>
+          </div>
+
+          <div className="stock-info-section">
+            <h3 className="stock-info-section-header">Trading Information</h3>
+            
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">Primary Exchange</span>
+              <span className="stock-info-value">{fmt(results.primary_exchange)}</span>
+            </div>
+
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">Type</span>
+              <span className="stock-info-value">{fmt(results.type)}</span>
+            </div>
+
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">Currency</span>
+              <span className="stock-info-value">{fmt(results.currency_name)}</span>
+            </div>
+
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">List Date</span>
+              <span className="stock-info-value">{formatDate(results.list_date)}</span>
+            </div>
+
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">Locale</span>
+              <span className="stock-info-value">{fmt(results.locale)}</span>
+            </div>
+          </div>
+
+          <div className="stock-info-section">
+            <h3 className="stock-info-section-header">Company Details</h3>
+            
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">SIC Code</span>
+              <span className="stock-info-value">{fmt(results.sic_code)}</span>
+            </div>
+
+            {results.sic_description && (
+              <div className="stock-info-sidebar-row">
+                <span className="stock-info-label">Industry</span>
+                <span className="stock-info-value">{results.sic_description}</span>
+              </div>
+            )}
+
+            {results.homepage_url && (
+              <div className="stock-info-sidebar-row">
+                <span className="stock-info-label">Homepage</span>
+                <span className="stock-info-value">
+                  <a href={results.homepage_url} target="_blank" rel="noreferrer" className="stock-info-link">
+                    Visit Website →
+                  </a>
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>

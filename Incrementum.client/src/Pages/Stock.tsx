@@ -8,6 +8,7 @@ import { FilterDataProvider } from '../Context/FilterDataContext';
 import InteractiveGraph from "../Components/InteractiveGraph"
 import StockInfoSidebar from '../Components/StockInfoSidebar';
 import Loading from "../Components/Loading";
+import { formatCurrency, formatPercentage } from '../utils/formatUtils';
 
 export default function Stock({ token: propToken }: { token?: string; }) {
   const params = useParams<{ token: string }>();
@@ -39,40 +40,40 @@ export default function Stock({ token: propToken }: { token?: string; }) {
             <div className="stock-financials">
               <div className="stock-financials-grid">
                 <div className="stock-financials-item">
-                  <span className="stock-financials-label">Current Price:</span>
+                  <span className="stock-financials-label">Current Price</span>
                   <span className="stock-financials-value">
-                    ${results.currentPrice?.toFixed(2) ?? 'N/A'}
+                    {formatCurrency(results.currentPrice)}
                   </span>
                 </div>
                 <div className="stock-financials-item">
-                  <span className="stock-financials-label">Change:</span>
+                  <span className="stock-financials-label">Change</span>
                   <span className={`stock-financials-value ${results.change !== null && results.change !== undefined && results.change >= 0 ? 'positive' : 'negative'}`}>
-                    {results.change !== null && results.change !== undefined ? `${results.change >= 0 ? '+' : ''}${results.change.toFixed(2)}` : 'N/A'}
-                    {results.changePercent !== null && results.changePercent !== undefined && ` (${results.changePercent >= 0 ? '+' : ''}${results.changePercent.toFixed(2)}%)`}
+                    {results.change !== null && results.change !== undefined ? formatCurrency(Math.abs(results.change)) : 'N/A'}
+                    {results.changePercent !== null && results.changePercent !== undefined && ` (${formatPercentage(results.changePercent)})`}
                   </span>
                 </div>
                 <div className="stock-financials-item">
-                  <span className="stock-financials-label">Open:</span>
+                  <span className="stock-financials-label">Open</span>
                   <span className="stock-financials-value">
-                    ${results.open?.toFixed(2) ?? 'N/A'}
+                    {formatCurrency(results.open)}
                   </span>
                 </div>
                 <div className="stock-financials-item">
-                  <span className="stock-financials-label">Previous Close:</span>
+                  <span className="stock-financials-label">Previous Close</span>
                   <span className="stock-financials-value">
-                    ${results.previousClose?.toFixed(2) ?? 'N/A'}
+                    {formatCurrency(results.previousClose)}
                   </span>
                 </div>
                 <div className="stock-financials-item">
-                  <span className="stock-financials-label">Day High:</span>
+                  <span className="stock-financials-label">Day High</span>
                   <span className="stock-financials-value">
-                    ${results.high?.toFixed(2) ?? 'N/A'}
+                    {formatCurrency(results.high)}
                   </span>
                 </div>
                 <div className="stock-financials-item">
-                  <span className="stock-financials-label">Day Low:</span>
+                  <span className="stock-financials-label">Day Low</span>
                   <span className="stock-financials-value">
-                    ${results.low?.toFixed(2) ?? 'N/A'}
+                    {formatCurrency(results.low)}
                   </span>
                 </div>
               </div>

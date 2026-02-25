@@ -363,8 +363,9 @@ body {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 16px;
+  padding: 20px;
   margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .stock-financials-loading {
@@ -375,29 +376,38 @@ body {
 
 .stock-financials-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
 }
 
 .stock-financials-item {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px;
   background-color: var(--bg-base);
-  border-radius: 4px;
+  border-radius: 6px;
+  border: 1px solid var(--border-divider);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stock-financials-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .stock-financials-label {
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .stock-financials-value {
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
-  font-size: 1rem;
+  font-size: 1.25rem;
 }
 
 .stock-financials-value.positive {
@@ -575,6 +585,17 @@ body {
 /* ─────────────────────────────────────────────────────────
    STOCK INFO SIDEBAR
 ───────────────────────────────────────────────────────── */
+.stock-info-sidebar-wrapper {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .stock-info-sidebar-wrapper {
+    width: 20rem;
+  }
+}
+
 .stock-info-sidebar-panel {
   padding: 1.5rem;
   box-shadow: var(--shadow-panel);
@@ -582,31 +603,115 @@ body {
   display: flex;
   flex-direction: column;
   background-color: var(--bg-surface);
-  border-radius: 2px;
+  border-radius: 8px;
+  overflow-y: auto;
 }
 
 .stock-info-sidebar-title {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   color: var(--text-primary);
+  line-height: 1.2;
 }
 
 .stock-info-sidebar-symbol {
-  font-size: 1.125rem;
-  margin-bottom: 1.5rem;
-  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+}
+
+.stock-info-section {
+  margin-bottom: 2rem;
+}
+
+.stock-info-section-header {
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent-hover);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--accent-hover);
 }
 
 .stock-info-sidebar-row {
-  padding-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.75rem 0;
   border-bottom: 1px solid var(--border-divider);
+  gap: 1rem;
+}
+
+.stock-info-sidebar-row:last-child {
+  border-bottom: none;
+}
+
+.stock-info-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.stock-info-value {
+  font-size: 1rem;
+  font-weight: 700;
   color: var(--text-primary);
+  text-align: right;
+  word-break: break-word;
+}
+
+.stock-info-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stock-info-link:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+  transform: translateX(2px);
 }
 
 .stock-info-sidebar-row-last {
   padding-bottom: 0.75rem;
   color: var(--text-primary);
+}
+
+/* Custom scrollbar for stock info sidebar */
+.stock-info-sidebar-panel::-webkit-scrollbar {
+  width: 10px;
+}
+
+.stock-info-sidebar-panel::-webkit-scrollbar-track {
+  background: var(--bg-sunken);
+  border-radius: 4px;
+}
+
+.stock-info-sidebar-panel::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 4px;
+  border: 2px solid var(--bg-sunken);
+  transition: background 0.2s ease;
+}
+
+.stock-info-sidebar-panel::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-hover);
+}
+
+/* Firefox scrollbar styling */
+.stock-info-sidebar-panel {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) var(--bg-sunken);
 }
 
 /* ─────────────────────────────────────────────────────────
