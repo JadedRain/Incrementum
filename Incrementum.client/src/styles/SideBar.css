@@ -199,6 +199,14 @@
   @apply outline-none;
 }
 
+.filter-count {
+  margin-bottom: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+  font-family: var(--font-serif);
+}
+
 /* ─── ExpandableSidebarItem ─── */
 .sidebar-chevron {
   transform: rotate(0);

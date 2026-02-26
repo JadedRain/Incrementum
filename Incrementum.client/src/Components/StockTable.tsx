@@ -237,6 +237,12 @@ function InnerStockTable({
           </button>
         </div>
       )}
+      {useBackendPagination && pagination && (
+        <div className="results-count">
+          <span className="results-count-number">{pagination.total_count.toLocaleString()}</span>
+          {' '}{pagination.total_count === 1 ? 'result' : 'results'}
+        </div>
+      )}
     </div>
   );
 }
