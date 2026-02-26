@@ -76,4 +76,19 @@
   }
   .track-opacity-50 { opacity: 0.5; }
   .track-opacity-100 { opacity: 1; }
+
+  .results-count {
+    padding: 0.5rem 1rem;
+    background-color: var(--bg-surface);
+    border-top: 1px solid var(--border-divider);
+    text-align: center;
+    font-size: 0.8rem;
+    font-family: var(--font-serif);
+    color: var(--text-muted);
+  }
+
+  .results-count-number {
+    color: var(--accent);
+    font-weight: 600;
+  }
 }
