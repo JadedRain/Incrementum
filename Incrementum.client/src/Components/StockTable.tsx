@@ -221,6 +221,20 @@ function InnerStockTable({
           </button>
         </div>
       )}
+      {useBackendPagination && pagination && (
+        <div style={{
+          padding: '0.5rem 1rem',
+          backgroundColor: 'var(--bg-surface)',
+          borderTop: '1px solid var(--border-divider)',
+          textAlign: 'center',
+          fontSize: '0.8rem',
+          fontFamily: 'var(--font-serif)',
+          color: 'var(--text-muted)',
+        }}>
+          <span style={{ color: 'var(--accent)', fontWeight: 600 }}>{pagination.total_count.toLocaleString()}</span>
+          {' '}{pagination.total_count === 1 ? 'result' : 'results'}
+        </div>
+      )}
     </div>
   );
 }

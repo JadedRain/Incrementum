@@ -22,6 +22,17 @@ const Sidebar: React.FC<SidebarProps> = () => {
     <aside className="sidebar">
       <nav className="sidebar-nav">
         <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-divider)' }}>
+          {hasFilters && (
+            <div style={{ 
+              marginBottom: '0.75rem',
+              fontSize: '0.75rem',
+              color: 'var(--text-muted)',
+              textAlign: 'center',
+              fontFamily: 'var(--font-serif)',
+            }}>
+              {filterList.length} filter{filterList.length !== 1 ? 's' : ''} applied
+            </div>
+          )}
           <button
             onClick={handleResetFilters}
             disabled={!hasFilters}
@@ -61,17 +72,6 @@ const Sidebar: React.FC<SidebarProps> = () => {
           >
             Reset All Filters
           </button>
-          {hasFilters && (
-            <div style={{ 
-              marginTop: '0.5rem', 
-              fontSize: '0.75rem', 
-              color: 'var(--text-muted)',
-              textAlign: 'center',
-              fontFamily: 'var(--font-serif)',
-            }}>
-              {filterList.length} filter{filterList.length !== 1 ? 's' : ''} active
-            </div>
-          )}
         </div>
 
         <TickerSymbolFilter />
