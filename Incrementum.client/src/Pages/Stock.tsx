@@ -15,6 +15,25 @@ export default function Stock({ token: propToken }: { token?: string; }) {
   const token = propToken ?? params.token;
   const { results, loading } = useFetchStockData(token);
   const [toast] = useState<string | null>(null);
+  const [period, setPeriod] = useState<string>("1y");
+
+  const getIntervalForPeriod = (period: string): string => {
+    switch (period) {
+      case "1d":
+        return "5m";
+      case "5d":
+        return "15m";
+      case "1mo":
+      case "6mo":
+      case "1y":
+      case "2y":
+        return "1d";
+      default:
+        return "1d";
+    }
+  };
+
+  const interval = getIntervalForPeriod(period);
 
   if (loading) return <div className="stock-page-loading"><Loading loading={true} /></div>;
   if (!results) return <div className="stock-page-loading"><p>No stock data found.</p></div>;
@@ -85,7 +104,33 @@ export default function Stock({ token: propToken }: { token?: string; }) {
               <StockInfoSidebar results={results} />
             </div>
             <div className="stock-page-graph">
-              <InteractiveGraph height="800px" />
+              <div className="flex gap-4 mt-2 mb-4">
+                <div>
+                  <select
+                    id="period"
+                    value={period}
+                    onChange={(e) => setPeriod(e.target.value)}
+                    className="rounded p-2 border border-gray-300"
+                    style={{
+                      backgroundColor: 'var(--bg-surface)',
+                      color: 'var(--text-primary)',
+                      borderColor: 'var(--border-color)'
+                    }}
+                  >
+                    <option value="1d">1 Day</option>
+                    <option value="5d">5 Days</option>
+                    <option value="1mo">1 Month</option>
+                    <option value="6mo">6 Months</option>
+                    <option value="1y">1 Year</option>
+                    <option value="2y">2 Years</option>
+                  </select>
+                </div>
+              </div>
+              <InteractiveGraph 
+                height="800px" 
+                period={period}
+                interval={interval}
+              />
             </div>
           </div>
         </div>

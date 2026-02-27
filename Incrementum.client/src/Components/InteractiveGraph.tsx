@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import { dashString } from "../Context/FetchingHelper";
-import { useTheme } from "../hooks/useTheme";
+import StockChart from "./StockChart";
 
 type Props = {
   url?: string;
@@ -11,16 +10,20 @@ type Props = {
 };
 
 
-const InteractiveGraph: React.FC<Props> = ({ url = dashString(), period = "1y", interval = "1d", height = "600px" }) => {
+const InteractiveGraph: React.FC<Props> = ({ period = "1y", interval = "1d", height = "600px" }) => {
   const { token } = useParams<{ token: string }>();
-  const { theme } = useTheme();
   const ticker = token ?? "";
   const [graphType, setGraphType] = useState<'line' | 'candle'>('line');
 
-  const src =
-    ticker && ticker.length
-      ? `${url}/?ticker=${encodeURIComponent(ticker)}&period=${encodeURIComponent(period)}&interval=${encodeURIComponent(interval)}&type=${graphType}&theme=${theme}`
-      : `${url}/?theme=${theme}`;
+  if (!ticker) {
+    return (
+      <div className="interactive-graph-wrapper" style={{ height }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+          <p>Please select a stock to view its chart</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="interactive-graph-wrapper" style={{ height }}>
@@ -32,13 +35,12 @@ const InteractiveGraph: React.FC<Props> = ({ url = dashString(), period = "1y", 
           {graphType === 'line' ? 'Show Candlestick' : 'Show Line Graph'}
         </button>
       </div>
-      <iframe
-        key={graphType + ticker + theme}
-        src={src}
-        title="Dash App"
-        className="w-full h-full border-0 bg-[var(--bg-surface)]"
-        scrolling="no"
-        sandbox="allow-same-origin allow-scripts allow-forms"
+      <StockChart
+        ticker={ticker}
+        period={period}
+        interval={interval}
+        chartType={graphType}
+        height={`calc(${height} - 50px)`}
       />
     </div>
   );

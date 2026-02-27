@@ -27,16 +27,6 @@ services:
     volumes:
       - ./Incrementum.client:/app
       - client_node_modules:/app/node_modules
-    
-  dash:
-    build:
-      context: ./Incrementum.api
-    container_name: incrementum_dash
-    command: sh -c "python InteractiveGraph.py"
-    ports:
-      - "8050:8050"
-    volumes:
-      - ./Incrementum.api:/Incrementum.api:ro
 
 volumes:
   client_node_modules:

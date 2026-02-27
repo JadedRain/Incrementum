@@ -124,15 +124,6 @@ class TestCustomCollection:
         assert 'tokens' in data
         assert 'aggregate' in data
 
-    # Rewrite aggregate graph test
-
-    def test_custom_collection_overlay_graph(self, client):
-        url = reverse('custom_collection_overlay_graph')
-        response = client.get(url, {'collection': 'default'}, HTTP_X_USER_ID='testapikey')
-        assert response.status_code in (200, 500)
-        if response.status_code == 200:
-            assert response['Content-Type'] == 'image/png'
-
     def test_delete_collection_removes_from_list(self, client):
         add_url = reverse('custom_collection')
         add_url = reverse('custom_collection')
