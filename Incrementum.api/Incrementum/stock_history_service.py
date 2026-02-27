@@ -116,6 +116,51 @@ class StockHistoryService:
             self.logger.error(f"Error aggregating daily data: {str(e)}")
             return None
 
+    def _aggregate_to_interval(self, df: pd.DataFrame, interval: str) -> Optional[pd.DataFrame]:
+        if df is None or df.empty:
+            return None
+
+        try:
+            work = df.copy()
+            work["day_and_time"] = pd.to_datetime(work["day_and_time"])
+            work = work.sort_values("day_and_time")
+            work = work.set_index("day_and_time")
+
+            # Map interval strings to pandas resample format
+            interval_map = {
+                "1m": "1min",
+                "5m": "5min",
+                "15m": "15min",
+                "30m": "30min",
+                "1h": "1H",
+                "1d": "1D",
+                "1wk": "1W",
+            }
+
+            resample_interval = interval_map.get(interval, interval)
+
+            aggregated = work.resample(resample_interval).agg({
+                "open_price": "first",
+                "close_price": "last",
+                "high": "max",
+                "low": "min",
+                "volume": "sum",
+            })
+
+            aggregated = aggregated.dropna(
+                subset=["open_price", "close_price", "high", "low"]
+            ).reset_index()
+            aggregated["is_hourly"] = interval in ["1h", "1d", "1wk"]
+
+            self.logger.info(
+                f"Aggregated {len(work)} records to {len(aggregated)} "
+                f"records at {interval} interval"
+            )
+            return aggregated
+        except Exception as e:
+            self.logger.error(f"Error aggregating to {interval} interval: {str(e)}")
+            return None
+
     def history(
         self,
         ticker: str,
@@ -131,7 +176,12 @@ class StockHistoryService:
         end_date = datetime.now()
         start_date = self.calculate_start_date(period, end_date)
 
-        if interval == "1d":
+        # Determine if we need minute-level or hourly/daily data
+        hourly_intervals = ["1h"]
+        daily_intervals = ["1d", "1wk"]
+
+        if interval in daily_intervals:
+            # For daily/weekly intervals, try hourly data first
             db_history = self.get_db_history(
                 ticker,
                 start_date=start_date.strftime("%Y-%m-%d"),
@@ -139,21 +189,39 @@ class StockHistoryService:
                 is_hourly=True,
             )
             if db_history is None or db_history.empty:
-                minute_history = self.get_db_history(
+                self.logger.info(f"No hourly data found, fetching minute data for {ticker}")
+                db_history = self.get_db_history(
                     ticker,
                     start_date=start_date.strftime("%Y-%m-%d"),
                     end_date=end_date.strftime("%Y-%m-%d"),
                     is_hourly=False,
                 )
-                if minute_history is not None and not minute_history.empty:
-                    db_history = self._aggregate_daily(minute_history)
-        else:
+
+            # Aggregate to requested interval
+            if db_history is not None and not db_history.empty:
+                db_history = self._aggregate_to_interval(db_history, interval)
+
+        elif interval in hourly_intervals:
+            # For hourly intervals, get minute data and aggregate
             db_history = self.get_db_history(
                 ticker,
                 start_date=start_date.strftime("%Y-%m-%d"),
                 end_date=end_date.strftime("%Y-%m-%d"),
                 is_hourly=False,
             )
+            if db_history is not None and not db_history.empty:
+                db_history = self._aggregate_to_interval(db_history, interval)
+
+        else:
+            # For minute intervals (5m, 15m, etc.), get minute data and aggregate
+            db_history = self.get_db_history(
+                ticker,
+                start_date=start_date.strftime("%Y-%m-%d"),
+                end_date=end_date.strftime("%Y-%m-%d"),
+                is_hourly=False,
+            )
+            if db_history is not None and not db_history.empty:
+                db_history = self._aggregate_to_interval(db_history, interval)
 
         if db_history is not None and not db_history.empty:
             is_current = self._is_data_current(db_history)
@@ -162,22 +230,39 @@ class StockHistoryService:
             metadata["records_count"] = len(db_history)
             last_dt = pd.to_datetime(db_history["day_and_time"]).max()
             metadata["last_date"] = last_dt.isoformat()
-            self.logger.info(f"Using database history for {ticker}")
+            self.logger.info(
+                f"Using database history for {ticker}: "
+                f"{len(db_history)} records at {interval} interval"
+            )
             return db_history, metadata
 
         return None, metadata
 
     def calculate_start_date(self, period, end_date):
-        if period == "1Y":
+        period_lower = period.lower() if period else "1y"
+
+        if period_lower in ("1y", "1yr"):
             start_date = end_date - timedelta(days=365)
-        elif period == "1d":
+        elif period_lower == "2y":
+            start_date = end_date - timedelta(days=730)
+        elif period_lower == "5y":
+            start_date = end_date - timedelta(days=1825)
+        elif period_lower == "1d":
             start_date = end_date - timedelta(hours=24)
-        elif period == "ytd":
+        elif period_lower == "5d":
+            start_date = end_date - timedelta(days=5)
+        elif period_lower == "ytd":
             start_date = datetime(datetime.now().year, 1, 1)
-        elif period == "1wk":
+        elif period_lower in ("1wk", "1w"):
             start_date = end_date - timedelta(days=7)
-        elif period == "3mo":
-            start_date = end_date - timedelta(days=90)
-        elif period == "1mo":
+        elif period_lower == "1mo":
             start_date = end_date - timedelta(days=30)
+        elif period_lower == "3mo":
+            start_date = end_date - timedelta(days=90)
+        elif period_lower == "6mo":
+            start_date = end_date - timedelta(days=180)
+        else:
+            # Default to 1 year if period is not recognized
+            self.logger.warning(f"Unknown period '{period}', defaulting to 1 year")
+            start_date = end_date - timedelta(days=365)
         return start_date

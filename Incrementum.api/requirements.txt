@@ -32,9 +32,5 @@ djangorestframework
 django-cors-headers
 psycopg2-binary
 dj-database-url
-matplotlib
-mplfinance
 python-keycloak
-dash
-plotly
 dotenv

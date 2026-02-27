@@ -1,13 +1,10 @@
 import json
-import logging
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods, require_GET
 from ..models.custom_collection import CustomCollection
 from ..models.account import Account
-from ..stock_history_service import StockHistoryService
 from ..services.custom_collection_service import CustomCollectionService
-from ..graph_utils import generate_overlay_graph
 
 
 @csrf_exempt
@@ -139,73 +136,6 @@ def custom_collection_aggregate(request):
     except ValueError as e:
         return JsonResponse({'error': str(e)}, status=400)
     return JsonResponse(data, safe=False)
-
-
-@csrf_exempt
-@require_http_methods(["GET"])
-def custom_collection_aggregate_graph(request):
-    api_key = request.META.get('HTTP_X_USER_ID')
-    if not api_key:
-        return JsonResponse({'error': 'User id header X-User-Id required'}, status=401)
-    collection_name = (
-        request.GET.get('collection')
-        or request.META.get('HTTP_X_COLLECTION_NAME')
-    )
-    if not collection_name:
-        return JsonResponse(
-            {'error': 'collection name is required (query param "collection"'
-             'or header X-Collection-Name)'},
-            status=400
-        )
-    custom_collection = CustomCollectionService()
-    try:
-        stocks = custom_collection.get_stocks(api_key, collection_name)
-        tokens = [t.get('symbol') for t in stocks]
-    except ValueError as e:
-        return JsonResponse({'error': str(e)}, status=400)
-    logger = logging.getLogger("django")
-
-    if not tokens:
-        logger.error("No stocks in collection")
-        return JsonResponse({"error": "No stocks in collection"}, status=404)
-
-    ticker = tokens[0]
-    history_service = StockHistoryService()
-    history, metadata = history_service.history(ticker, period="1y")
-
-    if history is None or history.empty:
-        logger.error(f"No history for ticker {ticker}")
-        return JsonResponse({"error": f"No history for ticker {ticker}"}, status=500)
-
-
-@csrf_exempt
-@require_http_methods(["GET"])
-def custom_collection_overlay_graph(request):
-    api_key = request.META.get('HTTP_X_USER_ID')
-    if not api_key:
-        return JsonResponse({'error': 'User id header X-User-Id required'}, status=401)
-    collection_name = (
-        request.GET.get('collection')
-        or request.META.get('HTTP_X_COLLECTION_NAME')
-    )
-    if not collection_name:
-        return JsonResponse(
-            {'error': 'collection name is required (query param "collection"'
-             'or header X-Collection-Name)'},
-            status=400
-        )
-    custom_collection = CustomCollectionService()
-    try:
-        stocks = custom_collection.get_stocks(api_key, collection_name)
-        tokens = [t.get('symbol') for t in stocks]
-    except ValueError as e:
-        return JsonResponse({'error': str(e)}, status=400)
-    img_bytes, candle_bytes, error = generate_overlay_graph(tokens)
-
-    if error:
-        return JsonResponse({"error": error}, status=500)
-
-    return HttpResponse(img_bytes, content_type="image/png")
 
 
 @csrf_exempt
