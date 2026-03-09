@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import {
   Bar,
   BarChart,
+  Brush,
   CartesianGrid,
   DefaultZIndexes,
   ErrorBar,
   Line,
   LineChart,
   Rectangle,
+  ReferenceArea,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -40,6 +43,9 @@ interface StockChartProps {
   interval?: string;
   chartType?: 'line' | 'candle';
   height?: string;
+  startDate?: string;
+  endDate?: string;
+  onDateRangeChange?: (startDate: string, endDate: string) => void;
 }
 
 interface ApiResponse {
@@ -48,6 +54,14 @@ interface ApiResponse {
   high: number[];
   low: number[];
   close: number[];
+}
+
+interface ChartMouseEvent {
+  activeLabel?: string | number;
+  activePayload?: unknown[];
+  activeTooltipIndex?: number | string | null;
+  chartX?: number;
+  chartY?: number;
 }
 
 const formatTimestamp = (dateStr: string): string => {
@@ -139,10 +153,16 @@ const StockChart: React.FC<StockChartProps> = ({
   interval = '1d',
   chartType = 'line',
   height = '600px',
+  startDate,
+  endDate,
+  onDateRangeChange,
 }) => {
   const [data, setData] = useState<StockDataPoint[]>([]);
+  const [filteredData, setFilteredData] = useState<StockDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [clickedStart, setClickedStart] = useState<string>('');
+  const [clickedEnd, setClickedEnd] = useState<string>('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -172,6 +192,7 @@ const StockChart: React.FC<StockChartProps> = ({
         }));
         
         setData(transformedData);
+        setFilteredData(transformedData);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
         console.error('Error fetching stock data:', err);
@@ -184,6 +205,60 @@ const StockChart: React.FC<StockChartProps> = ({
       fetchData();
     }
   }, [ticker, period, interval]);
+
+  // Filter data when start/end dates change
+  useEffect(() => {
+    if (!startDate || !endDate) {
+      setFilteredData(data);
+      // Clear clicked points when dates are reset
+      if (!startDate && !endDate) {
+        setClickedStart('');
+        setClickedEnd('');
+      }
+      return;
+    }
+
+    const start = new Date(startDate).getTime();
+    const end = new Date(endDate).getTime();
+
+    const filtered = data.filter(point => {
+      const pointTime = new Date(point.time).getTime();
+      return pointTime >= start && pointTime <= end;
+    });
+
+    setFilteredData(filtered.length > 0 ? filtered : data);
+  }, [data, startDate, endDate]);
+
+  const handleMouseDown = (e: ChartMouseEvent) => {
+    if (e && e.activeLabel) {
+      const clickedDate = String(e.activeLabel);
+      
+      // If no start date yet, set start date
+      if (!clickedStart) {
+        setClickedStart(clickedDate);
+        setClickedEnd('');
+      } 
+      // If start date exists but no end date, set end date
+      else if (!clickedEnd) {
+        setClickedEnd(clickedDate);
+        
+        // Determine which comes first
+        const startIndex = filteredData.findIndex(d => d.time === clickedStart);
+        const endIndex = filteredData.findIndex(d => d.time === clickedDate);
+        
+        if (startIndex !== -1 && endIndex !== -1 && onDateRangeChange) {
+          const actualStart = startIndex <= endIndex ? clickedStart : clickedDate;
+          const actualEnd = startIndex <= endIndex ? clickedDate : clickedStart;
+          onDateRangeChange(actualStart, actualEnd);
+        }
+      }
+      // If both are set, reset and start over
+      else {
+        setClickedStart(clickedDate);
+        setClickedEnd('');
+      }
+    }
+  };
 
   if (loading) {
     return (
@@ -209,14 +284,18 @@ const StockChart: React.FC<StockChartProps> = ({
     );
   }
 
-  const minPrice = Math.min(...data.map(d => d.low)) * 0.99;
-  const maxPrice = Math.max(...data.map(d => d.high)) * 1.01;
+  const displayData = filteredData.length > 0 ? filteredData : data;
+  const minPrice = Math.min(...displayData.map(d => d.low)) * 0.99;
+  const maxPrice = Math.max(...displayData.map(d => d.high)) * 1.01;
 
   return (
     <div style={{ width: '100%', height }}>
       <ResponsiveContainer width="100%" height="100%">
         {chartType === 'candle' ? (
-          <BarChart data={data}>
+          <BarChart
+            data={displayData}
+            onMouseDown={handleMouseDown}
+          >
             <CartesianGrid
               strokeDasharray="3 3"
               vertical={false}
@@ -238,9 +317,45 @@ const StockChart: React.FC<StockChartProps> = ({
               <ErrorBar dataKey={whiskerDataKey} width={0} strokeWidth={1} zIndex={DefaultZIndexes.bar - 1} />
             </Bar>
             <Tooltip content={CandlestickTooltip} />
+            <Brush
+              dataKey="time"
+              height={30}
+              stroke="var(--accent, #3b82f6)"
+              tickFormatter={formatTimestamp}
+            />
+            {clickedStart && (
+              <ReferenceLine
+                x={clickedStart}
+                stroke="#10b981"
+                strokeWidth={2}
+                strokeDasharray="3 3"
+                label={{ value: 'Start', position: 'top', fill: '#10b981', fontSize: 12 }}
+              />
+            )}
+            {clickedEnd && (
+              <ReferenceLine
+                x={clickedEnd}
+                stroke="#ef4444"
+                strokeWidth={2}
+                strokeDasharray="3 3"
+                label={{ value: 'End', position: 'top', fill: '#ef4444', fontSize: 12 }}
+              />
+            )}
+            {clickedStart && clickedEnd && (
+              <ReferenceArea
+                x1={clickedStart}
+                x2={clickedEnd}
+                strokeOpacity={0.3}
+                fill="var(--accent, #3b82f6)"
+                fillOpacity={0.1}
+              />
+            )}
           </BarChart>
         ) : (
-          <LineChart data={data}>
+          <LineChart
+            data={displayData}
+            onMouseDown={handleMouseDown}
+          >
             <CartesianGrid
               strokeDasharray="3 3"
               vertical={false}
@@ -266,6 +381,39 @@ const StockChart: React.FC<StockChartProps> = ({
               dot={false}
             />
             <Tooltip content={LineTooltip} />
+            <Brush
+              dataKey="time"
+              height={30}
+              stroke="var(--accent, #3b82f6)"
+              tickFormatter={formatTimestamp}
+            />
+            {clickedStart && (
+              <ReferenceLine
+                x={clickedStart}
+                stroke="#10b981"
+                strokeWidth={2}
+                strokeDasharray="3 3"
+                label={{ value: 'Start', position: 'top', fill: '#10b981', fontSize: 12 }}
+              />
+            )}
+            {clickedEnd && (
+              <ReferenceLine
+                x={clickedEnd}
+                stroke="#ef4444"
+                strokeWidth={2}
+                strokeDasharray="3 3"
+                label={{ value: 'End', position: 'top', fill: '#ef4444', fontSize: 12 }}
+              />
+            )}
+            {clickedStart && clickedEnd && (
+              <ReferenceArea
+                x1={clickedStart}
+                x2={clickedEnd}
+                strokeOpacity={0.3}
+                fill="var(--accent, #3b82f6)"
+                fillOpacity={0.1}
+              />
+            )}
           </LineChart>
         )}
       </ResponsiveContainer>

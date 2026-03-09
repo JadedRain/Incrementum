@@ -14,6 +14,24 @@ const InteractiveGraph: React.FC<Props> = ({ period = "1y", interval = "1d", hei
   const { token } = useParams<{ token: string }>();
   const ticker = token ?? "";
   const [graphType, setGraphType] = useState<'line' | 'candle'>('line');
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
+
+  const handleDateRangeChange = (start: string, end: string) => {
+    // Convert to date format for input fields (YYYY-MM-DD)
+    const formatForInput = (dateStr: string) => {
+      const date = new Date(dateStr);
+      return date.toISOString().split('T')[0];
+    };
+    
+    setStartDate(formatForInput(start));
+    setEndDate(formatForInput(end));
+  };
+
+  const handleReset = () => {
+    setStartDate('');
+    setEndDate('');
+  };
 
   if (!ticker) {
     return (
@@ -28,6 +46,38 @@ const InteractiveGraph: React.FC<Props> = ({ period = "1y", interval = "1d", hei
   return (
     <div className="interactive-graph-wrapper" style={{ height }}>
       <div className="interactive-graph-toolbar">
+        <div className="date-range-controls">
+          <label className="date-input-label">
+            Start Date:
+            <input
+              type="date"
+              className="date-input"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+          </label>
+          <label className="date-input-label">
+            End Date:
+            <input
+              type="date"
+              className="date-input"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+          </label>
+          {(startDate || endDate) && (
+            <button
+              className="interactive-graph-btn reset-btn"
+              onClick={handleReset}
+              title="Reset date range"
+            >
+              Reset
+            </button>
+          )}
+          <span className="graph-instruction-text">
+            💡 Click two points on the graph to select a date range
+          </span>
+        </div>
         <button
           className="interactive-graph-btn"
           onClick={() => setGraphType(graphType === 'line' ? 'candle' : 'line')}
@@ -41,6 +91,9 @@ const InteractiveGraph: React.FC<Props> = ({ period = "1y", interval = "1d", hei
         interval={interval}
         chartType={graphType}
         height={`calc(${height} - 50px)`}
+        startDate={startDate}
+        endDate={endDate}
+        onDateRangeChange={handleDateRangeChange}
       />
     </div>
   );
