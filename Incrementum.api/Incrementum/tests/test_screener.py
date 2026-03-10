@@ -190,7 +190,7 @@ class TestScreener:
             operator="greater_than",
             operand="pps",
             filter_type="numeric",
-            value=1600
+            value=16  # Price in dollars (will be converted to cents)
         )
 
         result, total = screener.query([pps_filter])
