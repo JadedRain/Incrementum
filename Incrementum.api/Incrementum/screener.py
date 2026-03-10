@@ -40,13 +40,23 @@ class Screener:
             grouped_filters[operand].append(filter_data)
 
         needs_latest_pps = any(f.operand == 'pps' for f in filters) or sort_by == 'latest_close'
+        needs_latest_volume = (
+            any(f.operand == 'volume' for f in filters) or sort_by == 'latest_volume'
+        )
+
         base_qs = StockModel.objects
-        if needs_latest_pps:
+        if needs_latest_pps or needs_latest_volume:
             latest_history_qs = StockHistory.objects.filter(
                 stock_symbol__symbol=OuterRef('symbol')
             ).order_by('-day_and_time')
-            latest_close_subq = Subquery(latest_history_qs.values('close_price')[:1])
-            base_qs = StockModel.objects.annotate(latest_close=latest_close_subq)
+
+            if needs_latest_pps:
+                latest_close_subq = Subquery(latest_history_qs.values('close_price')[:1])
+                base_qs = base_qs.annotate(latest_close=latest_close_subq)
+
+            if needs_latest_volume:
+                latest_volume_subq = Subquery(latest_history_qs.values('volume')[:1])
+                base_qs = base_qs.annotate(latest_volume=latest_volume_subq)
 
         combined_q = Q()
         for operand, filter_list in grouped_filters.items():
@@ -102,9 +112,16 @@ class Screener:
             'market_cap': 'market_cap',
             'pps': 'latest_close',
             'industry': 'sic_description',
+            'volume': 'latest_volume',
+            'percent_change': 'day_percent_change',
         }
 
         field_name = field_mapping.get(operand, operand)
+
+        # Convert price from dollars to cents (prices stored as integers in cents)
+        if operand == 'pps' and value is not None:
+            value = int(float(value) * 100)
+
         if operator == 'equals':
             if filter_data.filter_type in ['categoric', 'string']:
                 return Q(**{f'{field_name}__iexact': value})
