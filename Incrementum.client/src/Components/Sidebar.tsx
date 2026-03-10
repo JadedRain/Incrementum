@@ -3,6 +3,9 @@ import TickerSymbolFilter from './FilterComponents/TickerSymbolFilter';
 import IndustryFilter from './FilterComponents/IndustryFilter';
 import MarketCapFilter from './FilterComponents/MarketCapFilter';
 import EPSFilter from './FilterComponents/EPSFilter';
+import PriceFilter from './FilterComponents/PriceFilter';
+import VolumeFilter from './FilterComponents/VolumeFilter';
+import PercentChangeFilter from './FilterComponents/PercentChangeFilter';
 import { useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
 
 interface SidebarProps {
@@ -72,7 +75,13 @@ const Sidebar: React.FC<SidebarProps> = () => {
 
         <IndustryFilter />
 
+        <PriceFilter />
+
         <MarketCapFilter />
+
+        <VolumeFilter />
+
+        <PercentChangeFilter />
 
         <EPSFilter />
       </nav>

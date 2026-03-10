@@ -21,6 +21,7 @@ export interface DatabaseScreenerContextType {
   isLoading: boolean;
   error: string | null;
   clearFilters: () => void;
+  batchUpdateFilters: (filters: DatabaseScreenerFilter[], options?: { sortBy?: string; sortAsc?: boolean }) => void;
   sortBy: string | null;
   setSortBy: (value: string | null) => void;
   sortAsc: boolean;

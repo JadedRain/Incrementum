@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState, useEffect } from "react";
+import { createContext, useCallback, useContext, useState, useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import { apiString, fetchWrapper } from "./FetchingHelper";
 import type { DatabaseScreenerFilter, DatabaseScreenerContextType } from "./DatabaseScreenerTypes";
@@ -14,6 +14,7 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
   const [sortAsc, setSortAsc] = useState(true);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(12);
+  const isBatchUpdating = useRef(false);
   const [pagination, setPagination] = useState<{
     total_count: number;
     total_pages: number;
@@ -59,12 +60,40 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
     setPage(1);
   }, [setPage]);
 
-  // Reset page to 1 when filters change
-  useEffect(() => {
+  const batchUpdateFilters = useCallback((
+    filters: DatabaseScreenerFilter[],
+    options?: { sortBy?: string; sortAsc?: boolean }
+  ) => {
+    isBatchUpdating.current = true;
+    
+    const newFilterDict: Record<string, DatabaseScreenerFilter> = {};
+    filters.forEach(filter => {
+      const key = getKey(filter);
+      newFilterDict[key] = filter;
+    });
+    
+    setFilterDict(newFilterDict);
     setPage(1);
-  }, [filterDict]);
+    
+    if (options?.sortBy !== undefined) {
+      setSortBy(options.sortBy);
+    }
+    if (options?.sortAsc !== undefined) {
+      setSortAsc(options.sortAsc);
+    }
+    
+    // Allow fetch on next render
+    setTimeout(() => {
+      isBatchUpdating.current = false;
+    }, 0);
+  }, []);
 
   useEffect(() => {
+    // Skip fetch during batch updates
+    if (isBatchUpdating.current) {
+      return;
+    }
+    
     const fetchStocks = async () => {
       const filterList = Object.values(filterDict);
       setIsLoading(true);
@@ -117,6 +146,7 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
         isLoading,
         error,
         clearFilters,
+        batchUpdateFilters,
         sortBy,
         setSortBy,
         sortAsc,
