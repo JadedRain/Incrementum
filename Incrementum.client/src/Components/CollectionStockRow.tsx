@@ -14,6 +14,7 @@ type Stock = {
   volume?: number | null;
   averageVolume?: number | null;
   purchasePrice?: string | number | null;
+  debt_to_equity?: number | null;
 };
 
 type Props = {

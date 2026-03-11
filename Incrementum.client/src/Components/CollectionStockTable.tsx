@@ -57,6 +57,7 @@ function InnerCollectionStockTable({ stocksData, loadingStocks, tokens, onStockC
     { k: 'percentChange', l: '1 Day % Chg.' },
     { k: 'volume', l: 'Vol.' },
     { k: 'market_cap', l: 'Mkt. Cap' },
+    { k: 'debt_to_equity', l: 'D/E Ratio' },
   ];
 
   const sortOptions: { value: SortField; label: string }[] = [

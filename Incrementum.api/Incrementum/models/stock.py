@@ -62,6 +62,9 @@ class StockModel(models.Model):
     sic_description = models.CharField(
         max_length=255, null=True, blank=True, db_column='sic_description'
     )
+    debt_to_equity = models.DecimalField(
+        max_digits=12, decimal_places=4, null=True, blank=True, db_column='debt_to_equity'
+    )
 
     class Meta:
         db_table = 'stock'
@@ -99,6 +102,11 @@ class StockModel(models.Model):
             'locale': self.locale,
             'sic_code': self.sic_code,
             'sic_description': self.sic_description,
+            'debt_to_equity': (
+                float(self.debt_to_equity)
+                if self.debt_to_equity is not None
+                else None
+            ),
         }
 
     @classmethod

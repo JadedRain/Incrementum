@@ -18,6 +18,7 @@ export interface StockData {
   sic_description?: string | null;
   updated_at?: string | null;
   eps?: number | null;
+  debt_to_equity?: number | null;
   // Financial data from stock_history
   currentPrice?: number | null;
   open?: number | null;
