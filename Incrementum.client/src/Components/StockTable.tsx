@@ -20,13 +20,14 @@ type Stock = {
   averageVolume?: number;
   volume?: number;
   eps?: number;
+  debt_to_equity?: number;
   list_date?: string | null;
   outstanding_shares?: number | null;
   share_class_figi?: string | null;
   sic_description?: string | null;
 };
 
-type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps' | 'list_date' | 'outstanding_shares' | 'share_class_figi' | 'sic_description';
+type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps' | 'debt_to_equity' | 'list_date' | 'outstanding_shares' | 'share_class_figi' | 'sic_description';
 type Col = { k: ColKey; l: string };
 
 type Props = { onRowClick?: (s: string) => void; stocks?: unknown[] };
@@ -50,6 +51,7 @@ export default function StockTable({ onRowClick, stocks: overrideStocks }: Props
     { k: 'symbol', l: 'Symbol' },
     { k: 'price', l: 'Price' },
     { k: 'eps', l: 'EPS' },
+    { k: 'debt_to_equity', l: 'D/E Ratio' },
     { k: 'high52', l: '52W High' },
     { k: 'low52', l: '52W Low' },
     { k: 'percentChange', l: '1 Day % Chg.' },
@@ -125,6 +127,8 @@ function InnerStockTable({
         return 'regularMarketPrice';
       case 'eps':
         return 'eps';
+      case 'debt_to_equity':
+        return 'debt_to_equity';
       case 'percentChange':
         return 'regularMarketChangePercent';
       case 'volume':

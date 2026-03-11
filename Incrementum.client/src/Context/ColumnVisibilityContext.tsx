@@ -12,6 +12,7 @@ export function ColumnVisibilityProvider({ children }: { children: React.ReactNo
     volume: false,
     market_cap: true,
     eps: true,
+    debt_to_equity: false,
     list_date: false,
     outstanding_shares: false,
     share_class_figi: false,

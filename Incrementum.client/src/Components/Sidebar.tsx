@@ -3,6 +3,7 @@ import TickerSymbolFilter from './FilterComponents/TickerSymbolFilter';
 import IndustryFilter from './FilterComponents/IndustryFilter';
 import MarketCapFilter from './FilterComponents/MarketCapFilter';
 import EPSFilter from './FilterComponents/EPSFilter';
+import DebtToEquityFilter from './FilterComponents/DebtToEquityFilter';
 import PriceFilter from './FilterComponents/PriceFilter';
 import VolumeFilter from './FilterComponents/VolumeFilter';
 import PercentChangeFilter from './FilterComponents/PercentChangeFilter';
@@ -84,6 +85,8 @@ const Sidebar: React.FC<SidebarProps> = () => {
         <PercentChangeFilter />
 
         <EPSFilter />
+
+        <DebtToEquityFilter />
       </nav>
     </aside>
   );

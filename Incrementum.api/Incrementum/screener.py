@@ -114,6 +114,7 @@ class Screener:
             'industry': 'sic_description',
             'volume': 'latest_volume',
             'percent_change': 'day_percent_change',
+            'debt_to_equity': 'debt_to_equity',
         }
 
         field_name = field_mapping.get(operand, operand)

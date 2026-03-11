@@ -20,6 +20,7 @@ interface StockMeta {
   sic_description?: string | null;
   updated_at?: string | null;
   eps?: number | null;
+  debt_to_equity?: number | null;
 }
 
 interface StockInfoSidebarProps {
@@ -54,6 +55,15 @@ const StockInfoSidebar: React.FC<StockInfoSidebarProps> = ({ results }) => {
             <div className="stock-info-sidebar-row">
               <span className="stock-info-label">EPS</span>
               <span className="stock-info-value">{formatCurrency(results.eps)}</span>
+            </div>
+
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">Debt-to-Equity</span>
+              <span className="stock-info-value">
+                {results.debt_to_equity !== null && results.debt_to_equity !== undefined 
+                  ? results.debt_to_equity.toFixed(2) 
+                  : 'N/A'}
+              </span>
             </div>
 
             <div className="stock-info-sidebar-row">

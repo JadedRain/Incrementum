@@ -17,6 +17,7 @@ type Stock = {
   averageVolume?: number;
   volume?: number;
   eps?: number;
+  debt_to_equity?: number;
   list_date?: string | null;
   outstanding_shares?: number | null;
   share_class_figi?: string | null;
@@ -68,6 +69,7 @@ export default function StockRow({ stock, onClick }: Props) {
     volume: s.regularMarketVolume ?? s.averageDailyVolume3Month ?? s.averageVolume ?? s.volume,
     market_cap: s.market_cap,
     eps: s.eps,
+    debt_to_equity: s.debt_to_equity,
     list_date: s.list_date,
     outstanding_shares: s.outstanding_shares,
     share_class_figi: s.share_class_figi,
@@ -88,6 +90,8 @@ export default function StockRow({ stock, onClick }: Props) {
             return <Cell key={k} className="StockTable-cell--numeric">{o.price != null ? `$${(o.price / 100).toFixed(2)}` : 'N/A'}</Cell>;
           case 'eps':
             return <Cell key={k} className="StockTable-cell--numeric">{o.eps != null ? `$${o.eps.toFixed(2)}` : 'N/A'}</Cell>;
+          case 'debt_to_equity':
+            return <Cell key={k} className="StockTable-cell--numeric">{o.debt_to_equity != null ? o.debt_to_equity.toFixed(2) : 'N/A'}</Cell>;
           case 'high52':
             return <Cell key={k} className="StockTable-cell--numeric">{o.high52 != null ? `$${(o.high52 / 100).toFixed(2)}` : 'N/A'}</Cell>;
           case 'low52':
