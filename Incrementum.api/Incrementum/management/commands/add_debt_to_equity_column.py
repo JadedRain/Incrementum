@@ -10,35 +10,41 @@ class Command(BaseCommand):
             try:
                 # Add the column if it doesn't exist
                 cursor.execute("""
-                    ALTER TABLE incrementum.stock 
+                    ALTER TABLE incrementum.stock
                     ADD COLUMN IF NOT EXISTS debt_to_equity NUMERIC(12, 4);
                 """)
-                
+
                 self.stdout.write(
-                    self.style.SUCCESS('Successfully added debt_to_equity column to stock table')
+                    self.style.SUCCESS(
+                        'Successfully added debt_to_equity column to '
+                        'stock table'
+                    )
                 )
-                
+
                 # Verify the column was added
                 cursor.execute("""
-                    SELECT column_name, data_type, numeric_precision, numeric_scale
+                    SELECT column_name, data_type,
+                           numeric_precision, numeric_scale
                     FROM information_schema.columns
-                    WHERE table_schema = 'incrementum' 
+                    WHERE table_schema = 'incrementum'
                       AND table_name = 'stock'
                       AND column_name = 'debt_to_equity';
                 """)
-                
+
                 result = cursor.fetchone()
                 if result:
-                    self.stdout.write(
-                        self.style.SUCCESS(
-                            f'Column verified: {result[0]} ({result[1]}, precision={result[2]}, scale={result[3]})'
-                        )
+                    msg = (
+                        f'Column verified: {result[0]} ({result[1]}, '
+                        f'precision={result[2]}, scale={result[3]})'
                     )
+                    self.stdout.write(self.style.SUCCESS(msg))
                 else:
-                    self.stdout.write(
-                        self.style.WARNING('Column not found after adding - this may be normal if it already existed')
+                    msg = (
+                        'Column not found after adding - this may be '
+                        'normal if it already existed'
                     )
-                    
+                    self.stdout.write(self.style.WARNING(msg))
+
             except Exception as e:
                 self.stdout.write(
                     self.style.ERROR(f'Error adding column: {str(e)}')
