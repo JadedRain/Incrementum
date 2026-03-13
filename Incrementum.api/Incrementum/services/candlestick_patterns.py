@@ -4,24 +4,24 @@ import pandas as pd
 
 class CandlestickData:
     """Normalized candlestick data structure"""
-    
+
     def __init__(self, open_price: float, high: float, low: float, close_price: float):
         self.open = open_price
         self.high = high
         self.low = low
         self.close = close_price
-        
+
         # Normalized components
         self.body_size = abs(close_price - open_price)
         self.upper_shadow = high - max(open_price, close_price)
         self.lower_shadow = min(open_price, close_price) - low
         self.total_range = high - low
-        
+
         # Calculate ratios (avoid division by zero)
         self.body_ratio = self.body_size / self.total_range if self.total_range else 0
         self.upper_shadow_ratio = self.upper_shadow / self.total_range if self.total_range else 0
         self.lower_shadow_ratio = self.lower_shadow / self.total_range if self.total_range else 0
-    
+
     def __repr__(self):
         return (f"CandlestickData(open={self.open}, high={self.high}, "
                 f"low={self.low}, close={self.close})")
@@ -54,13 +54,13 @@ def is_hanging_man(candle: CandlestickData,
                    upper_shadow_ratio_max: float = 0.1) -> bool:
     """
     Detect Hanging Man candlestick pattern.
-    
+
     A Hanging Man has the same structure as a Hammer but appears in a different context:
     - Small body at the top (body ratio <= 30% of total range)
     - Long lower shadow (at least 60% of total range)
     - Little to no upper shadow (upper shadow <= 10% of total range)
     - Typically appears after an uptrend (bearish reversal signal)
-    
+
     Note: The visual structure is identical to a Hammer. The difference is the
     trend context: Hammer appears after downtrend, Hanging Man after uptrend.
     """

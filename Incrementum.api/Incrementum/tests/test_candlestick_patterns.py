@@ -14,11 +14,11 @@ from Incrementum.services.candlestick_patterns import (
 
 class TestCandlestickData:
     """Test the CandlestickData normalization"""
-    
+
     def test_candlestick_data_normalization(self):
         """Test that candlestick data is properly normalized"""
         candle = CandlestickData(open_price=100, high=110, low=90, close_price=105)
-        
+
         assert candle.body_size == 5  # abs(105 - 100)
         assert candle.upper_shadow == 5  # 110 - max(100, 105)
         assert candle.lower_shadow == 10  # min(100, 105) - 90
@@ -26,11 +26,11 @@ class TestCandlestickData:
         assert candle.body_ratio == 0.25  # 5 / 20
         assert candle.upper_shadow_ratio == 0.25  # 5 / 20
         assert candle.lower_shadow_ratio == 0.5  # 10 / 20
-    
+
     def test_candlestick_data_zero_range(self):
         """Test handling of zero range (doji-like candles)"""
         candle = CandlestickData(open_price=100, high=100, low=100, close_price=100)
-        
+
         assert candle.total_range == 0
         assert candle.body_ratio == 0
         assert candle.upper_shadow_ratio == 0
@@ -39,58 +39,58 @@ class TestCandlestickData:
 
 class TestHammerPattern:
     """Test Hammer candlestick pattern detection"""
-    
+
     def test_hammer_positive_case(self):
         """Test a valid hammer pattern"""
         # Classic hammer: small body at top, long lower shadow, minimal upper shadow
         # Open=100, High=102, Low=85, Close=101
         # Body: 1 (1%), Upper shadow: 1 (1%), Lower shadow: 15 (88%), Total: 17
         candle = CandlestickData(open_price=100, high=102, low=85, close_price=101)
-        
+
         assert is_hammer(candle) is True
         assert candle.body_ratio < 0.3
         assert candle.lower_shadow_ratio > 0.6
         assert candle.upper_shadow_ratio < 0.1
-    
+
     def test_hammer_negative_large_body(self):
         """Test that large body candles are not detected as hammers"""
         # Large body: Open=90, High=105, Low=85, Close=105
         # Body: 15 (75%), Lower shadow: 5 (25%), Upper shadow: 0
         candle = CandlestickData(open_price=90, high=105, low=85, close_price=105)
-        
+
         assert is_hammer(candle) is False
         # Body is too large (75% > 30%)
-    
+
     def test_hammer_negative_short_lower_shadow(self):
         """Test that candles without long lower shadow are not hammers"""
         # Short lower shadow: Open=100, High=110, Low=98, Close=102
         # Body: 2 (17%), Upper shadow: 8 (67%), Lower shadow: 2 (17%)
         candle = CandlestickData(open_price=100, high=110, low=98, close_price=102)
-        
+
         assert is_hammer(candle) is False
         # Lower shadow is too short (17% < 60%)
-    
+
     def test_hammer_negative_long_upper_shadow(self):
         """Test that candles with long upper shadow are not hammers"""
         # Long upper shadow: Open=100, High=120, Low=90, Close=102
         # Body: 2 (7%), Upper shadow: 18 (60%), Lower shadow: 10 (33%)
         candle = CandlestickData(open_price=100, high=120, low=90, close_price=102)
-        
+
         assert is_hammer(candle) is False
         # Upper shadow is too long (60% > 10%)
-    
+
     def test_hammer_zero_range_candle(self):
         """Test that zero-range candles are not hammers"""
         candle = CandlestickData(open_price=100, high=100, low=100, close_price=100)
-        
+
         assert is_hammer(candle) is False
-    
+
     def test_hammer_bullish_vs_bearish_body(self):
         """Test that hammer pattern works for both bullish and bearish bodies"""
         # Bullish hammer (close > open)
         bullish_candle = CandlestickData(open_price=100, high=102, low=85, close_price=101)
         assert is_hammer(bullish_candle) is True
-        
+
         # Bearish hammer (close < open)
         bearish_candle = CandlestickData(open_price=101, high=102, low=85, close_price=100)
         assert is_hammer(bearish_candle) is True
@@ -98,37 +98,37 @@ class TestHammerPattern:
 
 class TestHangingManPattern:
     """Test Hanging Man candlestick pattern detection"""
-    
+
     def test_hanging_man_positive_case(self):
         """Test a valid hanging man pattern"""
         # Classic hanging man: structurally identical to hammer
         # Open=100, High=102, Low=85, Close=101
         candle = CandlestickData(open_price=100, high=102, low=85, close_price=101)
-        
+
         assert is_hanging_man(candle) is True
         assert candle.body_ratio < 0.3
         assert candle.lower_shadow_ratio > 0.6
         assert candle.upper_shadow_ratio < 0.1
-    
+
     def test_hanging_man_negative_large_body(self):
         """Test that large body candles are not hanging man"""
         # Large body candle
         candle = CandlestickData(open_price=90, high=105, low=85, close_price=105)
-        
+
         assert is_hanging_man(candle) is False
-    
+
     def test_hanging_man_negative_short_lower_shadow(self):
         """Test that candles without long lower shadow are not hanging man"""
         candle = CandlestickData(open_price=100, high=110, low=98, close_price=102)
-        
+
         assert is_hanging_man(candle) is False
-    
+
     def test_hanging_man_negative_long_upper_shadow(self):
         """Test that candles with long upper shadow are not hanging man"""
         candle = CandlestickData(open_price=100, high=120, low=90, close_price=102)
-        
+
         assert is_hanging_man(candle) is False
-    
+
     def test_hanging_man_structural_equivalence(self):
         # Same candle should match both patterns (context differentiates them)
         candle = CandlestickData(open_price=100, high=102, low=85, close_price=101)
