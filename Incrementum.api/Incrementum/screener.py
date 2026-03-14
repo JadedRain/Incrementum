@@ -1,6 +1,7 @@
 from typing import List
 import re
 from django.db.models import Q, OuterRef, Subquery
+from django.db.models.functions import Coalesce
 from Incrementum.DTOs.ifilterdata import FilterData
 from Incrementum.models.stock import StockModel
 from Incrementum.models.stock_history import StockHistory
@@ -43,7 +44,10 @@ class Screener:
                 grouped_filters[operand] = []
             grouped_filters[operand].append(filter_data)
 
-        needs_latest_pps = sort_by == 'latest_close'
+        needs_latest_pps = (
+            any(f.operand == 'pps' for f in filters)
+            or sort_by == 'latest_close'
+        )
         needs_latest_volume = (
             any(f.operand == 'volume' for f in filters) or sort_by == 'latest_volume'
         )
@@ -56,7 +60,10 @@ class Screener:
 
             if needs_latest_pps:
                 latest_close_subq = Subquery(latest_history_qs.values('close_price')[:1])
-                base_qs = base_qs.annotate(latest_close=latest_close_subq)
+                base_qs = base_qs.annotate(
+                    latest_close=latest_close_subq,
+                    effective_price=Coalesce('price', latest_close_subq),
+                )
 
             if needs_latest_volume:
                 latest_volume_subq = Subquery(latest_history_qs.values('volume')[:1])
@@ -114,7 +121,7 @@ class Screener:
         field_mapping = {
             'ticker': 'symbol',
             'market_cap': 'market_cap',
-            'pps': 'price',
+            'pps': 'effective_price',
             'price': 'price',
             'high52': 'high52',
             'low52': 'low52',

@@ -103,7 +103,7 @@ export default function StockRow({ stock, onClick }: Props) {
           case 'low52':
             return <Cell key={k} className="StockTable-cell--numeric">{o.low52 != null ? `$${(o.low52 / 100).toFixed(2)}` : 'N/A'}</Cell>;
           case 'percentChange':
-            return <Cell key={k} className="StockTable-cell--numeric"><span className={o.percentChange != null && o.percentChange >= 0 ? 'text-green-500' : 'text-red-500'}>{o.percentChange != null ? (o.percentChange >= 0 ? `+${o.percentChange.toFixed(2)}%` : `${o.percentChange.toFixed(2)}%`) : 'N/A'}</span></Cell>;
+            return <Cell key={k} className="StockTable-cell--numeric"><span className={o.percentChange != null && o.percentChange >= 0 ? 'text-green-500' : 'text-red-500'}>{o.percentChange != null ? (o.percentChange >= 0 ? `+${(o.percentChange / 100).toFixed(2)}%` : `${(o.percentChange / 100).toFixed(2)}%`) : 'N/A'}</span></Cell>;
           case 'volume':
             return <Cell key={k} className="StockTable-cell--numeric">{fmt(o.volume)}</Cell>;
           case 'market_cap':
