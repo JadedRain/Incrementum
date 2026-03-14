@@ -119,7 +119,7 @@ function IndividualScreenPageContent() {
           },
         ],
         {
-          sortBy: 'day_percent_change',
+          sortBy: 'percent_change',
           sortAsc: false,
         }
       );
