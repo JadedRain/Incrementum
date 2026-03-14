@@ -1,6 +1,7 @@
 from typing import List
 import re
 from django.db.models import Q, OuterRef, Subquery
+from django.db.models.functions import Coalesce
 from Incrementum.DTOs.ifilterdata import FilterData
 from Incrementum.models.stock import StockModel
 from Incrementum.models.stock_history import StockHistory
@@ -13,6 +14,10 @@ class Screener:
     def query(self, filters: List[FilterData],
               sort_by: str = None, sort_order: str = 'asc',
               page: int = 1, page_size: int | None = None) -> tuple[List[StockModel], int]:
+
+        # Accept DB-style sort key while ordering by ORM field name.
+        if sort_by == 'percent_change':
+            sort_by = 'day_percent_change'
 
         if not filters:
             base_qs = StockModel.objects
@@ -39,7 +44,10 @@ class Screener:
                 grouped_filters[operand] = []
             grouped_filters[operand].append(filter_data)
 
-        needs_latest_pps = any(f.operand == 'pps' for f in filters) or sort_by == 'latest_close'
+        needs_latest_pps = (
+            any(f.operand == 'pps' for f in filters)
+            or sort_by == 'latest_close'
+        )
         needs_latest_volume = (
             any(f.operand == 'volume' for f in filters) or sort_by == 'latest_volume'
         )
@@ -52,7 +60,10 @@ class Screener:
 
             if needs_latest_pps:
                 latest_close_subq = Subquery(latest_history_qs.values('close_price')[:1])
-                base_qs = base_qs.annotate(latest_close=latest_close_subq)
+                base_qs = base_qs.annotate(
+                    latest_close=latest_close_subq,
+                    effective_price=Coalesce('price', latest_close_subq),
+                )
 
             if needs_latest_volume:
                 latest_volume_subq = Subquery(latest_history_qs.values('volume')[:1])
@@ -110,17 +121,32 @@ class Screener:
         field_mapping = {
             'ticker': 'symbol',
             'market_cap': 'market_cap',
-            'pps': 'latest_close',
+            'pps': 'effective_price',
+            'price': 'price',
+            'high52': 'high52',
+            'low52': 'low52',
             'industry': 'sic_description',
             'volume': 'latest_volume',
             'percent_change': 'day_percent_change',
+            'dayPercentChange': 'day_percent_change',
             'debt_to_equity': 'debt_to_equity',
+            'annual_eps_growth_rate': 'annual_eps_growth_rate',
+            'price_per_earnings': 'price_per_earnings',
+            'pe_per_growth': 'pe_per_growth',
         }
 
         field_name = field_mapping.get(operand, operand)
 
-        # Convert price from dollars to cents (prices stored as integers in cents)
-        if operand == 'pps' and value is not None:
+        # Convert UI decimal values to stored integer scale (x100).
+        if operand in {
+            'pps',
+            'price',
+            'high52',
+            'low52',
+            'annual_eps_growth_rate',
+            'price_per_earnings',
+            'pe_per_growth',
+        } and value is not None:
             value = int(float(value) * 100)
 
         if operator == 'equals':

@@ -11,7 +11,22 @@ class StockModel(models.Model):
         decimal_places=6,
         null=True,
         blank=True,
-        db_column='day_percent_change',
+        db_column='percent_change',
+    )
+    price = models.IntegerField(
+        null=True,
+        blank=True,
+        db_column='price',
+    )
+    high52 = models.IntegerField(
+        null=True,
+        blank=True,
+        db_column='high52',
+    )
+    low52 = models.IntegerField(
+        null=True,
+        blank=True,
+        db_column='low52',
     )
     description = models.TextField(
         null=True, blank=True, db_column='description'
@@ -65,6 +80,15 @@ class StockModel(models.Model):
     debt_to_equity = models.DecimalField(
         max_digits=12, decimal_places=4, null=True, blank=True, db_column='debt_to_equity'
     )
+    annual_eps_growth_rate = models.IntegerField(
+        null=True, blank=True, db_column='annual_eps_growth_rate'
+    )
+    price_per_earnings = models.IntegerField(
+        null=True, blank=True, db_column='price_per_earnings'
+    )
+    pe_per_growth = models.IntegerField(
+        null=True, blank=True, db_column='pe_per_growth'
+    )
 
     class Meta:
         db_table = 'stock'
@@ -79,11 +103,24 @@ class StockModel(models.Model):
             'updated_at': (
                 self.updated_at.isoformat() if self.updated_at else None
             ),
+            'percent_change': (
+                float(self.day_percent_change)
+                if self.day_percent_change is not None
+                else None
+            ),
             'day_percent_change': (
                 float(self.day_percent_change)
                 if self.day_percent_change is not None
                 else None
             ),
+            'dayPercentChange': (
+                float(self.day_percent_change)
+                if self.day_percent_change is not None
+                else None
+            ),
+            'price': self.price,
+            'high52': self.high52,
+            'low52': self.low52,
             'description': self.description,
             'market_cap': self.market_cap,
             'primary_exchange': self.primary_exchange,
@@ -107,6 +144,9 @@ class StockModel(models.Model):
                 if self.debt_to_equity is not None
                 else None
             ),
+            'annual_eps_growth_rate': self.annual_eps_growth_rate,
+            'price_per_earnings': self.price_per_earnings,
+            'pe_per_growth': self.pe_per_growth,
         }
 
     @classmethod

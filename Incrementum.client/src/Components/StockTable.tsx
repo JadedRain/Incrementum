@@ -25,9 +25,12 @@ type Stock = {
   outstanding_shares?: number | null;
   share_class_figi?: string | null;
   sic_description?: string | null;
+  annual_eps_growth_rate?: number | null;
+  price_per_earnings?: number | null;
+  pe_per_growth?: number | null;
 };
 
-type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps' | 'debt_to_equity' | 'list_date' | 'outstanding_shares' | 'share_class_figi' | 'sic_description';
+type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps' | 'debt_to_equity' | 'list_date' | 'outstanding_shares' | 'share_class_figi' | 'sic_description' | 'annual_eps_growth_rate' | 'price_per_earnings' | 'pe_per_growth';
 type Col = { k: ColKey; l: string };
 
 type Props = { onRowClick?: (s: string) => void; stocks?: unknown[] };
@@ -61,6 +64,9 @@ export default function StockTable({ onRowClick, stocks: overrideStocks }: Props
     { k: 'outstanding_shares', l: 'Outstanding Shares' },
     { k: 'share_class_figi', l: 'Share Class' },
     { k: 'sic_description', l: 'Industry' },
+    { k: 'annual_eps_growth_rate', l: 'Annual EPS Growth' },
+    { k: 'price_per_earnings', l: 'P/E Ratio' },
+    { k: 'pe_per_growth', l: 'PEG Ratio' },
   ];
 
   return (
@@ -124,21 +130,21 @@ function InnerStockTable({
       case 'symbol':
         return 'symbol';
       case 'price':
-        return 'regularMarketPrice';
+        return 'price';
       case 'eps':
         return 'eps';
       case 'debt_to_equity':
         return 'debt_to_equity';
       case 'percentChange':
-        return 'regularMarketChangePercent';
+        return 'percent_change';
       case 'volume':
         return 'volume';
       case 'market_cap':
         return 'market_cap';
       case 'high52':
-        return 'fiftyTwoWeekHigh';
+        return 'high52';
       case 'low52':
-        return 'fiftyTwoWeekLow';
+        return 'low52';
       case 'list_date':
         return 'list_date';
       case 'outstanding_shares':
@@ -147,6 +153,12 @@ function InnerStockTable({
         return 'share_class_figi';
       case 'sic_description':
         return 'sic_description';
+      case 'annual_eps_growth_rate':
+        return 'annual_eps_growth_rate';
+      case 'price_per_earnings':
+        return 'price_per_earnings';
+      case 'pe_per_growth':
+        return 'pe_per_growth';
       default:
         return null;
     }
