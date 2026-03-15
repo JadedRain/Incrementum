@@ -133,6 +133,8 @@ class Screener:
             'annual_eps_growth_rate': 'annual_eps_growth_rate',
             'price_per_earnings': 'price_per_earnings',
             'pe_per_growth': 'pe_per_growth',
+            'revenue_per_share': 'revenue_per_share',
+            'price_per_sales': 'price_per_sales',
         }
 
         field_name = field_mapping.get(operand, operand)
