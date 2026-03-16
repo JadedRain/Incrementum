@@ -25,7 +25,7 @@ const SignupPage: React.FC = () => {
     if (result.success) {
       const loginSuccess = await signIn(email, password);
       if (loginSuccess) {
-        navigate("/screener");
+        navigate("/screener/custom_temp");
       }
     } else {
       const errorMsg = result.error || "Signup failed";

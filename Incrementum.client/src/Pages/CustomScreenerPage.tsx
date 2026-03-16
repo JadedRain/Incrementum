@@ -25,7 +25,7 @@ const CustomScreenerPageContent = () => {
       <NavigationBar />
       <div className="custom-screener-container">
         <ScreenerForm
-          onCancel={() => navigate('/screener')}
+          onCancel={() => navigate('/screener/custom_temp')}
           onSave={handleSave}
           showNameInput={!!apiKey}
         />
