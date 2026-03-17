@@ -7,6 +7,7 @@ import { useAuth } from '../Context/AuthContext';
 import Sidebar from '../Components/Sidebar'
 import SaveCollectionPopup from '../Components/SaveCollectionPopup';
 import useSaveCollection from '../hooks/useSaveCollection';
+import { usePredefinedScreenerFilters } from '../hooks/usePredefinedScreenerFilters';
 import NavigationBar from '../Components/NavigationBar'
 import StockTable from '../Components/StockTable'
 import Toast from '../Components/Toast'
@@ -98,118 +99,11 @@ function IndividualScreenPageContent() {
   });
 
   // Apply default filters for predefined screeners
-  useEffect(() => {
-    // Clear existing filters first for predefined screeners
-    const isPredefinedScreener = ['day_gainers', 'day_losers', 'most_actives', 'undervalued_growth_stocks', 'custom_temp'].includes(id || '');
-    
-    if (isPredefinedScreener) {
-      clearFilters();
-      
-      // Apply filters based on screener type
-      if (id === 'day_gainers') {
-        // Day Gainers: Min price $0.50, Min volume 100 shares, Min percent change 2.5%
-        batchUpdateFilters(
-          [
-            {
-              operand: 'pps',
-              operator: 'greater_than_or_equal',
-              filter_type: 'numeric',
-              value: 0.5,
-            },
-            {
-              operand: 'volume',
-              operator: 'greater_than_or_equal',
-              filter_type: 'numeric',
-              value: 100,
-            },
-            {
-              operand: 'percent_change',
-              operator: 'greater_than_or_equal',
-              filter_type: 'numeric',
-              value: 2.5,
-            },
-          ],
-          {
-            sortBy: 'percent_change',
-            sortAsc: false,
-          }
-        );
-      } else if (id === 'day_losers') {
-        // Day Losers: Min price $0.50, Min volume 100 shares, Max percent change -2.5%
-        batchUpdateFilters(
-          [
-            {
-              operand: 'pps',
-              operator: 'greater_than_or_equal',
-              filter_type: 'numeric',
-              value: 0.5,
-            },
-            {
-              operand: 'volume',
-              operator: 'greater_than_or_equal',
-              filter_type: 'numeric',
-              value: 100,
-            },
-            {
-              operand: 'percent_change',
-              operator: 'less_than_or_equal',
-              filter_type: 'numeric',
-              value: -2.5,
-            },
-          ],
-          {
-            sortBy: 'percent_change',
-            sortAsc: true,
-          }
-        );
-      } else if (id === 'most_actives') {
-        // Most Actives: Min price $0.50, Sort by volume
-        batchUpdateFilters(
-          [
-            {
-              operand: 'pps',
-              operator: 'greater_than_or_equal',
-              filter_type: 'numeric',
-              value: 0.5,
-            },
-            {
-              operand: 'volume',
-              operator: 'greater_than_or_equal',
-              filter_type: 'numeric',
-              value: 1000,
-            },
-          ],
-          {
-            sortBy: 'volume',
-            sortAsc: false,
-          }
-        );
-      } else if (id === 'undervalued_growth_stocks') {
-        // Undervalued Growth Stocks: P/E < 20, positive earnings growth
-        batchUpdateFilters(
-          [
-            {
-              operand: 'pps',
-              operator: 'greater_than_or_equal',
-              filter_type: 'numeric',
-              value: 1.0,
-            },
-            {
-              operand: 'pe_ratio',
-              operator: 'less_than_or_equal',
-              filter_type: 'numeric',
-              value: 20,
-            },
-          ],
-          {
-            sortBy: 'pe_ratio',
-            sortAsc: true,
-          }
-        );
-      }
-      // For 'custom_temp' (blank screener), no filters are applied after clearing
-    }
-  }, [id, batchUpdateFilters, clearFilters]);
+  usePredefinedScreenerFilters({
+    screenerId: id,
+    batchUpdateFilters,
+    clearFilters,
+  });
 
   useEffect(() => {
     // Only load custom screener data if id is numeric (custom screener)
