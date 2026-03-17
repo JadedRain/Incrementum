@@ -25,6 +25,8 @@ type Stock = {
   annual_eps_growth_rate?: number | null;
   price_per_earnings?: number | null;
   pe_per_growth?: number | null;
+  revenue_per_share?: number | null;
+  price_per_sales?: number | null;
 };
 
 type Props = {
@@ -80,6 +82,8 @@ export default function StockRow({ stock, onClick }: Props) {
     annual_eps_growth_rate: s.annual_eps_growth_rate,
     price_per_earnings: s.price_per_earnings,
     pe_per_growth: s.pe_per_growth,
+    revenue_per_share: s.revenue_per_share,
+    price_per_sales: s.price_per_sales,
   } as Record<string, number | undefined>;
   const Cell = ({ children, className = '', title }: { children: React.ReactNode; className?: string; title?: string }) => (
     <div className={`StockTable-cell ${className}`.trim()} title={title}>{children}</div>
@@ -126,6 +130,10 @@ export default function StockRow({ stock, onClick }: Props) {
             return <Cell key={k} className="StockTable-cell--numeric">{o.price_per_earnings != null ? `$${(o.price_per_earnings / 100).toFixed(2)}` : 'N/A'}</Cell>;
           case 'pe_per_growth':
             return <Cell key={k} className="StockTable-cell--numeric">{o.pe_per_growth != null ? (o.pe_per_growth / 100).toFixed(2) : 'N/A'}</Cell>;
+          case 'revenue_per_share':
+            return <Cell key={k} className="StockTable-cell--numeric">{o.revenue_per_share != null ? `$${Number(o.revenue_per_share).toFixed(2)}` : 'N/A'}</Cell>;
+          case 'price_per_sales':
+            return <Cell key={k} className="StockTable-cell--numeric">{o.price_per_sales != null ? Number(o.price_per_sales).toFixed(2) : 'N/A'}</Cell>;
           default:
             return null;
         }

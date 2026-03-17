@@ -7,6 +7,8 @@ import DebtToEquityFilter from './FilterComponents/DebtToEquityFilter';
 import AnnualEPSGrowthFilter from './FilterComponents/AnnualEPSGrowthFilter';
 import PERatioFilter from './FilterComponents/PERatioFilter';
 import PEGRatioFilter from './FilterComponents/PEGRatioFilter';
+import RevenuePerShareFilter from './FilterComponents/RevenuePerShareFilter';
+import PricePerSalesFilter from './FilterComponents/PricePerSalesFilter';
 import PriceFilter from './FilterComponents/PriceFilter';
 import High52Filter from './FilterComponents/High52Filter';
 import Low52Filter from './FilterComponents/Low52Filter';
@@ -102,6 +104,10 @@ const Sidebar: React.FC<SidebarProps> = () => {
         <PERatioFilter />
 
         <PEGRatioFilter />
+
+        <RevenuePerShareFilter />
+
+        <PricePerSalesFilter />
       </nav>
     </aside>
   );

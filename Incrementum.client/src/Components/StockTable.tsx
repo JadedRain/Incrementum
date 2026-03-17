@@ -28,9 +28,11 @@ type Stock = {
   annual_eps_growth_rate?: number | null;
   price_per_earnings?: number | null;
   pe_per_growth?: number | null;
+  revenue_per_share?: number | null;
+  price_per_sales?: number | null;
 };
 
-type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps' | 'debt_to_equity' | 'list_date' | 'outstanding_shares' | 'share_class_figi' | 'sic_description' | 'annual_eps_growth_rate' | 'price_per_earnings' | 'pe_per_growth';
+type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps' | 'debt_to_equity' | 'list_date' | 'outstanding_shares' | 'share_class_figi' | 'sic_description' | 'annual_eps_growth_rate' | 'price_per_earnings' | 'pe_per_growth' | 'revenue_per_share' | 'price_per_sales';
 type Col = { k: ColKey; l: string };
 
 type Props = { onRowClick?: (s: string) => void; stocks?: unknown[] };
@@ -67,6 +69,8 @@ export default function StockTable({ onRowClick, stocks: overrideStocks }: Props
     { k: 'annual_eps_growth_rate', l: 'Annual EPS Growth' },
     { k: 'price_per_earnings', l: 'P/E Ratio' },
     { k: 'pe_per_growth', l: 'PEG Ratio' },
+    { k: 'revenue_per_share', l: 'Revenue/Share' },
+    { k: 'price_per_sales', l: 'P/S Ratio' },
   ];
 
   return (
@@ -159,6 +163,10 @@ function InnerStockTable({
         return 'price_per_earnings';
       case 'pe_per_growth':
         return 'pe_per_growth';
+      case 'revenue_per_share':
+        return 'revenue_per_share';
+      case 'price_per_sales':
+        return 'price_per_sales';
       default:
         return null;
     }

@@ -21,6 +21,8 @@ export function ColumnVisibilityProvider({ children }: { children: React.ReactNo
     annual_eps_growth_rate: false,
     price_per_earnings: false,
     pe_per_growth: false,
+    revenue_per_share: false,
+    price_per_sales: false,
   } as Record<string, boolean>;
 
   const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>(() => {

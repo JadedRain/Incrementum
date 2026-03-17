@@ -89,6 +89,12 @@ class StockModel(models.Model):
     pe_per_growth = models.IntegerField(
         null=True, blank=True, db_column='pe_per_growth'
     )
+    revenue_per_share = models.DecimalField(
+        max_digits=20, decimal_places=2, null=True, blank=True, db_column='revenue_per_share'
+    )
+    price_per_sales = models.DecimalField(
+        max_digits=20, decimal_places=2, null=True, blank=True, db_column='price_per_sales'
+    )
 
     class Meta:
         db_table = 'stock'
@@ -147,6 +153,16 @@ class StockModel(models.Model):
             'annual_eps_growth_rate': self.annual_eps_growth_rate,
             'price_per_earnings': self.price_per_earnings,
             'pe_per_growth': self.pe_per_growth,
+            'revenue_per_share': (
+                float(self.revenue_per_share)
+                if self.revenue_per_share is not None
+                else None
+            ),
+            'price_per_sales': (
+                float(self.price_per_sales)
+                if self.price_per_sales is not None
+                else None
+            ),
         }
 
     @classmethod

@@ -40,7 +40,9 @@ create table incrementum.stock (
     debt_to_equity numeric(12, 4),
     annual_eps_growth_rate integer,
     price_per_earnings integer,
-    pe_per_growth integer
+    pe_per_growth integer,
+    revenue_per_share numeric(20, 2),
+    price_per_sales numeric(20, 2)
 );
 
 create table incrementum.stock_history (
