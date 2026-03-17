@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import {Toaster} from "react-hot-toast";
 import App from "./App";
 import {
-  SearchResults, StocksPage, Stock, ScreenerPage, ScreenerTestPage,
+  SearchResults, StocksPage, Stock, ScreenerTestPage,
   IndividualScreenPage, CustomScreenerPage, SignInPage, SignupPage,
   IndividualCustomCollectionPage, CustomCollectionsPage, SettingsPage,
   CreateCustomCollectionPage, SidebarTestPage, AdminPage
@@ -31,10 +31,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
           <Routes>
-            <Route path="/screener" element={<ScreenerPage />} />
             <Route path="/screener-test" element={<ProtectedRoute><ScreenerTestPage /></ProtectedRoute>} />
-            <Route path="/" element={<App />} />
-            <Route index element={<SignInPage />} />
+            <Route path="/" element={<FilterDataProvider><IndividualScreenPage /></FilterDataProvider>} />
+            <Route index element={<FilterDataProvider><IndividualScreenPage /></FilterDataProvider>} />
+            <Route path="/account" element={<App />} />
+            <Route path="/login" element={<SignInPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/search/:query" element={<ProtectedRoute><SearchResults /></ProtectedRoute>} />
             <Route path="/stock/:token" element={<ProtectedRoute><Stock /></ProtectedRoute>} />
