@@ -14,7 +14,6 @@ import Toast from '../Components/Toast'
 import { fetchCustomScreener } from "../Query/apiScreener"
 import type { CustomScreener, NumericFilter, CategoricalFilter } from '../Types/ScreenerTypes';
 import { DatabaseScreenerProvider, useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
-import { useCustomCollections } from '../hooks/useCustomCollections';
 import { useBulkStockDataForCollection } from '../hooks/useBulkStockData';
 import TopBar from '../Components/IndividualScreenerPage/ScreenerTopBar';
 import PotentialGainsTable from '../Components/IndividualScreenerPage/PotentialGainsTable';
@@ -30,16 +29,10 @@ function IndividualScreenPageContent() {
   const { id: paramId } = useParams<{ id: string }>();
   // Default to 'custom_temp' (blank screener) if no id is provided
   const id = paramId || 'custom_temp';
-  const { collections, loading: collectionsLoading } = useCustomCollections();
-  const initialCollectionId = id && !isNaN(Number(id)) ? Number(id) : null;
-  const [selectedCollectionId, setSelectedCollectionId] = useState<number | null>(initialCollectionId);
+  const selectedCollectionId = id && !isNaN(Number(id)) ? Number(id) : null;
   const { data: bulkStockData } = useBulkStockDataForCollection(selectedCollectionId);
   const { stocks, addFilter, batchUpdateFilters, clearFilters } = useDatabaseScreenerContext();
   const { saveCollection } = useSaveCollection({ apiKey, setTokens: () => { }, resetForm: () => { }, onError: setSaveError });
-
-  const handleSelectCollection = (collectionId: number | null) => {
-    setSelectedCollectionId(collectionId);
-  };
 
   const handleScreenerSelect = (screenerId: string) => {
     navigate(`/screener/${screenerId}`);
@@ -167,10 +160,6 @@ function IndividualScreenPageContent() {
               potentialGainsToggled={potentialGainsToggled}
               togglePotentialGains={togglePotentialGains}
               onSave={handleSave}
-              collections={collections}
-              selectedCollectionId={selectedCollectionId}
-              onSelectCollection={handleSelectCollection}
-              collectionsLoading={collectionsLoading}
               onScreenerSelect={handleScreenerSelect}
               currentScreenerId={id}
             />
