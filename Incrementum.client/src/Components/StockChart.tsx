@@ -19,6 +19,7 @@ import {
 import type { BarShapeProps } from 'recharts';
 import { apiString } from '../Context/FetchingHelper';
 import Loading from './Loading';
+import { useUndoableDateRange } from '../hooks/useUndoableDateRange';
 
 interface StockDataPoint {
   time: string;
@@ -161,8 +162,20 @@ const StockChart: React.FC<StockChartProps> = ({
   const [filteredData, setFilteredData] = useState<StockDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [clickedStart, setClickedStart] = useState<string>('');
-  const [clickedEnd, setClickedEnd] = useState<string>('');
+  const { clickedStart, clickedEnd, setClickedStart, setClickedEnd, clearDateRange } = useUndoableDateRange(
+    () => {
+      // Called when state is completely cleared
+      if (onDateRangeChange) {
+        onDateRangeChange('', '');
+      }
+    },
+    (start: string, end: string) => {
+      // Called when a previous range is restored
+      if (onDateRangeChange) {
+        onDateRangeChange(start, end);
+      }
+    }
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -212,8 +225,7 @@ const StockChart: React.FC<StockChartProps> = ({
       setFilteredData(data);
       // Clear clicked points when dates are reset
       if (!startDate && !endDate) {
-        setClickedStart('');
-        setClickedEnd('');
+        clearDateRange();
       }
       return;
     }
@@ -236,7 +248,6 @@ const StockChart: React.FC<StockChartProps> = ({
       // If no start date yet, set start date
       if (!clickedStart) {
         setClickedStart(clickedDate);
-        setClickedEnd('');
       } 
       // If start date exists but no end date, set end date
       else if (!clickedEnd) {
@@ -255,7 +266,6 @@ const StockChart: React.FC<StockChartProps> = ({
       // If both are set, reset and start over
       else {
         setClickedStart(clickedDate);
-        setClickedEnd('');
       }
     }
   };

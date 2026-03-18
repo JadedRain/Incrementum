@@ -20,6 +20,7 @@ const InteractiveGraph: React.FC<Props> = ({ period = "1y", interval = "1d", hei
   const handleDateRangeChange = (start: string, end: string) => {
     // Convert to date format for input fields (YYYY-MM-DD)
     const formatForInput = (dateStr: string) => {
+      if (!dateStr) return '';
       const date = new Date(dateStr);
       return date.toISOString().split('T')[0];
     };

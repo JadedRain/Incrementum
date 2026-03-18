@@ -11,7 +11,7 @@ import {
 import AdminRoute from "./Components/AdminRoute";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import { AuthProvider } from "./Context/AuthContext";
-import { ThemeProvider } from "./Context/ThemeContext";
+import { ThemeProvider } from "./Context/ThemeContext.tsx";
 import { FilterDataProvider } from "./Context/FilterDataContext";
 import { ErrorBoundary } from "./ErrorBoundry";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
