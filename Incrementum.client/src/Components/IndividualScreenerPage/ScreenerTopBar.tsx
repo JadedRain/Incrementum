@@ -1,12 +1,20 @@
 import type React from 'react';
 import '../../styles/ScreenerTopBar.css';
 
+interface CustomScreener {
+  id: number;
+  screener_name: string;
+  created_at: string;
+  filter_count: number;
+}
+
 interface TopBarProps {
   potentialGainsToggled: boolean;
   togglePotentialGains: () => void;
   onSave: () => void;
   onScreenerSelect?: (screenerId: string) => void;
   currentScreenerId?: string;
+  customScreeners?: CustomScreener[];
 }
 
 const TopBar: React.FC<TopBarProps> = ({
@@ -14,19 +22,27 @@ const TopBar: React.FC<TopBarProps> = ({
   togglePotentialGains,
   onSave,
   onScreenerSelect,
-  currentScreenerId
+  currentScreenerId,
+  customScreeners = []
 }) => {
   const prebuiltScreeners = [
     { value: 'day_gainers', label: 'Day Gainers' },
     { value: 'day_losers', label: 'Day Losers' },
     { value: 'most_actives', label: 'Most Actives' },
     { value: 'undervalued_growth_stocks', label: 'Undervalued Growth Stocks' },
-    { value: 'custom_temp', label: 'Blank Screener' },
+    { value: 'custom_temp', label: 'None' },
   ];
 
   const getCurrentScreenerLabel = () => {
-    const current = prebuiltScreeners.find(s => s.value === currentScreenerId);
-    return current ? current.label : 'Switch Screener';
+    // Check prebuilt screeners first
+    const prebuilt = prebuiltScreeners.find(s => s.value === currentScreenerId);
+    if (prebuilt) return prebuilt.label;
+    
+    // Check custom screeners
+    const custom = customScreeners.find(s => s.id.toString() === currentScreenerId);
+    if (custom) return custom.screener_name;
+    
+    return 'Switch Screener';
   };
 
   const handleScreenerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -51,9 +67,18 @@ const TopBar: React.FC<TopBarProps> = ({
             style={{ fontWeight: currentScreenerId ? '600' : 'normal' }}
           >
             <option value="" disabled>{getCurrentScreenerLabel()}</option>
-            {prebuiltScreeners.map(s => (
-              <option key={s.value} value={s.value}>{s.label}</option>
-            ))}
+            <optgroup label="Prebuilt Screeners">
+              {prebuiltScreeners.map(s => (
+                <option key={s.value} value={s.value}>{s.label}</option>
+              ))}
+            </optgroup>
+            {customScreeners.length > 0 && (
+              <optgroup label="My Screeners">
+                {customScreeners.map(s => (
+                  <option key={s.id} value={s.id.toString()}>{s.screener_name}</option>
+                ))}
+              </optgroup>
+            )}
           </select>
         </div>
       </div>

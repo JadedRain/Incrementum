@@ -1,4 +1,5 @@
 from django.db import models
+from ..fields import FlexibleJSONField
 
 
 class CustomScreener(models.Model):
@@ -10,7 +11,7 @@ class CustomScreener(models.Model):
     )
     screener_name = models.CharField(max_length=100, default='Untitled Screener')
     created_at = models.DateTimeField(auto_now_add=True)
-    filters = models.JSONField(default=list, blank=True)
+    filters = FlexibleJSONField(default=list, blank=True)
 
     class Meta:
         db_table = 'custom_screener'
