@@ -2,7 +2,7 @@ from django.urls import path
 from .views_auth import (
     login, signup, account_info, sync_keycloak_user, keycloak_login
 )
-from . import views, screener_views, filter_views, views_user_stock_potential
+from . import views, screener_views, filter_views, views_user_stock_potential, views_candlestick
 from .controllers import stocks_controller as stocks
 from .controllers import custom_collection_controller as collections
 
@@ -52,6 +52,14 @@ urlpatterns = [
     path('stocks/bulk/',
          stocks.get_stocks_by_tickers,
          name='get_stocks_by_tickers'),
+
+    # Candlestick pattern endpoints
+    path('candlestick/patterns/<str:ticker>/',
+         views_candlestick.analyze_candlestick_patterns,
+         name='analyze_candlestick_patterns'),
+    path('candlestick/test/',
+         views_candlestick.test_pattern_detection,
+         name='test_pattern_detection'),
 
     # Custom collection endpoints
     path('custom-collection/',

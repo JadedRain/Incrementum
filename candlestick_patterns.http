@@ -1,0 +1,29 @@
+### Test Candlestick Pattern Detection with Sample Data
+GET http://localhost:8000/candlestick/test/
+
+###
+
+### Analyze Candlestick Patterns for AAPL (Apple)
+GET http://localhost:8000/candlestick/patterns/AAPL/?period=1mo&interval=1d
+
+###
+
+### Analyze Candlestick Patterns for GOOGL (Google) - 3 months daily
+GET http://localhost:8000/candlestick/patterns/GOOGL/?period=3mo&interval=1d
+
+###
+
+### Analyze Candlestick Patterns for MSFT (Microsoft) - 1 week hourly
+GET http://localhost:8000/candlestick/patterns/MSFT/?period=1wk&interval=1h
+
+###
+
+### Analyze Candlestick Patterns with date range
+GET http://localhost:8000/candlestick/patterns/TSLA/?start_date=2024-01-01&end_date=2024-12-31
+
+###
+
+### Analyze Candlestick Patterns - hourly data only from database
+GET http://localhost:8000/candlestick/patterns/AAPL/?is_hourly=true
+
+###

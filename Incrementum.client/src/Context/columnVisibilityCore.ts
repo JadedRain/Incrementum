@@ -1,7 +1,7 @@
 import { createContext } from 'react';
 
 export type Columns = Record<string, boolean>;
-export type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps' | 'debt_to_equity' | 'purchasePrice' | 'list_date' | 'outstanding_shares' | 'share_class_figi' | 'sic_description';
+export type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps' | 'debt_to_equity' | 'purchasePrice' | 'list_date' | 'outstanding_shares' | 'share_class_figi' | 'sic_description' | 'annual_eps_growth_rate' | 'price_per_earnings' | 'pe_per_growth' | 'revenue_per_share' | 'price_per_sales';
 
 export type ContextValue = {
   visibleColumns: Columns;

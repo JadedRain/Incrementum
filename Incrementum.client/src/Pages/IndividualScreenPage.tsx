@@ -7,10 +7,10 @@ import { useAuth } from '../Context/AuthContext';
 import Sidebar from '../Components/Sidebar'
 import SaveCollectionPopup from '../Components/SaveCollectionPopup';
 import useSaveCollection from '../hooks/useSaveCollection';
+import { usePredefinedScreenerFilters } from '../hooks/usePredefinedScreenerFilters';
 import NavigationBar from '../Components/NavigationBar'
 import StockTable from '../Components/StockTable'
 import Toast from '../Components/Toast'
-import Loading from '../Components/Loading';
 import { fetchCustomScreener } from "../Query/apiScreener"
 import type { CustomScreener, NumericFilter, CategoricalFilter } from '../Types/ScreenerTypes';
 import { DatabaseScreenerProvider, useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
@@ -27,16 +27,22 @@ function IndividualScreenPageContent() {
   const [toast, setToast] = useState<string | null>(null);
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const { id } = useParams<{ id: string }>();
+  const { id: paramId } = useParams<{ id: string }>();
+  // Default to 'custom_temp' (blank screener) if no id is provided
+  const id = paramId || 'custom_temp';
   const { collections, loading: collectionsLoading } = useCustomCollections();
   const initialCollectionId = id && !isNaN(Number(id)) ? Number(id) : null;
   const [selectedCollectionId, setSelectedCollectionId] = useState<number | null>(initialCollectionId);
   const { data: bulkStockData } = useBulkStockDataForCollection(selectedCollectionId);
-  const { stocks, addFilter, batchUpdateFilters } = useDatabaseScreenerContext();
+  const { stocks, addFilter, batchUpdateFilters, clearFilters } = useDatabaseScreenerContext();
   const { saveCollection } = useSaveCollection({ apiKey, setTokens: () => { }, resetForm: () => { }, onError: setSaveError });
 
   const handleSelectCollection = (collectionId: number | null) => {
     setSelectedCollectionId(collectionId);
+  };
+
+  const handleScreenerSelect = (screenerId: string) => {
+    navigate(`/screener/${screenerId}`);
   };
 
   const handleSave = async () => {
@@ -93,42 +99,17 @@ function IndividualScreenPageContent() {
   });
 
   // Apply default filters for predefined screeners
-  useEffect(() => {
-    if (id === 'day_gainers') {
-      // Day Gainers: Min price $0.50, Min volume 100 shares, Min percent change 2.5%
-      // Use batch update to prevent multiple API calls
-      batchUpdateFilters(
-        [
-          {
-            operand: 'pps',
-            operator: 'greater_than_or_equal',
-            filter_type: 'numeric',
-            value: 0.5,
-          },
-          {
-            operand: 'volume',
-            operator: 'greater_than_or_equal',
-            filter_type: 'numeric',
-            value: 100,
-          },
-          {
-            operand: 'percent_change',
-            operator: 'greater_than_or_equal',
-            filter_type: 'numeric',
-            value: 2.5,
-          },
-        ],
-        {
-          sortBy: 'day_percent_change',
-          sortAsc: false,
-        }
-      );
-    }
-  }, [id, batchUpdateFilters]);
+  usePredefinedScreenerFilters({
+    screenerId: id,
+    batchUpdateFilters,
+    clearFilters,
+  });
 
   useEffect(() => {
     // Only load custom screener data if id is numeric (custom screener)
     if (screenerData && id && !isNaN(Number(id))) {
+      // Clear filters before loading custom screener filters
+      clearFilters();
 
       if (Array.isArray(screenerData.numeric_filters)) {
         screenerData.numeric_filters.forEach((filter: NumericFilter) => {
@@ -152,7 +133,7 @@ function IndividualScreenPageContent() {
         });
       }
     }
-  }, [screenerData, addFilter, id]);
+  }, [screenerData, addFilter, clearFilters, id]);
 
   const [displayStocks, setDisplayStocks] = useState<StockItem[]>(Array.isArray(stocks) ? (stocks as StockItem[]) : []);
   useEffect(() => {
@@ -164,10 +145,6 @@ function IndividualScreenPageContent() {
   }, [selectedCollectionId, bulkStockData, stocks]);
 
   const isCollectionView = !!selectedCollectionId && Array.isArray(bulkStockData);
-
-  if (!id) {
-    return <Loading loading={true} />;
-  }
 
   return (
     <div className="screener-page">
@@ -194,6 +171,8 @@ function IndividualScreenPageContent() {
               selectedCollectionId={selectedCollectionId}
               onSelectCollection={handleSelectCollection}
               collectionsLoading={collectionsLoading}
+              onScreenerSelect={handleScreenerSelect}
+              currentScreenerId={id}
             />
           </div>
 

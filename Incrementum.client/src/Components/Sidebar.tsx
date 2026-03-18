@@ -4,7 +4,14 @@ import IndustryFilter from './FilterComponents/IndustryFilter';
 import MarketCapFilter from './FilterComponents/MarketCapFilter';
 import EPSFilter from './FilterComponents/EPSFilter';
 import DebtToEquityFilter from './FilterComponents/DebtToEquityFilter';
+import AnnualEPSGrowthFilter from './FilterComponents/AnnualEPSGrowthFilter';
+import PERatioFilter from './FilterComponents/PERatioFilter';
+import PEGRatioFilter from './FilterComponents/PEGRatioFilter';
+import RevenuePerShareFilter from './FilterComponents/RevenuePerShareFilter';
+import PricePerSalesFilter from './FilterComponents/PricePerSalesFilter';
 import PriceFilter from './FilterComponents/PriceFilter';
+import High52Filter from './FilterComponents/High52Filter';
+import Low52Filter from './FilterComponents/Low52Filter';
 import VolumeFilter from './FilterComponents/VolumeFilter';
 import PercentChangeFilter from './FilterComponents/PercentChangeFilter';
 import { useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
@@ -78,6 +85,10 @@ const Sidebar: React.FC<SidebarProps> = () => {
 
         <PriceFilter />
 
+        <High52Filter />
+
+        <Low52Filter />
+
         <MarketCapFilter />
 
         <VolumeFilter />
@@ -87,6 +98,16 @@ const Sidebar: React.FC<SidebarProps> = () => {
         <EPSFilter />
 
         <DebtToEquityFilter />
+
+        <AnnualEPSGrowthFilter />
+
+        <PERatioFilter />
+
+        <PEGRatioFilter />
+
+        <RevenuePerShareFilter />
+
+        <PricePerSalesFilter />
       </nav>
     </aside>
   );

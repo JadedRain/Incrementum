@@ -1,5 +1,4 @@
 from Incrementum.models.stock import StockModel
-from django.utils import timezone
 from django.db.models import Q
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -9,14 +8,6 @@ from Incrementum.screener import Screener
 from Incrementum.DTOs.ifilterdata import FilterData
 import json
 import logging
-from datetime import timedelta
-from .yrhilo import (
-    fifty_two_week_high_dict,
-    fifty_two_week_low_dict,
-    current_price_dict,
-    day_percent_change,
-    PERCENT_CHANGE_CACHE_TTL_MINUTES,
-)
 screener_service = ScreenerService()
 
 
@@ -230,53 +221,7 @@ def run_database_screener(request):
 
     total_pages = (total_count + per_page - 1) // per_page
 
-    # Batch fetch all highs, lows, price, and percent change at once
-    symbols = [stock.symbol for stock in stocks]
-    logging.info(f"DEBUG: Fetching highs/lows/price/percent_change for {len(symbols)} symbols")
-    highs = fifty_two_week_high_dict(stocks=symbols) if symbols else {}
-    lows = fifty_two_week_low_dict(stocks=symbols) if symbols else {}
-    prices = current_price_dict(stocks=symbols) if symbols else {}
-
-    now = timezone.now()
-    fresh_after = now - timedelta(minutes=PERCENT_CHANGE_CACHE_TTL_MINUTES)
-    percent_changes = {}
-    stale_or_missing_symbols = []
-
-    for stock in stocks:
-        stock_updated_at = stock.updated_at
-        if stock_updated_at and timezone.is_naive(stock_updated_at):
-            stock_updated_at = timezone.make_aware(
-                stock_updated_at,
-                timezone.get_current_timezone(),
-            )
-
-        if (
-            stock.day_percent_change is not None
-            and stock_updated_at is not None
-            and stock_updated_at >= fresh_after
-        ):
-            percent_changes[stock.symbol] = float(stock.day_percent_change)
-        else:
-            stale_or_missing_symbols.append(stock.symbol)
-
-    if stale_or_missing_symbols:
-        percent_changes.update(
-            day_percent_change(stocks=stale_or_missing_symbols)
-        )
-
-    for stock in stocks:
-        stock.high52 = highs.get(stock.symbol)
-        stock.low52 = lows.get(stock.symbol)
-        stock.price = prices.get(stock.symbol)
-        stock.dayPercentChange = percent_changes.get(stock.symbol)
-
     stocks_dict = [stock.to_dict() for stock in stocks]
-
-    for i, stock in enumerate(stocks):
-        stocks_dict[i]['high52'] = stock.high52
-        stocks_dict[i]['low52'] = stock.low52
-        stocks_dict[i]['price'] = stock.price
-        stocks_dict[i]['dayPercentChange'] = stock.dayPercentChange
 
     return JsonResponse(
         {
