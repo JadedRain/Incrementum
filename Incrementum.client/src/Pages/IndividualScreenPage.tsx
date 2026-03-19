@@ -1,7 +1,7 @@
 import '../styles/SideBar.css'
 import '../styles/IndividualScreenerPage.css'
 import { useEffect, useState } from 'react';
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../Context/AuthContext';
 import Sidebar from '../Components/Sidebar'
@@ -21,6 +21,7 @@ interface StockItem { symbol?: string;[key: string]: unknown }
 
 function IndividualScreenPageContent() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { apiKey } = useAuth();
   const [toast, setToast] = useState<string | null>(null);
   const [showSavePopup, setShowSavePopup] = useState(false);
@@ -66,6 +67,15 @@ function IndividualScreenPageContent() {
       );
       if (res.ok) {
         setToast('Screener updated!');
+        // Invalidate queries to refresh the screener data and list
+        queryClient.invalidateQueries({ 
+          queryKey: ["customScreener", id],
+          refetchType: 'active'
+        });
+        queryClient.invalidateQueries({ 
+          queryKey: ["customScreeners", apiKey],
+          refetchType: 'active'
+        });
       } else {
         setSaveError(res.error || 'Failed to update screener');
         setToast('Failed to update screener');
@@ -97,6 +107,11 @@ function IndividualScreenPageContent() {
     if (res.ok) {
       setShowSavePopup(false);
       setToast('Screener saved!');
+      // Invalidate and refetch the custom screeners list to show the new screener immediately
+      await queryClient.invalidateQueries({ 
+        queryKey: ["customScreeners", apiKey],
+        refetchType: 'active'
+      });
       // Navigate to the new screener
       if (res.data?.id) {
         navigate(`/screener/${res.data.id}`);
