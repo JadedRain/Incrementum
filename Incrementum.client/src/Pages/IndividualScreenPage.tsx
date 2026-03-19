@@ -1,20 +1,18 @@
 import '../styles/SideBar.css'
 import '../styles/IndividualScreenerPage.css'
 import { useEffect, useState } from 'react';
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../Context/AuthContext';
 import Sidebar from '../Components/Sidebar'
-import SaveCollectionPopup from '../Components/SaveCollectionPopup';
-import useSaveCollection from '../hooks/useSaveCollection';
+import SaveScreenerPopup from '../Components/SaveScreenerPopup';
 import { usePredefinedScreenerFilters } from '../hooks/usePredefinedScreenerFilters';
 import NavigationBar from '../Components/NavigationBar'
 import StockTable from '../Components/StockTable'
 import Toast from '../Components/Toast'
-import { fetchCustomScreener } from "../Query/apiScreener"
+import { fetchCustomScreener, createCustomScreener, updateCustomScreener, fetchCustomScreeners } from "../Query/apiScreener"
 import type { CustomScreener, NumericFilter, CategoricalFilter } from '../Types/ScreenerTypes';
 import { DatabaseScreenerProvider, useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
-import { useCustomCollections } from '../hooks/useCustomCollections';
 import { useBulkStockDataForCollection } from '../hooks/useBulkStockData';
 import TopBar from '../Components/IndividualScreenerPage/ScreenerTopBar';
 import PotentialGainsTable from '../Components/IndividualScreenerPage/PotentialGainsTable';
@@ -23,6 +21,7 @@ interface StockItem { symbol?: string;[key: string]: unknown }
 
 function IndividualScreenPageContent() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { apiKey } = useAuth();
   const [toast, setToast] = useState<string | null>(null);
   const [showSavePopup, setShowSavePopup] = useState(false);
@@ -30,16 +29,9 @@ function IndividualScreenPageContent() {
   const { id: paramId } = useParams<{ id: string }>();
   // Default to 'custom_temp' (blank screener) if no id is provided
   const id = paramId || 'custom_temp';
-  const { collections, loading: collectionsLoading } = useCustomCollections();
-  const initialCollectionId = id && !isNaN(Number(id)) ? Number(id) : null;
-  const [selectedCollectionId, setSelectedCollectionId] = useState<number | null>(initialCollectionId);
+  const selectedCollectionId = id && !isNaN(Number(id)) ? Number(id) : null;
   const { data: bulkStockData } = useBulkStockDataForCollection(selectedCollectionId);
-  const { stocks, addFilter, batchUpdateFilters, clearFilters } = useDatabaseScreenerContext();
-  const { saveCollection } = useSaveCollection({ apiKey, setTokens: () => { }, resetForm: () => { }, onError: setSaveError });
-
-  const handleSelectCollection = (collectionId: number | null) => {
-    setSelectedCollectionId(collectionId);
-  };
+  const { stocks, filterList, addFilter, batchUpdateFilters, clearFilters } = useDatabaseScreenerContext();
 
   const handleScreenerSelect = (screenerId: string) => {
     navigate(`/screener/${screenerId}`);
@@ -47,38 +39,85 @@ function IndividualScreenPageContent() {
 
   const handleSave = async () => {
     setSaveError(null);
-    const symbols = (Array.isArray(stocks) ? (stocks as StockItem[]) : []).map((s) => s?.symbol).filter((sym): sym is string => typeof sym === 'string' && sym.length > 0);
-    if (!symbols.length) {
-      setSaveError('No stocks to save. Run the screener to get results first.');
-      setShowSavePopup(false);
+    
+    // Check if filters are applied
+    if (!filterList || filterList.length === 0) {
+      setSaveError('No filters to save. Add at least one filter first.');
+      setToast('No filters to save');
       return;
     }
 
+    // Check if at least one categorical filter is present
+    const hasCategoricalFilter = filterList.some(f => 
+      f.filter_type === 'categoric' || f.filter_type === 'categorical'
+    );
+    if (!hasCategoricalFilter) {
+      setSaveError('You need at least one categorical filter (e.g., Industry, Sector, Exchange).');
+      setToast('Add a categorical filter');
+      return;
+    }
+
+    // If we have a numeric id, update existing screener
     if (id && !isNaN(Number(id))) {
-      const res = await saveCollection({ name: screenerData?.screener_name || '', symbols });
+      const res = await updateCustomScreener(
+        Number(id),
+        screenerData?.screener_name || 'Untitled Screener',
+        filterList,
+        apiKey
+      );
       if (res.ok) {
-        setToast('Collection updated!');
+        setToast('Screener updated!');
+        // Invalidate queries to refresh the screener data and list
+        queryClient.invalidateQueries({ 
+          queryKey: ["customScreener", id],
+          refetchType: 'active'
+        });
+        queryClient.invalidateQueries({ 
+          queryKey: ["customScreeners", apiKey],
+          refetchType: 'active'
+        });
       } else {
-        setSaveError(res.error || 'Failed to update collection');
+        setSaveError(res.error || 'Failed to update screener');
+        setToast('Failed to update screener');
       }
     } else {
+      // Otherwise, show popup to create new screener
       setShowSavePopup(true);
     }
   };
 
-  const handleSaveCollection = async (name: string, desc?: string) => {
+  const handleSaveScreener = async (name: string) => {
     setSaveError(null);
-    const symbols = (Array.isArray(stocks) ? (stocks as StockItem[]) : []).map((s) => s?.symbol).filter((sym): sym is string => typeof sym === 'string' && sym.length > 0);
-    if (!symbols.length) {
-      setSaveError('No stocks to save. Run the screener to get results first.');
+    
+    if (!filterList || filterList.length === 0) {
+      setSaveError('No filters to save. Add at least one filter first.');
       return;
     }
-    const res = await saveCollection({ name, desc, symbols });
+
+    // Check if at least one categorical filter is present
+    const hasCategoricalFilter = filterList.some(f => 
+      f.filter_type === 'categoric' || f.filter_type === 'categorical'
+    );
+    if (!hasCategoricalFilter) {
+      setSaveError('You need at least one categorical filter (e.g., Industry, Sector, Exchange).');
+      return;
+    }
+
+    const res = await createCustomScreener(name, filterList, apiKey);
     if (res.ok) {
       setShowSavePopup(false);
-      setToast('Collection saved!');
+      setToast('Screener saved!');
+      // Invalidate and refetch the custom screeners list to show the new screener immediately
+      await queryClient.invalidateQueries({ 
+        queryKey: ["customScreeners", apiKey],
+        refetchType: 'active'
+      });
+      // Navigate to the new screener
+      if (res.data?.id) {
+        navigate(`/screener/${res.data.id}`);
+      }
     } else {
-      setSaveError(res.error || 'Failed to save collection');
+      setSaveError(res.error || 'Failed to save screener');
     }
   };
 
@@ -96,6 +135,12 @@ function IndividualScreenPageContent() {
     queryKey: ["customScreener", id],
     queryFn: () => fetchCustomScreener(id!, apiKey),
     enabled: !!id && !isNaN(Number(id)) && !!apiKey,
+  });
+
+  const { data: customScreenersData } = useQuery<{ screeners: Array<{ id: number; screener_name: string; created_at: string; filter_count: number }> }>({
+    queryKey: ["customScreeners", apiKey],
+    queryFn: () => fetchCustomScreeners(apiKey),
+    enabled: !!apiKey,
   });
 
   // Apply default filters for predefined screeners
@@ -151,13 +196,16 @@ function IndividualScreenPageContent() {
       <NavigationBar />
       <Toast message={toast} />
 
-      <SaveCollectionPopup
+      <SaveScreenerPopup
         isOpen={showSavePopup}
         onClose={() => { setShowSavePopup(false); setSaveError(null); }}
-        onSave={handleSaveCollection}
+        onSave={handleSaveScreener}
+        defaultName={screenerData?.screener_name}
       />
-      {saveError && showSavePopup && (
-        <div className="error-banner">{saveError}</div>
+      {saveError && (
+        <div className="error-banner" style={{ position: 'fixed', top: '80px', left: '50%', transform: 'translateX(-50%)', zIndex: 1001, backgroundColor: '#fee', padding: '10px 20px', borderRadius: '8px', border: '1px solid #fcc' }}>
+          {saveError}
+        </div>
       )}
 
       <div className="screener-container">
@@ -167,12 +215,9 @@ function IndividualScreenPageContent() {
               potentialGainsToggled={potentialGainsToggled}
               togglePotentialGains={togglePotentialGains}
               onSave={handleSave}
-              collections={collections}
-              selectedCollectionId={selectedCollectionId}
-              onSelectCollection={handleSelectCollection}
-              collectionsLoading={collectionsLoading}
               onScreenerSelect={handleScreenerSelect}
               currentScreenerId={id}
+              customScreeners={customScreenersData?.screeners || []}
             />
           </div>
 
