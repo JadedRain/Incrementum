@@ -31,7 +31,7 @@ function IndividualScreenPageContent() {
   const id = paramId || 'custom_temp';
   const selectedCollectionId = id && !isNaN(Number(id)) ? Number(id) : null;
   const { data: bulkStockData } = useBulkStockDataForCollection(selectedCollectionId);
-  const { stocks, filterList, addFilter, batchUpdateFilters, clearFilters } = useDatabaseScreenerContext();
+  const { stocks, filterList, addFilter, batchUpdateFilters, clearFilters, undoFilters, redoFilters } = useDatabaseScreenerContext();
 
   const handleScreenerSelect = (screenerId: string) => {
     navigate(`/screener/${screenerId}`);
@@ -149,6 +149,34 @@ function IndividualScreenPageContent() {
     batchUpdateFilters,
     clearFilters,
   });
+
+  // Global keyboard shortcuts for filter undo/redo
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target) {
+        const tag = target.tagName;
+        const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || (target as HTMLElement).isContentEditable;
+        if (isInput) {
+          return; // Do not override native undo/redo in text inputs
+        }
+      }
+
+      const key = event.key.toLowerCase();
+      const isCtrlOrMeta = event.ctrlKey || event.metaKey;
+
+      if (isCtrlOrMeta && key === 'z' && !event.shiftKey) {
+        event.preventDefault();
+        undoFilters();
+      } else if (isCtrlOrMeta && key === 'y') {
+        event.preventDefault();
+        redoFilters();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [undoFilters, redoFilters]);
 
   useEffect(() => {
     // Only load custom screener data if id is numeric (custom screener)

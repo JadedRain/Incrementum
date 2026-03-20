@@ -7,6 +7,8 @@ const DatabaseScreenerContext = createContext<DatabaseScreenerContextType | unde
 
 export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) => {
   const [filterDict, setFilterDict] = useState<Record<string, DatabaseScreenerFilter>>({});
+  const historyRef = useRef<Record<string, DatabaseScreenerFilter>[]>([]);
+  const futureRef = useRef<Record<string, DatabaseScreenerFilter>[]>([]);
   const [stocks, setStocks] = useState<unknown[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,6 +23,27 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
     has_next: boolean;
     has_prev: boolean;
   } | null>(null);
+
+  const areFilterDictsEqual = (a: Record<string, DatabaseScreenerFilter>, b: Record<string, DatabaseScreenerFilter>) => {
+    const aKeys = Object.keys(a);
+    const bKeys = Object.keys(b);
+    if (aKeys.length !== bKeys.length) return false;
+    for (const key of aKeys) {
+      if (!Object.prototype.hasOwnProperty.call(b, key)) return false;
+      const aFilter = a[key];
+      const bFilter = b[key];
+      if (!bFilter) return false;
+      if (
+        aFilter.operand !== bFilter.operand ||
+        aFilter.operator !== bFilter.operator ||
+        aFilter.filter_type !== bFilter.filter_type ||
+        aFilter.value !== bFilter.value
+      ) {
+        return false;
+      }
+    }
+    return true;
+  };
   const getKey = (filter: DatabaseScreenerFilter) => {
     if (filter.filter_type === 'numeric') {
       return `${filter.operand}__${filter.operator}`;
@@ -34,6 +57,8 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
   const addFilter = useCallback((filter: DatabaseScreenerFilter) => {
     const key = getKey(filter);
     setFilterDict((prev) => {
+      historyRef.current.push(prev);
+      futureRef.current = [];
       const updated = { ...prev, [key]: filter };
       console.log('Filter added:', updated);
       return updated;
@@ -45,6 +70,8 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
 
   const removeFilter = useCallback((key: string) => {
     setFilterDict((prev) => {
+      historyRef.current.push(prev);
+      futureRef.current = [];
       const updated = { ...prev };
       delete updated[key];
       console.log('Filter removed:', updated);
@@ -55,7 +82,11 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
   }, [setPage]);
 
   const clearFilters = useCallback(() => {
-    setFilterDict({});
+    setFilterDict((prev) => {
+      historyRef.current.push(prev);
+      futureRef.current = [];
+      return {};
+    });
     // reset to first page when filters are cleared
     setPage(1);
   }, [setPage]);
@@ -72,7 +103,11 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
       newFilterDict[key] = filter;
     });
     
-    setFilterDict(newFilterDict);
+    setFilterDict((prev) => {
+      historyRef.current.push(prev);
+      futureRef.current = [];
+      return newFilterDict;
+    });
     setPage(1);
     
     if (options?.sortBy !== undefined) {
@@ -86,7 +121,39 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
     setTimeout(() => {
       isBatchUpdating.current = false;
     }, 0);
-  }, []);
+  }, [setPage]);
+
+  const undoFilters = useCallback(() => {
+    setFilterDict((current) => {
+      if (historyRef.current.length === 0) {
+        return current;
+      }
+      const previous = historyRef.current[historyRef.current.length - 1];
+      if (!previous || areFilterDictsEqual(previous, current)) {
+        return current;
+      }
+      historyRef.current.pop();
+      futureRef.current.push(current);
+      setPage(1);
+      return previous;
+    });
+  }, [setPage]);
+
+  const redoFilters = useCallback(() => {
+    setFilterDict((current) => {
+      if (futureRef.current.length === 0) {
+        return current;
+      }
+      const next = futureRef.current[futureRef.current.length - 1];
+      if (!next || areFilterDictsEqual(next, current)) {
+        return current;
+      }
+      futureRef.current.pop();
+      historyRef.current.push(current);
+      setPage(1);
+      return next;
+    });
+  }, [setPage]);
 
   useEffect(() => {
     // Skip fetch during batch updates
@@ -147,6 +214,8 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
         error,
         clearFilters,
         batchUpdateFilters,
+        undoFilters,
+        redoFilters,
         sortBy,
         setSortBy,
         sortAsc,
