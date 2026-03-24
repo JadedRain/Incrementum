@@ -5,8 +5,7 @@ import App from "./App";
 import {
   SearchResults, StocksPage, Stock, ScreenerTestPage,
   IndividualScreenPage, CustomScreenerPage, SignInPage, SignupPage,
-  IndividualCustomCollectionPage, CustomCollectionsPage, SettingsPage,
-  CreateCustomCollectionPage, SidebarTestPage, AdminPage
+  SettingsPage, SidebarTestPage, AdminPage
 } from "./Pages";
 import AdminRoute from "./Components/AdminRoute";
 import ProtectedRoute from "./Components/ProtectedRoute";
@@ -43,9 +42,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route path="/screener/:id" element={<FilterDataProvider><IndividualScreenPage /></FilterDataProvider>} />
             <Route path="/create-custom-screener" element={<CustomScreenerPage />} />
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-            <Route path="/custom-collection/:id" element={<ProtectedRoute><FilterDataProvider><IndividualCustomCollectionPage /></FilterDataProvider></ProtectedRoute>} />
-            <Route path="/custom-collections" element={<ProtectedRoute><CustomCollectionsPage /></ProtectedRoute>} />
-            <Route path="/create-custom-collection" element={<ProtectedRoute><CreateCustomCollectionPage /></ProtectedRoute>} />
             <Route path="/sidebar-test" element={<ProtectedRoute><SidebarTestPage /></ProtectedRoute>} />
             <Route path="/admin-page" element={<AdminRoute><AdminPage /></AdminRoute>} />
           </Routes>

@@ -37,16 +37,6 @@ export default function NavigationBar({ showAccountButton = true }: NavigationBa
           >
             Screener
           </Link>
-          {isAuthenticated && (
-            <>
-              <Link
-                to="/custom-collections"
-                className={`nav-button ${location.pathname.startsWith('/custom-collections') ? 'nav-button-active' : ''}`}
-              >
-                Collections
-              </Link>
-            </>
-          )}
           {showAccountButton && isAuthenticated && (
             <Link
               to="/settings"

@@ -13,11 +13,8 @@ import Toast from '../Components/Toast'
 import { fetchCustomScreener, createCustomScreener, updateCustomScreener, fetchCustomScreeners } from "../Query/apiScreener"
 import type { CustomScreener, NumericFilter, CategoricalFilter } from '../Types/ScreenerTypes';
 import { DatabaseScreenerProvider, useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
-import { useBulkStockDataForCollection } from '../hooks/useBulkStockData';
 import TopBar from '../Components/IndividualScreenerPage/ScreenerTopBar';
 import PotentialGainsTable from '../Components/IndividualScreenerPage/PotentialGainsTable';
-
-interface StockItem { symbol?: string;[key: string]: unknown }
 
 function IndividualScreenPageContent() {
   const navigate = useNavigate();
@@ -29,8 +26,6 @@ function IndividualScreenPageContent() {
   const { id: paramId } = useParams<{ id: string }>();
   // Default to 'custom_temp' (blank screener) if no id is provided
   const id = paramId || 'custom_temp';
-  const selectedCollectionId = id && !isNaN(Number(id)) ? Number(id) : null;
-  const { data: bulkStockData } = useBulkStockDataForCollection(selectedCollectionId);
   const { stocks, filterList, addFilter, batchUpdateFilters, clearFilters, undoFilters, redoFilters } = useDatabaseScreenerContext();
 
   const handleScreenerSelect = (screenerId: string) => {
@@ -208,17 +203,6 @@ function IndividualScreenPageContent() {
     }
   }, [screenerData, addFilter, clearFilters, id]);
 
-  const [displayStocks, setDisplayStocks] = useState<StockItem[]>(Array.isArray(stocks) ? (stocks as StockItem[]) : []);
-  useEffect(() => {
-    if (selectedCollectionId && Array.isArray(bulkStockData) && bulkStockData.length > 0) {
-      setDisplayStocks(bulkStockData as StockItem[]);
-    } else {
-      setDisplayStocks(Array.isArray(stocks) ? (stocks as StockItem[]) : []);
-    }
-  }, [selectedCollectionId, bulkStockData, stocks]);
-
-  const isCollectionView = !!selectedCollectionId && Array.isArray(bulkStockData);
-
   return (
     <div className="screener-page">
       <NavigationBar />
@@ -251,22 +235,11 @@ function IndividualScreenPageContent() {
 
           <div className="screener-table">
             {!potentialGainsToggled &&
-            <>
-              {isCollectionView ? (
-                <StockTable
-                  stocks={displayStocks}
-                  onRowClick={(symbol: string) =>
-                    navigate(`/stock/${symbol}`)
-                  }
-                />
-              ) : (
-                <StockTable
-                  onRowClick={(symbol: string) =>
-                    navigate(`/stock/${symbol}`)
-                  }
-                />
-              )}
-              </>
+              <StockTable
+                onRowClick={(symbol: string) =>
+                  navigate(`/stock/${symbol}`)
+                }
+              />
             }
             {potentialGainsToggled && (
               <PotentialGainsTable

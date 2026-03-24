@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './SaveCollectionPopup.css';
+import './SaveScreenerPopup.css';
 
 interface SaveScreenerPopupProps {
   isOpen: boolean;
