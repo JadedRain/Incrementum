@@ -14,6 +14,7 @@ class ScreenerService:
         name=None,
         numeric_filters=None,
         categorical_filters=None,
+        is_private=True,
     ):
         try:
             account = Account.objects.get(api_key=user_id)
@@ -27,7 +28,8 @@ class ScreenerService:
         with transaction.atomic():
             custom_screener = CustomScreener.objects.create(
                 account=account,
-                screener_name=final_name
+                screener_name=final_name,
+                is_private=is_private
             )
 
             filters_to_store = []
