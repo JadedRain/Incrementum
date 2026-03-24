@@ -4,7 +4,6 @@ from .views_auth import (
 )
 from . import views, screener_views, filter_views, views_user_stock_potential, views_candlestick
 from .controllers import stocks_controller as stocks
-from .controllers import custom_collection_controller as collections
 
 urlpatterns = [
     # Authentication endpoints
@@ -60,20 +59,6 @@ urlpatterns = [
     path('candlestick/test/',
          views_candlestick.test_pattern_detection,
          name='test_pattern_detection'),
-
-    # Custom collection endpoints
-    path('custom-collection/',
-         collections.custom_collection,
-         name='custom_collection'),
-    path('custom-collection/<int:collection_id>/',
-         collections.custom_collection_by_id,
-         name='custom_collection_by_id'),
-    path('custom-collection/aggregate/',
-         collections.custom_collection_aggregate,
-         name='custom_collection_aggregate'),
-    path('custom-collections/',
-         collections.custom_collections_list,
-         name='custom_collections_list'),
 
     # Screener endpoints
     path('screeners/custom/',
