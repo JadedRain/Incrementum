@@ -143,6 +143,34 @@ def delete_custom_screener(request, screener_id):
 
 
 @csrf_exempt
+@require_http_methods(["PUT"])
+def update_screener_privacy(request, screener_id):
+    api_key = get_user_from_request(request)
+    if not api_key:
+        return JsonResponse({"error": "X-User-Id header required"}, status=400)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    is_private = data.get('is_private')
+    if is_private is None or not isinstance(is_private, bool):
+        return JsonResponse({"error": "is_private must be a boolean"}, status=400)
+
+    screener = screener_service.update_screener_privacy(api_key, screener_id, is_private)
+
+    if screener is None:
+        return JsonResponse({"error": "Screener not found or access denied"}, status=404)
+
+    return JsonResponse({
+        "id": screener.id,
+        "is_private": screener.is_private,
+        "message": "Screener privacy updated successfully"
+    }, status=200)
+
+
+@csrf_exempt
 @require_http_methods(["POST"])
 def run_database_screener(request):
     """

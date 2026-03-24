@@ -10,7 +10,7 @@ import { usePredefinedScreenerFilters } from '../hooks/usePredefinedScreenerFilt
 import NavigationBar from '../Components/NavigationBar'
 import StockTable from '../Components/StockTable'
 import Toast from '../Components/Toast'
-import { fetchCustomScreener, createCustomScreener, updateCustomScreener, fetchCustomScreeners } from "../Query/apiScreener"
+import { fetchCustomScreener, createCustomScreener, updateCustomScreener, fetchCustomScreeners, updateScreenerPrivacy } from "../Query/apiScreener"
 import type { CustomScreener, NumericFilter, CategoricalFilter } from '../Types/ScreenerTypes';
 import { DatabaseScreenerProvider, useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
 import { useBulkStockDataForCollection } from '../hooks/useBulkStockData';
@@ -26,6 +26,7 @@ function IndividualScreenPageContent() {
   const [toast, setToast] = useState<string | null>(null);
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [isPrivate, setIsPrivate] = useState<boolean>(true);
   const { id: paramId } = useParams<{ id: string }>();
   // Default to 'custom_temp' (blank screener) if no id is provided
   const id = paramId || 'custom_temp';
@@ -35,6 +36,27 @@ function IndividualScreenPageContent() {
 
   const handleScreenerSelect = (screenerId: string) => {
     navigate(`/screener/${screenerId}`);
+  };
+
+  const handlePrivacyToggle = async () => {
+    if (!id || isNaN(Number(id))) {
+      setToast('Save the screener first to change privacy settings');
+      return;
+    }
+
+    const newPrivacyState = !isPrivate;
+    const res = await updateScreenerPrivacy(
+      Number(id),
+      newPrivacyState,
+      apiKey
+    );
+
+    if (res.ok) {
+      setIsPrivate(newPrivacyState);
+      setToast(newPrivacyState ? 'Screener is now private' : 'Screener is now public');
+    } else {
+      setToast('Failed to update privacy setting');
+    }
   };
 
   const handleSave = async () => {
@@ -184,6 +206,11 @@ function IndividualScreenPageContent() {
       // Clear filters before loading custom screener filters
       clearFilters();
 
+      // Set privacy state if available, otherwise default to true
+      if ('is_private' in screenerData) {
+        setIsPrivate(screenerData.is_private);
+      }
+
       if (Array.isArray(screenerData.numeric_filters)) {
         screenerData.numeric_filters.forEach((filter: NumericFilter) => {
           addFilter({
@@ -239,6 +266,18 @@ function IndividualScreenPageContent() {
       <div className="screener-container">
         <div className="screener-grid">
           <div className="screener-topbar">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}>
+                <input
+                  type="checkbox"
+                  checked={isPrivate}
+                  onChange={handlePrivacyToggle}
+                  disabled={!id || isNaN(Number(id))}
+                  style={{ cursor: 'pointer' }}
+                />
+                <span>{isPrivate ? 'Private' : 'Public'}</span>
+              </label>
+            </div>
             <TopBar
               potentialGainsToggled={potentialGainsToggled}
               togglePotentialGains={togglePotentialGains}

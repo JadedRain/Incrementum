@@ -97,3 +97,26 @@ export const fetchCustomScreeners = async (apiKey: string | null) => {
   if (!res.ok) throw new Error(`Failed to fetch custom screeners: ${res.statusText}`);
   return res.json();
 };
+
+export const updateScreenerPrivacy = async (
+  screenerId: number,
+  isPrivate: boolean,
+  apiKey: string | null
+) => {
+  const res = await fetchWrapper(()=>fetch(apiString(`/screeners/custom/${screenerId}/privacy/`), {
+    method: 'PUT',
+    headers: {
+      "X-User-Id": apiKey ?? "",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      is_private: isPrivate,
+    }),
+  }));
+
+  return {
+    ok: res.ok,
+    data: res.ok ? await res.json() : null,
+    error: res.ok ? null : await res.text(),
+  };
+};

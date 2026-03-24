@@ -11,6 +11,7 @@ class CustomScreener(models.Model):
     )
     screener_name = models.CharField(max_length=100, default='Untitled Screener')
     created_at = models.DateTimeField(auto_now_add=True)
+    is_private = models.BooleanField(default=True)
     filters = FlexibleJSONField(default=list, blank=True)
 
     class Meta:
