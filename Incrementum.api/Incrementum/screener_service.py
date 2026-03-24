@@ -14,6 +14,7 @@ class ScreenerService:
         name=None,
         numeric_filters=None,
         categorical_filters=None,
+        is_private=True,
     ):
         try:
             account = Account.objects.get(api_key=user_id)
@@ -27,7 +28,8 @@ class ScreenerService:
         with transaction.atomic():
             custom_screener = CustomScreener.objects.create(
                 account=account,
-                screener_name=final_name
+                screener_name=final_name,
+                is_private=is_private
             )
 
             filters_to_store = []
@@ -103,6 +105,7 @@ class ScreenerService:
             'id': custom_screener.id,
             'screener_name': custom_screener.screener_name,
             'created_at': custom_screener.created_at,
+            'is_private': custom_screener.is_private,
             'numeric_filters': numeric_filters,
             'categorical_filters': categorical_filters
         }
@@ -121,6 +124,7 @@ class ScreenerService:
                 'id': custom_screener.id,
                 'screener_name': custom_screener.screener_name,
                 'created_at': custom_screener.created_at.isoformat(),
+                'is_private': custom_screener.is_private,
                 'filter_count': len(filters_list)
             })
 
@@ -190,4 +194,15 @@ class ScreenerService:
             custom_screener.save()
 
         logging.info(f"Updated custom screener {screener_id} for user {user_id}")
+        return custom_screener
+
+    def update_screener_privacy(self, user_id, screener_id, is_private):
+        account = Account.objects.get(api_key=user_id)
+        custom_screener = CustomScreener.objects.get(id=screener_id, account=account)
+
+        with transaction.atomic():
+            custom_screener.is_private = is_private
+            custom_screener.save()
+
+        logging.info(f"Updated privacy for custom screener {screener_id} to {is_private}")
         return custom_screener

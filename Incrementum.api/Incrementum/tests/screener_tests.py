@@ -25,11 +25,13 @@ class ScreenerServiceTest(TestCase):
 
         screener = self.service.create_custom_screener(
             self.account.api_key,
-            numeric_filters=numeric_filters
+            numeric_filters=numeric_filters,
+            is_private=True
         )
 
         assert screener is not None
         assert screener.account == self.account
+        assert screener.is_private is True
 
         filters = screener.filters or []
         numeric_items = [f for f in filters if f.get('filter_type') == 'numeric']
@@ -51,10 +53,12 @@ class ScreenerServiceTest(TestCase):
 
         screener = self.service.create_custom_screener(
             self.account.api_key,
-            categorical_filters=categorical_filters
+            categorical_filters=categorical_filters,
+            is_private=False
         )
 
         assert screener is not None
+        assert screener.is_private is False
 
         filters = screener.filters or []
         categorical_items = [f for f in filters if f.get('filter_type') == 'categorical']
@@ -79,10 +83,12 @@ class ScreenerServiceTest(TestCase):
         screener = self.service.create_custom_screener(
             self.account.api_key,
             numeric_filters=numeric_filters,
-            categorical_filters=categorical_filters
+            categorical_filters=categorical_filters,
+            is_private=True
         )
 
         assert screener is not None
+        assert screener.is_private is True
 
         filters = screener.filters or []
         assert len([f for f in filters if f.get('filter_type') == 'numeric']) == 1
@@ -95,7 +101,8 @@ class ScreenerServiceTest(TestCase):
         created_screener = self.service.create_custom_screener(
             self.account.api_key,
             numeric_filters=numeric_filters,
-            categorical_filters=categorical_filters
+            categorical_filters=categorical_filters,
+            is_private=True
         )
 
         retrieved_screener = self.service.get_custom_screener(
@@ -105,6 +112,7 @@ class ScreenerServiceTest(TestCase):
 
         assert retrieved_screener is not None
         assert retrieved_screener['id'] == created_screener.id
+        assert retrieved_screener['is_private'] is True
         assert len(retrieved_screener['numeric_filters']) == 1
         assert len(retrieved_screener['categorical_filters']) == 1
         # service returns FilterData-like dicts with 'operand' and 'value'
@@ -116,11 +124,13 @@ class ScreenerServiceTest(TestCase):
     def test_get_user_custom_screeners(self):
         self.service.create_custom_screener(
             self.account.api_key,
-            numeric_filters=[{'filter_name': 'market_cap', 'numeric_value': 1000000}]
+            numeric_filters=[{'filter_name': 'market_cap', 'numeric_value': 1000000}],
+            is_private=True
         )
         self.service.create_custom_screener(
             self.account.api_key,
-            categorical_filters=[{'filter_name': 'sector', 'category_value': 'Finance'}]
+            categorical_filters=[{'filter_name': 'sector', 'category_value': 'Finance'}],
+            is_private=False
         )
 
         screeners = self.service.get_user_custom_screeners(self.account.api_key)
@@ -128,12 +138,14 @@ class ScreenerServiceTest(TestCase):
         assert len(screeners) == 2
         assert all('id' in screener for screener in screeners)
         assert all('created_at' in screener for screener in screeners)
+        assert all('is_private' in screener for screener in screeners)
         assert all('filter_count' in screener for screener in screeners)
 
     def test_delete_custom_screener(self):
         screener = self.service.create_custom_screener(
             self.account.api_key,
-            numeric_filters=[{'filter_name': 'debt_ratio', 'numeric_value': 30}]
+            numeric_filters=[{'filter_name': 'debt_ratio', 'numeric_value': 30}],
+            is_private=True
         )
 
         assert CustomScreener.objects.filter(id=screener.id).exists()
@@ -147,7 +159,8 @@ class ScreenerServiceTest(TestCase):
         original_filters = [{'filter_name': 'old_filter', 'numeric_value': 100}]
         screener = self.service.create_custom_screener(
             self.account.api_key,
-            numeric_filters=original_filters
+            numeric_filters=original_filters,
+            is_private=True
         )
 
         new_numeric_filters = [{'filter_name': 'new_numeric', 'numeric_value': 200}]
@@ -180,7 +193,8 @@ class ScreenerServiceTest(TestCase):
     def test_create_screener_nonexistent_user(self):
         screener = self.service.create_custom_screener(
             "nonexistent_api_key",
-            numeric_filters=[{'filter_name': 'test', 'numeric_value': 1}]
+            numeric_filters=[{'filter_name': 'test', 'numeric_value': 1}],
+            is_private=True
         )
 
         assert screener is None
