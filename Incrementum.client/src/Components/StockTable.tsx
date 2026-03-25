@@ -8,6 +8,7 @@ import { useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
 
 type Stock = {
   symbol?: string;
+  company_name?: string | null;
   regularMarketChangePercent?: number;
   regularMarketPrice?: number;
   fiftyTwoWeekHigh?: number;
@@ -32,7 +33,7 @@ type Stock = {
   price_per_sales?: number | null;
 };
 
-type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps' | 'debt_to_equity' | 'list_date' | 'outstanding_shares' | 'share_class_figi' | 'sic_description' | 'annual_eps_growth_rate' | 'price_per_earnings' | 'pe_per_growth' | 'revenue_per_share' | 'price_per_sales';
+type ColKey = 'symbol' | 'name' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps' | 'debt_to_equity' | 'list_date' | 'outstanding_shares' | 'share_class_figi' | 'sic_description' | 'annual_eps_growth_rate' | 'price_per_earnings' | 'pe_per_growth' | 'revenue_per_share' | 'price_per_sales';
 type Col = { k: ColKey; l: string };
 
 type Props = { onRowClick?: (s: string) => void; stocks?: unknown[] };
@@ -54,6 +55,7 @@ export default function StockTable({ onRowClick, stocks: overrideStocks }: Props
 
   const cols: Col[] = [
     { k: 'symbol', l: 'Symbol' },
+    { k: 'name', l: 'Company Name' },
     { k: 'price', l: 'Price' },
     { k: 'eps', l: 'EPS' },
     { k: 'debt_to_equity', l: 'D/E Ratio' },
@@ -133,6 +135,8 @@ function InnerStockTable({
     switch (k) {
       case 'symbol':
         return 'symbol';
+      case 'name':
+        return 'company_name';
       case 'price':
         return 'price';
       case 'eps':

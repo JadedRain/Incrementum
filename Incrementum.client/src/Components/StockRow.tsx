@@ -3,6 +3,7 @@ import { useColumnVisibility } from '../Context/useColumnVisibility';
 
 type Stock = {
   symbol?: string;
+  company_name?: string | null;
   regularMarketChangePercent?: number;
   regularMarketPrice?: number;
   fiftyTwoWeekHigh?: number;
@@ -96,6 +97,12 @@ export default function StockRow({ stock, onClick }: Props) {
         switch (k) {
           case 'symbol':
             return <div key={k} className="StockTable-cell font-mono text-sm uppercase tracking-wider">{symbol}</div>;
+          case 'name':
+            return (
+              <Cell key={k} className="StockTable-cell--truncate" title={s.company_name || 'N/A'}>
+                <span className="StockTable-cell__text">{s.company_name || 'N/A'}</span>
+              </Cell>
+            );
           case 'price':
             return <Cell key={k} className="StockTable-cell--numeric">{o.price != null ? `$${(o.price / 100).toFixed(2)}` : 'N/A'}</Cell>;
           case 'eps':

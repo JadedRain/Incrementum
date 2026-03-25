@@ -9,8 +9,8 @@
   @apply items-center;
   @apply justify-between;
   @apply w-full;
-  @apply px-4;
-  @apply py-2;
+  @apply px-3;
+  @apply py-1.5;
   @apply outline-none;
 }
 
@@ -46,8 +46,8 @@
   @apply font-semibold;
   @apply rounded-sm;
   @apply shadow-[5px_5px_5px_rgba(0,0,0,0.5)];
-  @apply py-6;
-  @apply px-6;
+  @apply py-3;
+  @apply px-4;
   @apply flex;
   @apply flex-col;
   @apply items-start;
@@ -75,11 +75,58 @@
 .sidebar-nav {
   @apply flex;
   @apply flex-col;
-  @apply gap-4;
+  @apply gap-2;
   @apply w-full;
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 8px;
+}
+
+.sidebar-filter-section {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-divider);
+}
+
+.filter-count {
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.reset-filters-btn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: var(--font-serif);
+  transition: transform 140ms ease, box-shadow 140ms ease, background-color 120ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.reset-filters-btn.active {
+  background-color: var(--accent);
+  color: var(--text-on-accent);
+  border: 1px solid var(--accent);
+  box-shadow: var(--shadow-panel);
+  cursor: pointer;
+}
+
+.reset-filters-btn.active:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  background-color: var(--accent-hover);
+}
+
+.reset-filters-btn.inactive {
+  background-color: var(--bg-sunken);
+  color: var(--text-muted);
+  border: 1px solid var(--border-divider);
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
 /* Scrollbar styling to blend with the sidebar */
@@ -104,8 +151,8 @@
 .sidebar-links {
   @apply text-[var(--bg-base)];
   @apply no-underline;
-  @apply text-base;
-  @apply py-2;
+  @apply text-sm;
+  @apply py-1.5;
   @apply px-3;
   @apply rounded-md;
   @apply transition-colors;

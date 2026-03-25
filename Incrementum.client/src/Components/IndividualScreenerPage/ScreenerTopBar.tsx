@@ -15,6 +15,9 @@ interface TopBarProps {
   onScreenerSelect?: (screenerId: string) => void;
   currentScreenerId?: string;
   customScreeners?: CustomScreener[];
+  isPrivate?: boolean;
+  onPrivacyToggle?: () => void;
+  privacyDisabled?: boolean;
 }
 
 const TopBar: React.FC<TopBarProps> = ({
@@ -23,7 +26,10 @@ const TopBar: React.FC<TopBarProps> = ({
   onSave,
   onScreenerSelect,
   currentScreenerId,
-  customScreeners = []
+  customScreeners = [],
+  isPrivate,
+  onPrivacyToggle,
+  privacyDisabled
 }) => {
   const prebuiltScreeners = [
     { value: 'day_gainers', label: 'Day Gainers' },
@@ -60,11 +66,10 @@ const TopBar: React.FC<TopBarProps> = ({
             Save
           </button>
           <select
-            className="screener-topbar-select screener-dropdown-with-arrow"
+            className={`screener-topbar-select screener-dropdown-with-arrow ${currentScreenerId ? 'selected' : 'unselected'}`}
             aria-label="Switch Screener"
             value={currentScreenerId || ''}
             onChange={handleScreenerChange}
-            style={{ fontWeight: currentScreenerId ? '600' : 'normal' }}
           >
             <option value="" disabled>{getCurrentScreenerLabel()}</option>
             <optgroup label="Prebuilt Screeners">
@@ -79,8 +84,18 @@ const TopBar: React.FC<TopBarProps> = ({
                 ))}
               </optgroup>
             )}
-          </select>
-        </div>
+          </select>          {isPrivate !== undefined && onPrivacyToggle && (
+            <label className="privacy-checkbox-label">
+              <input
+                type="checkbox"
+                className="privacy-checkbox-input"
+                checked={isPrivate}
+                onChange={onPrivacyToggle}
+                disabled={privacyDisabled}
+              />
+              <span>{isPrivate ? 'Private' : 'Public'}</span>
+            </label>
+          )}        </div>
       </div>
       <button className="screener-topbar-btn screener-page-toggle" onClick={togglePotentialGains}>
         {!potentialGainsToggled && <p>Potential Gains/Loses</p>}

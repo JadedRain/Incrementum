@@ -24,7 +24,7 @@ function ScreenerPage() {
             <NavigationBar />
             <div className="main-content">
                 <Link to="/account" className="navbar-link">Account</Link>
-                <div className="ScreenerPage-container pt-4">
+                <div className="ScreenerPage-container">
                     <div className="screener-layout">
                         <div className="screener-layout-main">
                             <div className="ScreenerPage-card-grid">

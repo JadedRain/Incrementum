@@ -5,11 +5,11 @@
 }
 
 .screener-container {
-  @apply mx-auto max-w-[1500px] pt-24;
+  @apply mx-auto max-w-[1500px] pt-2;
 }
 
 .screener-grid {
-  @apply grid gap-6;
+  @apply grid gap-3;
   grid-template-columns: 1fr 320px;
 }
 
@@ -17,7 +17,7 @@
   @apply sticky top-0 z-40 col-span-2;
   @apply bg-[var(--bg-surface)];
   @apply px-2;
-  @apply py-2;
+  @apply py-1;
   @apply shadow-[5px_5px_5px_rgba(0,0,0,0.5)];
   @apply rounded-sm;
 }
@@ -28,6 +28,18 @@
 
 .screener-sidebar {
   @apply w-full;
+}
+
+.error-banner {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001;
+  background-color: #fee;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid #fcc;
 }
 
 /* StockTable Styles for Screener Pages */
@@ -72,8 +84,8 @@
 
 .StockTable-header {
   @apply flex-1;
-  @apply px-4;
-  @apply py-3;
+  @apply px-3;
+  @apply py-2.5;
   @apply text-center;
   @apply border-b-[#251C09];
   position: relative;
@@ -117,6 +129,7 @@
   @apply hover:bg-[var(--bg-sunken)];
   @apply hover:shadow-sm;
   border-radius: 2px;
+  min-height: 42px;
 }
 
 .StockTable-row:last-child {
@@ -125,8 +138,8 @@
 
 .StockTable-cell {
   @apply flex-1;
-  @apply px-4;
-  @apply py-3;
+  @apply px-3;
+  @apply py-2.5;
   @apply text-center;
   @apply font-medium;
   @apply justify-center;

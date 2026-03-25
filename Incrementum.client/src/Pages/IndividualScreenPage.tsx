@@ -242,7 +242,7 @@ function IndividualScreenPageContent() {
         defaultName={screenerData?.screener_name}
       />
       {saveError && (
-        <div className="error-banner" style={{ position: 'fixed', top: '80px', left: '50%', transform: 'translateX(-50%)', zIndex: 1001, backgroundColor: '#fee', padding: '10px 20px', borderRadius: '8px', border: '1px solid #fcc' }}>
+        <div className="error-banner">
           {saveError}
         </div>
       )}
@@ -250,18 +250,6 @@ function IndividualScreenPageContent() {
       <div className="screener-container">
         <div className="screener-grid">
           <div className="screener-topbar">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}>
-                <input
-                  type="checkbox"
-                  checked={isPrivate}
-                  onChange={handlePrivacyToggle}
-                  disabled={!id || isNaN(Number(id))}
-                  style={{ cursor: 'pointer' }}
-                />
-                <span>{isPrivate ? 'Private' : 'Public'}</span>
-              </label>
-            </div>
             <TopBar
               potentialGainsToggled={potentialGainsToggled}
               togglePotentialGains={togglePotentialGains}
@@ -269,6 +257,9 @@ function IndividualScreenPageContent() {
               onScreenerSelect={handleScreenerSelect}
               currentScreenerId={id}
               customScreeners={customScreenersData?.screeners || []}
+              isPrivate={isPrivate}
+              onPrivacyToggle={handlePrivacyToggle}
+              privacyDisabled={!id || isNaN(Number(id))}
             />
           </div>
 

@@ -37,7 +37,7 @@ body {
    MAIN CONTENT AREA
 ───────────────────────────────────────────────────────── */
 .main-content {
-  padding-top: 2rem;
+  padding-top: 1rem;
   min-height: calc(100vh - 90px);
 }
 
@@ -209,7 +209,7 @@ body {
    CONTAINER
 ───────────────────────────────────────────────────────── */
 .ScreenerPage-container {
-  padding-top: 8rem;
+  padding-top: 2rem;
   padding-left: 2rem;
   padding-right: 2rem;
   display: flex;
@@ -351,21 +351,22 @@ body {
   font-family: var(--font-serif);
 }
 .stock-page-content {
-  padding: 20px;
+  padding: 8px 16px;
+  padding-top: 4px;
 }
 .stock-page-header {
   width: 100%;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 /* Stock Financials Section */
 .stock-financials {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .stock-financials-loading {
@@ -376,17 +377,17 @@ body {
 
 .stock-financials-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
 }
 
 .stock-financials-item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 12px 16px;
+  gap: 3px;
+  padding: 8px 12px;
   background-color: var(--bg-base);
-  border-radius: 6px;
+  border-radius: 4px;
   border: 1px solid var(--border-divider);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -399,7 +400,7 @@ body {
 .stock-financials-label {
   font-weight: 600;
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -407,7 +408,7 @@ body {
 .stock-financials-value {
   font-weight: 700;
   color: var(--text-primary);
-  font-size: 1.25rem;
+  font-size: 1rem;
 }
 
 .stock-financials-value.positive {
@@ -420,13 +421,25 @@ body {
 
 .stock-page-body {
   display: flex;
-  gap: 20px;
+  gap: 12px;
   align-items: flex-start;
 }
-.stock-page-sidebar { flex-shrink: 0; }
+.stock-page-sidebar { 
+  flex-shrink: 0;
+}
 .stock-page-graph {
   flex: 1;
-  height: 800px;
+  height: 500px;
+}
+
+.stock-period-select {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  padding: 0.375rem 0.5rem;
+  font-family: var(--font-serif);
+  font-size: 0.875rem;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -592,14 +605,14 @@ body {
 
 @media (min-width: 768px) {
   .stock-info-sidebar-wrapper {
-    width: 20rem;
+    width: 24rem;
   }
 }
 
 .stock-info-sidebar-panel {
-  padding: 1.5rem;
+  padding: 1.25rem;
   box-shadow: var(--shadow-panel);
-  height: 800px;
+  max-height: 550px;
   display: flex;
   flex-direction: column;
   background-color: var(--bg-surface);
@@ -608,33 +621,33 @@ body {
 }
 
 .stock-info-sidebar-title {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.375rem;
   color: var(--text-primary);
   line-height: 1.2;
 }
 
 .stock-info-sidebar-symbol {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 600;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   color: var(--text-secondary);
   letter-spacing: 0.5px;
 }
 
 .stock-info-section {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .stock-info-section-header {
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--accent-hover);
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.375rem;
   border-bottom: 2px solid var(--accent-hover);
 }
 
@@ -642,7 +655,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  padding: 0.75rem 0;
+  padding: 0.5rem 0;
   border-bottom: 1px solid var(--border-divider);
   gap: 1rem;
 }
@@ -652,14 +665,14 @@ body {
 }
 
 .stock-info-label {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
   color: var(--text-secondary);
   flex-shrink: 0;
 }
 
 .stock-info-value {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--text-primary);
   text-align: right;
