@@ -246,9 +246,9 @@ def get_stocks_by_tickers(request):
 def predict_stock_controller(request, ticker):
     """
     Predict next period stock price using Keras CNN model.
-    
+
     Endpoint: GET /api/predict/<ticker>/
-    
+
     Returns JSON with:
     - symbol: Stock ticker
     - last_close: Current close price (USD)
@@ -263,18 +263,18 @@ def predict_stock_controller(request, ticker):
     try:
         # Initialize inference service (lazy-loads model and metadata)
         inference_service = ModelInferenceService()
-        
+
         # Get prediction
         result = inference_service.get_prediction(ticker)
-        
+
         if result is None:
             return JsonResponse(
                 {'error': f'Failed to generate prediction for {ticker}'},
                 status=500
             )
-        
+
         return JsonResponse(result, status=200)
-    
+
     except ValueError as e:
         # Stock not found or insufficient data
         error_msg = str(e)
@@ -282,7 +282,7 @@ def predict_stock_controller(request, ticker):
             return JsonResponse({'error': error_msg}, status=404)
         else:
             return JsonResponse({'error': error_msg}, status=400)
-    
+
     except RuntimeError as e:
         # Model inference error
         logger.error(f"Model inference error for {ticker}: {str(e)}")
@@ -290,9 +290,10 @@ def predict_stock_controller(request, ticker):
             {'error': f'Model inference failed: {str(e)}'},
             status=500
         )
-    
+
     except Exception as e:
-        logger.error(f"Unexpected error in predict_stock_controller: {str(e)}")
+        msg = f"Unexpected error in predict_stock_controller: {str(e)}"
+        logger.error(msg)
         return JsonResponse(
             {'error': 'Internal server error'},
             status=500
