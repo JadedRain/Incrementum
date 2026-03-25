@@ -16,6 +16,7 @@ from Incrementum.models.stock import StockModel
 from Incrementum.serializers import StockSerializer
 from Incrementum.get_stock_info import search_stocks, get_stock_by_ticker
 from ..services.stock_service import StockService
+from ..services.model_inference_service import ModelInferenceService
 logger = logging.getLogger(__name__)
 
 
@@ -238,3 +239,62 @@ def get_stocks_by_tickers(request):
         return JsonResponse({'stocks': serializer.data}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def predict_stock_controller(request, ticker):
+    """
+    Predict next period stock price using Keras CNN model.
+
+    Endpoint: GET /api/predict/<ticker>/
+
+    Returns JSON with:
+    - symbol: Stock ticker
+    - last_close: Current close price (USD)
+    - predicted_price: Predicted next period close price (USD)
+    - predicted_log_return: Raw predicted log return
+    - predicted_log_return_norm: Normalized log return (z-score)
+    - lookback_end_time: Timestamp of last data point
+    - model_version: Training date/version of model
+    - lookback_periods: Number of periods used (default 24)
+    - data_records_used: Actual number of records used
+    """
+    try:
+        # Initialize inference service (lazy-loads model and metadata)
+        inference_service = ModelInferenceService()
+
+        # Get prediction
+        result = inference_service.get_prediction(ticker)
+
+        if result is None:
+            return JsonResponse(
+                {'error': f'Failed to generate prediction for {ticker}'},
+                status=500
+            )
+
+        return JsonResponse(result, status=200)
+
+    except ValueError as e:
+        # Stock not found or insufficient data
+        error_msg = str(e)
+        if 'not found' in error_msg.lower():
+            return JsonResponse({'error': error_msg}, status=404)
+        else:
+            return JsonResponse({'error': error_msg}, status=400)
+
+    except RuntimeError as e:
+        # Model inference error
+        logger.error(f"Model inference error for {ticker}: {str(e)}")
+        return JsonResponse(
+            {'error': f'Model inference failed: {str(e)}'},
+            status=500
+        )
+
+    except Exception as e:
+        msg = f"Unexpected error in predict_stock_controller: {str(e)}"
+        logger.error(msg)
+        return JsonResponse(
+            {'error': 'Internal server error'},
+            status=500
+        )
