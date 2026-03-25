@@ -49,8 +49,9 @@ export default function Stock({ token: propToken }: { token?: string; }) {
             <button
               onClick={() => window.history.back()}
               className="back-button"
+              aria-label="Go back"
             >
-              ← Back
+              ← 
             </button>
           </div>
 
@@ -104,18 +105,13 @@ export default function Stock({ token: propToken }: { token?: string; }) {
               <StockInfoSidebar results={results} />
             </div>
             <div className="stock-page-graph">
-              <div className="flex gap-4 mt-2 mb-4">
+              <div className="flex gap-3 mt-1 mb-3">
                 <div>
                   <select
                     id="period"
                     value={period}
                     onChange={(e) => setPeriod(e.target.value)}
-                    className="rounded p-2 border border-gray-300"
-                    style={{
-                      backgroundColor: 'var(--bg-surface)',
-                      color: 'var(--text-primary)',
-                      borderColor: 'var(--border-color)'
-                    }}
+                    className="stock-period-select"
                   >
                     <option value="1d">1 Day</option>
                     <option value="5d">5 Days</option>
@@ -127,7 +123,7 @@ export default function Stock({ token: propToken }: { token?: string; }) {
                 </div>
               </div>
               <InteractiveGraph 
-                height="800px" 
+                height="500px" 
                 period={period}
                 interval={interval}
               />

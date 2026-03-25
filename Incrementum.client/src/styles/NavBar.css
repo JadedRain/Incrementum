@@ -176,23 +176,27 @@
 
 .back-button {
   @apply text-[var(--bg-base)];
-  @apply rounded-lg;
-  @apply w-[100px];
-  @apply h-[40px];
-  @apply px-4;
-  padding-bottom: 4px;
+  @apply rounded-md;
+  width: 70px;
+  height: 32px;
+  padding: 0;
   background: var(--accent);
   @apply duration-200;
-  display: flex;
-  align-items: flex-end;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
   text-decoration: none;
   font-family: "Newsreader", serif;
+  font-size: 0.875rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: none;
+  cursor: pointer;
 }
 
 .back-button:hover {
-  background: var(--bg-sunken) !important;
-  color: var(--accent-hover) !important;
+  background: var(--accent-hover) !important;
+  color: var(--bg-base) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .nav-button.nav-button-logout:hover {
