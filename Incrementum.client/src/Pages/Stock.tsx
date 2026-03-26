@@ -15,7 +15,7 @@ export default function Stock({ token: propToken }: { token?: string; }) {
   const params = useParams<{ token: string }>();
   const token = propToken ?? params.token;
   const { results, loading } = useFetchStockData(token);
-  const { prediction, loading: predictionLoading, error: predictionError, getPrediction } = useStockPrediction();
+  const { prediction, loading: predictionLoading, getPrediction } = useStockPrediction();
   const [toast] = useState<string | null>(null);
   const [period, setPeriod] = useState<string>("1y");
   const [showPredictionModal, setShowPredictionModal] = useState(false);
