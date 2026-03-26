@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import NavigationBar from "../Components/NavigationBar";
 import Toast from "../Components/Toast";
 import { useFetchStockData } from "../hooks/useFetchStockData";
+import { useStockPrediction } from "../hooks/useStockPrediction";
 import { FilterDataProvider } from '../Context/FilterDataContext';
 import InteractiveGraph from "../Components/InteractiveGraph"
 import StockInfoSidebar from '../Components/StockInfoSidebar';
@@ -14,8 +15,19 @@ export default function Stock({ token: propToken }: { token?: string; }) {
   const params = useParams<{ token: string }>();
   const token = propToken ?? params.token;
   const { results, loading } = useFetchStockData(token);
+  const { prediction, loading: predictionLoading, error: predictionError, getPrediction } = useStockPrediction();
   const [toast] = useState<string | null>(null);
   const [period, setPeriod] = useState<string>("1y");
+  const [showPredictionModal, setShowPredictionModal] = useState(false);
+
+  const handlePredictPrice = () => {
+    if (token) {
+      if (!showPredictionModal) {
+        getPrediction(token);
+      }
+      setShowPredictionModal(!showPredictionModal);
+    }
+  };
 
   const getIntervalForPeriod = (period: string): string => {
     switch (period) {
@@ -58,6 +70,10 @@ export default function Stock({ token: propToken }: { token?: string; }) {
           {/* Financial Data Section */}
           {results.currentPrice !== undefined && results.currentPrice !== null ? (
             <div className="stock-financials">
+              <div className="stock-financials-header">
+                <h3>Market Data</h3>
+              </div>
+
               <div className="stock-financials-grid">
                 <div className="stock-financials-item">
                   <span className="stock-financials-label">Current Price</span>
@@ -97,6 +113,75 @@ export default function Stock({ token: propToken }: { token?: string; }) {
                   </span>
                 </div>
               </div>
+
+              {/* Prediction Toggle Button */}
+              <div className="prediction-toggle-container">
+                <button 
+                  onClick={handlePredictPrice}
+                  className={`prediction-toggle-btn ${showPredictionModal ? 'active' : ''}`}
+                  disabled={predictionLoading}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="12" y1="1" x2="12" y2="23"/>
+                    <polyline points="17 5 12 1 7 5"/>
+                  </svg>
+                  {showPredictionModal ? 'Hide Prediction' : 'Price Prediction'}
+                </button>
+              </div>
+
+              {/* Prediction Card - Expandable */}
+              {showPredictionModal && (
+                <div className="prediction-card-inline">
+                  {predictionLoading && (
+                    <div className="prediction-inline-loading">
+                      <div className="prediction-spinner"></div>
+                      <span>Analyzing market data...</span>
+                    </div>
+                  )}
+
+                  {prediction && !predictionLoading && (
+                    <div className="prediction-inline-content">
+                      <div className="prediction-inline-main">
+                        <div className="prediction-inline-stat">
+                          <div className="prediction-inline-label">Current</div>
+                          <div className="prediction-inline-value">{formatCurrency(prediction.last_close)}</div>
+                        </div>
+                        <div className="prediction-inline-stat highlight">
+                          <div className="prediction-inline-label">Predicted (1hr)</div>
+                          <div className="prediction-inline-value-large">{formatCurrency(prediction.predicted_price)}</div>
+                        </div>
+                      </div>
+                      
+                      <div className="prediction-inline-change">
+                        <div className={`prediction-inline-badge ${(prediction.predicted_price - prediction.last_close) >= 0 ? 'positive' : 'negative'}`}>
+                          <span className="prediction-badge-icon">
+                            {(prediction.predicted_price - prediction.last_close) >= 0 ? '↑' : '↓'}
+                          </span>
+                          <span className="prediction-badge-value">
+                            {formatCurrency(Math.abs(prediction.predicted_price - prediction.last_close))}
+                          </span>
+                          <span className="prediction-badge-percent">
+                            {formatPercentage(((prediction.predicted_price - prediction.last_close) / prediction.last_close) * 100)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="prediction-inline-footer">
+                        <span className="prediction-footer-item">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+                          </svg>
+                          Model {prediction.model_version}
+                        </span>
+                        <span className="prediction-footer-divider">•</span>
+                        <span className="prediction-footer-item">
+                          {prediction.data_records_used} data points
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ) : null}
 
