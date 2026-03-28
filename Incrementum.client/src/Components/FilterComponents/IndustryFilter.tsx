@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
 import FilterChip from '../FilterChip';
 import Loading from '../Loading';
@@ -16,14 +16,32 @@ const IndustryFilter: React.FC = () => {
   const { addFilter, removeFilter, filterDict } = useDatabaseScreenerContext();
   const suggestionBoxRef = useRef<HTMLDivElement>(null);
 
-  // Clear local state when filters are reset
+  const industryFiltersFromContext = useMemo(() => {
+    return Object.values(filterDict)
+      .filter((f) => f.operand === 'industry')
+      .map((f) => (typeof f.value === 'string' ? f.value : String(f.value ?? '')))
+      .filter((v) => v.length > 0)
+      .sort((a, b) => a.localeCompare(b));
+  }, [filterDict]);
+
+  // Keep chip UI in sync with context (e.g., when applying shared links)
+  useEffect(() => {
+    setActiveIndustryFilters((prev) => {
+      const next = industryFiltersFromContext;
+      if (prev.length === next.length && prev.every((p, i) => p === next[i])) {
+        return prev;
+      }
+      return next;
+    });
+  }, [industryFiltersFromContext]);
+
+  // Clear input when filters are reset
   useEffect(() => {
     const industryKeys = Object.keys(filterDict).filter(key => key.startsWith('industry__'));
-    if (industryKeys.length === 0 && activeIndustryFilters.length > 0) {
-      setActiveIndustryFilters([]);
+    if (industryKeys.length === 0 && industryQuery.length > 0) {
       setIndustryQuery('');
     }
-  }, [filterDict, activeIndustryFilters.length]);
+  }, [filterDict, industryQuery.length]);
 
   useEffect(() => {
     const fetchIndustrySuggestions = async () => {
@@ -63,7 +81,6 @@ const IndustryFilter: React.FC = () => {
     if (!activeIndustryFilters.includes(industry)) {
       setIndustryQuery('');
       setShowSuggestions(false);
-      setActiveIndustryFilters(prev => [...prev, industry]);
       addFilter({
         operator: 'contains',
         operand: 'industry',
@@ -76,7 +93,6 @@ const IndustryFilter: React.FC = () => {
   const removeIndustryFilter = (industry: string) => {
     const key = `industry__contains__${industry}`;
     removeFilter(key);
-    setActiveIndustryFilters(prev => prev.filter(i => i !== industry));
   };
 
   return (
