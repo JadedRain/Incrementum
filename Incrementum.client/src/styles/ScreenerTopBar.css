@@ -14,6 +14,11 @@
   @apply bg-[var(--accent)]; 
   @apply text-[var(--bg-base)];
   @apply shadow-none;
+  @apply cursor-pointer;
+  @apply hover:opacity-90;
+  @apply active:opacity-80;
+  @apply disabled:opacity-50;
+  @apply disabled:cursor-not-allowed;
   @apply px-3;
   @apply py-1;
   @apply rounded;
