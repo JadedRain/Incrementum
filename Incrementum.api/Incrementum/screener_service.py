@@ -2,11 +2,32 @@ import logging
 from .models.custom_screener import CustomScreener
 from .models.account import Account
 from django.db import transaction
+from django.core.exceptions import PermissionDenied
 
 
 class ScreenerService:
     def __init__(self):
         pass
+
+    def _format_custom_screener(self, custom_screener: CustomScreener):
+        filters = custom_screener.filters or []
+        numeric_filters = [
+            f for f in filters
+            if f.get('filter_type') == 'numeric'
+        ]
+        categorical_filters = [
+            f for f in filters
+            if f.get('filter_type') == 'categorical'
+        ]
+
+        return {
+            'id': custom_screener.id,
+            'screener_name': custom_screener.screener_name,
+            'created_at': custom_screener.created_at,
+            'is_private': custom_screener.is_private,
+            'numeric_filters': numeric_filters,
+            'categorical_filters': categorical_filters,
+        }
 
     def create_custom_screener(
         self,
@@ -91,24 +112,14 @@ class ScreenerService:
         account = Account.objects.get(api_key=user_id)
         custom_screener = CustomScreener.objects.get(id=screener_id, account=account)
 
-        filters = custom_screener.filters or []
-        numeric_filters = [
-            f for f in filters
-            if f.get('filter_type') == 'numeric'
-        ]
-        categorical_filters = [
-            f for f in filters
-            if f.get('filter_type') == 'categorical'
-        ]
+        return self._format_custom_screener(custom_screener)
 
-        return {
-            'id': custom_screener.id,
-            'screener_name': custom_screener.screener_name,
-            'created_at': custom_screener.created_at,
-            'is_private': custom_screener.is_private,
-            'numeric_filters': numeric_filters,
-            'categorical_filters': categorical_filters
-        }
+    def get_public_custom_screener(self, screener_id):
+        custom_screener = CustomScreener.objects.get(id=screener_id)
+        if custom_screener.is_private:
+            raise PermissionDenied("Screener is private")
+
+        return self._format_custom_screener(custom_screener)
 
     def get_user_custom_screeners(self, user_id):
         try:
