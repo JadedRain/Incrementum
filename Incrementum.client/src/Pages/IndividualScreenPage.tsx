@@ -2,7 +2,7 @@ import '../styles/SideBar.css'
 import '../styles/IndividualScreenerPage.css'
 import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../Context/AuthContext';
 import Sidebar from '../Components/Sidebar'
 import SaveScreenerPopup from '../Components/SaveScreenerPopup';
@@ -15,6 +15,7 @@ import type { CustomScreener, NumericFilter, CategoricalFilter } from '../Types/
 import { DatabaseScreenerProvider, useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
 import TopBar from '../Components/IndividualScreenerPage/ScreenerTopBar';
 import PotentialGainsTable from '../Components/IndividualScreenerPage/PotentialGainsTable';
+import { buildShareableUrl, parseSharedScreenerParams } from '../utils/screenerShareUtils';
 
 function IndividualScreenPageContent() {
   const navigate = useNavigate();
@@ -25,13 +26,53 @@ function IndividualScreenPageContent() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isPrivate, setIsPrivate] = useState<boolean>(true);
   const { id: paramId } = useParams<{ id: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   // Default to 'custom_temp' (blank screener) if no id is provided
   const id = paramId || 'custom_temp';
-  const { stocks, filterList, addFilter, batchUpdateFilters, clearFilters, undoFilters, redoFilters } = useDatabaseScreenerContext();
+  const { stocks, filterList, sortBy, sortAsc, addFilter, batchUpdateFilters, clearFilters, undoFilters, redoFilters } = useDatabaseScreenerContext();
+  // Track whether the page was opened via a share link (computed once on mount)
+  const [isSharedLoad] = useState(() => searchParams.has('shared'));
 
   const handleScreenerSelect = (screenerId: string) => {
     navigate(`/screener/${screenerId}`);
   };
+
+  const handleShare = () => {
+    if (!filterList || filterList.length === 0) {
+      setToast('No filters to share. Add at least one filter first.');
+      return;
+    }
+    const url = buildShareableUrl(filterList, sortBy, sortAsc);
+    navigator.clipboard.writeText(url).then(() => {
+      setToast('Share link copied to clipboard!');
+    }).catch(() => {
+      setToast('Failed to copy link');
+    });
+  };
+
+  // Apply shared filters from URL on initial load
+  useEffect(() => {
+    if (!isSharedLoad) return;
+    const sharedData = parseSharedScreenerParams(searchParams);
+    if (sharedData) {
+      batchUpdateFilters(sharedData.filters, {
+        sortBy: sharedData.sortBy,
+        sortAsc: sharedData.sortAsc,
+      });
+      // Remove the shared param from URL to keep it clean
+      setSearchParams({}, { replace: true });
+      setToast('Shared screener filters applied!');
+    }
+  // Run only on mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Auto-dismiss toast messages
+  useEffect(() => {
+    if (!toast) return;
+    const timeoutId = window.setTimeout(() => setToast(null), 3000);
+    return () => window.clearTimeout(timeoutId);
+  }, [toast]);
 
   const handlePrivacyToggle = async () => {
     if (!id || isNaN(Number(id))) {
@@ -160,11 +201,12 @@ function IndividualScreenPageContent() {
     enabled: !!apiKey,
   });
 
-  // Apply default filters for predefined screeners
+  // Apply default filters for predefined screeners (skip if applying shared filters)
   usePredefinedScreenerFilters({
     screenerId: id,
     batchUpdateFilters,
     clearFilters,
+    skipPredefined: isSharedLoad,
   });
 
   // Global keyboard shortcuts for filter undo/redo
@@ -254,6 +296,7 @@ function IndividualScreenPageContent() {
               potentialGainsToggled={potentialGainsToggled}
               togglePotentialGains={togglePotentialGains}
               onSave={handleSave}
+              onShare={handleShare}
               onScreenerSelect={handleScreenerSelect}
               currentScreenerId={id}
               customScreeners={customScreenersData?.screeners || []}

@@ -1,22 +1,45 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDatabaseScreenerContext } from '../../Context/DatabaseScreenerContext';
 import { apiString, fetchWrapper } from '../../Context/FetchingHelper';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
 import FilterChip from '../FilterChip';
 
+type ActiveTickerFilter = {
+  value: string;
+  operator: string;
+};
+
 const TickerSymbolFilter: React.FC = () => {
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [activeTickerFilters, setActiveTickerFilters] = useState<string[]>([]);
+  const [activeTickerFilters, setActiveTickerFilters] = useState<ActiveTickerFilter[]>([]);
   const { addFilter, removeFilter, filterDict } = useDatabaseScreenerContext();
 
-  // Clear local state when filters are reset
-  React.useEffect(() => {
-    const tickerKeys = Object.keys(filterDict).filter(key => key.startsWith('ticker__'));
-    if (tickerKeys.length === 0 && activeTickerFilters.length > 0) {
-      setActiveTickerFilters([]);
-    }
-  }, [filterDict, activeTickerFilters.length]);
+  const tickerFiltersFromContext = useMemo(() => {
+    return Object.values(filterDict)
+      .filter((f) => f.operand === 'ticker')
+      .map((f) => ({
+        value: typeof f.value === 'string' ? f.value : String(f.value ?? ''),
+        operator: f.operator,
+      }))
+      .filter((f) => f.value.length > 0)
+      .sort((a, b) => {
+        const aKey = `${a.operator}__${a.value}`;
+        const bKey = `${b.operator}__${b.value}`;
+        return aKey.localeCompare(bKey);
+      });
+  }, [filterDict]);
+
+  // Keep chip UI in sync with context (e.g., when applying shared links)
+  useEffect(() => {
+    const next = tickerFiltersFromContext;
+    setActiveTickerFilters((prev) => {
+      if (prev.length === next.length && prev.every((p, i) => p.value === next[i].value && p.operator === next[i].operator)) {
+        return prev;
+      }
+      return next;
+    });
+  }, [tickerFiltersFromContext]);
 
   const handleAdd = async () => {
     const trimmed = input.trim();
@@ -65,14 +88,14 @@ const TickerSymbolFilter: React.FC = () => {
 
         // Add valid regular symbols to the filter
         valid.forEach((symbol: string) => {
-          if (!activeTickerFilters.includes(symbol)) {
+          const exists = activeTickerFilters.some((t) => t.value === symbol && t.operator === 'equals');
+          if (!exists) {
             addFilter({
               operator: 'equals',
               operand: 'ticker',
               filter_type: 'categoric',
               value: symbol,
             });
-            setActiveTickerFilters(prev => [...prev, symbol]);
           }
         });
       } catch (err) {
@@ -84,14 +107,14 @@ const TickerSymbolFilter: React.FC = () => {
 
     // Add wildcard symbols without validation
     wildcardSymbols.forEach(symbol => {
-      if (!activeTickerFilters.includes(symbol)) {
+      const exists = activeTickerFilters.some((t) => t.value === symbol && t.operator === 'contains');
+      if (!exists) {
         addFilter({
           operator: 'contains',
           operand: 'ticker',
           filter_type: 'categoric',
           value: symbol,
         });
-        setActiveTickerFilters(prev => [...prev, symbol]);
       }
     });
 
@@ -99,10 +122,9 @@ const TickerSymbolFilter: React.FC = () => {
     setError(null);
   };
 
-  const removeTickerFilter = (ticker: string) => {
-    const key = `ticker__equals__${ticker}`;
+  const removeTickerFilter = (ticker: string, operator: string) => {
+    const key = `ticker__${operator}__${ticker}`;
     removeFilter(key);
-    setActiveTickerFilters(prev => prev.filter(t => t !== ticker));
   };
 
   return (
@@ -128,11 +150,11 @@ const TickerSymbolFilter: React.FC = () => {
         {error && <div className="filter-warning">{error}</div>}
         {activeTickerFilters.length > 0 && (
           <div className="filter-chips">
-            {activeTickerFilters.map(ticker => (
+            {activeTickerFilters.map(({ value, operator }) => (
               <FilterChip
-                key={ticker}
-                label={ticker}
-                onRemove={() => removeTickerFilter(ticker)}
+                key={`${operator}__${value}`}
+                label={value}
+                onRemove={() => removeTickerFilter(value, operator)}
               />
             ))}
           </div>

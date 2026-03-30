@@ -64,6 +64,7 @@ interface UsePredefinedScreenerFiltersParams {
   screenerId: string;
   batchUpdateFilters: (filters: FilterConfig[], sort: SortConfig) => void;
   clearFilters: () => void;
+  skipPredefined?: boolean;
 }
 
 /**
@@ -74,8 +75,11 @@ export function usePredefinedScreenerFilters({
   screenerId,
   batchUpdateFilters,
   clearFilters,
+  skipPredefined,
 }: UsePredefinedScreenerFiltersParams) {
   useEffect(() => {
+    if (skipPredefined) return;
+
     const isPredefinedScreener = PREDEFINED_SCREENERS.includes(screenerId);
     
     if (!isPredefinedScreener) return;
@@ -89,5 +93,5 @@ export function usePredefinedScreenerFilters({
       batchUpdateFilters(config.filters, config.sort);
     }
     // For 'custom_temp' (blank screener), no filters are applied after clearing
-  }, [screenerId, batchUpdateFilters, clearFilters]);
+  }, [screenerId, batchUpdateFilters, clearFilters, skipPredefined]);
 }

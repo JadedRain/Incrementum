@@ -12,6 +12,7 @@ interface TopBarProps {
   potentialGainsToggled: boolean;
   togglePotentialGains: () => void;
   onSave: () => void;
+  onShare?: () => void;
   onScreenerSelect?: (screenerId: string) => void;
   currentScreenerId?: string;
   customScreeners?: CustomScreener[];
@@ -24,6 +25,7 @@ const TopBar: React.FC<TopBarProps> = ({
   potentialGainsToggled,
   togglePotentialGains,
   onSave,
+  onShare,
   onScreenerSelect,
   currentScreenerId,
   customScreeners = [],
@@ -65,6 +67,11 @@ const TopBar: React.FC<TopBarProps> = ({
           <button className="screener-topbar-btn" onClick={onSave}>
             Save
           </button>
+          {onShare && (
+            <button className="screener-topbar-btn" onClick={onShare}>
+              Share
+            </button>
+          )}
           <select
             className={`screener-topbar-select screener-dropdown-with-arrow ${currentScreenerId ? 'selected' : 'unselected'}`}
             aria-label="Switch Screener"
