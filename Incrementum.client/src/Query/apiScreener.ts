@@ -46,12 +46,8 @@ export const fetchSharedCustomScreener = async (token: string) => {
     const data = await res.json();
     if (data?.error) message = String(data.error);
   } catch {
-    try {
-      const text = await res.text();
-      if (text) message = text;
-    } catch {
-      // ignore
-    }
+    const text = await res.text();
+    if (text) message = text;
   }
 
   throw new ScreenerFetchError(res.status, message);
@@ -78,12 +74,8 @@ export const fetchCustomScreener = async (id: string, user: string | null) => {
     const data = await res.json();
     if (data?.error) message = String(data.error);
   } catch {
-    try {
-      const text = await res.text();
-      if (text) message = text;
-    } catch {
-      // ignore
-    }
+    const text = await res.text();
+    if (text) message = text;
   }
 
   throw new ScreenerFetchError(res.status, message);
