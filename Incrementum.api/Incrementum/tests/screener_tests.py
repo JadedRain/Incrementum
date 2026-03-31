@@ -1,5 +1,6 @@
 import pytest
 from django.test import TestCase
+from django.core.exceptions import PermissionDenied
 from Incrementum.models.custom_screener import CustomScreener
 from Incrementum.models.account import Account
 from Incrementum.screener_service import ScreenerService
@@ -120,6 +121,30 @@ class ScreenerServiceTest(TestCase):
         assert retrieved_screener['numeric_filters'][0]['value'] == 100000000
         assert retrieved_screener['categorical_filters'][0]['operand'] == 'exchange'
         assert retrieved_screener['categorical_filters'][0]['value'] == 'NASDAQ'
+
+    def test_get_public_custom_screener_allows_public(self):
+        screener = self.service.create_custom_screener(
+            self.account.api_key,
+            numeric_filters=[{'filter_name': 'revenue', 'numeric_value': 100000000}],
+            categorical_filters=[{'filter_name': 'exchange', 'category_value': 'NASDAQ'}],
+            is_private=False,
+        )
+
+        retrieved = self.service.get_public_custom_screener(screener.id)
+        assert retrieved is not None
+        assert retrieved['id'] == screener.id
+        assert retrieved['is_private'] is False
+
+    def test_get_public_custom_screener_denies_private(self):
+        screener = self.service.create_custom_screener(
+            self.account.api_key,
+            numeric_filters=[{'filter_name': 'revenue', 'numeric_value': 100000000}],
+            categorical_filters=[{'filter_name': 'exchange', 'category_value': 'NASDAQ'}],
+            is_private=True,
+        )
+
+        with pytest.raises(PermissionDenied):
+            self.service.get_public_custom_screener(screener.id)
 
     def test_get_user_custom_screeners(self):
         self.service.create_custom_screener(

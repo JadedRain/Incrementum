@@ -1,14 +1,20 @@
 from Incrementum.models.stock import StockModel
 from django.db.models import Q
 from django.http import JsonResponse
+from django.core import signing
+from django.core.exceptions import PermissionDenied
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from Incrementum.screener_service import ScreenerService
 from Incrementum.screener import Screener
 from Incrementum.DTOs.ifilterdata import FilterData
+from Incrementum.models.custom_screener import CustomScreener
+from Incrementum.models.account import Account
 import json
 import logging
 screener_service = ScreenerService()
+
+SCREENER_SHARE_SALT = "custom-screener-share"
 
 
 def get_user_from_request(request):
@@ -75,6 +81,45 @@ def get_custom_screener(request, screener_id):
 
     if screener is None:
         return JsonResponse({"error": "Screener not found"}, status=404)
+
+    return JsonResponse(screener, status=200)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_custom_screener_share_token(request, screener_id):
+    api_key = (get_user_from_request(request) or "").strip() or None
+    if not api_key:
+        return JsonResponse({"error": "X-User-Id header required"}, status=400)
+
+    try:
+        account = Account.objects.get(api_key=api_key)
+        CustomScreener.objects.get(id=screener_id, account=account)
+    except (Account.DoesNotExist, CustomScreener.DoesNotExist):
+        return JsonResponse({"error": "Screener not found"}, status=404)
+
+    token = signing.Signer(salt=SCREENER_SHARE_SALT).sign(str(screener_id))
+    return JsonResponse({"token": token}, status=200)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_shared_custom_screener(request, token):
+    try:
+        raw_id = signing.Signer(salt=SCREENER_SHARE_SALT).unsign(token)
+        screener_id = int(raw_id)
+    except (signing.BadSignature, ValueError, TypeError):
+        return JsonResponse({"error": "Invalid share token"}, status=400)
+
+    try:
+        screener = screener_service.get_public_custom_screener(screener_id)
+    except PermissionDenied:
+        return JsonResponse({"error": "Screener is private"}, status=403)
+    except CustomScreener.DoesNotExist:
+        return JsonResponse({"error": "Screener not found"}, status=404)
+    except Exception:
+        logging.exception("Failed to fetch shared custom screener")
+        return JsonResponse({"error": "Failed to fetch screener"}, status=500)
 
     return JsonResponse(screener, status=200)
 

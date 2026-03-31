@@ -10,7 +10,7 @@ import { usePredefinedScreenerFilters } from '../hooks/usePredefinedScreenerFilt
 import NavigationBar from '../Components/NavigationBar'
 import StockTable from '../Components/StockTable'
 import Toast from '../Components/Toast'
-import { fetchCustomScreener, createCustomScreener, updateCustomScreener, fetchCustomScreeners, updateScreenerPrivacy } from "../Query/apiScreener"
+import { fetchCustomScreener, fetchCustomScreenerShareToken, fetchSharedCustomScreener, createCustomScreener, updateCustomScreener, fetchCustomScreeners, updateScreenerPrivacy, ScreenerFetchError } from "../Query/apiScreener"
 import type { CustomScreener, NumericFilter, CategoricalFilter } from '../Types/ScreenerTypes';
 import { DatabaseScreenerProvider, useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
 import TopBar from '../Components/IndividualScreenerPage/ScreenerTopBar';
@@ -24,6 +24,7 @@ function IndividualScreenPageContent() {
   const [toast, setToast] = useState<string | null>(null);
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [isPrivate, setIsPrivate] = useState<boolean>(true);
   const { id: paramId } = useParams<{ id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -38,6 +39,34 @@ function IndividualScreenPageContent() {
   };
 
   const handleShare = () => {
+    // If this is a saved screener, share a generated token link.
+    if (id && !isNaN(Number(id))) {
+      if (!apiKey) {
+        setToast('Login required to share saved screeners');
+        return;
+      }
+
+      fetchCustomScreenerShareToken(Number(id), apiKey)
+        .then((res) => {
+          if (!res.ok || !res.data?.token) {
+            setToast('Failed to generate share link');
+            return;
+          }
+
+          const url = new URL(window.location.origin + '/screener/custom_temp');
+          url.searchParams.set('shared', res.data.token);
+          return navigator.clipboard.writeText(url.toString()).then(() => {
+            setToast('Share link copied to clipboard!');
+          });
+        })
+        .catch(() => {
+          setToast('Failed to generate share link');
+        });
+
+      return;
+    }
+
+    // Otherwise, fall back to an encoded "temporary" share link.
     if (!filterList || filterList.length === 0) {
       setToast('No filters to share. Add at least one filter first.');
       return;
@@ -62,7 +91,52 @@ function IndividualScreenPageContent() {
       // Remove the shared param from URL to keep it clean
       setSearchParams({}, { replace: true });
       setToast('Shared screener filters applied!');
+      return;
     }
+
+    // If it isn't a base64-encoded filter payload, treat it as a share token.
+    const token = searchParams.get('shared');
+    if (!token) return;
+
+    fetchSharedCustomScreener(token)
+      .then((data) => {
+        const numericFilters = Array.isArray(data?.numeric_filters)
+          ? data.numeric_filters
+              .filter((f: unknown): f is { operator?: string; operand?: string; value?: unknown } =>
+                typeof f === 'object' && f !== null
+              )
+              .map((f: { operator?: string; operand?: string; value?: unknown }) => ({
+                operator: f.operator || 'between',
+                operand: f.operand || '',
+                filter_type: 'numeric',
+                value: (f.value as string | number | boolean | null | undefined) ?? null,
+              }))
+          : [];
+
+        const categoricalFilters = Array.isArray(data?.categorical_filters)
+          ? data.categorical_filters
+              .filter((f: unknown): f is { operator?: string; operand?: string; value?: unknown } =>
+                typeof f === 'object' && f !== null
+              )
+              .map((f: { operator?: string; operand?: string; value?: unknown }) => ({
+                operator: f.operator || 'eq',
+                operand: f.operand || '',
+                filter_type: 'categoric',
+                value: (f.value as string | number | boolean | null | undefined) ?? null,
+              }))
+          : [];
+
+        batchUpdateFilters([...numericFilters, ...categoricalFilters]);
+        setSearchParams({}, { replace: true });
+        setToast('Shared screener loaded!');
+      })
+      .catch((e: unknown) => {
+        if (e instanceof ScreenerFetchError && e.status === 403) {
+          setToast('This screener is private');
+          return;
+        }
+        setToast('Failed to load shared screener');
+      });
   // Run only on mount
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -75,6 +149,10 @@ function IndividualScreenPageContent() {
   }, [toast]);
 
   const handlePrivacyToggle = async () => {
+    if (!apiKey) {
+      setToast('Login required to change privacy');
+      return;
+    }
     if (!id || isNaN(Number(id))) {
       setToast('Save the screener first to change privacy settings');
       return;
@@ -96,6 +174,10 @@ function IndividualScreenPageContent() {
   };
 
   const handleSave = async () => {
+    if (!apiKey) {
+      setToast('Login required to save');
+      return;
+    }
     setSaveError(null);
     
     // Check if filters are applied
@@ -146,6 +228,11 @@ function IndividualScreenPageContent() {
 
   const handleSaveScreener = async (name: string) => {
     setSaveError(null);
+
+    if (!apiKey) {
+      setSaveError('Login required to save screener.');
+      return;
+    }
     
     if (!filterList || filterList.length === 0) {
       setSaveError('No filters to save. Add at least one filter first.');
@@ -189,10 +276,16 @@ function IndividualScreenPageContent() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const { data: screenerData } = useQuery<CustomScreener>({
-    queryKey: ["customScreener", id],
+  const { data: screenerData, error: screenerFetchError } = useQuery<CustomScreener>({
+    queryKey: ["customScreener", id, apiKey ?? 'public'],
     queryFn: () => fetchCustomScreener(id!, apiKey),
-    enabled: !!id && !isNaN(Number(id)) && !!apiKey,
+    enabled: !!id && !isNaN(Number(id)),
+    retry: (failureCount, error) => {
+      if (error instanceof ScreenerFetchError && (error.status === 403 || error.status === 404)) {
+        return false;
+      }
+      return failureCount < 2;
+    },
   });
 
   const { data: customScreenersData } = useQuery<{ screeners: Array<{ id: number; screener_name: string; created_at: string; filter_count: number }> }>({
@@ -200,6 +293,26 @@ function IndividualScreenPageContent() {
     queryFn: () => fetchCustomScreeners(apiKey),
     enabled: !!apiKey,
   });
+
+  useEffect(() => {
+    if (!screenerFetchError) {
+      setLoadError(null);
+      return;
+    }
+
+    if (screenerFetchError instanceof ScreenerFetchError) {
+      if (screenerFetchError.status === 403) {
+        setLoadError('This screener is private.');
+        return;
+      }
+      if (screenerFetchError.status === 404) {
+        setLoadError('Screener not found.');
+        return;
+      }
+    }
+
+    setLoadError('Failed to load screener.');
+  }, [screenerFetchError]);
 
   // Apply default filters for predefined screeners (skip if applying shared filters)
   usePredefinedScreenerFilters({
@@ -283,9 +396,9 @@ function IndividualScreenPageContent() {
         onSave={handleSaveScreener}
         defaultName={screenerData?.screener_name}
       />
-      {saveError && (
+      {(saveError || loadError) && (
         <div className="error-banner">
-          {saveError}
+          {saveError || loadError}
         </div>
       )}
 
@@ -302,7 +415,7 @@ function IndividualScreenPageContent() {
               customScreeners={customScreenersData?.screeners || []}
               isPrivate={isPrivate}
               onPrivacyToggle={handlePrivacyToggle}
-              privacyDisabled={!id || isNaN(Number(id))}
+              privacyDisabled={!apiKey || !id || isNaN(Number(id))}
             />
           </div>
 

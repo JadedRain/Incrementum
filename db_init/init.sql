@@ -67,6 +67,7 @@ create table incrementum.custom_screener (
     account_id int not null references incrementum.account(id),
     screener_name varchar(100) not null,
     created_at timestamp not null default current_timestamp,
+    is_private boolean not null default true,
     filters json not null
 );
 
