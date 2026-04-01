@@ -5,10 +5,65 @@ import { useColumnVisibility } from '../Context/useColumnVisibility';
 import '../styles/stock-table-extras.css';
 import '../styles/PaginationControls.css';
 import { useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
+import { useState } from 'react';
+import InfoIconSvg from '../assets/info-filled-svgrepo-com.svg';
+
+const columnDescriptions: Record<string, string> = {
+  eps: 'Earnings per share. Net income divided by average weighted outstanding shares. Higher typically means better return for investors.',
+  debt_to_equity: 'Debt to equity ratio. Liability divided by shareholders equity. Lower indicates stability, higher indicates volatility.',
+  high52: 'The highest stock price over the last 52 weeks. Can indicate if stock was overvalued or currently at a low point.',
+  low52: 'The lowest stock price over the last 52 weeks. Can be used to indicate growth potential.',
+  percentChange: 'The percentage change in stock price over 1 day. Red for losses, green for gains.',
+  volume: 'Current trading volume. Measure of all trades in a specific period. Indicates if a stock is actively traded.',
+  market_cap: 'Market capitalization. Total valuation of outstanding shares. Indicates potential gains in large scale trades.',
+  outstanding_shares: 'The amount of shares held by shareholders. Used as a component in other metrics.',
+  share_class_figi: 'Different classifications of shares (Class A, Class B, etc.). Class A is typically higher priority.',
+  sic_description: 'The industry sector or classification of the company.',
+  annual_eps_growth_rate: 'The percentage change in earnings per share over the last year. Indicates earnings growth.',
+  price_per_earnings: 'Price to earnings ratio. Stock price divided by EPS. Higher ratio indicates higher expected growth.',
+  pe_per_growth: '(Price per Share / EPS) divided by Expected Earnings Growth Rate. Compares valuation to growth.',
+  revenue_per_share: 'Total revenue divided by outstanding shares. Used to identify undervalued stocks.',
+  price_per_sales: 'Price to sales ratio. Stock price divided by revenue per share. Useful for identifying undervalued stocks.',
+};
+
+function InfoIcon({ description, position = 'left' }: { description?: string; position?: 'left' | 'right' | 'bottom' }) {
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  if (!description) {
+    return null;
+  }
+
+  const tooltipClasses = position === 'left'
+    ? 'absolute right-full top-1/2 -translate-y-1/2 mr-2 px-3 py-2 bg-gray-900 text-white rounded text-xs whitespace-normal w-48 shadow-lg z-50'
+    : position === 'right'
+    ? 'absolute left-full top-1/2 -translate-y-1/2 ml-2 px-3 py-2 bg-gray-900 text-white rounded text-xs whitespace-normal w-48 shadow-lg z-50'
+    : 'absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white rounded text-xs whitespace-normal w-48 shadow-lg z-50';
+  
+  const arrowClasses = position === 'left'
+    ? 'absolute left-full top-1/2 -translate-y-1/2 border-4 border-transparent border-l-gray-900'
+    : position === 'right'
+    ? 'absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900'
+    : 'absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900';
+
+  return (
+    <div
+      className="relative inline-block"
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
+    >
+      <img src={InfoIconSvg} alt="info" className="w-5 h-5 cursor-help inline-block ml-2" />
+      {showTooltip && (
+        <div className={tooltipClasses}>
+          {description}
+          <div className={arrowClasses}></div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 type Stock = {
   symbol?: string;
-  company_name?: string | null;
   regularMarketChangePercent?: number;
   regularMarketPrice?: number;
   fiftyTwoWeekHigh?: number;
@@ -33,7 +88,7 @@ type Stock = {
   price_per_sales?: number | null;
 };
 
-type ColKey = 'symbol' | 'name' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps' | 'debt_to_equity' | 'list_date' | 'outstanding_shares' | 'share_class_figi' | 'sic_description' | 'annual_eps_growth_rate' | 'price_per_earnings' | 'pe_per_growth' | 'revenue_per_share' | 'price_per_sales';
+type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps' | 'debt_to_equity' | 'list_date' | 'outstanding_shares' | 'share_class_figi' | 'sic_description' | 'annual_eps_growth_rate' | 'price_per_earnings' | 'pe_per_growth' | 'revenue_per_share' | 'price_per_sales';
 type Col = { k: ColKey; l: string };
 
 type Props = { onRowClick?: (s: string) => void; stocks?: unknown[] };
@@ -55,7 +110,6 @@ export default function StockTable({ onRowClick, stocks: overrideStocks }: Props
 
   const cols: Col[] = [
     { k: 'symbol', l: 'Symbol' },
-    { k: 'name', l: 'Company Name' },
     { k: 'price', l: 'Price' },
     { k: 'eps', l: 'EPS' },
     { k: 'debt_to_equity', l: 'D/E Ratio' },
@@ -135,8 +189,6 @@ function InnerStockTable({
     switch (k) {
       case 'symbol':
         return 'symbol';
-      case 'name':
-        return 'company_name';
       case 'price':
         return 'price';
       case 'eps':
@@ -204,7 +256,10 @@ function InnerStockTable({
               {cols.filter(c => c.k !== 'symbol').map((c: Col) => (
                 <label key={c.k} className="flex items-center gap-3 mb-2">
                   <input className="transform scale-125 accent-[#6b4c1b]" type="checkbox" checked={!!visibleColumns[c.k]} onChange={() => toggleColumn(c.k)} />
-                  <span className="text-[15px] text-[var(--text-primary)]">{c.l}</span>
+                  <div className="flex items-center">
+                    <span className="text-[15px] text-[var(--text-primary)]">{c.l}</span>
+                    <InfoIcon description={columnDescriptions[c.k as ColKey]} position="left" />
+                  </div>
                 </label>
               ))}
             </div>
@@ -235,7 +290,9 @@ function InnerStockTable({
               onClick={() => { if (sortableField) handleHeaderClick(sortableField); }}
               role={sortableField ? 'button' : undefined}
             >
-              {(labelMap[k] ?? k) + (sortableField ? getSortIndicator(sortableField) : '')}
+              <div className="flex items-center justify-center">
+                <span>{(labelMap[k] ?? k) + (sortableField ? getSortIndicator(sortableField) : '')}</span>
+              </div>
             </div>
           );
         })}

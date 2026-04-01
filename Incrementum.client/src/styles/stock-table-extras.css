@@ -29,6 +29,7 @@
     white-space: nowrap;
     max-height: 400px;
     overflow-y: auto;
+    overflow: visible;
   }
   .kebab-title {
     font-weight: 800;
