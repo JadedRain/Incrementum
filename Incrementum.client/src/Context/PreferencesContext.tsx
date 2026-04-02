@@ -3,6 +3,7 @@ import { PreferencesContext, type PreferencesContextType } from "./preferencesCo
 
 export const PreferencesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const INFO_BUBBLES_STORAGE_KEY = "incrementum-show-info-bubbles";
+  const DEFAULT_PRIVATE_STORAGE_KEY = "incrementum-default-private";
 
   const [showInfoBubbles, setShowInfoBubblesState] = useState<boolean>(() => {
     try {
@@ -13,9 +14,29 @@ export const PreferencesProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
   });
 
+  const [defaultPrivate, setDefaultPrivateState] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem(DEFAULT_PRIVATE_STORAGE_KEY);
+      return saved === null ? true : saved === "true";
+    } catch {
+      return true;
+    }
+  });
+
   useEffect(() => {
     localStorage.setItem(INFO_BUBBLES_STORAGE_KEY, String(showInfoBubbles));
   }, [showInfoBubbles]);
+
+  useEffect(() => {
+    localStorage.setItem(DEFAULT_PRIVATE_STORAGE_KEY, String(defaultPrivate));
+  }, [defaultPrivate]);
+
+  // Initialize defaults in localStorage if not already set
+  useEffect(() => {
+    if (!localStorage.getItem(DEFAULT_PRIVATE_STORAGE_KEY)) {
+      localStorage.setItem(DEFAULT_PRIVATE_STORAGE_KEY, "true");
+    }
+  }, []);
 
   const setShowInfoBubbles = (value: boolean) => {
     setShowInfoBubblesState(value);
@@ -25,10 +46,16 @@ export const PreferencesProvider: React.FC<{ children: ReactNode }> = ({ childre
     setShowInfoBubblesState((prev) => !prev);
   };
 
+  const setDefaultPrivate = (value: boolean) => {
+    setDefaultPrivateState(value);
+  };
+
   const value: PreferencesContextType = {
     showInfoBubbles,
     setShowInfoBubbles,
     toggleInfoBubbles,
+    defaultPrivate,
+    setDefaultPrivate,
   };
 
   return (

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../Context/AuthContext';
+import { usePreferences } from '../Context/usePreferences';
 import Sidebar from '../Components/Sidebar'
 import SaveScreenerPopup from '../Components/SaveScreenerPopup';
 import { usePredefinedScreenerFilters } from '../hooks/usePredefinedScreenerFilters';
@@ -21,6 +22,7 @@ function IndividualScreenPageContent() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { apiKey } = useAuth();
+  const { defaultPrivate } = usePreferences();
   const [toast, setToast] = useState<string | null>(null);
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -248,7 +250,7 @@ function IndividualScreenPageContent() {
       return;
     }
 
-    const res = await createCustomScreener(name, filterList, apiKey);
+    const res = await createCustomScreener(name, filterList, apiKey, defaultPrivate);
     if (res.ok) {
       setShowSavePopup(false);
       setToast('Screener saved!');

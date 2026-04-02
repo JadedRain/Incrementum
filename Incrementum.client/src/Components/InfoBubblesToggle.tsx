@@ -7,13 +7,13 @@ const InfoBubblesToggle: React.FC = () => {
   return (
     <button
       onClick={toggleInfoBubbles}
-      className="relative inline-flex h-6 w-11 items-center rounded-full bg-[var(--bg-hover)]"
+      className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
       style={{
-        backgroundColor: showInfoBubbles ? "#6b4c1b" : "var(--bg-hover)",
+        backgroundColor: showInfoBubbles ? "var(--accent)" : "var(--bg-sunken)",
       }}
     >
       <span
-        className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+        className="inline-block h-4 w-4 transform rounded-full bg-[var(--text-primary)] transition-transform"
         style={{
           transform: showInfoBubbles ? "translateX(22px)" : "translateX(2px)",
         }}

@@ -47,6 +47,7 @@ def create_custom_screener(request):
     print(f"DEBUG: Extracted name: {name}")
     numeric_filters = data.get('numeric_filters', [])
     categorical_filters = data.get('categorical_filters', [])
+    is_private = data.get('is_private', True)
     if len(categorical_filters) == 0:
         logging.error("insufficient filters applied")
         return JsonResponse(
@@ -57,7 +58,8 @@ def create_custom_screener(request):
         api_key,
         name=name,
         numeric_filters=numeric_filters,
-        categorical_filters=categorical_filters
+        categorical_filters=categorical_filters,
+        is_private=is_private
     )
 
     if screener is None:
