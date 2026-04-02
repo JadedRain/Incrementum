@@ -46,6 +46,10 @@ export default function Stock({ token: propToken }: { token?: string; }) {
   };
 
   const interval = getIntervalForPeriod(period);
+  const predictedClosePrices = prediction?.predicted_close_prices ?? [];
+  const oneHourPrediction = predictedClosePrices[0] ?? prediction?.predicted_price;
+  const twoHourPrediction = predictedClosePrices[1];
+  const threeHourPrediction = predictedClosePrices[2];
 
   if (loading) return <div className="stock-page-loading"><Loading loading={true} /></div>;
   if (!results) return <div className="stock-page-loading"><p>No stock data found.</p></div>;
@@ -148,20 +152,37 @@ export default function Stock({ token: propToken }: { token?: string; }) {
                         </div>
                         <div className="prediction-inline-stat highlight">
                           <div className="prediction-inline-label">Predicted (1hr)</div>
-                          <div className="prediction-inline-value-large">{formatCurrency(prediction.predicted_price)}</div>
+                          <div className="prediction-inline-value-large">{formatCurrency(oneHourPrediction)}</div>
                         </div>
                       </div>
+
+                      {(twoHourPrediction !== undefined || threeHourPrediction !== undefined) && (
+                        <div className="prediction-inline-main">
+                          {twoHourPrediction !== undefined && (
+                            <div className="prediction-inline-stat">
+                              <div className="prediction-inline-label">Predicted (2hr)</div>
+                              <div className="prediction-inline-value">{formatCurrency(twoHourPrediction)}</div>
+                            </div>
+                          )}
+                          {threeHourPrediction !== undefined && (
+                            <div className="prediction-inline-stat">
+                              <div className="prediction-inline-label">Predicted (3hr)</div>
+                              <div className="prediction-inline-value">{formatCurrency(threeHourPrediction)}</div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                       
                       <div className="prediction-inline-change">
-                        <div className={`prediction-inline-badge ${(prediction.predicted_price - prediction.last_close) >= 0 ? 'positive' : 'negative'}`}>
+                        <div className={`prediction-inline-badge ${((oneHourPrediction ?? prediction.last_close) - prediction.last_close) >= 0 ? 'positive' : 'negative'}`}>
                           <span className="prediction-badge-icon">
-                            {(prediction.predicted_price - prediction.last_close) >= 0 ? '↑' : '↓'}
+                            {((oneHourPrediction ?? prediction.last_close) - prediction.last_close) >= 0 ? '↑' : '↓'}
                           </span>
                           <span className="prediction-badge-value">
-                            {formatCurrency(Math.abs(prediction.predicted_price - prediction.last_close))}
+                            {formatCurrency(Math.abs((oneHourPrediction ?? prediction.last_close) - prediction.last_close))}
                           </span>
                           <span className="prediction-badge-percent">
-                            {formatPercentage(((prediction.predicted_price - prediction.last_close) / prediction.last_close) * 100)}
+                            {formatPercentage((((oneHourPrediction ?? prediction.last_close) - prediction.last_close) / prediction.last_close) * 100)}
                           </span>
                         </div>
                       </div>

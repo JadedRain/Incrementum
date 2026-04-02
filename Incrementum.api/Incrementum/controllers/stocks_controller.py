@@ -245,16 +245,20 @@ def get_stocks_by_tickers(request):
 @require_http_methods(["GET"])
 def predict_stock_controller(request, ticker):
     """
-    Predict next period stock price using Keras CNN model.
+    Predict the next 3 hourly close prices using Keras model output.
 
     Endpoint: GET /api/predict/<ticker>/
 
     Returns JSON with:
     - symbol: Stock ticker
     - last_close: Current close price (USD)
-    - predicted_price: Predicted next period close price (USD)
-    - predicted_log_return: Raw predicted log return
-    - predicted_log_return_norm: Normalized log return (z-score)
+    - predicted_price: Predicted next 1-hour close price (USD, backward-compatible)
+    - predicted_close_prices: Predicted next close prices for horizon [1h, 2h, 3h]
+    - predicted_log_return: Raw predicted 1-hour log return (backward-compatible)
+    - predicted_log_return_norm: Normalized 1-hour log return (z-score, backward-compatible)
+    - predicted_log_returns: Raw predicted log returns for full horizon
+    - predicted_log_return_norms: Normalized predicted log returns for full horizon
+    - forecast_horizon_hours: Number of predicted hourly close points
     - lookback_end_time: Timestamp of last data point
     - model_version: Training date/version of model
     - lookback_periods: Number of periods used (default 24)
