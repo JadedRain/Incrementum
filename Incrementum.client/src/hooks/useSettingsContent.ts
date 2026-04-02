@@ -1,5 +1,6 @@
 import { useMemo, type ReactNode, createElement } from "react";
 import ThemeToggle from "../Components/ThemeToggle";
+import InfoBubblesToggle from "../Components/InfoBubblesToggle";
 
 type Account = { 
   name: string; 
@@ -38,7 +39,10 @@ export default function useSettingsContent(active: "account" | "notification" | 
     return {
       title: "Customize",
       sections: [
-        { title: undefined, rows: [ { label: "Theme", value: createElement(ThemeToggle) } ] },
+        { title: undefined, rows: [ 
+          { label: "Theme", value: createElement(ThemeToggle) },
+          { label: "Info Bubbles", value: createElement(InfoBubblesToggle) },
+        ] },
       ],
     };
   }, [active, account]);

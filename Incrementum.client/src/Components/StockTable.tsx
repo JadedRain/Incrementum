@@ -7,6 +7,7 @@ import '../styles/PaginationControls.css';
 import { useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
 import { useState } from 'react';
 import InfoIconSvg from '../assets/info-filled-svgrepo-com.svg';
+import { usePreferences } from '../Context/usePreferences';
 
 const columnDescriptions: Record<string, string> = {
   eps: 'Earnings per share. Net income divided by average weighted outstanding shares. Higher typically means better return for investors.',
@@ -26,10 +27,10 @@ const columnDescriptions: Record<string, string> = {
   price_per_sales: 'Price to sales ratio. Stock price divided by revenue per share. Useful for identifying undervalued stocks.',
 };
 
-function InfoIcon({ description, position = 'left' }: { description?: string; position?: 'left' | 'right' | 'bottom' }) {
+function InfoIcon({ description, position = 'left', showBubbles = true }: { description?: string; position?: 'left' | 'right' | 'bottom'; showBubbles?: boolean }) {
   const [showTooltip, setShowTooltip] = useState(false);
 
-  if (!description) {
+  if (!description || !showBubbles) {
     return null;
   }
 
@@ -182,6 +183,7 @@ function InnerStockTable({
   useBackendPagination: boolean;
 }) {
   const { visibleColumns, toggleColumn, menuOpen, setMenuOpen, menuRef, btnRef, columnOrder, moveColumn } = useColumnVisibility();
+  const { showInfoBubbles } = usePreferences();
   const stocksArray = Array.isArray(stocks) ? (stocks as Stock[]) : [];
 
   // Map column keys to backend sort fields
@@ -258,7 +260,7 @@ function InnerStockTable({
                   <input className="transform scale-125 accent-[#6b4c1b]" type="checkbox" checked={!!visibleColumns[c.k]} onChange={() => toggleColumn(c.k)} />
                   <div className="flex items-center">
                     <span className="text-[15px] text-[var(--text-primary)]">{c.l}</span>
-                    <InfoIcon description={columnDescriptions[c.k as ColKey]} position="left" />
+                    <InfoIcon description={columnDescriptions[c.k as ColKey]} position="left" showBubbles={showInfoBubbles} />
                   </div>
                 </label>
               ))}
