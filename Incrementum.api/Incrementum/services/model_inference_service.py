@@ -227,4 +227,3 @@ class ModelInferenceService:
             raise ValueError(msg)
 
         return features
-
