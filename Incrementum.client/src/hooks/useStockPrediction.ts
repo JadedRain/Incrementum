@@ -7,6 +7,10 @@ export interface StockPrediction {
   predicted_price: number;
   predicted_log_return: number;
   predicted_log_return_norm: number;
+  forecast_horizon_hours?: number;
+  predicted_close_prices?: number[];
+  predicted_log_returns?: number[];
+  predicted_log_return_norms?: number[];
   lookback_end_time: string;
   model_version: string;
   lookback_periods: number;
