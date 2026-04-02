@@ -1,5 +1,5 @@
 from Incrementum.models.stock import StockModel
-from django.db.models import Q
+from django.db.models import Q, Case, When, Value, IntegerField
 from django.http import JsonResponse
 from django.core import signing
 from django.core.exceptions import PermissionDenied
@@ -323,8 +323,15 @@ def industry_autocomplete(request):
 
     stocks = StockModel.objects.filter(
         Q(sic_description__icontains=query) &
-        Q(sic_description__isnull=False)
-    ).values('sic_description').distinct()[:20]
+        Q(sic_description__isnull=False) &
+        ~Q(sic_description='')
+    ).annotate(
+        match_rank=Case(
+            When(sic_description__istartswith=query, then=Value(0)),
+            default=Value(1),
+            output_field=IntegerField(),
+        )
+    ).order_by('match_rank', 'sic_description').values('sic_description').distinct()[:20]
 
     industries = [stock['sic_description'] for stock in stocks if stock['sic_description']]
 

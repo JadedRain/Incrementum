@@ -23,6 +23,7 @@ const IndustryFilter: React.FC = () => {
       .filter((v) => v.length > 0)
       .sort((a, b) => a.localeCompare(b));
   }, [filterDict]);
+  const previousIndustryFilterCountRef = useRef(industryFiltersFromContext.length);
 
   // Keep chip UI in sync with context (e.g., when applying shared links)
   useEffect(() => {
@@ -37,16 +38,19 @@ const IndustryFilter: React.FC = () => {
 
   // Clear input when filters are reset
   useEffect(() => {
-    const industryKeys = Object.keys(filterDict).filter(key => key.startsWith('industry__'));
-    if (industryKeys.length === 0 && industryQuery.length > 0) {
+    const currentIndustryFilterCount = industryFiltersFromContext.length;
+    if (previousIndustryFilterCountRef.current > 0 && currentIndustryFilterCount === 0) {
       setIndustryQuery('');
+      setShowSuggestions(false);
     }
-  }, [filterDict, industryQuery.length]);
+    previousIndustryFilterCountRef.current = currentIndustryFilterCount;
+  }, [industryFiltersFromContext]);
 
   useEffect(() => {
     const fetchIndustrySuggestions = async () => {
-      if (industryQuery.trim().length < 2) {
+      if (industryQuery.trim().length < 1) {
         setIndustrySuggestions([]);
+        setShowSuggestions(false);
         return;
       }
       setLoading(true);
@@ -56,7 +60,7 @@ const IndustryFilter: React.FC = () => {
         );
         const data = await response.json();
         setIndustrySuggestions(data.industries || []);
-        setShowSuggestions(true);
+        setShowSuggestions((data.industries || []).length > 0);
       } catch {
         setError('Error fetching industry suggestions');
       } finally {
@@ -104,35 +108,29 @@ const IndustryFilter: React.FC = () => {
           value={industryQuery}
           onChange={e => setIndustryQuery(e.target.value)}
           onKeyDown={e => {
-            if (e.key === 'Enter' && industryQuery.trim().length > 1) {
+            if (e.key === 'Enter' && industryQuery.trim().length > 0) {
               selectIndustry(industryQuery);
+              return;
+            }
+            if (e.key === 'Escape') {
+              setShowSuggestions(false);
             }
           }}
           onFocus={() => industrySuggestions.length > 0 && setShowSuggestions(true)}
           placeholder="Start typing an industry..."
-          className="w-full px-3 py-2 border rounded"
+          className="sidebar-input filter-input-full"
         />
         <p className="text-xs text-gray-500 mt-1">
           Type to search for industries (e.g., "banking", "software")
         </p>
-        
-        {/* Spacer to push content down when suggestions are visible */}
+
         {showSuggestions && industrySuggestions.length > 0 && (
-          <div style={{ height: Math.min(industrySuggestions.length * 48 + 8, 248) + 'px' }} />
-        )}
-        
-        {showSuggestions && industrySuggestions.length > 0 && (
-          <div 
-            className="industry-suggestions-container"
-            style={{
-              marginTop: '-' + (Math.min(industrySuggestions.length * 48 + 8, 248)) + 'px',
-            }}
-          >
+          <div className="industry-suggestions-container">
             {industrySuggestions.map((industry, index) => (
               <div
                 key={index}
                 onClick={() => selectIndustry(industry)}
-                className="px-3 py-2 hover:bg-[var(--bg-sunken)] cursor-pointer"
+                className="industry-suggestion-item"
               >
                 {industry}
               </div>

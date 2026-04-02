@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+.search-bar-container {
+  @apply relative;
+  @apply w-full;
+  @apply max-w-[400px];
+}
+
 .search-bar {
   @apply p-2;
   @apply rounded-[6px];
@@ -16,13 +22,66 @@
   @apply focus:ring-[var(--accent)];
 }
 
+.search-bar-suggestions {
+  @apply absolute;
+  @apply left-0;
+  @apply right-0;
+  @apply mt-1;
+  @apply rounded-md;
+  border: 1px solid var(--bg-sunken);
+  background: var(--bg-surface);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+  max-height: 280px;
+  overflow-y: auto;
+  z-index: 1200;
+}
+
+.search-bar-suggestion-item {
+  @apply w-full;
+  @apply text-left;
+  @apply px-3;
+  @apply py-2;
+  @apply border-0;
+  @apply bg-transparent;
+  @apply cursor-pointer;
+  display: grid;
+  grid-template-columns: minmax(72px, auto) minmax(0, 1fr);
+  gap: 0.5rem;
+  font-family: var(--font-serif);
+}
+
+.search-bar-suggestion-item:hover,
+.search-bar-suggestion-item-active {
+  background: var(--bg-row-alt);
+}
+
+.search-bar-suggestion-symbol {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.search-bar-suggestion-name {
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 @media (max-width: 1024px) {
+  .search-bar-container {
+    @apply max-w-[300px];
+  }
+
   .search-bar {
     @apply max-w-[300px];
   }
 }
 
 @media (max-width: 768px) {
+  .search-bar-container {
+    @apply max-w-full;
+  }
+
   .search-bar {
     @apply max-w-full;
     font-size: 0.9rem;
