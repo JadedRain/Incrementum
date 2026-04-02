@@ -10,3 +10,4 @@ export { default as SignupPage } from "./SignupPage";
 export { default as SettingsPage } from "./SettingsPage";
 export { default as SidebarTestPage } from "./SidebarTestPage";
 export { default as AdminPage } from "./AdminPage";
+export { default as HelpPage } from "./HelpPage";

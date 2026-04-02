@@ -5,7 +5,7 @@ import App from "./App";
 import {
   SearchResults, StocksPage, Stock, ScreenerTestPage,
   IndividualScreenPage, CustomScreenerPage, SignInPage, SignupPage,
-  SettingsPage, SidebarTestPage, AdminPage
+  SettingsPage, SidebarTestPage, AdminPage, HelpPage
 } from "./Pages";
 import AdminRoute from "./Components/AdminRoute";
 import ProtectedRoute from "./Components/ProtectedRoute";
@@ -42,6 +42,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route path="/screener/:id" element={<FilterDataProvider><IndividualScreenPage /></FilterDataProvider>} />
             <Route path="/create-custom-screener" element={<CustomScreenerPage />} />
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+            <Route path="/help" element={<ProtectedRoute><HelpPage /></ProtectedRoute>} />
             <Route path="/sidebar-test" element={<ProtectedRoute><SidebarTestPage /></ProtectedRoute>} />
             <Route path="/admin-page" element={<AdminRoute><AdminPage /></AdminRoute>} />
           </Routes>

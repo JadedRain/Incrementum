@@ -37,6 +37,12 @@ export default function NavigationBar({ showAccountButton = true }: NavigationBa
           >
             Screener
           </Link>
+          <Link
+            to="/help"
+            className={`nav-button ${location.pathname === '/help' ? 'nav-button-active' : ''}`}
+          >
+            Help
+          </Link>
           {showAccountButton && isAuthenticated && (
             <Link
               to="/settings"
