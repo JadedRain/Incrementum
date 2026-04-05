@@ -10,7 +10,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Configuration
-NAMESPACE="Incrementum"
+NAMESPACE="incrementum"
 IMAGE_TAG=${IMAGE_TAG:-latest}
 
 echo -e "${GREEN}Starting Incrementum Kubernetes Deployment...${NC}"
