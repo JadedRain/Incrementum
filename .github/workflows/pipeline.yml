@@ -145,16 +145,16 @@ jobs:
         env:
           IMAGE_TAG: ${{ github.sha }}
           DEBUG: "False"
-          CSRF_TRUSTED_ORIGINS: "https://client.incrementum.duckdns.org"
-          CORS_ALLOWED_ORIGINS: "https://client.incrementum.duckdns.org"
-          ALLOWED_HOSTS: "api.incrementum.duckdns.org,api,localhost,127.0.0.1"
+          CSRF_TRUSTED_ORIGINS: "https://api.incremy.duckdns.org,https://incremy.duckdns.org"
+          CORS_ALLOWED_ORIGINS: "https://incremy.duckdns.org"
+          ALLOWED_HOSTS: "api.incremy.duckdns.org,api,localhost,127.0.0.1"
           DATABASE_NAME: "Incr_DB"
           DATABASE_USER: "Incr"
           DATABASE_HOST: "db"
           DATABASE_PORT: "5432"
           KEYCLOAK_CLIENT_ID: "incrementum-client"
-          VITE_API_BASE_URL: "https://api.incrementum.duckdns.org"
-          VITE_DASH_BASE_URL: "https://api.incrementum.duckdns.org:8050"
+          VITE_API_BASE_URL: "https://api.incremy.duckdns.org"
+          VITE_DASH_BASE_URL: "https://api.incremy.duckdns.org:8050"
         run: |
           for file in kubernetes/*.yaml; do
             envsubst < "$file" > "${file}.tmp"
@@ -163,3 +163,13 @@ jobs:
 
       - name: Apply Kubernetes manifests
         run: kubectl apply -f kubernetes/
+
+      - name: Restart deployments to pick up config changes
+        run: |
+          kubectl rollout restart deployment/incrementum-api -n incrementum
+          kubectl rollout restart deployment/incrementum-client -n incrementum
+
+      - name: Wait for rollouts
+        run: |
+          kubectl rollout status deployment/incrementum-api -n incrementum --timeout=300s
+          kubectl rollout status deployment/incrementum-client -n incrementum --timeout=300s
