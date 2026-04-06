@@ -164,6 +164,34 @@ jobs:
       - name: Apply Kubernetes manifests
         run: kubectl apply -f kubernetes/
 
+      - name: Preflight API secret keys
+        run: |
+          set -e
+
+          SECRET_NAME="incrementum-secrets"
+          REQUIRED_KEYS=(
+            "django-secret-key"
+            "database-password"
+            "finnhub-token"
+            "keycloak-realm-url"
+            "keycloak-client-secret"
+          )
+
+          kubectl get secret "$SECRET_NAME" -n incrementum >/dev/null
+
+          for key in "${REQUIRED_KEYS[@]}"; do
+            value="$(kubectl get secret "$SECRET_NAME" -n incrementum -o go-template="{{index .data \"$key\"}}" 2>/dev/null || true)"
+            if [[ -z "$value" ]]; then
+              echo "Missing required key '$key' in secret '$SECRET_NAME' (namespace incrementum)."
+              echo "Current keys:"
+              kubectl get secret "$SECRET_NAME" -n incrementum -o jsonpath='{.data}'
+              echo
+              exit 1
+            fi
+          done
+
+          echo "Secret preflight passed for $SECRET_NAME"
+
       - name: Restart deployments to pick up config changes
         run: |
           kubectl rollout restart deployment/incrementum-api -n incrementum

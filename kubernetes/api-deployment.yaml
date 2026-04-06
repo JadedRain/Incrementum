@@ -6,7 +6,7 @@ metadata:
   labels:
     app: incrementum-api
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: incrementum-api
