@@ -12,5 +12,6 @@ class StockSerializer(serializers.ModelSerializer):
 class UserStockPotentialSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserStockPotential
-        fields = ['id', 'account', 'stock_symbol', 'purchase_date', 'quantity', 'purchase_price']
+        fields = ['id', 'account', 'stock_symbol', 'purchase_date', 'quantity', 
+                  'purchase_price']
         read_only_fields = ['id']
