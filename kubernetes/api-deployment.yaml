@@ -73,11 +73,6 @@ spec:
             configMapKeyRef:
               name: incrementum-config
               key: DATABASE_PORT
-        - name: FINNHUB_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: incrementum-secrets
-              key: finnhub-token
         - name: KEYCLOAK_REALM_URL
           valueFrom:
             secretKeyRef:
@@ -93,6 +88,7 @@ spec:
             secretKeyRef:
               name: incrementum-secrets
               key: keycloak-client-secret
+              optional: true
         resources:
           requests:
             memory: "256Mi"

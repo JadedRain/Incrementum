@@ -172,9 +172,7 @@ jobs:
           REQUIRED_KEYS=(
             "django-secret-key"
             "database-password"
-            "finnhub-token"
             "keycloak-realm-url"
-            "keycloak-client-secret"
           )
 
           kubectl get secret "$SECRET_NAME" -n incrementum >/dev/null
