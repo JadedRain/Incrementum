@@ -13,7 +13,7 @@ ARG VITE_DASH_BASE_URL=https://api.incremy.duckdns.org:8050
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_DASH_BASE_URL=$VITE_DASH_BASE_URL
 
-RUN pnpm run build
+RUN pnpm exec vite build
 
 FROM nginx:1.27-alpine
 
