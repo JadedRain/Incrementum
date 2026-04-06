@@ -173,33 +173,55 @@ jobs:
         run: |
           set -e
 
+          monitor_rollout() {
+            local deployment="$1"
+            while true; do
+              printf "\n[progress] deployment/%s\n" "$deployment"
+              kubectl get deployment "$deployment" -n incrementum -o wide || true
+              kubectl get pods -n incrementum -l "app=${deployment}" -o wide || true
+              sleep 15
+            done
+          }
+
           check_rollout() {
             local deployment="$1"
+            local monitor_pid=""
 
             echo "Waiting for rollout: ${deployment}"
-            if ! kubectl rollout status "deployment/${deployment}" -n incrementum --timeout=600s; then
+
+            monitor_rollout "$deployment" &
+            monitor_pid=$!
+
+            if ! kubectl rollout status "deployment/${deployment}" -n incrementum --timeout=360s; then
+              kill "$monitor_pid" 2>/dev/null || true
+              wait "$monitor_pid" 2>/dev/null || true
+
               echo "Rollout failed for ${deployment}. Collecting diagnostics..."
 
-              echo "\n--- Pods ---"
+              printf "\n--- Pods ---\n"
               kubectl get pods -n incrementum -o wide
 
-              echo "\n--- Deployment Describe: ${deployment} ---"
+              printf "\n--- Deployment Describe: %s ---\n" "$deployment"
               kubectl describe "deployment/${deployment}" -n incrementum || true
 
-              echo "\n--- Recent Namespace Events ---"
+              printf "\n--- Recent Namespace Events ---\n"
               kubectl get events -n incrementum --sort-by=.lastTimestamp | tail -n 50 || true
 
-              echo "\n--- Pod Logs (all pods matching app=${deployment}) ---"
+              printf "\n--- Pod Logs (all pods matching app=%s) ---\n" "$deployment"
               PODS=$(kubectl get pods -n incrementum -l "app=${deployment}" -o jsonpath='{.items[*].metadata.name}')
               for pod in $PODS; do
-                echo "\n>>> Logs for ${pod}"
+                printf "\n>>> Logs for %s\n" "$pod"
                 kubectl logs -n incrementum "$pod" --all-containers --tail=200 || true
-                echo "\n>>> Previous logs for ${pod}"
+                printf "\n>>> Previous logs for %s\n" "$pod"
                 kubectl logs -n incrementum "$pod" --all-containers --previous --tail=200 || true
               done
 
               exit 1
             fi
+
+            kill "$monitor_pid" 2>/dev/null || true
+            wait "$monitor_pid" 2>/dev/null || true
+            echo "Rollout succeeded for ${deployment}"
           }
 
           check_rollout incrementum-api
