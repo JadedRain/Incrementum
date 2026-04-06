@@ -2,6 +2,7 @@ import { useMemo, type ReactNode, createElement } from "react";
 import ThemeToggle from "../Components/ThemeToggle";
 import InfoBubblesToggle from "../Components/InfoBubblesToggle";
 import ScreenerVisibilityToggle from "../Components/ScreenerVisibilityToggle";
+import DefaultScreenerSelector from "../Components/DefaultScreenerSelector";
 
 type Account = { 
   name: string; 
@@ -43,7 +44,10 @@ export default function useSettingsContent(active: "account" | "notification" | 
         { title: undefined, rows: [ 
           { label: "Theme", value: createElement(ThemeToggle) },
           { label: "Info Bubbles", value: createElement(InfoBubblesToggle) },
-          { label: "Default Screener", value: createElement(ScreenerVisibilityToggle) },
+          { label: "Default Private", value: createElement(ScreenerVisibilityToggle) },
+        ] },
+        { title: "Screener Settings", rows: [
+          { label: "", value: createElement(DefaultScreenerSelector) },
         ] },
       ],
     };

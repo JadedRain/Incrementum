@@ -22,7 +22,7 @@ function IndividualScreenPageContent() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { apiKey } = useAuth();
-  const { defaultPrivate } = usePreferences();
+  const { defaultPrivate, defaultScreener } = usePreferences();
   const [toast, setToast] = useState<string | null>(null);
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -30,6 +30,17 @@ function IndividualScreenPageContent() {
   const [isPrivate, setIsPrivate] = useState<boolean>(true);
   const { id: paramId } = useParams<{ id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Redirect to default screener if no ID is provided and a default is set
+  useEffect(() => {
+    // Only redirect if there's no paramId AND we have a default screener
+    if (!paramId && defaultScreener) {
+      const screenerIdToUse = String(defaultScreener.id); // Normalize to string
+      console.log('Redirecting to default screener:', defaultScreener, 'ID:', screenerIdToUse);
+      navigate(`/screener/${screenerIdToUse}`, { replace: true });
+    }
+  }, [paramId, defaultScreener, navigate]);
+  
   // Default to 'custom_temp' (blank screener) if no id is provided
   const id = paramId || 'custom_temp';
   const { stocks, filterList, sortBy, sortAsc, addFilter, batchUpdateFilters, clearFilters, undoFilters, redoFilters } = useDatabaseScreenerContext();
