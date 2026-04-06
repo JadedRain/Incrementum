@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
 import { apiString } from '../../Context/FetchingHelper';
+import { usePreferences } from '../../Context/usePreferences';
 
 interface SaveCustomScreenerProps {
   filters: { filter_name: string; value: string }[];
@@ -11,6 +12,7 @@ const SaveCustomScreener: React.FC<SaveCustomScreenerProps> = ({
   filters,
   apiKey
 }) => {
+  const { defaultPrivate } = usePreferences();
   const [screenerNameInput, setScreenerNameInput] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -42,6 +44,7 @@ const SaveCustomScreener: React.FC<SaveCustomScreenerProps> = ({
         body: JSON.stringify({
           screener_name: screenerNameInput.trim(),
           categorical_filters: filters,
+          is_private: defaultPrivate,
         }),
       });
 

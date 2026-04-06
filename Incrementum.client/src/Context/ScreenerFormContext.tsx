@@ -15,7 +15,7 @@ interface ScreenerFormActions {
   setSuccess: (success: string) => void;
   clearMessages: () => void;
   resetForm: () => void;
-  saveCustomScreener: (apiKey: string) => Promise<void>;
+  saveCustomScreener: (apiKey: string, isPrivate?: boolean) => Promise<void>;
 }
 
 interface ScreenerFormContextValue extends ScreenerFormState, ScreenerFormActions {}
@@ -44,7 +44,7 @@ export const ScreenerFormProvider: React.FC<ScreenerFormProviderProps> = ({ chil
     setSuccess('');
   };
 
-  const saveCustomScreener = async (apiKey: string) => {
+  const saveCustomScreener = async (apiKey: string, isPrivate: boolean = true) => {
     if (!screenerName.trim()) {
       setError('Please enter a screener name');
       return;
@@ -68,6 +68,7 @@ export const ScreenerFormProvider: React.FC<ScreenerFormProviderProps> = ({ chil
         },
         body: JSON.stringify({
           name: screenerName.trim(),
+          is_private: isPrivate,
           numeric_filters: [],
           categorical_filters: []
         })
