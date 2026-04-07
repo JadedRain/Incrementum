@@ -1,4 +1,5 @@
 import json
+import logging
 from datetime import datetime
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -8,6 +9,8 @@ from Incrementum.models.account import Account
 from Incrementum.models.stock import StockModel
 from Incrementum.models.stock_history import StockHistory
 from Incrementum.models.custom_screener import CustomScreener
+
+logger = logging.getLogger(__name__)
 
 
 def get_user_from_request(request):
@@ -37,52 +40,38 @@ def get_stock_price_at_date(stock_symbol_obj, purchase_date):
         
         return price
     except Exception as e:
-        print(f"Error fetching stock price: {e}")
+        logger.error(f"Error fetching stock price for {stock_symbol_obj.symbol}: {e}")
         return None
 
 
-def calculate_stock_price_difference(stock_symbol_obj, purchase_date, quantity):
+def calculate_stock_price_difference(stock_symbol_obj, purchase_amt, quantity):
     """Calculate the price difference between purchase date and latest date"""
     try:
-        # Convert purchase_date to datetime if needed
-        if isinstance(purchase_date, str):
-            purchase_date_obj = datetime.strptime(purchase_date, '%Y-%m-%d').date()
-        else:
-            purchase_date_obj = purchase_date
-
-        start_of_day = datetime.combine(purchase_date_obj, datetime.min.time())
-        end_of_day = datetime.combine(purchase_date_obj, datetime.max.time())
-
-        # Get price at purchase date
-        old_price = StockHistory.objects.filter(
-            stock_symbol=stock_symbol_obj,
-            day_and_time__gte=start_of_day,
-            day_and_time__lte=end_of_day
-        ).values_list('close_price', flat=True).first()
-
-        # If no exact match, get closest date before
-        if old_price is None:
-            old_price = StockHistory.objects.filter(
-                stock_symbol=stock_symbol_obj,
-                day_and_time__lt=start_of_day
-            ).order_by('-day_and_time').values_list('close_price', flat=True).first()
-
         # Get latest price
-        new_price = StockHistory.objects.filter(
-            stock_symbol=stock_symbol_obj
-        ).order_by('-day_and_time').values_list('close_price', flat=True).first()
+        new_price = StockModel.objects.filter(
+            symbol=stock_symbol_obj.symbol
+        ).values_list('price', flat=True).first()
+        
+        if new_price is None:
+            new_price = get_stock_price_at_date(stock_symbol_obj, datetime.now().date())
 
-        if old_price is None or new_price is None:
+
+        if purchase_amt is None:
+            logger.warning(f"purchase_amt is None for {stock_symbol_obj.symbol}")
+            return None
+        
+        if new_price is None:
+            logger.warning(f"current price is None for {stock_symbol_obj.symbol} (not in StockModel or StockHistory)")
             return None
 
         # Price is in cents, convert to dollars
-        old_price_dollars = old_price / 100
-        new_price_dollars = new_price / 100
+        new_price_dollars = float(new_price) / 100
+        purchase_price_float = float(purchase_amt)
         
-        diff = (new_price_dollars - old_price_dollars) * float(quantity)
+        diff = (new_price_dollars - purchase_price_float) * float(quantity)
         return diff
     except Exception as e:
-        print(f"Error calculating price difference: {e}")
+        logger.error(f"Error calculating price difference for {stock_symbol_obj.symbol}: {e}")
         return None
 
 
@@ -95,7 +84,7 @@ def format_potential(potential):
     )
     diff = calculate_stock_price_difference(
         potential.stock_symbol,
-        potential.purchase_date,
+        potential.purchase_price,
         potential.quantity
     )
     return {
