@@ -44,6 +44,7 @@ def get_stock_price_at_date(stock_symbol_obj, purchase_date):
         return None
 
 
+
 def calculate_stock_price_difference(stock_symbol_obj, purchase_amt, quantity):
     """Calculate the price difference between purchase date and latest date"""
     try:
@@ -60,6 +61,7 @@ def calculate_stock_price_difference(stock_symbol_obj, purchase_amt, quantity):
         if purchase_amt is None:
             logger.warning(f"purchase_amt is None for {stock_symbol_obj.symbol}")
             return None
+
 
         if new_price is None:
             logger.warning(

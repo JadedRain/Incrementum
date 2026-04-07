@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../Context/AuthContext';
+import { usePreferences } from '../Context/usePreferences';
 import Sidebar from '../Components/Sidebar'
 import SaveScreenerPopup from '../Components/SaveScreenerPopup';
 import { usePredefinedScreenerFilters } from '../hooks/usePredefinedScreenerFilters';
@@ -21,6 +22,7 @@ function IndividualScreenPageContent() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { apiKey } = useAuth();
+  const { defaultPrivate, defaultScreener } = usePreferences();
   const [toast, setToast] = useState<string | null>(null);
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -28,6 +30,17 @@ function IndividualScreenPageContent() {
   const [isPrivate, setIsPrivate] = useState<boolean>(true);
   const { id: paramId } = useParams<{ id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Redirect to default screener if no ID is provided and a default is set
+  useEffect(() => {
+    // Only redirect if there's no paramId AND we have a default screener
+    if (!paramId && defaultScreener) {
+      const screenerIdToUse = String(defaultScreener.id); // Normalize to string
+      console.log('Redirecting to default screener:', defaultScreener, 'ID:', screenerIdToUse);
+      navigate(`/screener/${screenerIdToUse}`, { replace: true });
+    }
+  }, [paramId, defaultScreener, navigate]);
+  
   // Default to 'custom_temp' (blank screener) if no id is provided
   const id = paramId || 'custom_temp';
   const { stocks, filterList, sortBy, sortAsc, addFilter, batchUpdateFilters, clearFilters, undoFilters, redoFilters } = useDatabaseScreenerContext();
@@ -187,16 +200,6 @@ function IndividualScreenPageContent() {
       return;
     }
 
-    // Check if at least one categorical filter is present
-    const hasCategoricalFilter = filterList.some(f => 
-      f.filter_type === 'categoric' || f.filter_type === 'categorical'
-    );
-    if (!hasCategoricalFilter) {
-      setSaveError('You need at least one categorical filter (e.g., Industry, Sector, Exchange).');
-      setToast('Add a categorical filter');
-      return;
-    }
-
     // If we have a numeric id, update existing screener
     if (id && !isNaN(Number(id))) {
       const res = await updateCustomScreener(
@@ -239,16 +242,7 @@ function IndividualScreenPageContent() {
       return;
     }
 
-    // Check if at least one categorical filter is present
-    const hasCategoricalFilter = filterList.some(f => 
-      f.filter_type === 'categoric' || f.filter_type === 'categorical'
-    );
-    if (!hasCategoricalFilter) {
-      setSaveError('You need at least one categorical filter (e.g., Industry, Sector, Exchange).');
-      return;
-    }
-
-    const res = await createCustomScreener(name, filterList, apiKey);
+    const res = await createCustomScreener(name, filterList, apiKey, defaultPrivate);
     if (res.ok) {
       setShowSavePopup(false);
       setToast('Screener saved!');

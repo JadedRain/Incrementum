@@ -47,17 +47,14 @@ def create_custom_screener(request):
     print(f"DEBUG: Extracted name: {name}")
     numeric_filters = data.get('numeric_filters', [])
     categorical_filters = data.get('categorical_filters', [])
-    if len(categorical_filters) == 0:
-        logging.error("insufficient filters applied")
-        return JsonResponse(
-            {"error": "you need at least one categorical filter"},
-            status=400
-        )
+    is_private = data.get('is_private', True)
+
     screener = screener_service.create_custom_screener(
         api_key,
         name=name,
         numeric_filters=numeric_filters,
-        categorical_filters=categorical_filters
+        categorical_filters=categorical_filters,
+        is_private=is_private
     )
 
     if screener is None:

@@ -84,7 +84,8 @@ export const fetchCustomScreener = async (id: string, user: string | null) => {
 export const createCustomScreener = async (
   name: string,
   filters: DatabaseScreenerFilter[],
-  apiKey: string | null
+  apiKey: string | null,
+  isPrivate: boolean = true
 ) => {
   const numericFilters = filters.filter(f => f.filter_type === 'numeric').map(f => ({
     operand: f.operand,
@@ -108,6 +109,7 @@ export const createCustomScreener = async (
       screener_name: name,
       numeric_filters: numericFilters,
       categorical_filters: categoricalFilters,
+      is_private: isPrivate,
     }),
   }));
 
