@@ -15,12 +15,42 @@ class Screener:
               sort_by: str = None, sort_order: str = 'asc',
               page: int = 1, page_size: int | None = None) -> tuple[List[StockModel], int]:
 
-        # Accept DB-style sort key while ordering by ORM field name.
-        if sort_by == 'percent_change':
-            sort_by = 'day_percent_change'
+        # Normalize UI sort keys to ORM/annotation field names.
+        sort_field_mapping = {
+            'percent_change': 'day_percent_change',
+            'dayPercentChange': 'day_percent_change',
+            'volume': 'latest_volume',
+            'pps': 'effective_price',
+        }
+        sort_by = sort_field_mapping.get(sort_by, sort_by)
+
+        needs_latest_pps = (
+            any(f.operand in {'pps', 'effective_price'} for f in filters)
+            or sort_by in {'latest_close', 'effective_price'}
+        )
+        needs_latest_volume = (
+            any(f.operand in {'volume', 'latest_volume'} for f in filters)
+            or sort_by == 'latest_volume'
+        )
+
+        base_qs = StockModel.objects
+        if needs_latest_pps or needs_latest_volume:
+            latest_history_qs = StockHistory.objects.filter(
+                stock_symbol__symbol=OuterRef('symbol')
+            ).order_by('-day_and_time')
+
+            if needs_latest_pps:
+                latest_close_subq = Subquery(latest_history_qs.values('close_price')[:1])
+                base_qs = base_qs.annotate(
+                    latest_close=latest_close_subq,
+                    effective_price=Coalesce('price', latest_close_subq),
+                )
+
+            if needs_latest_volume:
+                latest_volume_subq = Subquery(latest_history_qs.values('volume')[:1])
+                base_qs = base_qs.annotate(latest_volume=latest_volume_subq)
 
         if not filters:
-            base_qs = StockModel.objects
             if sort_by:
                 # Exclude NULL values when sorting by a nullable field
                 base_qs = base_qs.exclude(**{f'{sort_by}__isnull': True})
@@ -43,31 +73,6 @@ class Screener:
             if operand not in grouped_filters:
                 grouped_filters[operand] = []
             grouped_filters[operand].append(filter_data)
-
-        needs_latest_pps = (
-            any(f.operand == 'pps' for f in filters)
-            or sort_by == 'latest_close'
-        )
-        needs_latest_volume = (
-            any(f.operand == 'volume' for f in filters) or sort_by == 'latest_volume'
-        )
-
-        base_qs = StockModel.objects
-        if needs_latest_pps or needs_latest_volume:
-            latest_history_qs = StockHistory.objects.filter(
-                stock_symbol__symbol=OuterRef('symbol')
-            ).order_by('-day_and_time')
-
-            if needs_latest_pps:
-                latest_close_subq = Subquery(latest_history_qs.values('close_price')[:1])
-                base_qs = base_qs.annotate(
-                    latest_close=latest_close_subq,
-                    effective_price=Coalesce('price', latest_close_subq),
-                )
-
-            if needs_latest_volume:
-                latest_volume_subq = Subquery(latest_history_qs.values('volume')[:1])
-                base_qs = base_qs.annotate(latest_volume=latest_volume_subq)
 
         combined_q = Q()
         for operand, filter_list in grouped_filters.items():
