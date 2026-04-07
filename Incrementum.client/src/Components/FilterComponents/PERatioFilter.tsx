@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
 import { useDatabaseScreenerContext } from '../../Context/DatabaseScreenerContext';
 
 const PERatioFilter: React.FC = () => {
   const { addFilter, removeFilter, filterDict } = useDatabaseScreenerContext();
 
-  const removeAllWithPrefix = (prefix: string) => {
+  const removeAllWithPrefix = useCallback((prefix: string) => {
     Object.keys(filterDict).forEach((key) => {
       if (key.startsWith(prefix)) removeFilter(key);
     });
-  };
+  }, [filterDict, removeFilter]);
 
   const [minPE, setMinPE] = useState<number | null>(null);
   const [maxPE, setMaxPE] = useState<number | null>(null);
@@ -37,7 +37,7 @@ const PERatioFilter: React.FC = () => {
     } else {
       removeAllWithPrefix('price_per_earnings__greater_than_or_equal');
     }
-  }, [minPE]);
+  }, [minPE, addFilter, removeAllWithPrefix]);
 
   useEffect(() => {
     if (maxPE !== null) {
@@ -50,7 +50,7 @@ const PERatioFilter: React.FC = () => {
     } else {
       removeAllWithPrefix('price_per_earnings__less_than_or_equal');
     }
-  }, [maxPE]);
+  }, [maxPE, addFilter, removeAllWithPrefix]);
 
   return (
     <ExpandableSidebarItem title="P/E Ratio">

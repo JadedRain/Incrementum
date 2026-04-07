@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
 import { useDatabaseScreenerContext } from '../../Context/DatabaseScreenerContext';
 
 const RevenuePerShareFilter: React.FC = () => {
   const { addFilter, removeFilter, filterDict } = useDatabaseScreenerContext();
 
-  const removeAllWithPrefix = (prefix: string) => {
+  const removeAllWithPrefix = useCallback((prefix: string) => {
     Object.keys(filterDict).forEach((key) => {
       if (key.startsWith(prefix)) removeFilter(key);
     });
-  };
+  }, [filterDict, removeFilter]);
 
   const [minRPS, setMinRPS] = useState<number | null>(null);
   const [maxRPS, setMaxRPS] = useState<number | null>(null);
@@ -37,7 +37,7 @@ const RevenuePerShareFilter: React.FC = () => {
     } else {
       removeAllWithPrefix('revenue_per_share__greater_than_or_equal');
     }
-  }, [minRPS]);
+  }, [minRPS, addFilter, removeAllWithPrefix]);
 
   useEffect(() => {
     if (maxRPS !== null) {
@@ -50,7 +50,7 @@ const RevenuePerShareFilter: React.FC = () => {
     } else {
       removeAllWithPrefix('revenue_per_share__less_than_or_equal');
     }
-  }, [maxRPS]);
+  }, [maxRPS, addFilter, removeAllWithPrefix]);
 
   return (
     <ExpandableSidebarItem title="Revenue/Share">

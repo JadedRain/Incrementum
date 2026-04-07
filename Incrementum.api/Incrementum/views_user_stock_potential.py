@@ -37,7 +37,7 @@ def get_stock_price_at_date(stock_symbol_obj, purchase_date):
             stock_symbol=stock_symbol_obj,
             day_and_time__lte=end_of_day
         ).order_by('-day_and_time').values_list('close_price', flat=True)[:1].first()
-        
+
         return price
     except Exception as e:
         logger.error(f"Error fetching stock price for {stock_symbol_obj.symbol}: {e}")
@@ -51,23 +51,27 @@ def calculate_stock_price_difference(stock_symbol_obj, purchase_amt, quantity):
         new_price = StockModel.objects.filter(
             symbol=stock_symbol_obj.symbol
         ).values_list('price', flat=True).first()
-        
-        if new_price is None:
-            new_price = get_stock_price_at_date(stock_symbol_obj, datetime.now().date())
 
+        if new_price is None:
+            new_price = get_stock_price_at_date(
+                stock_symbol_obj, datetime.now().date()
+            )
 
         if purchase_amt is None:
             logger.warning(f"purchase_amt is None for {stock_symbol_obj.symbol}")
             return None
-        
+
         if new_price is None:
-            logger.warning(f"current price is None for {stock_symbol_obj.symbol} (not in StockModel or StockHistory)")
+            logger.warning(
+                f"current price is None for {stock_symbol_obj.symbol} "
+                f"(not in StockModel or StockHistory)"
+            )
             return None
 
         # Price is in cents, convert to dollars
         new_price_dollars = float(new_price) / 100
         purchase_price_float = float(purchase_amt)
-        
+
         diff = (new_price_dollars - purchase_price_float) * float(quantity)
         return diff
     except Exception as e:

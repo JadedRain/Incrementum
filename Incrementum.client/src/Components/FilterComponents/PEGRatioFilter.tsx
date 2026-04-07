@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
 import { useDatabaseScreenerContext } from '../../Context/DatabaseScreenerContext';
 
 const PEGRatioFilter: React.FC = () => {
   const { addFilter, removeFilter, filterDict } = useDatabaseScreenerContext();
 
-  const removeAllWithPrefix = (prefix: string) => {
+  const removeAllWithPrefix = useCallback((prefix: string) => {
     Object.keys(filterDict).forEach((key) => {
       if (key.startsWith(prefix)) removeFilter(key);
     });
-  };
+  }, [filterDict, removeFilter]);
 
   const [minPEG, setMinPEG] = useState<number | null>(null);
   const [maxPEG, setMaxPEG] = useState<number | null>(null);
@@ -37,7 +37,7 @@ const PEGRatioFilter: React.FC = () => {
     } else {
       removeAllWithPrefix('pe_per_growth__greater_than_or_equal');
     }
-  }, [minPEG]);
+  }, [minPEG, addFilter, removeAllWithPrefix]);
 
   useEffect(() => {
     if (maxPEG !== null) {
@@ -50,7 +50,7 @@ const PEGRatioFilter: React.FC = () => {
     } else {
       removeAllWithPrefix('pe_per_growth__less_than_or_equal');
     }
-  }, [maxPEG]);
+  }, [maxPEG, addFilter, removeAllWithPrefix]);
 
   return (
     <ExpandableSidebarItem title="PEG Ratio">
