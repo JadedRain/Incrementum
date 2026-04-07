@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 db_column='screener',
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                to='Incrementum.customscreener',
+                to='Incrementum.customscreener'
             ),
         ),
     ]

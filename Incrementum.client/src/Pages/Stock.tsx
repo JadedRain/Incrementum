@@ -5,20 +5,30 @@ import NavigationBar from "../Components/NavigationBar";
 import Toast from "../Components/Toast";
 import { useFetchStockData } from "../hooks/useFetchStockData";
 import { useStockPrediction } from "../hooks/useStockPrediction";
+import { useFetchUserStockPotentials } from "../hooks/useFetchUserStockPotentials";
+import { useAuth } from '../Context/AuthContext';
 import { FilterDataProvider } from '../Context/FilterDataContext';
 import InteractiveGraph from "../Components/InteractiveGraph"
 import StockInfoSidebar from '../Components/StockInfoSidebar';
+import UserStockPotentialsTable from '../Components/UserStockPotentialsTable';
 import Loading from "../Components/Loading";
 import { formatCurrency, formatPercentage } from '../utils/formatUtils';
 
 export default function Stock({ token: propToken }: { token?: string; }) {
   const params = useParams<{ token: string }>();
   const token = propToken ?? params.token;
+  const { apiKey } = useAuth();
   const { results, loading } = useFetchStockData(token);
   const { prediction, loading: predictionLoading, getPrediction } = useStockPrediction();
+  const [refreshKey, setRefreshKey] = useState(0);
+  const { potentials, loading: potentialsLoading, error: potentialsError } = useFetchUserStockPotentials(token, apiKey, refreshKey);
   const [toast] = useState<string | null>(null);
   const [period, setPeriod] = useState<string>("1y");
   const [showPredictionModal, setShowPredictionModal] = useState(false);
+
+  const handleRefreshPotentials = () => {
+    setRefreshKey(prev => prev + 1);
+  };
 
   const handlePredictPrice = () => {
     if (token) {
@@ -235,6 +245,16 @@ export default function Stock({ token: propToken }: { token?: string; }) {
               />
             </div>
           </div>
+
+          {/* User Stock Potentials Section */}
+          <UserStockPotentialsTable
+            potentials={potentials}
+            loading={potentialsLoading}
+            error={potentialsError}
+            stockSymbol={token || ''}
+            apiKey={apiKey}
+            onRefresh={handleRefreshPotentials}
+          />
         </div>
       </div>
     </FilterDataProvider>

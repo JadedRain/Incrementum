@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
 import { useDatabaseScreenerContext } from '../../Context/DatabaseScreenerContext';
 
 const EPSFilter: React.FC = () => {
   const { addFilter, removeFilter, filterDict } = useDatabaseScreenerContext();
 
-  const removeAllWithPrefix = (prefix: string) => {
+  const removeAllWithPrefix = useCallback((prefix: string) => {
     Object.keys(filterDict).forEach(key => {
       if (key.startsWith(prefix)) removeFilter(key);
     });
-  };
+  }, [filterDict, removeFilter]);
   const [min_eps, setMinEPS] = useState<number | null>(null);
   const [max_eps, setMaxEPS] = useState<number | null>(null);
 
@@ -35,7 +35,7 @@ const EPSFilter: React.FC = () => {
     } else {
       removeAllWithPrefix('eps__greater_than_or_equal');
     }
-  }, [min_eps]);
+  }, [min_eps, addFilter, removeAllWithPrefix]);
 
   useEffect(() => {
     if (max_eps !== null) {
@@ -48,7 +48,7 @@ const EPSFilter: React.FC = () => {
     } else {
       removeAllWithPrefix('eps__less_than_or_equal');
     }
-  }, [max_eps]);
+  }, [max_eps, addFilter, removeAllWithPrefix]);
 
   return (
     <ExpandableSidebarItem title="EPS">

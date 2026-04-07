@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
 import { useDatabaseScreenerContext } from '../../Context/DatabaseScreenerContext';
 
@@ -14,11 +14,11 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
   const { addFilter, removeFilter, filterDict } = useDatabaseScreenerContext();
 
   // Utility to remove all keys with a given prefix
-  const removeAllWithPrefix = (prefix: string) => {
+  const removeAllWithPrefix = useCallback((prefix: string) => {
     Object.keys(filterDict).forEach(key => {
       if (key.startsWith(prefix)) removeFilter(key);
     });
-  };
+  }, [filterDict, removeFilter]);
   const [min_market_cap, setMinMarketCap] = useState<number | null>(null);
   const [min_market_cap_temp, setMinMarketCapTemp] = useState<number | null>(null);
   const [max_market_cap, setMaxMarketCap] = useState<number | null>(null);
@@ -55,7 +55,7 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
     } else {
       removeAllWithPrefix('market_cap__greater_than_or_equal');
     }
-  }, [min_market_cap]);
+  }, [min_market_cap, addFilter, removeAllWithPrefix]);
 
   useEffect(() => {
     if (max_market_cap !== null) {
@@ -68,7 +68,7 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
     } else {
       removeAllWithPrefix('market_cap__less_than_or_equal');
     }
-  }, [max_market_cap]);
+  }, [max_market_cap, addFilter, removeAllWithPrefix]);
 
   useEffect(() => {
     console.log('Current filterDict:', filterDict);

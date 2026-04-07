@@ -13,7 +13,8 @@ class TestCalculateStockPriceDifference(TestCase):
         """Helper method to create stock and history records"""
         stock = StockModel.objects.create(
             symbol=symbol,
-            company_name=f'{symbol} Company'
+            company_name=f'{symbol} Company',
+            price=latest_close * 100  # Store price in cents to match the function's expectation
         )
 
         purchase_date = datetime(2024, 1, 1, 12, 0, 0)
@@ -39,7 +40,7 @@ class TestCalculateStockPriceDifference(TestCase):
             volume=1000000
         )
 
-        return stock, purchase_date
+        return stock, purchase_close
 
     def test_calculate_difference_with_price_increase(self):
         """Test calculation when price increased"""
@@ -74,13 +75,14 @@ class TestCalculateStockPriceDifference(TestCase):
         assert result == -10000
 
     def test_missing_old_price_returns_none(self):
-        """Test when old price record doesn't exist"""
+        """Test when purchase amount is None"""
         stock = StockModel.objects.create(
             symbol='TEST5',
-            company_name='Test5 Company'
+            company_name='Test5 Company',
+            price=11000  # 110 in dollars, stored in cents
         )
 
-        # Create only the latest price record, not the old one
+        # Create latest price record
         StockHistory.objects.create(
             stock_symbol=stock,
             day_and_time=datetime(2024, 1, 15, 12, 0, 0),
@@ -91,9 +93,8 @@ class TestCalculateStockPriceDifference(TestCase):
             volume=1000000
         )
 
-        # Use a date that has no matching record
-        nonexistent_date = datetime(2023, 1, 1, 12, 0, 0)
-        result = calculate_stock_price_difference(stock, nonexistent_date, 10)
+        # Pass None as purchase amount
+        result = calculate_stock_price_difference(stock, None, 10)
         assert result is None
 
     def test_missing_new_price_returns_none(self):
@@ -103,7 +104,7 @@ class TestCalculateStockPriceDifference(TestCase):
             company_name='Test6 Company'
         )
         # Don't create any history records
-        result = calculate_stock_price_difference(stock, datetime(2024, 1, 1, 12, 0, 0), 10)
+        result = calculate_stock_price_difference(stock, 100, 10)
         assert result is None
 
     def test_with_zero_quantity(self):
