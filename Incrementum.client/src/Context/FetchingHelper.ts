@@ -4,7 +4,16 @@ export async function fetchWrapper(func: () => Promise<Response>): Promise<Respo
     try {
         const response = await func();
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            let details = '';
+            try {
+                const text = await response.clone().text();
+                if (text) {
+                    details = ` - ${text}`;
+                }
+            } catch {
+                details = '';
+            }
+            throw new Error(`HTTP error! status: ${response.status}${details}`);
         }   
         return response;
     } catch (error) {

@@ -200,16 +200,6 @@ function IndividualScreenPageContent() {
       return;
     }
 
-    // Check if at least one categorical filter is present
-    const hasCategoricalFilter = filterList.some(f => 
-      f.filter_type === 'categoric' || f.filter_type === 'categorical'
-    );
-    if (!hasCategoricalFilter) {
-      setSaveError('You need at least one categorical filter (e.g., Industry, Sector, Exchange).');
-      setToast('Add a categorical filter');
-      return;
-    }
-
     // If we have a numeric id, update existing screener
     if (id && !isNaN(Number(id))) {
       const res = await updateCustomScreener(
@@ -249,15 +239,6 @@ function IndividualScreenPageContent() {
     
     if (!filterList || filterList.length === 0) {
       setSaveError('No filters to save. Add at least one filter first.');
-      return;
-    }
-
-    // Check if at least one categorical filter is present
-    const hasCategoricalFilter = filterList.some(f => 
-      f.filter_type === 'categoric' || f.filter_type === 'categorical'
-    );
-    if (!hasCategoricalFilter) {
-      setSaveError('You need at least one categorical filter (e.g., Industry, Sector, Exchange).');
       return;
     }
 
