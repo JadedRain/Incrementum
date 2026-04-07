@@ -16,18 +16,18 @@ def get_user_from_request(request):
 def calculate_stock_price_difference(stock_symbol_obj, purchase_date, quantity):
     old_price_record = StockHistory.objects.filter(
         stock_symbol=stock_symbol_obj,
-        day_and_time=purchase_date
-    ).first()
+        day_and_time__date=purchase_date
+    ).order_by('day_and_time').values('close_price').first()
 
     new_price_record = StockHistory.objects.filter(
         stock_symbol=stock_symbol_obj
-    ).order_by('-day_and_time').first()
+    ).order_by('-day_and_time').values('close_price').first()
 
     if not old_price_record or not new_price_record:
         return None
 
-    old_price = old_price_record.close_price
-    new_price = new_price_record.close_price
+    old_price = old_price_record['close_price']
+    new_price = new_price_record['close_price']
 
     diff = (old_price - new_price) * quantity
     return diff
