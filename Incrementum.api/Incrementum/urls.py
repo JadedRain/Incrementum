@@ -110,6 +110,15 @@ urlpatterns = [
          name='custom_screener_list_create'),
 
     # User stock potential endpoints
+    path('api/user-stock-potentials/stock/<str:stock_symbol>/',
+         views_user_stock_potential.get_user_stock_potentials_by_stock,
+         name='user_stock_potentials_by_stock'),
+    path('api/user-stock-potentials/screener/<int:screener_id>/',
+         views_user_stock_potential.get_user_stock_potentials_by_screener,
+         name='user_stock_potentials_by_screener'),
+    path('api/user-stock-potentials/<int:potential_id>/',
+         views_user_stock_potential.user_stock_potential_detail,
+         name='user_stock_potential_detail'),
     path('api/user-stock-potentials/',
          views_user_stock_potential.user_stock_potential_list_create,
          name='user_stock_potential_list_create'),

@@ -17,6 +17,13 @@ class UserStockPotential(models.Model):
     purchase_date = models.DateField()
     quantity = models.DecimalField(max_digits=15, decimal_places=4)
     purchase_price = models.DecimalField(max_digits=15, decimal_places=2)
+    screener = models.ForeignKey(
+        'CustomScreener',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        db_column='screener'
+    )
 
     class Meta:
         db_table = 'user_stock_potential'
