@@ -72,7 +72,7 @@ def calculate_stock_price_difference(stock_symbol_obj, purchase_amt, quantity):
         new_price_dollars = float(new_price) / 100
         purchase_price_float = float(purchase_amt)
 
-        diff = (new_price_dollars - purchase_price_float) * float(quantity)
+        diff = (purchase_price_float - new_price_dollars) * float(quantity)
         return diff
     except Exception as e:
         logger.error(f"Error calculating price difference for {stock_symbol_obj.symbol}: {e}")
