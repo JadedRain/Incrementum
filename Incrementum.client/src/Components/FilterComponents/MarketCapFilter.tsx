@@ -69,7 +69,6 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
       removeAllWithPrefix('market_cap__less_than_or_equal');
     }
   }, [max_market_cap, addFilter, removeAllWithPrefix]);
-  }, [max_market_cap]);
 
   useEffect(() => {
     console.log('Current filterDict:', filterDict);
