@@ -51,7 +51,7 @@ const DebtToEquityFilter: React.FC = () => {
   }, [max_debt_to_equity, addFilter, removeAllWithPrefix]);
 
   return (
-    <ExpandableSidebarItem title="Debt-to-Equity">
+    <ExpandableSidebarItem title="Debt-to-Equity" description="Debt to equity ratio. Liability divided by shareholders equity. Lower indicates stability, higher indicates volatility.">
       <div className="filter-block">
         <div className="filter-block-label">Debt-to-Equity Ratio</div>
         <div className="filter-row">

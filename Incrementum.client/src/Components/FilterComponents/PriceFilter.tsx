@@ -70,7 +70,7 @@ const PriceFilter: React.FC = () => {
   }, [max_price, addFilter, removeAllWithPrefix]);
 
   return (
-    <ExpandableSidebarItem title="Price">
+    <ExpandableSidebarItem title="Price" description="Stock price per share. Used to filter stocks by cost.">
       <div className="filter-block">
         <div className="filter-block-label">Stock Price (USD)</div>
         <div className="filter-row">

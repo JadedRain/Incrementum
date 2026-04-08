@@ -70,7 +70,7 @@ const PercentChangeFilter: React.FC = () => {
   }, [max_percent, addFilter, removeAllWithPrefix]);
 
   return (
-    <ExpandableSidebarItem title="% Change">
+    <ExpandableSidebarItem title="% Change" description="The percentage change in stock price over 1 day. Red for losses, green for gains.">
       <div className="filter-block">
         <div className="filter-block-label">Daily Percent Change (%)</div>
         <div className="filter-row">

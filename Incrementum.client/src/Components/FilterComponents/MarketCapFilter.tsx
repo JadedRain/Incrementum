@@ -75,7 +75,7 @@ const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
   }, [filterDict]);
 
   return (
-    <ExpandableSidebarItem title="Market Cap">
+    <ExpandableSidebarItem title="Market Cap" description="Market capitalization. Total valuation of outstanding shares. Indicates potential gains in large scale trades.">
       <div className="filter-block">
         <div className="filter-block-label">Market Cap</div>
 

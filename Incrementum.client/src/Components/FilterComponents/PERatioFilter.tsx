@@ -53,7 +53,7 @@ const PERatioFilter: React.FC = () => {
   }, [maxPE, addFilter, removeAllWithPrefix]);
 
   return (
-    <ExpandableSidebarItem title="P/E Ratio">
+    <ExpandableSidebarItem title="P/E Ratio" description="Price to earnings ratio. Stock price divided by EPS. Higher ratio indicates higher expected growth.">
       <div className="filter-block">
         <div className="filter-block-label">Price-to-Earnings (P/E)</div>
         <div className="filter-row">

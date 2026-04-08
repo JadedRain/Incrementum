@@ -78,7 +78,7 @@ const Low52Filter: React.FC = () => {
   }, [maxLow52, addFilter, removeAllWithPrefix]);
 
   return (
-    <ExpandableSidebarItem title="52W Low">
+    <ExpandableSidebarItem title="52W Low" description="The lowest stock price over the last 52 weeks. Can be used to indicate growth potential.">
       <div className="filter-block">
         <div className="filter-block-label">52-Week Low (USD)</div>
         <div className="filter-row">

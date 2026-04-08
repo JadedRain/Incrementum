@@ -107,7 +107,7 @@ const VolumeFilter: React.FC = () => {
   }, [max_volume, addFilter, removeAllWithPrefix]);
 
   return (
-    <ExpandableSidebarItem title="Volume">
+    <ExpandableSidebarItem title="Volume" description="Current trading volume. Measure of all trades in a specific period. Indicates if a stock is actively traded.">
       <div className="filter-block">
         <div className="filter-block-label">Trading Volume</div>
 
