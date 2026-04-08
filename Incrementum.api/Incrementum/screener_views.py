@@ -47,14 +47,16 @@ def create_custom_screener(request):
     print(f"DEBUG: Extracted name: {name}")
     numeric_filters = data.get('numeric_filters', [])
     categorical_filters = data.get('categorical_filters', [])
-    is_private = data.get('is_private', True)
+    visibility = data.get('visibility', 'private')
+    if not isinstance(visibility, str):
+        visibility = 'private'
 
     screener = screener_service.create_custom_screener(
         api_key,
         name=name,
         numeric_filters=numeric_filters,
         categorical_filters=categorical_filters,
-        is_private=is_private
+        visibility=visibility,
     )
 
     if screener is None:
@@ -63,6 +65,7 @@ def create_custom_screener(request):
     return JsonResponse({
         "id": screener.id,
         "created_at": screener.created_at.isoformat(),
+        "visibility": screener.visibility,
         "message": "Custom screener created successfully"
     }, status=201)
 
@@ -196,11 +199,15 @@ def update_screener_privacy(request, screener_id):
     except json.JSONDecodeError:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
 
-    is_private = data.get('is_private')
-    if is_private is None or not isinstance(is_private, bool):
-        return JsonResponse({"error": "is_private must be a boolean"}, status=400)
+    visibility = data.get('visibility')
+    if not isinstance(visibility, str):
+        return JsonResponse({"error": "visibility must be a string"}, status=400)
 
-    screener = screener_service.update_screener_privacy(api_key, screener_id, is_private)
+    screener = screener_service.update_screener_privacy(
+        api_key,
+        screener_id,
+        visibility=visibility,
+    )
 
     if screener is None:
         return JsonResponse({"error": "Screener not found or access denied"}, status=404)
@@ -208,6 +215,7 @@ def update_screener_privacy(request, screener_id):
     return JsonResponse({
         "id": screener.id,
         "is_private": screener.is_private,
+        "visibility": screener.visibility,
         "message": "Screener privacy updated successfully"
     }, status=200)
 
