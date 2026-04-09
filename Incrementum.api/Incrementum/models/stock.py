@@ -96,6 +96,19 @@ class StockModel(models.Model):
         max_digits=20, decimal_places=2, null=True, blank=True, db_column='price_per_sales'
     )
 
+    last_candle = models.CharField(
+        max_length=20, null=True, blank=True, db_column='last_candle'
+    )
+    total_revenue = models.BigIntegerField(
+        null=True, blank=True, db_column='total_revenue'
+    )
+    high52_updated_at = models.DateTimeField(
+        null=True, blank=True, db_column='high52_updated_at'
+    )
+    low52_updated_at = models.DateTimeField(
+        null=True, blank=True, db_column='low52_updated_at'
+    )
+
     class Meta:
         db_table = 'stock'
 
@@ -163,6 +176,7 @@ class StockModel(models.Model):
                 if self.price_per_sales is not None
                 else None
             ),
+            'last_candle': self.last_candle,
         }
 
     @classmethod
