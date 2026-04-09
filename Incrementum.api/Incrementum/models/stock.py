@@ -179,7 +179,8 @@ class StockModel(models.Model):
                 else None
             ),
             'quarterly_financials_updated_at': (
-                self.quarterly_financials_updated_at.isoformat() if self.quarterly_financials_updated_at else None
+                self.quarterly_financials_updated_at.isoformat()
+                if self.quarterly_financials_updated_at else None
             ),
             'total_revenue': self.total_revenue,
             'high52_updated_at': (
