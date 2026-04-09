@@ -1,76 +1,131 @@
 import React from 'react';
-import type { StockData } from '../StockData';
+import { formatMarketCap, formatWithCommas, formatDate, formatCurrency, formatLargeNumber } from '../utils/formatUtils';
 
-interface StockInfoSidebarProps {
-  results: StockData;
+interface StockMeta {
+  symbol: string;
+  company_name?: string | null;
+  market_cap?: number | null;
+  primary_exchange?: string | null;
+  type?: string | null;
+  currency_name?: string | null;
+  cik?: string | null;
+  composite_figi?: string | null;
+  share_class_figi?: string | null;
+  outstanding_shares?: number | null;
+  homepage_url?: string | null;
+  total_employees?: number | null;
+  list_date?: string | null;
+  locale?: string | null;
+  sic_code?: string | null;
+  sic_description?: string | null;
+  updated_at?: string | null;
+  eps?: number | null;
+  debt_to_equity?: number | null;
 }
 
-const StockInfoSidebar: React.FC<StockInfoSidebarProps> = ({
-  results,
-}) => {
+interface StockInfoSidebarProps {
+  results: StockMeta;
+}
+
+const StockInfoSidebar: React.FC<StockInfoSidebarProps> = ({ results }) => {
+  const fmt = (v: unknown) => (v === null || v === undefined ? 'N/A' : String(v));
+
   return (
-    <div className="w-full md:w-80 flex-shrink-0">
-      <div className="p-6 shadow-lg h-[800px] flex flex-col" style={{ backgroundColor: 'hsl(40, 63%, 63%)', borderRadius: '2px', boxShadow: '4px 6px 8px rgba(0, 0, 0, 0.3)' }}>
+    <div className="stock-info-sidebar-wrapper">
+      <div className="stock-info-sidebar-panel">
         <div>
-          <h2 className="text-2xl font-bold mb-4" style={{ color: 'hsl(40, 62%, 26%)' }}>
-            {results.displayName}
+          <h2 className="stock-info-sidebar-title">
+            {fmt(results.company_name)}
           </h2>
-          <p className="text-lg mb-6" style={{ color: 'hsl(40, 62%, 26%)' }}>({results.symbol})</p>
-          
-          <div className="space-y-3">
-            <div className="pb-3" style={{ borderBottom: '1px solid hsl(41, 61%, 9%)' }}>
-              <p style={{ color: 'hsl(40, 62%, 26%)' }}>
-                <strong>Current Price:</strong> ${results.currentPrice ?? 'N/A'}
-              </p>
-            </div>
+          <p className="stock-info-sidebar-symbol">{results.symbol}</p>
+
+          <div className="stock-info-section">
+            <h3 className="stock-info-section-header">Key Metrics</h3>
             
-            <div className="pb-3" style={{ borderBottom: '1px solid hsl(41, 61%, 9%)' }}>
-              <p style={{ color: 'hsl(40, 62%, 26%)' }}>
-                <strong>Open:</strong> ${results.open ?? 'N/A'}
-              </p>
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">Market Cap</span>
+              <span className="stock-info-value">{formatMarketCap(results.market_cap)}</span>
             </div>
+
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">Outstanding Shares</span>
+              <span className="stock-info-value">{formatLargeNumber(results.outstanding_shares)}</span>
+            </div>
+
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">EPS</span>
+              <span className="stock-info-value">{formatCurrency(results.eps)}</span>
+            </div>
+
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">Debt-to-Equity</span>
+              <span className="stock-info-value">
+                {results.debt_to_equity !== null && results.debt_to_equity !== undefined 
+                  ? results.debt_to_equity.toFixed(2) 
+                  : 'N/A'}
+              </span>
+            </div>
+
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">Total Employees</span>
+              <span className="stock-info-value">{formatWithCommas(results.total_employees)}</span>
+            </div>
+          </div>
+
+          <div className="stock-info-section">
+            <h3 className="stock-info-section-header">Trading Information</h3>
             
-            <div className="pb-3" style={{ borderBottom: '1px solid hsl(41, 61%, 9%)' }}>
-              <p style={{ color: 'hsl(40, 62%, 26%)' }}>
-                <strong>Previous Close:</strong> ${results.previousClose ?? 'N/A'}
-              </p>
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">Primary Exchange</span>
+              <span className="stock-info-value">{fmt(results.primary_exchange)}</span>
             </div>
+
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">Type</span>
+              <span className="stock-info-value">{fmt(results.type)}</span>
+            </div>
+
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">Currency</span>
+              <span className="stock-info-value">{fmt(results.currency_name)}</span>
+            </div>
+
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">List Date</span>
+              <span className="stock-info-value">{formatDate(results.list_date)}</span>
+            </div>
+
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">Locale</span>
+              <span className="stock-info-value">{fmt(results.locale)}</span>
+            </div>
+          </div>
+
+          <div className="stock-info-section">
+            <h3 className="stock-info-section-header">Company Details</h3>
             
-            <div className="pb-3" style={{ borderBottom: '1px solid hsl(41, 61%, 9%)' }}>
-              <p style={{ color: 'hsl(40, 62%, 26%)' }}>
-                <strong>Day High / Low:</strong> ${results.dayHigh ?? 'N/A'} / ${results.dayLow ?? 'N/A'}
-              </p>
+            <div className="stock-info-sidebar-row">
+              <span className="stock-info-label">SIC Code</span>
+              <span className="stock-info-value">{fmt(results.sic_code)}</span>
             </div>
-            
-            <div className="pb-3" style={{ borderBottom: '1px solid hsl(41, 61%, 9%)' }}>
-              <p style={{ color: 'hsl(40, 62%, 26%)' }}>
-                <strong>50-Day Average:</strong> ${results.fiftyDayAverage ? results.fiftyDayAverage.toFixed(2) : 'N/A'}
-              </p>
-            </div>
-            
-            <div className="pb-3" style={{ borderBottom: '1px solid hsl(41, 61%, 9%)' }}>
-              <p style={{ color: 'hsl(40, 62%, 26%)' }}>
-                <strong>Exchange:</strong> {results.fullExchangeName ?? 'N/A'} ({results.exchange ?? 'N/A'})
-              </p>
-            </div>
-            
-            <div className="pb-3" style={{ borderBottom: '1px solid hsl(41, 61%, 9%)' }}>
-              <p style={{ color: 'hsl(40, 62%, 26%)' }}>
-                <strong>Industry:</strong> {results.industry ?? 'N/A'}
-              </p>
-            </div>
-            
-            <div className="pb-3" style={{ borderBottom: '1px solid hsl(41, 61%, 9%)' }}>
-              <p style={{ color: 'hsl(40, 62%, 26%)' }}>
-                <strong>Sector:</strong> {results.sector ?? 'N/A'}
-              </p>
-            </div>
-            
-            <div className="pb-3">
-              <p style={{ color: 'hsl(40, 62%, 26%)' }}>
-                <strong>Country:</strong> {results.country ?? 'N/A'}
-              </p>
-            </div>
+
+            {results.sic_description && (
+              <div className="stock-info-sidebar-row">
+                <span className="stock-info-label">Industry</span>
+                <span className="stock-info-value">{results.sic_description}</span>
+              </div>
+            )}
+
+            {results.homepage_url && (
+              <div className="stock-info-sidebar-row">
+                <span className="stock-info-label">Homepage</span>
+                <span className="stock-info-value">
+                  <a href={results.homepage_url} target="_blank" rel="noreferrer" className="stock-info-link">
+                    Visit Website →
+                  </a>
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>

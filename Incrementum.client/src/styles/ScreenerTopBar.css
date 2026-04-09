@@ -1,44 +1,92 @@
 @reference "tailwindcss";
 
-.screener-topbar {
-  @apply bg-[hsl(40,63%,63%)];
-  @apply sticky top-0 z-50;
+.screener-topbar-inner {
   @apply flex items-center justify-between;
-  @apply px-3;
-  @apply py-3;
-  @apply m-1;
 }
 
 .screener-topbar-group {
-  @apply gap-2;
-  @apply grid;
-  grid-template-columns: 1000px 300px;
+  @apply flex;
+  @apply items-center;
+  @apply gap-4;
 }
 
 .screener-topbar-btn {
-  @apply bg-[#eac67a]; 
-  @apply text-[#6b4a1b];
+  @apply bg-[var(--accent)]; 
+  @apply text-[var(--bg-base)];
   @apply shadow-none;
-  @apply px-4;
-  @apply py-2;
+  @apply cursor-pointer;
+  @apply hover:opacity-90;
+  @apply active:opacity-80;
+  @apply disabled:opacity-50;
+  @apply disabled:cursor-not-allowed;
+  @apply px-3;
+  @apply py-1;
   @apply rounded;
   @apply m-1;
+  @apply mr-3;
+  @apply text-sm;
 }
 
 .screener-topbar-select {
-  @apply bg-[#eac67a];
-  @apply text-[#6b4a1b];
+  @apply bg-[var(--accent)];
+  @apply text-[var(--bg-base)];
   @apply min-w-[180px];
-  @apply px-4;
-  @apply py-2;
+  @apply px-3;
+  @apply py-1;
   @apply rounded;
   @apply appearance-none;
+  @apply mr-3;
+  @apply text-sm;
+}
+
+.screener-dropdown-with-arrow {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23000000' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
 }
 .screener-page-toggle {
-  @apply col-2;
-  @apply justify-self-start text-left;
+  @apply min-w-[200px];
+  @apply text-left;
 }
 
 .non-toggle-buttons {
-  @apply col-1;
+  @apply flex;
+  @apply items-center;
+  @apply gap-2;
+}
+
+.screener-topbar-select.selected {
+  font-weight: 600;
+}
+
+.screener-topbar-select.unselected {
+  font-weight: normal;
+}
+
+.privacy-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  margin-left: 12px;
+  color: var(--text-secondary);
+}
+
+.privacy-checkbox-input {
+  cursor: pointer;
+}
+
+.privacy-checkbox-input:disabled {
+  cursor: not-allowed;
+}
+
+.screener-privacy-select {
+  @apply bg-[var(--accent)];
+  @apply text-[var(--bg-base)];
+  @apply px-2;
+  @apply py-1;
+  @apply rounded;
+  @apply text-sm;
 }

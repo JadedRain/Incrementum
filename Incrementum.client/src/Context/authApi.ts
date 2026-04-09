@@ -1,4 +1,4 @@
-import { fetchWrapper, apiString } from "./FetchingHelper";
+import { apiString } from "./FetchingHelper";
 export const signInApi = async (email: string, password: string) => {
   // Don't use fetchWrapper for login - we want to handle errors in the UI, not show a toast
   const res = await fetch(apiString("/api/login"), {
@@ -12,16 +12,23 @@ export const signInApi = async (email: string, password: string) => {
   }
   return null;
 };
-// replace
 export const signUpApi = async (name: string, phoneNumber: string, email: string, password: string) => {
-  const res = await fetchWrapper(()=>fetch(apiString("/api/signup"), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, phone_number: phoneNumber, email, password })
-  }));
-  if (res.ok) {
-    const data = await res.json();
-    return { apiKey: data.api_key, email };
+  try {
+    const res = await fetch(apiString("/api/signup"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, phone_number: phoneNumber, email, password })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return { apiKey: data.api_key, email, error: null };
+    } else {
+      const errorData = await res.json();
+      const errorMessage = errorData.error || 'Signup failed';
+      return { apiKey: null, email: null, error: errorMessage };
+    }
+  } catch (e) {
+    console.error('Signup error:', e);
+    return { apiKey: null, email: null, error: 'Network error' };
   }
-  return null;
 };

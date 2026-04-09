@@ -7,7 +7,7 @@
   left: 0;
   right: 0;
   width: 100%;
-  background: hsl(41, 61%, 9%);
+  background: var(--bg-surface);
   display: flex;
   align-items: center;
   padding: 1rem 2rem;
@@ -51,7 +51,7 @@
 }
 
 .navbar-logo {
-  color: hsl(40, 66%, 60%);
+  color: var(--text-secondary);
   font-size: 1.8rem;
   font-weight: bold;
   text-decoration: none;
@@ -60,7 +60,7 @@
 }
 
 .navbar-logo:hover {
-  color: hsl(40, 66%, 70%);
+  color: var(--accent-hover);
 }
 
 @media (max-width: 768px) {
@@ -120,7 +120,7 @@
 
 .nav-button-active {
   text-decoration: underline !important;
-  text-decoration-color: hsl(40, 66%, 70%) !important;
+  text-decoration-color: var(--accent-hover) !important;
   text-underline-offset: 4px !important;
 }
 
@@ -128,7 +128,7 @@
   @apply absolute;
   @apply top-4;
   @apply right-4;
-  @apply text-white;
+  @apply text-[var(--accent-hover)];
   @apply px-4;
   @apply py-2;
   @apply rounded;
@@ -137,7 +137,7 @@
 }
 
 .nav-button {
-  @apply text-[#DCAF56];
+  @apply text-[var(--text-secondary)];
   @apply rounded-lg;
   @apply w-[100px];
   @apply h-[40px];
@@ -145,7 +145,7 @@
   @apply px-4;
   padding-bottom: 4px;
   padding-bottom: 4px;
-  @apply hover:bg-[#6C5019];
+  @apply hover:bg-[var(--bg-sunken)];
   @apply duration-200;
   display: flex;
   align-items: flex-end;
@@ -175,23 +175,28 @@
 }
 
 .back-button {
-  @apply text-[#DCAF56];
-  @apply rounded-lg;
-  @apply w-[100px];
-  @apply h-[40px];
-  @apply px-4;
-  padding-bottom: 4px;
-  background: #AF8228;
+  @apply text-[var(--bg-base)];
+  @apply rounded-md;
+  width: 70px;
+  height: 32px;
+  padding: 0;
+  background: var(--accent);
   @apply duration-200;
-  display: flex;
-  align-items: flex-end;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
   text-decoration: none;
   font-family: "Newsreader", serif;
+  font-size: 0.875rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: none;
+  cursor: pointer;
 }
 
 .back-button:hover {
-  background: hsl(40, 62%, 26%) !important;
+  background: var(--accent-hover) !important;
+  color: var(--bg-base) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .nav-button.nav-button-logout:hover {

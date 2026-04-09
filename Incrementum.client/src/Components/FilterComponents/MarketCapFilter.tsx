@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
-import { useFilterData } from '../../Context/FilterDataContext';
-import type { FilterData } from '../../Context/FilterDataContext';
+import { useDatabaseScreenerContext } from '../../Context/DatabaseScreenerContext';
 
 interface MarketCapFilterProps {
   marketCapMin?: string;
@@ -10,97 +9,123 @@ interface MarketCapFilterProps {
   setMarketCapMax?: React.Dispatch<React.SetStateAction<string>>;
 }
 
+
 const MarketCapFilter: React.FC<MarketCapFilterProps> = () => {
-  const { addFilter, removeFilter, fetchInit, initDict } = useFilterData();
-    const [minValue, setMinValue] = useState<number | null>(null);
-    const [maxValue, setMaxValue] = useState<number | null>(null);
+  const { addFilter, removeFilter, filterDict } = useDatabaseScreenerContext();
 
-        useEffect(() => {
-        console.log(initDict)
-        const init = fetchInit("MarketCapFilter");
-        console.log(init)
-        if (init) {
-          setMinValue(init.high ?? null);
-          setMaxValue(init.low ?? null);
-        }
-      }, [fetchInit, initDict]);
+  // Utility to remove all keys with a given prefix
+  const removeAllWithPrefix = useCallback((prefix: string) => {
+    Object.keys(filterDict).forEach(key => {
+      if (key.startsWith(prefix)) removeFilter(key);
+    });
+  }, [filterDict, removeFilter]);
+  const [min_market_cap, setMinMarketCap] = useState<number | null>(null);
+  const [min_market_cap_temp, setMinMarketCapTemp] = useState<number | null>(null);
+  const [max_market_cap, setMaxMarketCap] = useState<number | null>(null);
+  const [max_market_cap_temp, setMaxMarketCapTemp] = useState<number | null>(null);
+  const [scaleLabelMin, setScaleLabelMin] = useState<number>(1);
+  const [scaleLabelMax, setScaleLabelMax] = useState<number>(1);
 
-  const minKey = 'marketcap.min';
-  const maxKey = 'marketcap.max';
-  const keykey = "intradaymarketcap"
-  const showWarning = minValue !== null && maxValue !== null && minValue > maxValue;
+  const showWarning = min_market_cap !== null && max_market_cap !== null && min_market_cap > max_market_cap;
+
+  // Clear local state when filters are reset
+  useEffect(() => {
+    const marketCapKeys = Object.keys(filterDict).filter(key => key.startsWith('market_cap__'));
+    if (marketCapKeys.length === 0) {
+      setMinMarketCap(null);
+      setMaxMarketCap(null);
+      setMinMarketCapTemp(null);
+      setMaxMarketCapTemp(null);
+      setScaleLabelMin(1);
+      setScaleLabelMax(1);
+    }
+  }, [filterDict]);
+  useEffect(() => {
+    setMinMarketCap(min_market_cap_temp !== null ? min_market_cap_temp * scaleLabelMin : null);
+    setMaxMarketCap(max_market_cap_temp !== null ? max_market_cap_temp * scaleLabelMax : null);
+  }, [min_market_cap_temp, max_market_cap_temp, scaleLabelMin, scaleLabelMax]);
+  useEffect(() => {
+    if (min_market_cap !== null) {
+      addFilter({
+        operator: 'greater_than_or_equal',
+        operand: 'market_cap',
+        filter_type: 'numeric',
+        value: min_market_cap,
+      });
+    } else {
+      removeAllWithPrefix('market_cap__greater_than_or_equal');
+    }
+  }, [min_market_cap, addFilter, removeAllWithPrefix]);
 
   useEffect(() => {
-    if (minValue !== null) {
-      const f: FilterData = {
-        operand: keykey,
-        operator: 'gte',
+    if (max_market_cap !== null) {
+      addFilter({
+        operator: 'less_than_or_equal',
+        operand: 'market_cap',
         filter_type: 'numeric',
-        value_high: null,
-        value_low: null,
-        value: minValue,
-      };
-      addFilter(minKey, f);
+        value: max_market_cap,
+      });
     } else {
-      removeFilter(minKey);
+      removeAllWithPrefix('market_cap__less_than_or_equal');
     }
-  }, [minValue, addFilter, removeFilter]);
+  }, [max_market_cap, addFilter, removeAllWithPrefix]);
 
   useEffect(() => {
-    if (maxValue !== null) {
-      const f: FilterData = {
-        operand: keykey,
-        operator: 'lte',
-        filter_type: 'numeric',
-        value_high: null,
-        value_low: null,
-        value: maxValue,
-      };
-      addFilter(maxKey, f);
-    } else {
-      removeFilter(maxKey);
-    }
-  }, [maxValue, addFilter, removeFilter]);
+    console.log('Current filterDict:', filterDict);
+  }, [filterDict]);
 
   return (
-    <ExpandableSidebarItem title="Market Cap">
-      <div style={{ marginBottom: '0.5rem' }}>
-        <div style={{ fontWeight: 600 }}>Market Cap</div>
-        <div 
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "0.5rem",
-            width: "100%",
-            boxSizing: "border-box",
-          }}>
+    <ExpandableSidebarItem title="Market Cap" description="Market capitalization. Total valuation of outstanding shares. Indicates potential gains in large scale trades.">
+      <div className="filter-block">
+        <div className="filter-block-label">Market Cap</div>
+
+        <div className="filter-row">
           <input
             type="number"
             placeholder="Min"
-            value={minValue ?? ''}
-            onChange={e => setMinValue(e.target.value ? Number(e.target.value) : null)}
-            className="sidebar-input"
-            style={{ flex: 1, padding: '0.4rem', minWidth: 0}}
+            value={min_market_cap_temp ?? ''}
+            onChange={e => setMinMarketCapTemp(e.target.value ? Number(e.target.value) : null)}
+            className="sidebar-input filter-input-main"
           />
+          <select
+            value={scaleLabelMin}
+            onChange={e => setScaleLabelMin(Number(e.target.value))}
+            className="sidebar-input filter-input-scale"
+          >
+            <option value={1}></option>
+            <option value={1000}>k</option>
+            <option value={1000000}>m</option>
+            <option value={1000000000}>b</option>
+            <option value={1000000000000}>t</option>
+          </select>
+        </div>
+
+        <div className="filter-row">
           <input
             type="number"
             placeholder="Max"
-            value={maxValue ?? ''}
-            onChange={e => setMaxValue(e.target.value ? Number(e.target.value) : null)}
-            className="sidebar-input"
-            style={{ flex: 1, padding: '0.4rem', minWidth: 0}}
+            value={max_market_cap_temp ?? ''}
+            onChange={e => setMaxMarketCapTemp(e.target.value ? Number(e.target.value) : null)}
+            className="sidebar-input filter-input-main"
           />
+          <select
+            value={scaleLabelMax}
+            onChange={e => setScaleLabelMax(Number(e.target.value))}
+            className="sidebar-input filter-input-scale"
+          >
+            <option value={1}></option>
+            <option value={1000}>k</option>
+            <option value={1000000}>m</option>
+            <option value={1000000000}>b</option>
+            <option value={1000000000000}>t</option>
+          </select>
         </div>
       </div>
       {showWarning && (
-        <div style={{ color: 'red', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+        <div className="filter-warning">
           Warning: Min cannot be greater than Max.
         </div>
       )}
-      <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#2b2b2b' }}>
-        (Min filter uses &gt;=, Max filter uses &lt;=. Empty inputs remove the filter.)
-      </div>
     </ExpandableSidebarItem>
   );
 };

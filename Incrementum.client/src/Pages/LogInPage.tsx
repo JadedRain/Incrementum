@@ -17,7 +17,7 @@ const LogInPage: React.FC = () => {
     setError("");
     const success = await signIn(email, password);
     if (success) {
-      navigate("/screener");
+      navigate("/screener/custom_temp");
     } else {
       setError("Invalid email or password");
     }
@@ -32,8 +32,8 @@ const LogInPage: React.FC = () => {
           <div className="signin-wrapper">
             <div className="signin-form">
               <h2 className="signin-title">✓ Logged In</h2>
-              <p style={{ color: '#4CAF50', margin: '1rem 0' }}>{userEmail}</p>
-              <button className="signin-button" onClick={() => navigate("/screener")}>
+              <p className="signin-success-email">{userEmail}</p>
+              <button className="signin-button" onClick={() => navigate("/screener/custom_temp")}>
                 Go to Screener
               </button>
             </div>

@@ -1,21 +1,48 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ColumnVisibilityContext } from './columnVisibilityCore';
 
-export function ColumnVisibilityProvider({ children, showWatchlist = false }: { children: React.ReactNode; showWatchlist?: boolean }) {
-  const LS_KEY = 'stockTable.visibleColumns.v1';
-  const defaultCols = { symbol: true, price: true, purchasePrice: false, high52: true, low52: true, percentChange: true, volume: true, marketCap: true, watchlist: !!showWatchlist } as Record<string, boolean>;
+export function ColumnVisibilityProvider({ children }: { children: React.ReactNode; }) {
+  const LS_KEY = 'stockTable.visibleColumns.v3';
+  const defaultCols = {
+    symbol: true,
+    price: true,
+    high52: false,
+    low52: false,
+    percentChange: true,
+    volume: false,
+    market_cap: true,
+    eps: true,
+    debt_to_equity: false,
+    list_date: false,
+    outstanding_shares: false,
+    share_class_figi: false,
+    sic_description: false,
+    purchasePrice: false,
+    annual_eps_growth_rate: false,
+    price_per_earnings: false,
+    pe_per_growth: false,
+    revenue_per_share: false,
+    price_per_sales: false,
+  } as Record<string, boolean>;
 
   const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>(() => {
     try {
       const raw = localStorage.getItem(LS_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed && Array.isArray(parsed.columnOrder)) {
-          return { ...defaultCols, ...(parsed.visibleColumns || {}) };
+        if (parsed) {
+          const loaded = { ...defaultCols, ...(parsed.visibleColumns || {}) };
+          const filtered: Record<string, boolean> = {};
+          for (const key of Object.keys(defaultCols)) {
+            filtered[key] = loaded[key] !== false;
+          }
+          return filtered;
         }
-        return { ...defaultCols, ...(parsed || {}) };
       }
-    } catch { void 0; }
+    }
+    catch(e) {
+      console.log(`Unable to set visible columns: ${e}`)
+    }
     return defaultCols;
   });
 
@@ -57,7 +84,15 @@ export function ColumnVisibilityProvider({ children, showWatchlist = false }: { 
       const raw = localStorage.getItem(LS_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed && Array.isArray(parsed.columnOrder)) return parsed.columnOrder as import('./columnVisibilityCore').ColKey[];
+        if (parsed && Array.isArray(parsed.columnOrder)) {
+          // Filter to only include columns that exist in defaultCols
+          const filtered = (parsed.columnOrder as string[]).filter((col: string) => col in defaultCols);
+          const merged = [...filtered];
+          for (const col of defaultOrder) {
+            if (!merged.includes(col)) merged.push(col);
+          }
+          return merged as import('./columnVisibilityCore').ColKey[];
+        }
       }
     } catch { void 0; }
     return defaultOrder;

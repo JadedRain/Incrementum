@@ -12,17 +12,7 @@ const Toast: React.FC<ToastProps> = ({ message, onClose }) => {
     <div
       role="status"
       aria-live="polite"
-      style={{
-        position: 'fixed',
-        top: '12px',
-        right: '12px',
-        background: '#2d2d2d',
-        color: '#EBCB92',
-        padding: '10px 14px',
-        borderRadius: 8,
-        boxShadow: '0 6px 24px rgba(0,0,0,0.3)',
-        zIndex: 2000,
-      }}
+      className="toast"
       onClick={onClose}
     >
       {message}

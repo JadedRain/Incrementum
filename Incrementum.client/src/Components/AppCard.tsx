@@ -30,7 +30,7 @@ const AppCard: React.FC<AppCardProps> = ({
   return (
     <div
       className={`ScreenerPage-card cursor-pointer ${className}`}
-      style={{ height: '357px', ...style }}
+      style={style}
       onClick={onClick}
     >
       {imageUrl ? (

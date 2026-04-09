@@ -20,7 +20,7 @@ export default function NavigationBar({ showAccountButton = true }: NavigationBa
     <div className="navbar-header">
       <div className="navbar-container">
         {/* Logo/Home Link */}
-        <Link to="/screener" className="navbar-logo">
+        <Link to="/" className="navbar-logo">
           Incrementum
         </Link>
 
@@ -32,21 +32,17 @@ export default function NavigationBar({ showAccountButton = true }: NavigationBa
         {/* Navigation Links */}
         <nav className="navbar-nav">
           <Link
-            to="/screener"
+            to="/"
             className={`nav-button ${location.pathname.startsWith('/screener') ? 'nav-button-active' : ''}`}
           >
             Screener
           </Link>
-          {isAuthenticated && (
-            <>
-              <Link
-                to="/custom-collections"
-                className={`nav-button ${location.pathname.startsWith('/custom-collections') ? 'nav-button-active' : ''}`}
-              >
-                Collections
-              </Link>
-            </>
-          )}
+          <Link
+            to="/help"
+            className={`nav-button ${location.pathname === '/help' ? 'nav-button-active' : ''}`}
+          >
+            Help
+          </Link>
           {showAccountButton && isAuthenticated && (
             <Link
               to="/settings"
@@ -77,8 +73,8 @@ export default function NavigationBar({ showAccountButton = true }: NavigationBa
           )}
           {!isAuthenticated && (
             <Link
-              to="/"
-              className={`nav-button ${location.pathname === '/' ? 'nav-button-active' : ''}`}
+              to="/login"
+              className={`nav-button ${location.pathname === '/login' ? 'nav-button-active' : ''}`}
             >
               Login
             </Link>

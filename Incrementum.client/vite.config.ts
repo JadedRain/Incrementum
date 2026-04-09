@@ -10,6 +10,8 @@ export default defineConfig({
   ],
   clearScreen: false,
   server: {
+    host: '0.0.0.0',
+    allowedHosts: ['localhost', 'incremy.duckdns.org'],
     watch: {
       usePolling: true,
       interval: 10

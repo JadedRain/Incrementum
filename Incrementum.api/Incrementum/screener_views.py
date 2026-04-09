@@ -1,15 +1,20 @@
 from Incrementum.models.stock import StockModel
-from django.db.models import Q
+from django.db.models import Q, Case, When, Value, IntegerField
 from django.http import JsonResponse
+from django.core import signing
+from django.core.exceptions import PermissionDenied
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from Incrementum.screener_service import ScreenerService
 from Incrementum.screener import Screener
 from Incrementum.DTOs.ifilterdata import FilterData
+from Incrementum.models.custom_screener import CustomScreener
+from Incrementum.models.account import Account
 import json
 import logging
-
 screener_service = ScreenerService()
+
+SCREENER_SHARE_SALT = "custom-screener-share"
 
 
 def get_user_from_request(request):
@@ -42,17 +47,16 @@ def create_custom_screener(request):
     print(f"DEBUG: Extracted name: {name}")
     numeric_filters = data.get('numeric_filters', [])
     categorical_filters = data.get('categorical_filters', [])
-    if len(categorical_filters) == 0:
-        logging.error("insufficient filters applied")
-        return JsonResponse(
-            {"error": "you need at least one categorical filter"},
-            status=400
-        )
+    visibility = data.get('visibility', 'private')
+    if not isinstance(visibility, str):
+        visibility = 'private'
+
     screener = screener_service.create_custom_screener(
         api_key,
         name=name,
         numeric_filters=numeric_filters,
-        categorical_filters=categorical_filters
+        categorical_filters=categorical_filters,
+        visibility=visibility,
     )
 
     if screener is None:
@@ -61,6 +65,7 @@ def create_custom_screener(request):
     return JsonResponse({
         "id": screener.id,
         "created_at": screener.created_at.isoformat(),
+        "visibility": screener.visibility,
         "message": "Custom screener created successfully"
     }, status=201)
 
@@ -76,6 +81,45 @@ def get_custom_screener(request, screener_id):
 
     if screener is None:
         return JsonResponse({"error": "Screener not found"}, status=404)
+
+    return JsonResponse(screener, status=200)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_custom_screener_share_token(request, screener_id):
+    api_key = (get_user_from_request(request) or "").strip() or None
+    if not api_key:
+        return JsonResponse({"error": "X-User-Id header required"}, status=400)
+
+    try:
+        account = Account.objects.get(api_key=api_key)
+        CustomScreener.objects.get(id=screener_id, account=account)
+    except (Account.DoesNotExist, CustomScreener.DoesNotExist):
+        return JsonResponse({"error": "Screener not found"}, status=404)
+
+    token = signing.Signer(salt=SCREENER_SHARE_SALT).sign(str(screener_id))
+    return JsonResponse({"token": token}, status=200)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_shared_custom_screener(request, token):
+    try:
+        raw_id = signing.Signer(salt=SCREENER_SHARE_SALT).unsign(token)
+        screener_id = int(raw_id)
+    except (signing.BadSignature, ValueError, TypeError):
+        return JsonResponse({"error": "Invalid share token"}, status=400)
+
+    try:
+        screener = screener_service.get_public_custom_screener(screener_id)
+    except PermissionDenied:
+        return JsonResponse({"error": "Screener is private"}, status=403)
+    except CustomScreener.DoesNotExist:
+        return JsonResponse({"error": "Screener not found"}, status=404)
+    except Exception:
+        logging.exception("Failed to fetch shared custom screener")
+        return JsonResponse({"error": "Failed to fetch screener"}, status=500)
 
     return JsonResponse(screener, status=200)
 
@@ -144,25 +188,98 @@ def delete_custom_screener(request, screener_id):
 
 
 @csrf_exempt
+@require_http_methods(["PUT"])
+def update_screener_privacy(request, screener_id):
+    api_key = get_user_from_request(request)
+    if not api_key:
+        return JsonResponse({"error": "X-User-Id header required"}, status=400)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    visibility = data.get('visibility')
+    if not isinstance(visibility, str):
+        return JsonResponse({"error": "visibility must be a string"}, status=400)
+
+    screener = screener_service.update_screener_privacy(
+        api_key,
+        screener_id,
+        visibility=visibility,
+    )
+
+    if screener is None:
+        return JsonResponse({"error": "Screener not found or access denied"}, status=404)
+
+    return JsonResponse({
+        "id": screener.id,
+        "is_private": screener.is_private,
+        "visibility": screener.visibility,
+        "message": "Screener privacy updated successfully"
+    }, status=200)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def search_community_screeners(request, query):
+    screeners = CustomScreener.objects.filter(
+        visibility='community',
+        screener_name__icontains=query
+    ).order_by('screener_name')[:8]
+    return JsonResponse([
+        {'id': s.id, 'screener_name': s.screener_name}
+        for s in screeners
+    ], safe=False)
+
+
+@csrf_exempt
 @require_http_methods(["POST"])
 def run_database_screener(request):
     """
     Run screener using database queries with the new Screener class.
     Accepts a list of FilterData objects and returns matching stocks from the database.
+    Supports pagination with page and per_page parameters.
+    Query parameters override body parameters.
     """
     try:
-        payload = json.loads(request.body or b"[]")
+        payload = json.loads(request.body or b"{}")
     except json.JSONDecodeError:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
 
-    if not isinstance(payload, list):
-        return JsonResponse(
-            {"error": "Body must be a JSON array of filter objects"},
-            status=400
-        )
+    if isinstance(payload, list):
+        filters_payload = payload
+        sort_by = None
+        sort_order = 'asc'
+        page = 1
+        per_page = 12
+    elif isinstance(payload, dict):
+        filters_payload = payload.get('filters', [])
+        sort_by = payload.get('sort_by')
+        sort_order = payload.get('sort_order', 'asc')
+        page = payload.get('page', 1)
+        per_page = payload.get('per_page', 12)
+    else:
+        return JsonResponse({"error": "Body must be a JSON array or object"}, status=400)
+
+    # Query parameters override body parameters
+    if 'sort_by' in request.GET:
+        sort_by = request.GET.get('sort_by')
+    if 'sort_order' in request.GET:
+        sort_order = request.GET.get('sort_order', 'asc')
+    if 'page' in request.GET:
+        page = request.GET.get('page', 1)
+    if 'page_size' in request.GET:
+        per_page = request.GET.get('page_size', 25)
+
+    try:
+        page = max(1, int(page))
+        per_page = max(1, min(500, int(per_page)))  # Cap at 500 per page
+    except (ValueError, TypeError):
+        return JsonResponse({"error": "page and per_page must be integers"}, status=400)
 
     filters = []
-    for index, item in enumerate(payload):
+    for index, item in enumerate(filters_payload):
         if not isinstance(item, dict):
             return JsonResponse(
                 {"error": f"Item at index {index} is not an object"},
@@ -185,14 +302,30 @@ def run_database_screener(request):
         filters.append(FilterData(operator, operand, filter_type, value))
 
     screener = Screener()
-    stocks = screener.query(filters)
+    stocks, total_count = screener.query(
+        filters,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        page=page,
+        page_size=per_page,
+    )
+
+    total_pages = (total_count + per_page - 1) // per_page
 
     stocks_dict = [stock.to_dict() for stock in stocks]
 
     return JsonResponse(
         {
             "stocks": stocks_dict,
-            "count": len(stocks_dict)
+            "count": len(stocks_dict),
+            "pagination": {
+                "page": page,
+                "per_page": per_page,
+                "total_count": total_count,
+                "total_pages": total_pages,
+                "has_next": page < total_pages,
+                "has_prev": page > 1
+            }
         },
         status=200
     )
@@ -208,9 +341,44 @@ def industry_autocomplete(request):
 
     stocks = StockModel.objects.filter(
         Q(sic_description__icontains=query) &
-        Q(sic_description__isnull=False)
-    ).values('sic_description').distinct()[:20]
+        Q(sic_description__isnull=False) &
+        ~Q(sic_description='')
+    ).annotate(
+        match_rank=Case(
+            When(sic_description__istartswith=query, then=Value(0)),
+            default=Value(1),
+            output_field=IntegerField(),
+        )
+    ).order_by('match_rank', 'sic_description').values('sic_description').distinct()[:20]
 
     industries = [stock['sic_description'] for stock in stocks if stock['sic_description']]
 
     return JsonResponse({"industries": industries}, status=200)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def validate_ticker_symbols(request):
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    symbols = data.get("symbols", [])
+    if not isinstance(symbols, list):
+        return JsonResponse({"error": "symbols must be a list"}, status=400)
+
+    # Normalize symbols to uppercase
+    symbols = [s.upper() for s in symbols if isinstance(s, str)]
+
+    # Check which symbols exist in the database
+    existing_stocks = StockModel.objects.filter(symbol__in=symbols).values_list('symbol', flat=True)
+    existing_set = set(existing_stocks)
+
+    valid_symbols = [s for s in symbols if s in existing_set]
+    invalid_symbols = [s for s in symbols if s not in existing_set]
+
+    return JsonResponse({
+        "valid": valid_symbols,
+        "invalid": invalid_symbols
+    }, status=200)

@@ -9,8 +9,8 @@
   @apply items-center;
   @apply justify-between;
   @apply w-full;
-  @apply px-4;
-  @apply py-2;
+  @apply px-3;
+  @apply py-1.5;
   @apply outline-none;
 }
 
@@ -20,8 +20,8 @@
   @apply z-10; 
   @apply hidden;
   @apply group-hover:block;
-  @apply bg-[#AF8228];
-  @apply text-[#EBCB92];
+  @apply bg-[var(--bg-sunken)];
+  @apply text-[var(--accent-hover)];
   @apply rounded; 
   @apply shadow-lg;
   @apply min-w-[120px];
@@ -32,7 +32,7 @@
   @apply block;
   @apply px-4;
   @apply py-2;
-  @apply hover:bg-[#DABB7C];
+  @apply hover:bg-[var(--accent)];
 }
 
 .sidebar {
@@ -41,13 +41,13 @@
   right: 50px;
   /* @apply w-[300px]; */
   height: calc(100vh - var(--header-height) - 80px);
-  @apply bg-[hsl(40,63%,63%)];
-  @apply text-[hsl(40,62%,18%)];
+  @apply bg-[var(--bg-sunken)];
+  @apply text-[var(--accent-hover)];
   @apply font-semibold;
   @apply rounded-sm;
-  @apply shadow-[5px_5px_5px_#3F3A30];
-  @apply py-6;
-  @apply px-6;
+  @apply shadow-[5px_5px_5px_rgba(0,0,0,0.5)];
+  @apply py-3;
+  @apply px-4;
   @apply flex;
   @apply flex-col;
   @apply items-start;
@@ -75,11 +75,58 @@
 .sidebar-nav {
   @apply flex;
   @apply flex-col;
-  @apply gap-4;
+  @apply gap-2;
   @apply w-full;
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 8px;
+}
+
+.sidebar-filter-section {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-divider);
+}
+
+.filter-count {
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.reset-filters-btn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: var(--font-serif);
+  transition: transform 140ms ease, box-shadow 140ms ease, background-color 120ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.reset-filters-btn.active {
+  background-color: var(--accent);
+  color: var(--text-on-accent);
+  border: 1px solid var(--accent);
+  box-shadow: var(--shadow-panel);
+  cursor: pointer;
+}
+
+.reset-filters-btn.active:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  background-color: var(--accent-hover);
+}
+
+.reset-filters-btn.inactive {
+  background-color: var(--bg-sunken);
+  color: var(--text-muted);
+  border: 1px solid var(--border-divider);
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
 /* Scrollbar styling to blend with the sidebar */
@@ -90,27 +137,27 @@
   background: transparent; /* keep track transparent to blend with page edge */
 }
 .sidebar::-webkit-scrollbar-thumb {
-  background: rgba(175,130,40,0.95); /* slightly darker thumb to match panel */
+  background: rgba(102,187,106,0.7); /* green thumb */
   border-radius: 8px;
-  border: 3px solid rgba(243,224,192,0.9);
+  border: 3px solid rgba(79,86,75,0.9);
 }
 
 /* Firefox */
 .sidebar {
   scrollbar-width: thin;
-  scrollbar-color: #DABB7C #AF8228;
+  scrollbar-color: var(--accent) var(--bg-sunken);
 }
 
 .sidebar-links {
-  @apply text-[hsl(40,62%,26%)];
+  @apply text-[var(--bg-base)];
   @apply no-underline;
-  @apply text-base;
-  @apply py-2;
+  @apply text-sm;
+  @apply py-1.5;
   @apply px-3;
   @apply rounded-md;
   @apply transition-colors;
   @apply duration-200;
-  @apply bg-[#E8CB92];
+  @apply bg-[var(--accent)];
   @apply hover:shadow-sm;
 }
 
@@ -143,7 +190,7 @@
   @apply text-sm;
   @apply font-semibold;
   @apply mb-2;
-  @apply text-[hsl(40,62%,18%)];
+  @apply text-[var(--accent-hover)];
 }
 
 .keywords-container {
@@ -159,8 +206,8 @@
   @apply px-3;
   @apply py-1.5;
   @apply rounded;
-  @apply bg-[#E8CB92];
-  color: hsl(40, 62%, 18%);
+  @apply bg-[var(--accent)];
+  color: var(--bg-base);
   @apply text-sm;
   @apply font-medium;
   @apply transition-all;
@@ -174,7 +221,7 @@
 .keyword-remove-btn {
   @apply bg-transparent;
   @apply border-0;
-  color: hsl(40, 62%, 18%);
+  color: var(--bg-base);
   @apply font-bold;
   @apply leading-none;
   @apply cursor-pointer;
@@ -192,9 +239,158 @@
 .keyword-remove-btn:hover {
   @apply transform;
   @apply scale-125;
-  color: hsl(0, 50%, 40%);
+  color: #ff4d4d;
 }
 
 .keyword-remove-btn:focus {
   @apply outline-none;
 }
+
+.filter-count {
+  margin-bottom: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+  font-family: var(--font-serif);
+}
+
+/* ─── ExpandableSidebarItem ─── */
+.sidebar-chevron {
+  transform: rotate(0);
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+.sidebar-chevron.open {
+  transform: rotate(180deg);
+}
+
+.sidebar-expandable-content {
+  position: relative;
+  display: block;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+}
+
+/* ─── ChartArea ─── */
+.chart-area {
+  margin-bottom: 2rem;
+  background-color: var(--bg-surface);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+}
+
+.chart-area h2 {
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.chart-area img {
+  max-width: 100%;
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ─── Filter components (MarketCap, EPS, TickerSymbol …) ─── */
+.filter-block {
+  margin-bottom: 0.5rem;
+}
+
+.filter-block-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.filter-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.filter-input-main {
+  flex: 3;
+  padding: 0.4rem;
+  min-width: 0;
+}
+
+.filter-input-scale {
+  flex: 1;
+  padding: 0.4rem;
+  min-width: 0;
+}
+
+.filter-input-full {
+  width: 100%;
+  padding: 0.4rem;
+  border-radius: var(--border-radius-md);
+  min-width: 0;
+  margin-bottom: 8px;
+}
+
+.sidebar-suggestions {
+  width: 100%;
+  border: 1px solid var(--bg-sunken);
+  border-radius: var(--border-radius-md);
+  background: var(--bg-surface);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2);
+  max-height: 240px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+}
+
+.sidebar-suggestion-item {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 0.55rem 0.7rem;
+  display: grid;
+  grid-template-columns: minmax(64px, auto) minmax(0, 1fr);
+  gap: 0.5rem;
+  font-family: var(--font-serif);
+}
+
+.sidebar-suggestion-item:hover,
+.sidebar-suggestion-item-active {
+  background: var(--bg-row-alt);
+}
+
+.sidebar-suggestion-symbol {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.sidebar-suggestion-name {
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filter-btn-add {
+  padding: 6px 16px;
+  border-radius: var(--border-radius-md);
+  background-color: var(--accent);
+  color: var(--text-on-accent);
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  font-family: var(--font-serif);
+  transition: background-color 0.15s;
+}
+.filter-btn-add:hover { background-color: var(--accent-hover); }
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.filter-warning {
+  color: var(--status-error);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+

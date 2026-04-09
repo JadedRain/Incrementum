@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import { dashString } from "../Context/FetchingHelper";
+import StockChart from "./StockChart";
 
 type Props = {
   url?: string;
@@ -10,42 +10,90 @@ type Props = {
 };
 
 
-const InteractiveGraph: React.FC<Props> = ({ url = dashString(), period = "1y", interval = "1d", height = "600px" }) => {
+const InteractiveGraph: React.FC<Props> = ({ period = "1y", interval = "1d", height = "600px" }) => {
   const { token } = useParams<{ token: string }>();
   const ticker = token ?? "";
   const [graphType, setGraphType] = useState<'line' | 'candle'>('line');
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
 
-  const src =
-    ticker && ticker.length
-      ? `${url}/?ticker=${encodeURIComponent(ticker)}&period=${encodeURIComponent(period)}&interval=${encodeURIComponent(interval)}&type=${graphType}`
-      : `${url}/`;
+  const handleDateRangeChange = (start: string, end: string) => {
+    // Convert to date format for input fields (YYYY-MM-DD)
+    const formatForInput = (dateStr: string) => {
+      const date = new Date(dateStr);
+      return date.toISOString().split('T')[0];
+    };
+    
+    setStartDate(formatForInput(start));
+    setEndDate(formatForInput(end));
+  };
+
+  const handleReset = () => {
+    setStartDate('');
+    setEndDate('');
+  };
+
+  if (!ticker) {
+    return (
+      <div className="interactive-graph-wrapper" style={{ height }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+          <p>Please select a stock to view its chart</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ width: "100%", height }}>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+    <div className="interactive-graph-wrapper" style={{ height }}>
+      <div className="interactive-graph-toolbar">
+        <div className="date-range-controls">
+          <label className="date-input-label">
+            Start Date:
+            <input
+              type="date"
+              className="date-input"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+          </label>
+          <label className="date-input-label">
+            End Date:
+            <input
+              type="date"
+              className="date-input"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+          </label>
+          {(startDate || endDate) && (
+            <button
+              className="interactive-graph-btn reset-btn"
+              onClick={handleReset}
+              title="Reset date range"
+            >
+              Reset
+            </button>
+          )}
+          <span className="graph-instruction-text">
+            💡 Click two points on the graph to select a date range
+          </span>
+        </div>
         <button
+          className="interactive-graph-btn"
           onClick={() => setGraphType(graphType === 'line' ? 'candle' : 'line')}
-          style={{
-            padding: '6px 16px',
-            borderRadius: 6,
-            border: '1px solid #bfa76a',
-            background: graphType === 'line' ? '#f5e6c5' : '#e0c48f',
-            color: '#5a4a1b',
-            fontWeight: 600,
-            cursor: 'pointer',
-            marginRight: 8
-          }}
         >
           {graphType === 'line' ? 'Show Candlestick' : 'Show Line Graph'}
         </button>
       </div>
-      <iframe
-        key={graphType + ticker}
-        src={src}
-        title="Dash App"
-        className="w-full h-full border-0  bg-[hsl(40, 63%, 63%)]"
-        scrolling="no"
-        sandbox="allow-same-origin allow-scripts allow-forms"
+      <StockChart
+        ticker={ticker}
+        period={period}
+        interval={interval}
+        chartType={graphType}
+        height={`calc(${height} - 50px)`}
+        startDate={startDate}
+        endDate={endDate}
+        onDateRangeChange={handleDateRangeChange}
       />
     </div>
   );

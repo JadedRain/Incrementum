@@ -1,35 +1,42 @@
 import '../styles/SearchResultsPage.css'
-import { useParams } from "react-router-dom";
-import { useState } from 'react';
+import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect } from 'react';
 import NavigationBar from "../Components/NavigationBar";
 import StockCard from "../Components/StockCard";
 import { useStockSearch } from "../hooks/useStockSearch";
 import Loading from "../Components/Loading";
 import PaginationControls from "../Components/PaginationControls";
 import Toast from '../Components/Toast';
+import { searchCommunityScreeners } from '../Query/apiScreener';
 
 function SearchResults() {
   const { query } = useParams<{ query: string }>();
   const { results, loading, page, hasMore, totalPages, handleNext, handlePrev } = useStockSearch(query ?? "");
   const [toast, setToast] = useState<string | null>(null);
+  const [communityScreeners, setCommunityScreeners] = useState<{ id: number; screener_name: string }[]>([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!query) return;
+    searchCommunityScreeners(query).then(setCommunityScreeners);
+  }, [query]);
 
   return (
-    <div style={{ padding: "20px", fontFamily: "serif" }}
-      className="bg-[hsl(40,13%,53%)] min-h-screen">
+    <div className="page-shell">
       <NavigationBar />
       <Toast message={toast} />
       <div className="SearchResults-main-content">
         {loading && (
-          <div className="w-full flex items-center justify-center" style={{ height: '120px' }}>
+          <div className="loading-placeholder">
             <Loading loading={true} loadingText="Loading stocks..." />
           </div>
         )}
-        {!loading && results.length === 0 && <p>No results found.</p>}
+        {!loading && results.length === 0 && communityScreeners.length === 0 && <p>No results found.</p>}
 
         {!loading && results.length >= 1 && (
           <>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px' }}>
-              <div style={{ flex: 1 }} />
+            <div className="search-results-row">
+              <div className="search-results-spacer" />
             </div>
             <ul>
               {results.map((stock: { symbol: string; name: string }) => (
@@ -51,6 +58,24 @@ function SearchResults() {
             onNext={handleNext}
           />
         </div>
+
+        {communityScreeners.length > 0 && (
+          <div className="mt-6">
+            <h2 className="search-results-section-label">Community Screeners</h2>
+            <ul>
+              {communityScreeners.map((screener) => (
+                <li key={screener.id}>
+                  <button
+                    className="search-community-screener-card"
+                    onClick={() => navigate(`/screener/${screener.id}`)}
+                  >
+                    <span className="search-community-screener-name">{screener.screener_name}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

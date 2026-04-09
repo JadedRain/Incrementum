@@ -28,7 +28,7 @@ export default function PaginationControls({ page, hasMore, loading, totalPages,
         Next
       </button>
 
-      <div className="pagination-info" aria-live="polite" style={{ marginLeft: '8px' }}>
+      <div className="pagination-info" aria-live="polite">
         {totalPages && totalPages > 0 ? `Page ${page + 1} of ${totalPages}` : `Page ${page + 1}`}
       </div>
     </div>

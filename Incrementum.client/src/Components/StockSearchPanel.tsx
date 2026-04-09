@@ -28,7 +28,7 @@ const StockSearchPanel: React.FC<StockSearchPanelProps> = ({
     <>
       <div className="relative mb-4 flex-shrink-0">
         <input
-          className="w-full bg-transparent border-0 border-b-2 border-[hsl(40,62%,40%)] px-0 py-2 text-[hsl(40,62%,20%)] placeholder-[hsl(40,62%,40%)] focus:outline-none focus:border-[hsl(40,62%,20%)]"
+          className="w-full bg-transparent border-0 border-b-2 border-[var(--bg-sunken)] px-0 py-2 text-[var(--text-primary)] placeholder-[var(--bg-sunken)] focus:outline-none focus:border-[var(--text-primary)]"
           type="text"
           placeholder="Search"
           value={searchQuery}
@@ -36,7 +36,7 @@ const StockSearchPanel: React.FC<StockSearchPanelProps> = ({
           onKeyDown={e => { if (e.key === 'Enter') onSearch(); }}
         />
         <button 
-          className="absolute right-2 top-1/2 -translate-y-1/2 text-[hsl(40,62%,30%)]"
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--text-primary)]"
           onClick={onSearch} 
           disabled={searching}
         >
@@ -46,18 +46,16 @@ const StockSearchPanel: React.FC<StockSearchPanelProps> = ({
       
       {searchResults.length > 0 && (
         <div 
-          className="space-y-2 overflow-y-auto search-results-container flex-1" 
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          className="space-y-2 overflow-y-auto search-results-container search-panel-results flex-1"
         >
-          <style>{`.search-results-container::-webkit-scrollbar { display: none; }`}</style>
           {searchResults.map((stock, idx) => (
-            <div key={stock.symbol || idx} className="bg-[hsl(40,63%,73%)] p-3 flex items-center justify-between" style={{ borderRadius: '2px' }}>
+            <div key={stock.symbol || idx} className="search-panel-result-row">
               <div>
-                <div className="font-semibold text-[hsl(40,62%,20%)]">{stock.symbol}</div>
-                <div className="text-xs text-[hsl(40,62%,30%)]">{stock.name || stock.longName || 'Full Stock name'}</div>
+                <div className="search-panel-result-symbol">{stock.symbol}</div>
+                <div className="search-panel-result-name">{stock.name || stock.longName || 'Full Stock name'}</div>
               </div>
               <button 
-                className="text-2xl text-[hsl(79,26%,36%)] hover:text-[hsl(79,26%,46%)]"
+                className="search-panel-add-btn"
                 onClick={() => onAddStock(stock.symbol)}
               >+</button>
             </div>

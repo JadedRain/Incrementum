@@ -1,18 +1,14 @@
-import logging
-import yfinance as yf
+from datetime import datetime, timedelta
+from logging import Logger
 from typing import Optional, Tuple
 import pandas as pd
 from django.db import connection
 from django.utils import timezone
-from datetime import datetime
 
 
 class StockHistoryService:
     def __init__(self):
-        datetime.timezone.utc
-        self.logger = logging.getLogger("django")
-        # store current timezone for making datetimes aware
-        timezone.make_aware(datetime, datetime.timezone.utc)
+        self.logger = Logger("logs")
 
     def get_db_history(
         self,
@@ -42,7 +38,7 @@ class StockHistoryService:
                 params.append(start_date)
 
             if end_date:
-                query += " AND day_and_time <= %s"
+                query += " AND day_and_time < %s"
                 params.append(end_date)
 
             if is_hourly is not None:
@@ -72,63 +68,6 @@ class StockHistoryService:
             )
             return None
 
-    def save_history_to_db(
-        self,
-        ticker: str,
-        history_df: pd.DataFrame,
-        is_hourly: bool = False,
-    ) -> bool:
-
-        if history_df is None or history_df.empty:
-            self.logger.warning(f"No data to save for {ticker}")
-            return False
-
-        try:
-            records = []
-            for date_index, row in history_df.iterrows():
-                records.append((
-                    ticker,
-                    date_index,
-                    int(row['Open']) if pd.notna(row['Open']) else 0,
-                    int(row['Close']) if pd.notna(row['Close']) else 0,
-                    int(row['High']) if pd.notna(row['High']) else 0,
-                    int(row['Low']) if pd.notna(row['Low']) else 0,
-                    int(row['Volume']) if pd.notna(row['Volume']) else 0,
-                    is_hourly
-                ))
-
-            with connection.cursor() as cursor:
-                insert_query = (
-                    """
-                    INSERT INTO incrementum.stock_history
-                    (
-                        stock_symbol, day_and_time,
-                        open_price, close_price,
-                        high, low, volume, is_hourly
-                    )
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                    ON CONFLICT (stock_symbol, day_and_time) DO UPDATE SET
-                    open_price = EXCLUDED.open_price,
-                    close_price = EXCLUDED.close_price,
-                    high = EXCLUDED.high,
-                    low = EXCLUDED.low,
-                    volume = EXCLUDED.volume,
-                    is_hourly = EXCLUDED.is_hourly
-                    """
-                )
-                cursor.executemany(insert_query, records)
-
-            self.logger.info(
-                f"Saved {len(records)} history records for {ticker} to database"
-            )
-            return True
-
-        except Exception as e:
-            self.logger.error(
-                f"Error saving history for {ticker} to database: {str(e)}"
-            )
-            return False
-
     def _is_data_current(self, df: pd.DataFrame, max_age_days: int = 1) -> bool:
         if df is None or df.empty:
             return False
@@ -136,6 +75,9 @@ class StockHistoryService:
         try:
             latest_date = pd.to_datetime(df['day_and_time']).max()
             latest_dt = latest_date.to_pydatetime()
+
+            if latest_dt.tzinfo is None:
+                latest_dt = timezone.make_aware(latest_dt, timezone.get_current_timezone())
 
             age = timezone.now() - latest_dt
             is_current = age.days <= max_age_days
@@ -148,35 +90,75 @@ class StockHistoryService:
             self.logger.error(f"Error checking data currency: {str(e)}")
             return False
 
-    def _get_fresh_data_since(
-        self,
-        ticker: str,
-        start_date: datetime,
-        interval: str = "1d"
-    ) -> Optional[pd.DataFrame]:
+    def _aggregate_daily(self, df: pd.DataFrame) -> Optional[pd.DataFrame]:
+        if df is None or df.empty:
+            return None
+
         try:
-            stock = yf.Ticker(ticker)
-            # ensure start_date is timezone-aware (yfinance accepts date strings)
-            start_date = self._ensure_aware(start_date)
+            work = df.copy()
+            work["day_and_time"] = pd.to_datetime(work["day_and_time"])
+            work = work.sort_values("day_and_time")
+            work = work.set_index("day_and_time")
 
-            end_date = timezone.now()
+            daily = work.resample("1D").agg({
+                "open_price": "first",
+                "close_price": "last",
+                "high": "max",
+                "low": "min",
+                "volume": "sum",
+            })
 
-            fresh_data = stock.history(
-                start=start_date.strftime("%Y-%m-%d"),
-                end=end_date.strftime("%Y-%m-%d"),
-                interval=interval,
-            )
+            daily = daily.dropna(subset=["open_price", "close_price", "high", "low"]).reset_index()
+            daily["is_hourly"] = True
 
-            if fresh_data is None or fresh_data.empty:
-
-                return None
-
-            return fresh_data
-
+            return daily
         except Exception as e:
-            self.logger.error(
-                f"Error fetching fresh data for {ticker}: {str(e)}"
+            self.logger.error(f"Error aggregating daily data: {str(e)}")
+            return None
+
+    def _aggregate_to_interval(self, df: pd.DataFrame, interval: str) -> Optional[pd.DataFrame]:
+        if df is None or df.empty:
+            return None
+
+        try:
+            work = df.copy()
+            work["day_and_time"] = pd.to_datetime(work["day_and_time"])
+            work = work.sort_values("day_and_time")
+            work = work.set_index("day_and_time")
+
+            # Map interval strings to pandas resample format
+            interval_map = {
+                "1m": "1min",
+                "5m": "5min",
+                "15m": "15min",
+                "30m": "30min",
+                "1h": "1H",
+                "1d": "1D",
+                "1wk": "1W",
+            }
+
+            resample_interval = interval_map.get(interval, interval)
+
+            aggregated = work.resample(resample_interval).agg({
+                "open_price": "first",
+                "close_price": "last",
+                "high": "max",
+                "low": "min",
+                "volume": "sum",
+            })
+
+            aggregated = aggregated.dropna(
+                subset=["open_price", "close_price", "high", "low"]
+            ).reset_index()
+            aggregated["is_hourly"] = interval in ["1h", "1d", "1wk"]
+
+            self.logger.info(
+                f"Aggregated {len(work)} records to {len(aggregated)} "
+                f"records at {interval} interval"
             )
+            return aggregated
+        except Exception as e:
+            self.logger.error(f"Error aggregating to {interval} interval: {str(e)}")
             return None
 
     def history(
@@ -191,71 +173,96 @@ class StockHistoryService:
             "is_current": False,
             "last_date": None
         }
+        end_date = datetime.now()
+        start_date = self.calculate_start_date(period, end_date)
 
-        db_history = self.get_db_history(ticker, is_hourly=(interval != "1d"))
+        # Determine if we need minute-level or hourly/daily data
+        hourly_intervals = ["1h"]
+        daily_intervals = ["1d", "1wk"]
+
+        if interval in daily_intervals:
+            # For daily/weekly intervals, try hourly data first
+            db_history = self.get_db_history(
+                ticker,
+                start_date=start_date.strftime("%Y-%m-%d"),
+                end_date=end_date.strftime("%Y-%m-%d"),
+                is_hourly=True,
+            )
+            if db_history is None or db_history.empty:
+                self.logger.info(f"No hourly data found, fetching minute data for {ticker}")
+                db_history = self.get_db_history(
+                    ticker,
+                    start_date=start_date.strftime("%Y-%m-%d"),
+                    end_date=end_date.strftime("%Y-%m-%d"),
+                    is_hourly=False,
+                )
+
+            # Aggregate to requested interval
+            if db_history is not None and not db_history.empty:
+                db_history = self._aggregate_to_interval(db_history, interval)
+
+        elif interval in hourly_intervals:
+            # For hourly intervals, get minute data and aggregate
+            db_history = self.get_db_history(
+                ticker,
+                start_date=start_date.strftime("%Y-%m-%d"),
+                end_date=end_date.strftime("%Y-%m-%d"),
+                is_hourly=False,
+            )
+            if db_history is not None and not db_history.empty:
+                db_history = self._aggregate_to_interval(db_history, interval)
+
+        else:
+            # For minute intervals (5m, 15m, etc.), get minute data and aggregate
+            db_history = self.get_db_history(
+                ticker,
+                start_date=start_date.strftime("%Y-%m-%d"),
+                end_date=end_date.strftime("%Y-%m-%d"),
+                is_hourly=False,
+            )
+            if db_history is not None and not db_history.empty:
+                db_history = self._aggregate_to_interval(db_history, interval)
+
         if db_history is not None and not db_history.empty:
             is_current = self._is_data_current(db_history)
             metadata["is_current"] = is_current
-            last_dt = pd.to_datetime(db_history['day_and_time']).max()
+            metadata["source"] = "database"
+            metadata["records_count"] = len(db_history)
+            last_dt = pd.to_datetime(db_history["day_and_time"]).max()
             metadata["last_date"] = last_dt.isoformat()
-
-            if is_current:
-                metadata["source"] = "database"
-                metadata["records_count"] = len(db_history)
-                self.logger.info(f"Using current database history for {ticker}")
-                return db_history, metadata
-
-            latest_db_date = pd.to_datetime(db_history['day_and_time']).max().to_pydatetime()
-            fresh_data = self._get_fresh_data_since(ticker, latest_db_date, interval)
-
-            if fresh_data is not None and not fresh_data.empty:
-                is_hourly = interval != "1d"
-                self.save_history_to_db(ticker, fresh_data, is_hourly)
-
-                combined = pd.concat([db_history, fresh_data])
-                combined = combined.drop_duplicates(
-                    subset=["day_and_time"], keep="last"
-                )
-                combined_data = (
-                    combined.sort_values("day_and_time")
-                    .reset_index(drop=True)
-                )
-
-                metadata["source"] = "combined"
-                metadata["records_count"] = len(combined_data)
-                metadata["is_current"] = True
-                self.logger.info(
-                    f"Using combined (database + fresh) history for {ticker}"
-                )
-                return combined_data, metadata
-            else:
-                metadata["source"] = "database_stale"
-                metadata["records_count"] = len(db_history)
-                return db_history, metadata
-
-        try:
-            stock = yf.Ticker(ticker)
-            history_data = stock.history(period=period, interval=interval)
-
-            if history_data is None or history_data.empty:
-                self.logger.warning(
-                    f"No history data found for ticker {ticker}"
-                )
-                return None, metadata
-
-            is_hourly = interval != "1d"
-            self.save_history_to_db(ticker, history_data, is_hourly)
-
-            metadata["source"] = "yfinance"
-            metadata["records_count"] = len(history_data)
-            metadata["is_current"] = True
             self.logger.info(
-                f"Retrieved {len(history_data)} records from yfinance for {ticker}"
+                f"Using database history for {ticker}: "
+                f"{len(db_history)} records at {interval} interval"
             )
-            return history_data, metadata
+            return db_history, metadata
 
-        except Exception as e:
-            self.logger.error(
-                f"Error fetching history for {ticker}: {str(e)}"
-            )
-            return None, metadata
+        return None, metadata
+
+    def calculate_start_date(self, period, end_date):
+        period_lower = period.lower() if period else "1y"
+
+        if period_lower in ("1y", "1yr"):
+            start_date = end_date - timedelta(days=365)
+        elif period_lower == "2y":
+            start_date = end_date - timedelta(days=730)
+        elif period_lower == "5y":
+            start_date = end_date - timedelta(days=1825)
+        elif period_lower == "1d":
+            start_date = end_date - timedelta(hours=24)
+        elif period_lower == "5d":
+            start_date = end_date - timedelta(days=5)
+        elif period_lower == "ytd":
+            start_date = datetime(datetime.now().year, 1, 1)
+        elif period_lower in ("1wk", "1w"):
+            start_date = end_date - timedelta(days=7)
+        elif period_lower == "1mo":
+            start_date = end_date - timedelta(days=30)
+        elif period_lower == "3mo":
+            start_date = end_date - timedelta(days=90)
+        elif period_lower == "6mo":
+            start_date = end_date - timedelta(days=180)
+        else:
+            # Default to 1 year if period is not recognized
+            self.logger.warning(f"Unknown period '{period}', defaulting to 1 year")
+            start_date = end_date - timedelta(days=365)
+        return start_date

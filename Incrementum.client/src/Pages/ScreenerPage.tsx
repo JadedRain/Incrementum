@@ -13,22 +13,24 @@ function ScreenerPage() {
     const { apiKey } = useAuth();
     const { customScreeners, loading } = useCustomScreeners(apiKey || undefined);
 
+        // The inner component renders the screener (filters + stocks) using context
+
     const handleCardClick = (id: number | string) => {
         navigate(`/screener/${encodeURIComponent(id)}`);
     };
 
     return (
-        <div className="min-h-screen bg-[hsl(40,13%,53%)]">
+        <div className="page-shell">
             <NavigationBar />
             <div className="main-content">
                 <Link to="/account" className="navbar-link">Account</Link>
-                <div className="ScreenerPage-container pt-4">
-                    <div className="screener-layout" style={{ display: 'flex', gap: 48, alignItems: 'flex-start' }}>
-                        <div style={{ flex: 1 }}>
+                <div className="ScreenerPage-container">
+                    <div className="screener-layout">
+                        <div className="screener-layout-main">
                             <div className="ScreenerPage-card-grid">
 
                                 {loading && (
-                                    <div className="w-full flex items-center justify-center" style={{ height: '120px' }}>
+                                <div className="loading-placeholder">
                                         <Loading loading={true} loadingText="Loading screeners..." />
                                     </div>
                                 )}
@@ -73,19 +75,19 @@ function ScreenerPage() {
                                             />
                                         )}
 
-                                        {apiKey && customScreeners.map((screener) => (
-                                            <AppCard
-                                                key={screener.id}
-                                                title={screener.screener_name}
-                                                subtitle="Custom screener"
-                                                onClick={() => handleCardClick(screener.id)}
-                                            />
-                                        ))}
+                                                        {apiKey && customScreeners.map((screener) => (
+                                                            <AppCard
+                                                                key={screener.id}
+                                                                title={screener.screener_name}
+                                                                subtitle="Custom screener"
+                                                                onClick={() => handleCardClick(screener.id)}
+                                                            />
+                                                        ))}
                                     </>
                                 )}
                             </div>
                         </div>
-                        <aside style={{ width: 300, display: 'flex', justifyContent: 'center' }}>
+                        <aside className="screener-layout-aside">
                             <div className="FearGreedBox">
                                 <FearGreedGauge />
                             </div>

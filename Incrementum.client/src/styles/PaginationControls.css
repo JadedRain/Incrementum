@@ -1,18 +1,32 @@
 @import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap");
 @import "tailwindcss";
 
-.pagination-button {
-  @apply px-4;
-  @apply py-2;
-  @apply bg-[#E8CB92];
-  @apply text-[#533E13];
+.pagination-controls {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 0;
+  margin-top: 0;
+  z-index: 100;
+  background-color: var(--bg-surface);
+  border-top: 1px solid var(--border-divider, rgba(0,0,0,0.1));
+}
+
+.pagination-options {
+  @apply m-1;
+  @apply px-3;
+  @apply py-1;
+  @apply bg-[var(--accent)];
+  @apply text-[var(--bg-base)];
   @apply rounded;
   @apply disabled:opacity-50;
+  @apply text-sm;
   font-family: 'Newsreader', serif;
 }
 
 .pagination-button:hover {
-  background: hsl(38 70% 86%);
+  background: var(--accent-hover);
   cursor: pointer;
 }
 
@@ -22,5 +36,11 @@
 }
 
 .pagination-button:disabled:hover {
-  background: #E8CB92;
+  background: var(--accent);
+}
+
+.pagination-info {
+  margin-left: 8px;
+  color: var(--text-primary);
+  font-family: var(--font-serif);
 }

@@ -1,9 +1,9 @@
 from django.urls import path
-from .views_auth import login, signup, account_info, sync_keycloak_user, keycloak_login
-from . import views, screener_views, filter_views
+from .views_auth import (
+    login, signup, account_info, sync_keycloak_user, keycloak_login
+)
+from . import views, screener_views, filter_views, views_user_stock_potential, views_candlestick
 from .controllers import stocks_controller as stocks
-from .controllers import custom_collection_controller as collections
-from .controllers.screener_run_controller import run_screener
 
 urlpatterns = [
     # Authentication endpoints
@@ -27,9 +27,15 @@ urlpatterns = [
     path('stock/<str:ticker>/',
          stocks.get_stock_info_controller,
          name='get_stock_info'),
+    path('getStocks/<str:ticker>/',
+         stocks.get_stock_graph,
+         name='get_stock_graph'),
     path('stock/<str:ticker>/metadata/',
          stocks.get_stock_metadata,
          name='get_stock_metadata'),
+    path('api/predict/<str:ticker>/',
+         stocks.predict_stock_controller,
+         name='predict_stock'),
     path('stocks/',
          stocks.stock_list_create,
          name='stock_list_create'),
@@ -42,26 +48,20 @@ urlpatterns = [
     path('stocks/industry-autocomplete/',
          screener_views.industry_autocomplete,
          name='industry_autocomplete'),
+    path('stocks/validate-tickers/',
+         screener_views.validate_ticker_symbols,
+         name='validate_ticker_symbols'),
+    path('stocks/bulk/',
+         stocks.get_stocks_by_tickers,
+         name='get_stocks_by_tickers'),
 
-    # Custom collection endpoints
-    path('custom-collection/',
-         collections.custom_collection,
-         name='custom_collection'),
-    path('custom-collection/<int:collection_id>/',
-         collections.custom_collection_by_id,
-         name='custom_collection_by_id'),
-    path('custom-collection/aggregate/',
-         collections.custom_collection_aggregate,
-         name='custom_collection_aggregate'),
-    path('custom-collection/aggregate-graph/',
-         collections.custom_collection_aggregate_graph,
-         name='custom_collection_aggregate_graph'),
-    path('custom-collection/overlay-graph/',
-         collections.custom_collection_overlay_graph,
-         name='custom_collection_overlay_graph'),
-    path('custom-collections/',
-         collections.custom_collections_list,
-         name='custom_collections_list'),
+    # Candlestick pattern endpoints
+    path('candlestick/patterns/<str:ticker>/',
+         views_candlestick.analyze_candlestick_patterns,
+         name='analyze_candlestick_patterns'),
+    path('candlestick/test/',
+         views_candlestick.test_pattern_detection,
+         name='test_pattern_detection'),
 
     # Screener endpoints
     path('screeners/custom/',
@@ -73,15 +73,24 @@ urlpatterns = [
     path('screeners/custom/<int:screener_id>/',
          screener_views.get_custom_screener,
          name='get_custom_screener'),
+    path('screeners/custom/<int:screener_id>/share/',
+         screener_views.get_custom_screener_share_token,
+         name='get_custom_screener_share_token'),
     path('screeners/custom/<int:screener_id>/update/',
          screener_views.update_custom_screener,
          name='update_custom_screener'),
     path('screeners/custom/<int:screener_id>/delete/',
          screener_views.delete_custom_screener,
          name='delete_custom_screener'),
-    path('screeners/run/',
-         run_screener,
-         name='run_screener'),
+    path('screeners/custom/<int:screener_id>/privacy/',
+         screener_views.update_screener_privacy,
+         name='update_screener_privacy'),
+    path('screeners/shared/<str:token>/',
+         screener_views.get_shared_custom_screener,
+         name='get_shared_custom_screener'),
+    path('screeners/community/search/<str:query>/',
+         screener_views.search_community_screeners,
+         name='search_community_screeners'),
     path('screeners/database/',
          screener_views.run_database_screener,
          name='run_database_screener'),
@@ -98,23 +107,22 @@ urlpatterns = [
     path('fear-greed/csv/',
          views.get_fear_greed_from_csv,
          name='fear_greed_csv'),
-    path('fetch-polygon-stocks/',
-         views.fetch_polygon_stocks_view,
-         name='fetch_polygon_stocks'),
-    path('fetch-update-list-stocks/',
-         views.fetch_update_and_list_stocks,
-         name='fetch_update_list_stocks'),
-    path('fetch-and-update-database/',
-         views.fetch_and_update_database,
-         name='fetch_and_update_database'),
 
-    # DEPRECATED - Outdated filter endpoint
-    # TODO: Remove once filter system migration is complete
-    # Currently updating the way filters are processed
-    path('stocks/getfilteredstocks',
-         run_screener,
-         name='get_filtered_stocks'),
     path('custom-screeners',
          screener_views.custom_screener_list_create,
          name='custom_screener_list_create'),
+
+    # User stock potential endpoints
+    path('api/user-stock-potentials/stock/<str:stock_symbol>/',
+         views_user_stock_potential.get_user_stock_potentials_by_stock,
+         name='user_stock_potentials_by_stock'),
+    path('api/user-stock-potentials/screener/<int:screener_id>/',
+         views_user_stock_potential.get_user_stock_potentials_by_screener,
+         name='user_stock_potentials_by_screener'),
+    path('api/user-stock-potentials/<int:potential_id>/',
+         views_user_stock_potential.user_stock_potential_detail,
+         name='user_stock_potential_detail'),
+    path('api/user-stock-potentials/',
+         views_user_stock_potential.user_stock_potential_list_create,
+         name='user_stock_potential_list_create'),
 ]

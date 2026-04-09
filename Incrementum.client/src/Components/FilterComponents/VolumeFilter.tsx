@@ -1,88 +1,161 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
-import { useFilterData } from '../../Context/FilterDataContext';
-
+import { useDatabaseScreenerContext } from '../../Context/DatabaseScreenerContext';
 
 const VolumeFilter: React.FC = () => {
-  const { addFilter, removeFilter, fetchInit, initDict } = useFilterData();
-  const [, setAvgMin] = useState<number | null>(null);
-  const [, setAvgMax] = useState<number | null>(null);
-  const [todayMin, setTodayMin] = useState<number | null>(null);
-  const [todayMax, setTodayMax] = useState<number | null>(null);
-    useEffect(() => {
-    console.log(initDict)
-    const init = fetchInit("avgvolume");
-    console.log(init)
-    if (init) {
-      setAvgMax(init.high ?? null);
-      setAvgMin(init.low ?? null);
-    }
-  }, [fetchInit, initDict]);
-    useEffect(() => {
-    console.log(initDict)
-    const init = fetchInit("nowvolume");
-    console.log(init)
-    if (init) {
-      setTodayMax(init.high ?? null);
-      setTodayMin(init.low ?? null);
-    }
-  }, [fetchInit, initDict]);
-  const todaykey = 'dayvolume';
-  const todayMinKey = 'todayvolume.min';
-  const todayMaxKey = 'todayvolume.max';
+  const { addFilter, removeFilter, filterDict } = useDatabaseScreenerContext();
 
-  const showTodayWarning = todayMin !== null && todayMax !== null && todayMin > todayMax;
+  const removeAllWithPrefix = useCallback((prefix: string) => {
+    Object.keys(filterDict).forEach(key => {
+      if (key.startsWith(prefix)) removeFilter(key);
+    });
+  }, [filterDict, removeFilter]);
+
+  const [min_volume, setMinVolume] = useState<number | null>(null);
+  const [min_volume_temp, setMinVolumeTemp] = useState<number | null>(null);
+  const [max_volume, setMaxVolume] = useState<number | null>(null);
+  const [max_volume_temp, setMaxVolumeTemp] = useState<number | null>(null);
+  const [scaleLabelMin, setScaleLabelMin] = useState<number>(1);
+  const [scaleLabelMax, setScaleLabelMax] = useState<number>(1);
+  const isSyncingRef = useRef(false);
+
+  const showWarning = min_volume !== null && max_volume !== null && min_volume > max_volume;
+
+  // Sync state with filterDict changes
+  useEffect(() => {
+    isSyncingRef.current = true;
+    const minKey = Object.keys(filterDict).find(key => key.startsWith('volume__greater_than_or_equal'));
+    const maxKey = Object.keys(filterDict).find(key => key.startsWith('volume__less_than_or_equal'));
+    
+    if (minKey && filterDict[minKey].value !== undefined) {
+      const value = Number(filterDict[minKey].value);
+      setMinVolume(value);
+      // Auto-scale the display
+      if (value >= 1000000) {
+        setScaleLabelMin(1000000);
+        setMinVolumeTemp(value / 1000000);
+      } else if (value >= 1000) {
+        setScaleLabelMin(1000);
+        setMinVolumeTemp(value / 1000);
+      } else {
+        setScaleLabelMin(1);
+        setMinVolumeTemp(value);
+      }
+    } else {
+      setMinVolume(null);
+      setMinVolumeTemp(null);
+      setScaleLabelMin(1);
+    }
+    
+    if (maxKey && filterDict[maxKey].value !== undefined) {
+      const value = Number(filterDict[maxKey].value);
+      setMaxVolume(value);
+      // Auto-scale the display
+      if (value >= 1000000) {
+        setScaleLabelMax(1000000);
+        setMaxVolumeTemp(value / 1000000);
+      } else if (value >= 1000) {
+        setScaleLabelMax(1000);
+        setMaxVolumeTemp(value / 1000);
+      } else {
+        setScaleLabelMax(1);
+        setMaxVolumeTemp(value);
+      }
+    } else {
+      setMaxVolume(null);
+      setMaxVolumeTemp(null);
+      setScaleLabelMax(1);
+    }
+    setTimeout(() => {
+      isSyncingRef.current = false;
+    }, 0);
+  }, [filterDict]);
 
   useEffect(() => {
-    if (todayMin !== null) addFilter(todayMinKey, { operand: todaykey, operator: 'gte', filter_type: 'numeric', value_high: null, value_low: null, value: todayMin });
-    else removeFilter(todayMinKey);
-  }, [todayMin, addFilter, removeFilter]);
+    if (!isSyncingRef.current) {
+      setMinVolume(min_volume_temp !== null ? min_volume_temp * scaleLabelMin : null);
+      setMaxVolume(max_volume_temp !== null ? max_volume_temp * scaleLabelMax : null);
+    }
+  }, [min_volume_temp, max_volume_temp, scaleLabelMin, scaleLabelMax]);
 
   useEffect(() => {
-    if (todayMax !== null) addFilter(todayMaxKey, { operand: todaykey, operator: 'lte', filter_type: 'numeric', value_high: null, value_low: null, value: todayMax });
-    else removeFilter(todayMaxKey);
-  }, [todayMax, addFilter, removeFilter]);
+    if (isSyncingRef.current) return;
+    if (min_volume !== null) {
+      addFilter({
+        operator: 'greater_than_or_equal',
+        operand: 'volume',
+        filter_type: 'numeric',
+        value: min_volume,
+      });
+    } else {
+      removeAllWithPrefix('volume__greater_than_or_equal');
+    }
+  }, [min_volume, addFilter, removeAllWithPrefix]);
+
+  useEffect(() => {
+    if (isSyncingRef.current) return;
+    if (max_volume !== null) {
+      addFilter({
+        operator: 'less_than_or_equal',
+        operand: 'volume',
+        filter_type: 'numeric',
+        value: max_volume,
+      });
+    } else {
+      removeAllWithPrefix('volume__less_than_or_equal');
+    }
+  }, [max_volume, addFilter, removeAllWithPrefix]);
 
   return (
-    <ExpandableSidebarItem title="Stocks Traded Volume">
-      <div>
-        <div style={{ fontWeight: 600 }}>Today's Volume</div>
-        <div 
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "0.5rem",
-            width: "100%",
-            boxSizing: "border-box"
-          }}
-        >
+    <ExpandableSidebarItem title="Volume" description="Current trading volume. Measure of all trades in a specific period. Indicates if a stock is actively traded.">
+      <div className="filter-block">
+        <div className="filter-block-label">Trading Volume</div>
+
+        <div className="filter-row">
           <input
             type="number"
             placeholder="Min"
-            value={todayMin ?? ''}
-            onChange={e => setTodayMin(e.target.value ? Number(e.target.value) : null)}
-            className="sidebar-input"
-            style={{ flex: 1, padding: '0.4rem', minWidth: 0 }}
+            value={min_volume_temp ?? ''}
+            onChange={e => setMinVolumeTemp(e.target.value ? Number(e.target.value) : null)}
+            className="sidebar-input filter-input-main"
           />
+          <select
+            value={scaleLabelMin}
+            onChange={e => setScaleLabelMin(Number(e.target.value))}
+            className="sidebar-input filter-input-scale"
+          >
+            <option value={1}></option>
+            <option value={1000}>k</option>
+            <option value={1000000}>m</option>
+            <option value={1000000000}>b</option>
+          </select>
+        </div>
+
+        <div className="filter-row">
           <input
             type="number"
             placeholder="Max"
-            value={todayMax ?? ''}
-            onChange={e => setTodayMax(e.target.value ? Number(e.target.value) : null)}
-            className="sidebar-input"
-            style={{ flex: 1, padding: '0.4rem', minWidth: 0 }}
+            value={max_volume_temp ?? ''}
+            onChange={e => setMaxVolumeTemp(e.target.value ? Number(e.target.value) : null)}
+            className="sidebar-input filter-input-main"
           />
+          <select
+            value={scaleLabelMax}
+            onChange={e => setScaleLabelMax(Number(e.target.value))}
+            className="sidebar-input filter-input-scale"
+          >
+            <option value={1}></option>
+            <option value={1000}>k</option>
+            <option value={1000000}>m</option>
+            <option value={1000000000}>b</option>
+          </select>
         </div>
       </div>
-      {showTodayWarning && (
-        <div style={{ color: 'red', fontSize: '0.85rem', marginTop: '0.5rem' }}>
-          Warning: Today's Volume Min cannot be greater than Max.
+      {showWarning && (
+        <div className="filter-warning">
+          Warning: Min cannot be greater than Max.
         </div>
       )}
-      <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#2b2b2b' }}>
-        (Min filter uses &gt;=, Max filter uses &lt;=. Empty inputs remove the filter.)
-      </div>
     </ExpandableSidebarItem>
   );
 };

@@ -1,11 +1,50 @@
-import { useState } from 'react';
 import Loading from './Loading';
 import StockRow from './StockRow';
-import { useFilterData } from '../Context/FilterDataContext';
 import ColumnVisibilityProvider from '../Context/ColumnVisibilityContext';
 import { useColumnVisibility } from '../Context/useColumnVisibility';
-import { getNextSortDirection, sortStocks, type SortField, type SortDirection } from '../utils/sortingUtils';
 import '../styles/stock-table-extras.css';
+import '../styles/PaginationControls.css';
+import { useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
+import { useState } from 'react';
+import InfoIconSvg from '../assets/info-filled-svgrepo-com.svg';
+import { usePreferences } from '../Context/usePreferences';
+import { columnDescriptions } from '../constants/columnDescriptions';
+
+function InfoIcon({ description, position = 'left', showBubbles = true }: { description?: string; position?: 'left' | 'right' | 'bottom'; showBubbles?: boolean }) {
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  if (!description || !showBubbles) {
+    return null;
+  }
+
+  const tooltipClasses = position === 'left'
+    ? 'absolute right-full top-1/2 -translate-y-1/2 mr-2 px-3 py-2 bg-gray-900 text-white rounded text-xs whitespace-normal w-48 shadow-lg z-50'
+    : position === 'right'
+    ? 'absolute left-full top-1/2 -translate-y-1/2 ml-2 px-3 py-2 bg-gray-900 text-white rounded text-xs whitespace-normal w-48 shadow-lg z-50'
+    : 'absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white rounded text-xs whitespace-normal w-48 shadow-lg z-50';
+  
+  const arrowClasses = position === 'left'
+    ? 'absolute left-full top-1/2 -translate-y-1/2 border-4 border-transparent border-l-gray-900'
+    : position === 'right'
+    ? 'absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900'
+    : 'absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900';
+
+  return (
+    <div
+      className="relative inline-block"
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
+    >
+      <img src={InfoIconSvg} alt="info" className="w-5 h-5 cursor-help inline-block ml-2" />
+      {showTooltip && (
+        <div className={tooltipClasses}>
+          {description}
+          <div className={arrowClasses}></div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 type Stock = {
   symbol?: string;
@@ -13,93 +52,207 @@ type Stock = {
   regularMarketPrice?: number;
   fiftyTwoWeekHigh?: number;
   fiftyTwoWeekLow?: number;
-  marketCap?: number;
+  price?: number;
+  dayPercentChange?: number;
+  market_cap?: number;
   regularMarketVolume?: number;
   averageDailyVolume3Month?: number;
   averageVolume?: number;
   volume?: number;
+  eps?: number;
+  debt_to_equity?: number;
+  list_date?: string | null;
+  outstanding_shares?: number | null;
+  share_class_figi?: string | null;
+  sic_description?: string | null;
+  annual_eps_growth_rate?: number | null;
+  price_per_earnings?: number | null;
+  pe_per_growth?: number | null;
+  revenue_per_share?: number | null;
+  price_per_sales?: number | null;
 };
 
-type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'marketCap';
+type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps' | 'debt_to_equity' | 'list_date' | 'outstanding_shares' | 'share_class_figi' | 'sic_description' | 'annual_eps_growth_rate' | 'price_per_earnings' | 'pe_per_growth' | 'revenue_per_share' | 'price_per_sales';
 type Col = { k: ColKey; l: string };
 
-type Props = { onRowClick?: (s: string) => void };
+type Props = { onRowClick?: (s: string) => void; stocks?: unknown[] };
 
-export default function StockTable({ onRowClick }: Props) {
-  const { stocks, isLoading, filterDataDict } = useFilterData();
+export default function StockTable({ onRowClick, stocks: overrideStocks }: Props) {
+  const {
+    stocks: contextStocks,
+    isLoading,
+    sortBy,
+    setSortBy,
+    sortAsc,
+    setSortAsc,
+    page,
+    setPage,
+    pagination,
+  } = useDatabaseScreenerContext();
+  const stocks = (overrideStocks ?? contextStocks) as unknown[];
+  const useBackendPagination = overrideStocks === undefined;
 
   const cols: Col[] = [
     { k: 'symbol', l: 'Symbol' },
     { k: 'price', l: 'Price' },
+    { k: 'eps', l: 'EPS' },
+    { k: 'debt_to_equity', l: 'D/E Ratio' },
     { k: 'high52', l: '52W High' },
     { k: 'low52', l: '52W Low' },
     { k: 'percentChange', l: '1 Day % Chg.' },
     { k: 'volume', l: 'Vol.' },
-    { k: 'marketCap', l: 'Mkt. Cap' },
+    { k: 'market_cap', l: 'Mkt. Cap' },
+    { k: 'list_date', l: 'Listed Date' },
+    { k: 'outstanding_shares', l: 'Outstanding Shares' },
+    { k: 'share_class_figi', l: 'Share Class' },
+    { k: 'sic_description', l: 'Industry' },
+    { k: 'annual_eps_growth_rate', l: 'Annual EPS Growth' },
+    { k: 'price_per_earnings', l: 'P/E Ratio' },
+    { k: 'pe_per_growth', l: 'PEG Ratio' },
+    { k: 'revenue_per_share', l: 'Revenue/Share' },
+    { k: 'price_per_sales', l: 'P/S Ratio' },
   ];
 
   return (
-    <ColumnVisibilityProvider showWatchlist={false}>
-      <InnerStockTable onRowClick={onRowClick} cols={cols} stocks={stocks} isLoading={isLoading} filterDataDict={filterDataDict} />
+    <ColumnVisibilityProvider>
+      <InnerStockTable
+        onRowClick={onRowClick}
+        cols={cols}
+        stocks={stocks}
+        isLoading={isLoading}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        sortAsc={sortAsc}
+        setSortAsc={setSortAsc}
+        page={page}
+        setPage={setPage}
+        pagination={pagination}
+        useBackendPagination={useBackendPagination}
+      />
     </ColumnVisibilityProvider>
   );
 }
 
-function InnerStockTable({ onRowClick, cols, stocks, isLoading, filterDataDict }: {
+function InnerStockTable({
+  onRowClick,
+  cols,
+  stocks,
+  isLoading,
+  sortBy,
+  setSortBy,
+  sortAsc,
+  setSortAsc,
+  page,
+  setPage,
+  pagination,
+  useBackendPagination,
+}: {
   onRowClick?: (s: string) => void;
   cols: Col[];
-  stocks: Stock[] | unknown;
+  stocks: unknown;
   isLoading: boolean;
-  filterDataDict: Record<string, unknown>;
+  sortBy: string | null;
+  setSortBy: (v: string | null) => void;
+  sortAsc: boolean;
+  setSortAsc: (v: boolean) => void;
+  page: number;
+  setPage: (v: number) => void;
+  pagination: {
+    total_count: number;
+    total_pages: number;
+    has_next: boolean;
+    has_prev: boolean;
+  } | null;
+  useBackendPagination: boolean;
 }) {
   const { visibleColumns, toggleColumn, menuOpen, setMenuOpen, menuRef, btnRef, columnOrder, moveColumn } = useColumnVisibility();
-  const [sortField, setSortField] = useState<SortField | null>(null);
-  const [sortDirection, setSortDirection] = useState<SortDirection>(null);
+  const { showInfoBubbles } = usePreferences();
+  const stocksArray = Array.isArray(stocks) ? (stocks as Stock[]) : [];
+  const [dropIndicator, setDropIndicator] = useState<{ index: number; side: 'left' | 'right' } | null>(null);
 
-  const colToSortField = (k: string): SortField | null => {
+  // Map column keys to backend sort fields
+  const colToSortField = (k: string): string | null => {
     switch (k) {
       case 'symbol':
-        return 'name';
+        return 'symbol';
       case 'price':
         return 'price';
+      case 'eps':
+        return 'eps';
+      case 'debt_to_equity':
+        return 'debt_to_equity';
       case 'percentChange':
-        return 'percentChange';
+        return 'percent_change';
       case 'volume':
         return 'volume';
-      case 'marketCap':
-        return 'marketCap';
+      case 'market_cap':
+        return 'market_cap';
+      case 'high52':
+        return 'high52';
+      case 'low52':
+        return 'low52';
+      case 'list_date':
+        return 'list_date';
+      case 'outstanding_shares':
+        return 'outstanding_shares';
+      case 'share_class_figi':
+        return 'share_class_figi';
+      case 'sic_description':
+        return 'sic_description';
+      case 'annual_eps_growth_rate':
+        return 'annual_eps_growth_rate';
+      case 'price_per_earnings':
+        return 'price_per_earnings';
+      case 'pe_per_growth':
+        return 'pe_per_growth';
+      case 'revenue_per_share':
+        return 'revenue_per_share';
+      case 'price_per_sales':
+        return 'price_per_sales';
       default:
         return null;
     }
   };
 
-  const getSortIndicator = (field: SortField) => {
-    if (sortField !== field) return '';
-    if (sortDirection === 'asc') return ' ▲';
-    if (sortDirection === 'desc') return ' ▼';
-    return '';
+  const getSortIndicator = (field: string) => {
+    if (sortBy !== field) return '';
+    if (sortAsc) return ' ▲';
+    return ' ▼';
   };
 
-  const handleHeaderClick = (field: SortField) => {
-    const nextDirection = getNextSortDirection(sortField, field, sortDirection);
-    setSortField(nextDirection === null ? null : field);
-    setSortDirection(nextDirection);
+  const handleHeaderClick = (field: string) => {
+    if (sortBy !== field) {
+      setSortBy(field);
+      setSortAsc(true);
+      return;
+    }
+
+    if (sortAsc) {
+      setSortAsc(false);
+      return;
+    }
+
+    setSortBy(null);
+    setSortAsc(true);
   };
   const btnStyle = 'bg-transparent border-none cursor-pointer p-1';
-  const menuStyle = 'absolute right-0 mt-1 bg-[#e6c884] rounded-lg shadow-lg p-3 min-w-[240px]';
+  const menuStyle = 'absolute right-0 mt-1 bg-[var(--bg-surface)] rounded-lg shadow-lg p-3 min-w-[240px]';
 
   return (
     <div className="StockTable-container stocktable-flex">
-      <div className="StockTable-header-row relative">
+      <div className="StockTable-header-row relative pr-12">
         <div className="absolute right-2 top-1 z-10">
           <button ref={btnRef} aria-label="Columns" onClick={() => setMenuOpen(!menuOpen)} className={btnStyle}><span className="text-[20px]">⋮</span></button>
           {menuOpen && (
             <div ref={menuRef} className={menuStyle}>
-              <div className="font-bold mb-2 text-[15px] text-[#3f2a10]">Columns</div>
+              <div className="font-bold mb-2 text-[15px] text-[var(--text-primary)]">Columns</div>
               {cols.filter(c => c.k !== 'symbol').map((c: Col) => (
                 <label key={c.k} className="flex items-center gap-3 mb-2">
                   <input className="transform scale-125 accent-[#6b4c1b]" type="checkbox" checked={!!visibleColumns[c.k]} onChange={() => toggleColumn(c.k)} />
-                  <span className="text-[15px] text-[#3f2a10]">{c.l}</span>
+                  <div className="flex items-center">
+                    <span className="text-[15px] text-[var(--text-primary)]">{c.l}</span>
+                    <InfoIcon description={columnDescriptions[c.k as ColKey]} position="left" showBubbles={showInfoBubbles} />
+                  </div>
                 </label>
               ))}
             </div>
@@ -111,40 +264,88 @@ function InnerStockTable({ onRowClick, cols, stocks, isLoading, filterDataDict }
           const labelMap: Record<string, string> = Object.fromEntries(cols.map(c => [c.k, c.l]));
           if (!visibleColumns[k]) return null;
           const sortableField = colToSortField(k);
+          const isDropLeft = dropIndicator?.index === idx && dropIndicator.side === 'left';
+          const isDropRight = dropIndicator?.index === idx && dropIndicator.side === 'right';
           return (
             <div
               key={k}
-              className="StockTable-header cursor-grab"
+              className={`StockTable-header ${sortableField ? 'col-sortable' : 'col-draggable'} ${isDropLeft ? 'drop-target-left' : ''} ${isDropRight ? 'drop-target-right' : ''}`}
               draggable={true}
               data-index={idx}
               onDragStart={(e) => {
                 e.dataTransfer?.setData('text/plain', String(idx));
                 e.dataTransfer!.effectAllowed = 'move';
               }}
-              onDragOver={(e) => { e.preventDefault(); }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                const rect = e.currentTarget.getBoundingClientRect();
+                const midpoint = rect.left + rect.width / 2;
+                const side: 'left' | 'right' = e.clientX < midpoint ? 'left' : 'right';
+                setDropIndicator((prev) => {
+                  if (prev?.index === idx && prev?.side === side) return prev;
+                  return { index: idx, side };
+                });
+              }}
+              onDragEnd={() => {
+                setDropIndicator(null);
+              }}
               onDrop={(e) => {
+                e.preventDefault();
                 const from = Number(e.dataTransfer?.getData('text/plain'));
-                const to = idx;
-                if (!Number.isNaN(from) && from !== to) moveColumn(from, to);
+                if (Number.isNaN(from) || !dropIndicator) {
+                  setDropIndicator(null);
+                  return;
+                }
+
+                let to = dropIndicator.index + (dropIndicator.side === 'right' ? 1 : 0);
+                if (from < to) to -= 1;
+
+                if (from !== to) moveColumn(from, to);
+                setDropIndicator(null);
               }}
               onClick={() => { if (sortableField) handleHeaderClick(sortableField); }}
               role={sortableField ? 'button' : undefined}
-              style={{ cursor: sortableField ? 'pointer' : 'grab' }}
             >
-              {(labelMap[k] ?? k) + (sortableField ? getSortIndicator(sortableField) : '')}
+              {isDropLeft && <span className="StockTable-drop-line StockTable-drop-line--left" />}
+              {isDropRight && <span className="StockTable-drop-line StockTable-drop-line--right" />}
+              <div className="flex items-center justify-center">
+                <span>{(labelMap[k] ?? k) + (sortableField ? getSortIndicator(sortableField) : '')}</span>
+              </div>
             </div>
           );
         })}
       </div>
-      <Loading loading={isLoading} />
-      {Object.keys(filterDataDict).length == 0 && <div>Select some filters to get started!</div>}
-      {!isLoading && (() => {
-        const items: Stock[] = Array.isArray(stocks) ? (stocks as Stock[]) : [];
-        const displayItems = (sortField && sortDirection) ? sortStocks(items, sortField, sortDirection) : items;
-        return displayItems.map((s: Stock, idx: number) => (
+      <div className="stocktable-body">
+        <Loading loading={isLoading} />
+        {!isLoading && stocksArray.map((s: Stock, idx: number) => (
           <StockRow key={s.symbol ?? idx} stock={s} onClick={() => onRowClick?.(s.symbol ?? '')} />
-        ));
-      })()}
+        ))}
+      </div>
+      {useBackendPagination && pagination && pagination.total_pages > 0 && (
+        <div className="pagination-controls">
+          <button
+            className="pagination-button pagination-options"
+            onClick={() => setPage(page - 1)}
+            disabled={!pagination.has_prev || isLoading}
+          >
+            Prev
+          </button>
+          <span className='pagination-options'>Page {page} of {pagination.total_pages}</span>
+          <button
+            className="pagination-button pagination-options"
+            onClick={() => setPage(page + 1)}
+            disabled={!pagination.has_next || isLoading}
+          >
+            Next
+          </button>
+        </div>
+      )}
+      {useBackendPagination && pagination && (
+        <div className="results-count">
+          <span className="results-count-number">{pagination.total_count.toLocaleString()}</span>
+          {' '}{pagination.total_count === 1 ? 'result' : 'results'}
+        </div>
+      )}
     </div>
   );
 }

@@ -20,9 +20,10 @@ export interface CategoricalFilter {
 
 export interface CustomScreener {
   id: number;
-  name?: string;
   screener_name?: string;
   created_at?: string;
+  is_private?: boolean;
+  visibility?: 'private' | 'public' | 'community';
   numeric_filters?: NumericFilter[];
   categorical_filters?: CategoricalFilter[];
 }

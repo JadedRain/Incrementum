@@ -16,7 +16,7 @@ export function useCustomScreeners(apiKey?: string) {
       if (!apiKey) return;
       setLoading(true);
       try {
-        const response = await fetchWrapper(()=>fetch(apiString('/custom-screeners/'), {
+        const response = await fetchWrapper(()=>fetch(apiString('/custom-screeners'), {
           headers: {
             'X-User-Id': apiKey,
           },

@@ -16,12 +16,24 @@ const SettingsSidebar: React.FC<Props> = ({ active, setActive }) => {
                         <button
                             type="button"
                             onClick={() => setActive("account")}
-                            className={`w-full text-left py-4 border-b border-[hsl(40,46%,36%)] px-1 ${active === "account"
-                                ? "font-semibold text-[hsl(40,46%,36%)]"
-                                : "text-[hsl(40,46%,36%)]"
+                            className={`w-full text-left py-4 border-b border-[var(--text-primary)] px-1 ${active === "account"
+                                ? "font-semibold text-[var(--text-primary)]"
+                                : "text-[var(--text-primary)]"
                                 }`}
                         >
                             Account
+                        </button>
+                    </li>
+                    <li>
+                        <button
+                            type="button"
+                            onClick={() => setActive("customize")}
+                            className={`w-full text-left py-4 border-b border-[var(--text-primary)] px-1 ${active === "customize"
+                                ? "font-semibold text-[var(--text-primary)]"
+                                : "text-[var(--text-primary)]"
+                                }`}
+                        >
+                            Customize
                         </button>
                     </li>
                 </ul>

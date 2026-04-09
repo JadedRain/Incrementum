@@ -1,22 +1,25 @@
 @reference "tailwindcss";
 
 .screener-page {
-  @apply min-h-screen bg-[hsl(40,13%,53%)];
+  @apply min-h-screen bg-[var(--bg-base)];
 }
 
 .screener-container {
-  @apply mx-auto max-w-[1500px];
+  @apply mx-auto max-w-[1500px] pt-2;
 }
 
 .screener-grid {
-  @apply grid gap-6;
+  @apply grid gap-3;
   grid-template-columns: 1fr 320px;
 }
 
 .screener-topbar {
   @apply sticky top-0 z-40 col-span-2;
-  /* @apply shadow-[5px_5px_5px_#3F3A30];
-  @apply rounded-sm; */
+  @apply bg-[var(--bg-surface)];
+  @apply px-2;
+  @apply py-1;
+  @apply shadow-[5px_5px_5px_rgba(0,0,0,0.5)];
+  @apply rounded-sm;
 }
 
 .screener-table {
@@ -25,4 +28,188 @@
 
 .screener-sidebar {
   @apply w-full;
+}
+
+.error-banner {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001;
+  background-color: #fee;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid #fcc;
+}
+
+/* StockTable Styles for Screener Pages */
+.StockTable-container {
+  @apply bg-[var(--bg-surface)];
+  @apply text-[var(--text-primary)];
+  @apply w-full;
+  @apply max-w-full;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+  border-radius: 2px;
+  box-shadow: 5px 5px 5px rgba(0,0,0,0.5) !important;
+}
+
+.StockTable-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.StockTable-container::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.05);
+  border-radius: 2px;
+}
+
+.StockTable-container::-webkit-scrollbar-thumb {
+  background: rgba(102,187,106,0.7);
+  border-radius: 2px;
+  border: 2px solid rgba(79,86,75,0.3);
+}
+
+.StockTable-container {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) var(--bg-sunken);
+}
+
+.StockTable-header-row {
+  @apply flex;
+  @apply text-[var(--text-secondary)];
+  @apply font-semibold;
+  @apply text-sm;
+}
+
+.StockTable-header {
+  @apply flex-1;
+  @apply px-3;
+  @apply py-2.5;
+  @apply text-center;
+  @apply border-b-[#251C09];
+  position: relative;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+  hyphenate-character: "-";
+}
+
+.StockTable-header.col-sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.18s ease, background-color 0.18s ease;
+}
+
+.StockTable-header.col-sortable:hover {
+  transform: translateY(-2px);
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.StockTable-header:after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 6px;
+  height: 2px;
+  background: rgba(0,0,0,0.08);
+}
+
+.StockTable-drop-line {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--bg-sunken);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.StockTable-drop-line--left {
+  left: 0;
+}
+
+.StockTable-drop-line--right {
+  right: 0;
+}
+
+.StockTable-drop-line--right-menu-offset {
+  right: 32px;
+}
+
+.StockTable-row {
+  @apply flex;
+  @apply bg-[var(--bg-row-alt)];
+  @apply text-[var(--text-secondary)];
+  @apply border-b;
+  @apply border-[var(--bg-sunken)];
+  @apply border-b-[var(--bg-sunken)];
+  @apply transition-all;
+  @apply duration-150;
+  @apply hover:bg-[var(--bg-sunken)];
+  @apply hover:shadow-sm;
+  border-radius: 2px;
+  min-height: 42px;
+}
+
+.StockTable-row:last-child {
+  @apply border-b-0;
+}
+
+.StockTable-cell {
+  @apply flex-1;
+  @apply px-3;
+  @apply py-2.5;
+  @apply text-center;
+  @apply font-medium;
+  @apply justify-center;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+  hyphenate-character: "-";
+}
+
+.StockTable-cell--numeric {
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+
+.StockTable-cell--truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  justify-content: flex-start;
+  text-align: left;
+  direction: ltr;
+}
+
+.StockTable-cell--truncate .StockTable-cell__text {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  direction: ltr;
+  unicode-bidi: plaintext;
+}
+
+.StockTable-row:hover .text-green-500 {
+  @apply text-green-400;
+}
+
+.StockTable-row:hover .text-red-500 {
+  @apply text-red-400;
 }

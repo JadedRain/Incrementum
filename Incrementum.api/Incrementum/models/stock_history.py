@@ -2,7 +2,6 @@ from django.db import models
 
 
 class StockHistory(models.Model):
-    id = models.AutoField(primary_key=True)
     stock_symbol = models.ForeignKey(
         'StockModel',
         on_delete=models.CASCADE,

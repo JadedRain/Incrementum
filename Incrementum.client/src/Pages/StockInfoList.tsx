@@ -3,13 +3,14 @@ import React, { useState } from 'react';
 import { useFetchStocks } from '../useFetchStocks';
 import Toast from '../Components/Toast';
 import { FilterDataProvider } from '../Context/FilterDataContext';
+import Loading from '../Components/Loading';
 
 
 const StockInfoList: React.FC = () => {
     const { stocks, loading } = useFetchStocks();
     const [toast] = useState<string | null>(null);
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <Loading loading={true} />;
 
     return (
         <FilterDataProvider>
@@ -20,7 +21,7 @@ const StockInfoList: React.FC = () => {
                 {stocks.map((item, idx) => {
                     const name = item.displayName || item.longName || item.shortName || 'Unnamed Stock';
                     return (
-                        <li className="stock-card" key={idx} style={{ marginBottom: '1rem' }}>
+                        <li className="stock-card" key={idx}>
                             <span className='p-1 newsreader-font'>{name} </span>
                         </li>
                     );

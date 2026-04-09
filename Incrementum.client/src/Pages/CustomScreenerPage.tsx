@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Context/AuthContext';
+import { usePreferences } from '../Context/usePreferences';
 import NavigationBar from '../Components/NavigationBar';
 import ScreenerForm from '../Components/CustomScreener/ScreenerForm';
 import { ScreenerFormProvider, useScreenerForm } from '../Context/ScreenerFormContext';
@@ -9,6 +10,7 @@ import '../styles/CustomScreenerPage.css';
 const CustomScreenerPageContent = () => {
   const navigate = useNavigate();
   const { apiKey } = useAuth();
+  const { defaultPrivate } = usePreferences();
   const { saveCustomScreener } = useScreenerForm();
 
   const handleSave = async () => {
@@ -17,15 +19,15 @@ const CustomScreenerPageContent = () => {
       navigate('/screener/custom_temp');
       return;
     }
-    await saveCustomScreener(apiKey);
+    await saveCustomScreener(apiKey, defaultPrivate);
   };
 
   return (
-    <div className="min-h-screen bg-[hsl(40,13%,53%)]">
+    <div className="min-h-screen bg-[var(--bg-base)]">
       <NavigationBar />
       <div className="custom-screener-container">
         <ScreenerForm
-          onCancel={() => navigate('/screener')}
+          onCancel={() => navigate('/screener/custom_temp')}
           onSave={handleSave}
           showNameInput={!!apiKey}
         />

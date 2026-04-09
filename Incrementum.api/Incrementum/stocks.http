@@ -27,13 +27,10 @@ Content-Type: application/json
 ###
 Get {{host}}/stock/aapl
 ###
-POST {{host}}/stocks/getfilteredstocks
+POST {{host}}/screeners/database/?sort_by=eps&sort_order=desc&page=1&page_size=10
 Content-Type: application/json
 
-[
-  { "operator": "eq", "operand": "sector", "value": "Financial Services", "filter_type": "categoric" },
-  { "operator": "gt", "operand": "lastclose52weekhigh.lasttwelvemonths", "value": 35, "filter_type": "numeric" }
-]
+[]
 
 ###
 DELETE {{host}}/watchlist/remove/
@@ -79,3 +76,25 @@ GET {{host}}/screeners/custom/1
 ###
 GET {{host}}/fear-greed/csv/
 Accept: application/json
+### Get all user stock potentials
+GET {{host}}/api/user-stock-potentials/
+X-User-Id: test-api-key-12345
+
+### Create a new user stock potential
+POST {{host}}/api/user-stock-potentials/
+Content-Type: application/json
+X-User-Id: test-api-key-12345
+
+{
+	"stock_symbol": "AAPL",
+	"purchase_date": "2026-01-15",
+	"quantity": "100.0000",
+	"purchase_price": "150.50"
+}
+
+###
+
+### Get EPS for a specific stock
+GET {{host}}/stock/AAPL/eps/
+Accept: application/json
+

@@ -5,7 +5,7 @@ export interface StockInfo {
   symbol?: string;
   regularMarketChangePercent?: number;
   regularMarketPrice?: number;
-  marketCap?: number;
+  market_cap?: number;
   volume?: number;
   averageVolume?: number;
 }

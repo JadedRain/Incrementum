@@ -5,5 +5,4 @@ __all__ = [
     'screener_run_controller',
     'stocks_controller',
     'watchlist_controller',
-    'custom_collection_controller',
 ]

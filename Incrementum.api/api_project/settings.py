@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -88,15 +89,43 @@ WSGI_APPLICATION = 'api_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("DATABASE_NAME", "Incr_DB"),
-        "USER": os.environ.get("DATABASE_USER", "Incr"),
-        "PASSWORD": os.environ.get("DATABASE_PASSWORD", ""),
-        "HOST": os.environ.get("DATABASE_HOST", "db"),
-        "PORT": os.environ.get("DATABASE_PORT", "5432"),
+db_conn_string = os.environ.get('DB_CONN_STRING')
+
+if db_conn_string:
+    db_config = dj_database_url.parse(db_conn_string, conn_max_age=600)
+
+    if not db_config.get('NAME'):
+        db_config['NAME'] = os.environ.get('DATABASE_NAME', 'stock_data')
+
+    db_config['OPTIONS'] = {
+        'options': '-c search_path=incrementum'
     }
+
+    DATABASES = {
+        'default': db_config
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ.get("DATABASE_NAME", "Incr_DB"),
+            "USER": os.environ.get("DATABASE_USER", "Incr"),
+            "PASSWORD": os.environ.get("DATABASE_PASSWORD", ""),
+            "HOST": os.environ.get("DATABASE_HOST", "db"),
+            "PORT": os.environ.get("DATABASE_PORT", "5432"),
+            "OPTIONS": {
+                "options": "-c search_path=incrementum,public"
+            }
+        }
+    }
+
+MIGRATION_MODULES = {
+    'Incrementum': None,
+    'admin': None,
+    'auth': None,
+    'contenttypes': None,
+    'sessions': None,
+    'messages': None,
 }
 
 
@@ -170,6 +199,36 @@ CORS_ALLOW_HEADERS = [
     'sortvalue',
     'sortbool',
 ]
+
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s %(levelname)s [%(name)s] %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
+            'level': LOG_LEVEL,
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': LOG_LEVEL,
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': LOG_LEVEL,
+            'propagate': False,
+        },
+    },
+}
 
 # Or, for development only:
 # CORS_ALLOW_ALL_ORIGINS = True

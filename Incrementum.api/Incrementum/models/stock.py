@@ -4,8 +4,30 @@ from django.utils import timezone
 
 class StockModel(models.Model):
     symbol = models.CharField(max_length=10, primary_key=True)
-    company_name = models.CharField(max_length=255)
+    company_name = models.CharField(max_length=100)
     updated_at = models.DateTimeField(default=timezone.now)
+    day_percent_change = models.DecimalField(
+        max_digits=12,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        db_column='percent_change',
+    )
+    price = models.IntegerField(
+        null=True,
+        blank=True,
+        db_column='price',
+    )
+    high52 = models.IntegerField(
+        null=True,
+        blank=True,
+        db_column='high52',
+    )
+    low52 = models.IntegerField(
+        null=True,
+        blank=True,
+        db_column='low52',
+    )
     description = models.TextField(
         null=True, blank=True, db_column='description'
     )
@@ -13,7 +35,7 @@ class StockModel(models.Model):
         null=True, blank=True, db_column='market_cap'
     )
     primary_exchange = models.CharField(
-        max_length=50, null=True, blank=True,
+        max_length=100, null=True, blank=True,
         db_column='primary_exchange'
     )
     type = models.CharField(
@@ -23,7 +45,7 @@ class StockModel(models.Model):
         max_length=50, null=True, blank=True, db_column='currency_name'
     )
     cik = models.CharField(
-        max_length=20, null=True, blank=True, db_column='cik'
+        max_length=50, null=True, blank=True, db_column='cik'
     )
     composite_figi = models.CharField(
         max_length=50, null=True, blank=True, db_column='composite_figi'
@@ -34,8 +56,11 @@ class StockModel(models.Model):
     outstanding_shares = models.BigIntegerField(
         null=True, blank=True, db_column='outstanding_shares'
     )
+    eps = models.DecimalField(
+        max_digits=20, decimal_places=6, null=True, blank=True, db_column='eps'
+    )
     homepage_url = models.CharField(
-        max_length=500, null=True, blank=True, db_column='homepage_url'
+        max_length=255, null=True, blank=True, db_column='homepage_url'
     )
     total_employees = models.IntegerField(
         null=True, blank=True, db_column='total_employees'
@@ -44,13 +69,31 @@ class StockModel(models.Model):
         null=True, blank=True, db_column='list_date'
     )
     locale = models.CharField(
-        max_length=10, null=True, blank=True, db_column='locale'
+        max_length=20, null=True, blank=True, db_column='locale'
     )
     sic_code = models.CharField(
         max_length=20, null=True, blank=True, db_column='sic_code'
     )
     sic_description = models.CharField(
         max_length=255, null=True, blank=True, db_column='sic_description'
+    )
+    debt_to_equity = models.DecimalField(
+        max_digits=12, decimal_places=4, null=True, blank=True, db_column='debt_to_equity'
+    )
+    annual_eps_growth_rate = models.IntegerField(
+        null=True, blank=True, db_column='annual_eps_growth_rate'
+    )
+    price_per_earnings = models.IntegerField(
+        null=True, blank=True, db_column='price_per_earnings'
+    )
+    pe_per_growth = models.IntegerField(
+        null=True, blank=True, db_column='pe_per_growth'
+    )
+    revenue_per_share = models.DecimalField(
+        max_digits=20, decimal_places=2, null=True, blank=True, db_column='revenue_per_share'
+    )
+    price_per_sales = models.DecimalField(
+        max_digits=20, decimal_places=2, null=True, blank=True, db_column='price_per_sales'
     )
 
     class Meta:
@@ -66,6 +109,24 @@ class StockModel(models.Model):
             'updated_at': (
                 self.updated_at.isoformat() if self.updated_at else None
             ),
+            'percent_change': (
+                float(self.day_percent_change)
+                if self.day_percent_change is not None
+                else None
+            ),
+            'day_percent_change': (
+                float(self.day_percent_change)
+                if self.day_percent_change is not None
+                else None
+            ),
+            'dayPercentChange': (
+                float(self.day_percent_change)
+                if self.day_percent_change is not None
+                else None
+            ),
+            'price': self.price,
+            'high52': self.high52,
+            'low52': self.low52,
             'description': self.description,
             'market_cap': self.market_cap,
             'primary_exchange': self.primary_exchange,
@@ -75,6 +136,7 @@ class StockModel(models.Model):
             'composite_figi': self.composite_figi,
             'share_class_figi': self.share_class_figi,
             'outstanding_shares': self.outstanding_shares,
+            'eps': (float(self.eps) if self.eps is not None else None),
             'homepage_url': self.homepage_url,
             'total_employees': self.total_employees,
             'list_date': (
@@ -83,6 +145,24 @@ class StockModel(models.Model):
             'locale': self.locale,
             'sic_code': self.sic_code,
             'sic_description': self.sic_description,
+            'debt_to_equity': (
+                float(self.debt_to_equity)
+                if self.debt_to_equity is not None
+                else None
+            ),
+            'annual_eps_growth_rate': self.annual_eps_growth_rate,
+            'price_per_earnings': self.price_per_earnings,
+            'pe_per_growth': self.pe_per_growth,
+            'revenue_per_share': (
+                float(self.revenue_per_share)
+                if self.revenue_per_share is not None
+                else None
+            ),
+            'price_per_sales': (
+                float(self.price_per_sales)
+                if self.price_per_sales is not None
+                else None
+            ),
         }
 
     @classmethod

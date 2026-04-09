@@ -1,23 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import NavigationBar from '../Components/NavigationBar';
+import FilterChip from '../Components/FilterChip';
+import Loading from '../Components/Loading';
 import '../App.css';
-
-interface Stock {
-    symbol: string;
-    company_name: string;
-}
-
-interface ScreenerResponse {
-    stocks: Stock[];
-    count: number;
-}
-
-interface FilterData {
-    operator: string;
-    operand: string;
-    filter_type: string;
-    value?: string | number;
-}
+import type { Stock, ScreenerResponse, FilterData } from './ScreenerTestPage.types';
 
 function ScreenerTestPage() {
     const [tickerSymbols, setTickerSymbols] = useState('');
@@ -25,6 +11,8 @@ function ScreenerTestPage() {
     const [industrySuggestions, setIndustrySuggestions] = useState<string[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [selectedIndustry, setSelectedIndustry] = useState('');
+    const [activeTickerFilters, setActiveTickerFilters] = useState<string[]>([]);
+    const [activeIndustryFilter, setActiveIndustryFilter] = useState<string | null>(null);
     const [stocks, setStocks] = useState<Stock[]>([]);
     const [selectedStocks, setSelectedStocks] = useState<Stock[]>([]);
     const [loading, setLoading] = useState(false);
@@ -72,6 +60,7 @@ function ScreenerTestPage() {
     const selectIndustry = (industry: string) => {
         setSelectedIndustry(industry);
         setIndustryQuery(industry);
+        setActiveIndustryFilter(industry);
         setShowSuggestions(false);
     };
 
@@ -114,12 +103,12 @@ function ScreenerTestPage() {
             const data: ScreenerResponse = await response.json();
 
             if (!response.ok) {
-                throw new Error((data as unknown as { error?: string }).error || 'Request failed');
+                throw new Error((data as { error?: string }).error || 'Request failed');
             }
 
             setStocks(data.stocks);
 
-        } catch (err) {
+        } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
             setLoading(false);
@@ -132,6 +121,8 @@ function ScreenerTestPage() {
         setIndustryQuery('');
         setSelectedIndustry('');
         setIndustrySuggestions([]);
+        setActiveTickerFilters([]);
+        setActiveIndustryFilter(null);
         setError('');
         setPpsMin('');
         setPpsMax('');
@@ -147,6 +138,17 @@ function ScreenerTestPage() {
             .filter(s => s.length > 0);
 
         if (symbols.length === 0) return;
+
+        // Add to active ticker filters
+        setActiveTickerFilters(prev => {
+            const newFilters = [...prev];
+            symbols.forEach(sym => {
+                if (!newFilters.includes(sym)) {
+                    newFilters.push(sym);
+                }
+            });
+            return newFilters;
+        });
 
         setSelectedStocks(prev => {
             const map = new Map(prev.map(s => [s.symbol, s]));
@@ -180,6 +182,17 @@ function ScreenerTestPage() {
     };
 
     const clearSelected = () => setSelectedStocks([]);
+
+    const removeTickerFilter = (ticker: string) => {
+        setActiveTickerFilters(prev => prev.filter(t => t !== ticker));
+        setSelectedStocks(prev => prev.filter(s => s.symbol !== ticker));
+    };
+
+    const removeIndustryFilter = () => {
+        setActiveIndustryFilter(null);
+        setSelectedIndustry('');
+        setIndustryQuery('');
+    };
 
     const searchSelected = async () => {
         // Allow searching when no tickers are selected if PPS filters are provided
@@ -266,7 +279,7 @@ function ScreenerTestPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[hsl(40,13%,53%)]">
+        <div className="min-h-screen bg-[var(--bg-base)]">
             <NavigationBar />
             <div className="main-content">
                 <div className="max-w-2xl mx-auto p-8">
@@ -293,6 +306,17 @@ function ScreenerTestPage() {
                             <p className="text-xs text-gray-500 mt-1">
                                 Enter multiple symbols separated by commas or spaces
                             </p>
+                            {activeTickerFilters.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-3">
+                                    {activeTickerFilters.map(ticker => (
+                                        <FilterChip
+                                            key={ticker}
+                                            label={ticker}
+                                            onRemove={() => removeTickerFilter(ticker)}
+                                        />
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         <div className="mb-4 grid grid-cols-2 gap-4">
@@ -347,11 +371,19 @@ function ScreenerTestPage() {
                                         <div
                                             key={index}
                                             onClick={() => selectIndustry(industry)}
-                                            className="px-3 py-2 hover:bg-blue-100 cursor-pointer"
+                                            className="px-3 py-2 hover:bg-[var(--bg-sunken)] cursor-pointer"
                                         >
                                             {industry}
                                         </div>
                                     ))}
+                                </div>
+                            )}
+                            {activeIndustryFilter && (
+                                <div className="flex gap-2 mt-3">
+                                    <FilterChip
+                                        label={activeIndustryFilter}
+                                        onRemove={removeIndustryFilter}
+                                    />
                                 </div>
                             )}
                         </div>
@@ -386,7 +418,7 @@ function ScreenerTestPage() {
                             </div>
                         )}
 
-                        {loading && <div className="text-center py-4">Loading...</div>}
+                        {loading && <div className="text-center py-4"><Loading loading={true} /></div>}
 
                         {!loading && stocks.length > 0 && (
                             <div>
@@ -410,7 +442,7 @@ function ScreenerTestPage() {
                                                 <button
                                                     onClick={() => addToSelected(stock)}
                                                     disabled={!!already}
-                                                    className={`ml-4 px-2 py-1 rounded ${already ? 'bg-gray-300 text-gray-600' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                                                    className={`ml-4 px-2 py-1 rounded ${already ? 'bg-gray-300 text-gray-600' : 'bg-[var(--accent)] text-[var(--bg-base)] hover:bg-[var(--accent-hover)]'}`}
                                                 >
                                                     {already ? 'Added' : 'Add'}
                                                 </button>
