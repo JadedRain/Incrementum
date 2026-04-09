@@ -1,5 +1,6 @@
 import type React from 'react';
 import '../../styles/ScreenerTopBar.css';
+import type { ScreenerVisibility } from '../../Query/apiScreener';
 
 interface CustomScreener {
   id: number;
@@ -16,8 +17,8 @@ interface TopBarProps {
   onScreenerSelect?: (screenerId: string) => void;
   currentScreenerId?: string;
   customScreeners?: CustomScreener[];
-  isPrivate?: boolean;
-  onPrivacyToggle?: () => void;
+  visibility?: ScreenerVisibility;
+  onVisibilityChange?: (visibility: ScreenerVisibility) => void;
   privacyDisabled?: boolean;
 }
 
@@ -29,8 +30,8 @@ const TopBar: React.FC<TopBarProps> = ({
   onScreenerSelect,
   currentScreenerId,
   customScreeners = [],
-  isPrivate,
-  onPrivacyToggle,
+  visibility,
+  onVisibilityChange,
   privacyDisabled
 }) => {
   const prebuiltScreeners = [
@@ -91,18 +92,23 @@ const TopBar: React.FC<TopBarProps> = ({
                 ))}
               </optgroup>
             )}
-          </select>          {isPrivate !== undefined && onPrivacyToggle && (
+          </select>
+          {visibility && onVisibilityChange && (
             <label className="privacy-checkbox-label">
-              <input
-                type="checkbox"
-                className="privacy-checkbox-input"
-                checked={isPrivate}
-                onChange={onPrivacyToggle}
+              <span>Visibility</span>
+              <select
+                value={visibility}
+                className="screener-privacy-select"
+                onChange={(e) => onVisibilityChange(e.target.value as ScreenerVisibility)}
                 disabled={privacyDisabled}
-              />
-              <span>{isPrivate ? 'Private' : 'Public'}</span>
+              >
+                <option value="private">Private</option>
+                <option value="public">Public</option>
+                <option value="community">Community</option>
+              </select>
             </label>
-          )}        </div>
+          )}
+        </div>
       </div>
       <button className="screener-topbar-btn screener-page-toggle" onClick={togglePotentialGains}>
         {!potentialGainsToggled && <p>Potential Gains/Loses</p>}

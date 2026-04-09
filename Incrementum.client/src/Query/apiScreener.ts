@@ -10,6 +10,8 @@ export class ScreenerFetchError extends Error {
   }
 }
 
+export type ScreenerVisibility = 'private' | 'public' | 'community';
+
 export const fetchCustomScreenerShareToken = async (
   screenerId: number,
   apiKey: string | null
@@ -85,7 +87,7 @@ export const createCustomScreener = async (
   name: string,
   filters: DatabaseScreenerFilter[],
   apiKey: string | null,
-  isPrivate: boolean = true
+  visibility: ScreenerVisibility = 'private'
 ) => {
   const numericFilters = filters.filter(f => f.filter_type === 'numeric').map(f => ({
     operand: f.operand,
@@ -109,7 +111,7 @@ export const createCustomScreener = async (
       screener_name: name,
       numeric_filters: numericFilters,
       categorical_filters: categoricalFilters,
-      is_private: isPrivate,
+      visibility,
     }),
   }));
 
@@ -169,9 +171,21 @@ export const fetchCustomScreeners = async (apiKey: string | null) => {
   return res.json();
 };
 
+export const searchCommunityScreeners = async (query: string): Promise<{ id: number; screener_name: string }[]> => {
+  try {
+    const res = await fetchWrapper(() =>
+      fetch(apiString(`/screeners/community/search/${encodeURIComponent(query)}/`))
+    );
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
+};
+
 export const updateScreenerPrivacy = async (
   screenerId: number,
-  isPrivate: boolean,
+  visibility: ScreenerVisibility,
   apiKey: string | null
 ) => {
   const res = await fetchWrapper(()=>fetch(apiString(`/screeners/custom/${screenerId}/privacy/`), {
@@ -181,7 +195,7 @@ export const updateScreenerPrivacy = async (
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      is_private: isPrivate,
+      visibility,
     }),
   }));
 

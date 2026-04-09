@@ -1,25 +1,30 @@
 import React, { useState } from 'react';
 import './SaveScreenerPopup.css';
+import type { ScreenerVisibility } from '../Query/apiScreener';
 
 interface SaveScreenerPopupProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (name: string) => void;
+  onSave: (name: string, visibility: ScreenerVisibility) => void;
   defaultName?: string;
+  defaultVisibility?: ScreenerVisibility;
 }
 
 const SaveScreenerPopup: React.FC<SaveScreenerPopupProps> = ({ 
   isOpen, 
   onClose, 
   onSave,
-  defaultName = ''
+  defaultName = '',
+  defaultVisibility = 'private',
 }) => {
   const [name, setName] = useState(defaultName);
+  const [visibility, setVisibility] = useState<ScreenerVisibility>(defaultVisibility);
 
   const handleSave = () => {
     if (name.trim()) {
-      onSave(name);
+      onSave(name, visibility);
       setName('');
+      setVisibility(defaultVisibility);
     }
   };
 
@@ -39,6 +44,21 @@ const SaveScreenerPopup: React.FC<SaveScreenerPopupProps> = ({
           onChange={e => setName(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded text-base"
         />
+        <div>
+          <label className="text-sm text-gray-600 block mb-1" htmlFor="screener-visibility">
+            Visibility
+          </label>
+          <select
+            id="screener-visibility"
+            value={visibility}
+            onChange={(e) => setVisibility(e.target.value as ScreenerVisibility)}
+            className="w-full p-2 border border-gray-300 rounded text-base"
+          >
+            <option value="private">Private</option>
+            <option value="public">Public</option>
+            <option value="community">Community</option>
+          </select>
+        </div>
         <div className="flex justify-end gap-4 mt-2">
           <button
             onClick={onClose}

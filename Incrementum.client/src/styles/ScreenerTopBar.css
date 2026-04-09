@@ -81,3 +81,12 @@
 .privacy-checkbox-input:disabled {
   cursor: not-allowed;
 }
+
+.screener-privacy-select {
+  @apply bg-[var(--accent)];
+  @apply text-[var(--bg-base)];
+  @apply px-2;
+  @apply py-1;
+  @apply rounded;
+  @apply text-sm;
+}
