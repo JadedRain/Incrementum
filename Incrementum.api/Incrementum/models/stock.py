@@ -95,9 +95,6 @@ class StockModel(models.Model):
     price_per_sales = models.DecimalField(
         max_digits=20, decimal_places=2, null=True, blank=True, db_column='price_per_sales'
     )
-    quarterly_financials_updated_at = models.DateTimeField(
-        null=True, blank=True, db_column='quarterly_financials_updated_at'
-    )
     total_revenue = models.BigIntegerField(
         null=True, blank=True, db_column='total_revenue'
     )
@@ -177,10 +174,6 @@ class StockModel(models.Model):
                 float(self.price_per_sales)
                 if self.price_per_sales is not None
                 else None
-            ),
-            'quarterly_financials_updated_at': (
-                self.quarterly_financials_updated_at.isoformat()
-                if self.quarterly_financials_updated_at else None
             ),
             'total_revenue': self.total_revenue,
             'high52_updated_at': (
