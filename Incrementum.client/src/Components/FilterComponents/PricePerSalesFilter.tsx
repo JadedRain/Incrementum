@@ -53,7 +53,7 @@ const PricePerSalesFilter: React.FC = () => {
   }, [maxPPS, addFilter, removeAllWithPrefix]);
 
   return (
-    <ExpandableSidebarItem title="P/S Ratio">
+    <ExpandableSidebarItem title="P/S Ratio" description="Price to sales ratio. Stock price divided by revenue per share. Useful for identifying undervalued stocks.">
       <div className="filter-block">
         <div className="filter-block-label">Price-to-Sales (P/S)</div>
         <div className="filter-row">

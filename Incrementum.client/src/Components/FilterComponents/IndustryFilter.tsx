@@ -100,7 +100,7 @@ const IndustryFilter: React.FC = () => {
   };
 
   return (
-    <ExpandableSidebarItem title="Industry Search">
+    <ExpandableSidebarItem title="Industry Search" description="The industry sector or classification of the company.">
       <div className="mb-4 relative" ref={suggestionBoxRef}>
         <label className="block text-sm font-medium mb-2">Industry Search:</label>
         <input

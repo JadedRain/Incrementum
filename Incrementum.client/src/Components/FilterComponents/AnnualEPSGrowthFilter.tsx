@@ -54,7 +54,7 @@ const AnnualEPSGrowthFilter: React.FC = () => {
   }, [maxGrowth]);
 
   return (
-    <ExpandableSidebarItem title="Annual EPS Growth">
+    <ExpandableSidebarItem title="Annual EPS Growth" description="The percentage change in earnings per share over the last year. Indicates earnings growth.">
       <div className="filter-block">
         <div className="filter-block-label">Annual EPS Growth (%)</div>
         <div className="filter-row">

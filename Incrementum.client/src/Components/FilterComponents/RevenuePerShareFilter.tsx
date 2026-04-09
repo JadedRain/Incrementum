@@ -53,7 +53,7 @@ const RevenuePerShareFilter: React.FC = () => {
   }, [maxRPS, addFilter, removeAllWithPrefix]);
 
   return (
-    <ExpandableSidebarItem title="Revenue/Share">
+    <ExpandableSidebarItem title="Revenue/Share" description="Total revenue divided by outstanding shares. Used to identify undervalued stocks.">
       <div className="filter-block">
         <div className="filter-block-label">Revenue Per Share ($)</div>
         <div className="filter-row">

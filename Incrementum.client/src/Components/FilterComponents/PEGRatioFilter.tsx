@@ -53,7 +53,7 @@ const PEGRatioFilter: React.FC = () => {
   }, [maxPEG, addFilter, removeAllWithPrefix]);
 
   return (
-    <ExpandableSidebarItem title="PEG Ratio">
+    <ExpandableSidebarItem title="PEG Ratio" description="(Price per Share / EPS) divided by Expected Earnings Growth Rate. Compares valuation to growth.">
       <div className="filter-block">
         <div className="filter-block-label">Price/Earnings-to-Growth (PEG)</div>
         <div className="filter-row">

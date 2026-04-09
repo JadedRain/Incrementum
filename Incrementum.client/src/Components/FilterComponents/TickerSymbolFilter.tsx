@@ -219,7 +219,7 @@ const TickerSymbolFilter: React.FC = () => {
   };
 
   return (
-    <ExpandableSidebarItem title="Ticker Symbol">
+    <ExpandableSidebarItem title="Ticker Symbol" description="The stock ticker symbol. Use this to search for specific companies.">
       <div className="filter-block" ref={suggestionBoxRef}>
         <div className="filter-block-label">Ticker Symbols</div>
         <input

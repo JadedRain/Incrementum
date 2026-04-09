@@ -51,7 +51,10 @@ const EPSFilter: React.FC = () => {
   }, [max_eps, addFilter, removeAllWithPrefix]);
 
   return (
-    <ExpandableSidebarItem title="EPS">
+    <ExpandableSidebarItem 
+      title="EPS"
+      description="Earnings per share. Net income divided by average weighted outstanding shares. Higher typically means better return for investors."
+    >
       <div className="filter-block">
         <div className="filter-block-label">Earnings Per Share (EPS)</div>
         <div className="filter-row">
