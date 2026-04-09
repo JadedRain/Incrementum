@@ -25,6 +25,7 @@ const columnDescriptions: Record<string, string> = {
   pe_per_growth: '(Price per Share / EPS) divided by Expected Earnings Growth Rate. Compares valuation to growth.',
   revenue_per_share: 'Total revenue divided by outstanding shares. Used to identify undervalued stocks.',
   price_per_sales: 'Price to sales ratio. Stock price divided by revenue per share. Useful for identifying undervalued stocks.',
+  last_candle: 'The last candlestick pattern observed for the stock. Can indicate potential price movements.',
 };
 
 function InfoIcon({ description, position = 'left', showBubbles = true }: { description?: string; position?: 'left' | 'right' | 'bottom'; showBubbles?: boolean }) {
@@ -87,9 +88,10 @@ type Stock = {
   pe_per_growth?: number | null;
   revenue_per_share?: number | null;
   price_per_sales?: number | null;
+  last_candle?: string | null;
 };
 
-type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps' | 'debt_to_equity' | 'list_date' | 'outstanding_shares' | 'share_class_figi' | 'sic_description' | 'annual_eps_growth_rate' | 'price_per_earnings' | 'pe_per_growth' | 'revenue_per_share' | 'price_per_sales';
+type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps' | 'debt_to_equity' | 'list_date' | 'outstanding_shares' | 'share_class_figi' | 'sic_description' | 'annual_eps_growth_rate' | 'price_per_earnings' | 'pe_per_growth' | 'revenue_per_share' | 'price_per_sales' | 'last_candle';
 type Col = { k: ColKey; l: string };
 
 type Props = { onRowClick?: (s: string) => void; stocks?: unknown[] };
@@ -128,6 +130,7 @@ export default function StockTable({ onRowClick, stocks: overrideStocks }: Props
     { k: 'pe_per_growth', l: 'PEG Ratio' },
     { k: 'revenue_per_share', l: 'Revenue/Share' },
     { k: 'price_per_sales', l: 'P/S Ratio' },
+    { k: 'last_candle', l: 'Last Candle' },
   ];
 
   return (
@@ -225,6 +228,8 @@ function InnerStockTable({
         return 'revenue_per_share';
       case 'price_per_sales':
         return 'price_per_sales';
+      case 'last_candle':
+        return 'last_candle';
       default:
         return null;
     }

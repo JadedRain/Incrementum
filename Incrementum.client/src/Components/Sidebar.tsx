@@ -1,6 +1,7 @@
 import React from 'react';
 import TickerSymbolFilter from './FilterComponents/TickerSymbolFilter';
 import IndustryFilter from './FilterComponents/IndustryFilter';
+import LastCandleFilter from './FilterComponents/LastCandleFilter';
 import MarketCapFilter from './FilterComponents/MarketCapFilter';
 import EPSFilter from './FilterComponents/EPSFilter';
 import DebtToEquityFilter from './FilterComponents/DebtToEquityFilter';
@@ -50,6 +51,8 @@ const Sidebar: React.FC<SidebarProps> = () => {
         <TickerSymbolFilter />
 
         <IndustryFilter />
+
+        <LastCandleFilter />
 
         <PriceFilter />
 
