@@ -1,0 +1,17 @@
+export const columnDescriptions: Record<string, string> = {
+  eps: 'Earnings per share. Net income divided by average weighted outstanding shares. Higher typically means better return for investors.',
+  debt_to_equity: 'Debt to equity ratio. Liability divided by shareholders equity. Lower indicates stability, higher indicates volatility.',
+  high52: 'The highest stock price over the last 52 weeks. Can indicate if stock was overvalued or currently at a low point.',
+  low52: 'The lowest stock price over the last 52 weeks. Can be used to indicate growth potential.',
+  percentChange: 'The percentage change in stock price over 1 day. Red for losses, green for gains.',
+  volume: 'Current trading volume. Measure of all trades in a specific period. Indicates if a stock is actively traded.',
+  market_cap: 'Market capitalization. Total valuation of outstanding shares. Indicates potential gains in large scale trades.',
+  outstanding_shares: 'The amount of shares held by shareholders. Used as a component in other metrics.',
+  share_class_figi: 'Different classifications of shares (Class A, Class B, etc.). Class A is typically higher priority.',
+  sic_description: 'The industry sector or classification of the company.',
+  annual_eps_growth_rate: 'The percentage change in earnings per share over the last year. Indicates earnings growth.',
+  price_per_earnings: 'Price to earnings ratio. Stock price divided by EPS. Higher ratio indicates higher expected growth.',
+  pe_per_growth: '(Price per Share / EPS) divided by Expected Earnings Growth Rate. Compares valuation to growth.',
+  revenue_per_share: 'Total revenue divided by outstanding shares. Used to identify undervalued stocks.',
+  price_per_sales: 'Price to sales ratio. Stock price divided by revenue per share. Useful for identifying undervalued stocks.',
+};

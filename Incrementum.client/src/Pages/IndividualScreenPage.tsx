@@ -12,6 +12,7 @@ import NavigationBar from '../Components/NavigationBar'
 import StockTable from '../Components/StockTable'
 import Toast from '../Components/Toast'
 import { fetchCustomScreener, fetchCustomScreenerShareToken, fetchSharedCustomScreener, createCustomScreener, updateCustomScreener, fetchCustomScreeners, updateScreenerPrivacy, ScreenerFetchError } from "../Query/apiScreener"
+import type { ScreenerVisibility } from "../Query/apiScreener";
 import type { CustomScreener, NumericFilter, CategoricalFilter } from '../Types/ScreenerTypes';
 import { DatabaseScreenerProvider, useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
 import TopBar from '../Components/IndividualScreenerPage/ScreenerTopBar';
@@ -22,12 +23,12 @@ function IndividualScreenPageContent() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { apiKey } = useAuth();
-  const { defaultPrivate, defaultScreener } = usePreferences();
+  const { defaultScreener } = usePreferences();
   const [toast, setToast] = useState<string | null>(null);
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [isPrivate, setIsPrivate] = useState<boolean>(true);
+  const [visibility, setVisibility] = useState<ScreenerVisibility>('private');
   const { id: paramId } = useParams<{ id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   
@@ -161,28 +162,27 @@ function IndividualScreenPageContent() {
     return () => window.clearTimeout(timeoutId);
   }, [toast]);
 
-  const handlePrivacyToggle = async () => {
+  const handleVisibilityChange = async (nextVisibility: ScreenerVisibility) => {
     if (!apiKey) {
-      setToast('Login required to change privacy');
+      setToast('Login required to change visibility');
       return;
     }
     if (!id || isNaN(Number(id))) {
-      setToast('Save the screener first to change privacy settings');
+      setToast('Save the screener first to change visibility settings');
       return;
     }
 
-    const newPrivacyState = !isPrivate;
     const res = await updateScreenerPrivacy(
       Number(id),
-      newPrivacyState,
+      nextVisibility,
       apiKey
     );
 
     if (res.ok) {
-      setIsPrivate(newPrivacyState);
-      setToast(newPrivacyState ? 'Screener is now private' : 'Screener is now public');
+      setVisibility(nextVisibility);
+      setToast(`Screener visibility set to ${nextVisibility}`);
     } else {
-      setToast('Failed to update privacy setting');
+      setToast('Failed to update visibility setting');
     }
   };
 
@@ -229,7 +229,7 @@ function IndividualScreenPageContent() {
     }
   };
 
-  const handleSaveScreener = async (name: string) => {
+  const handleSaveScreener = async (name: string, visibility: 'private' | 'public' | 'community') => {
     setSaveError(null);
 
     if (!apiKey) {
@@ -242,9 +242,10 @@ function IndividualScreenPageContent() {
       return;
     }
 
-    const res = await createCustomScreener(name, filterList, apiKey, defaultPrivate);
+    const res = await createCustomScreener(name, filterList, apiKey, visibility);
     if (res.ok) {
       setShowSavePopup(false);
+      setVisibility(visibility);
       setToast('Screener saved!');
       // Invalidate and refetch the custom screeners list to show the new screener immediately
       await queryClient.invalidateQueries({ 
@@ -350,9 +351,11 @@ function IndividualScreenPageContent() {
       // Clear filters before loading custom screener filters
       clearFilters();
 
-      // Set privacy state if available, otherwise default to true
-      if ('is_private' in screenerData) {
-        setIsPrivate(screenerData.is_private);
+      // Prefer explicit visibility; fall back to legacy is_private responses.
+      if ('visibility' in screenerData && screenerData.visibility) {
+        setVisibility(screenerData.visibility);
+      } else if ('is_private' in screenerData) {
+        setVisibility(screenerData.is_private ? 'private' : 'public');
       }
 
       if (Array.isArray(screenerData.numeric_filters)) {
@@ -389,6 +392,7 @@ function IndividualScreenPageContent() {
         onClose={() => { setShowSavePopup(false); setSaveError(null); }}
         onSave={handleSaveScreener}
         defaultName={screenerData?.screener_name}
+        defaultVisibility={visibility}
       />
       {(saveError || loadError) && (
         <div className="error-banner">
@@ -407,8 +411,8 @@ function IndividualScreenPageContent() {
               onScreenerSelect={handleScreenerSelect}
               currentScreenerId={id}
               customScreeners={customScreenersData?.screeners || []}
-              isPrivate={isPrivate}
-              onPrivacyToggle={handlePrivacyToggle}
+              visibility={visibility}
+              onVisibilityChange={handleVisibilityChange}
               privacyDisabled={!apiKey || !id || isNaN(Number(id))}
             />
           </div>

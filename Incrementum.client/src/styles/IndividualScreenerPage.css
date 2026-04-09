@@ -97,14 +97,15 @@
   hyphenate-character: "-";
 }
 
-.StockTable-header.sortable {
+.StockTable-header.col-sortable {
   cursor: pointer;
   user-select: none;
-  transition: background-color 0.2s;
+  transition: transform 0.18s ease, background-color 0.18s ease;
 }
 
-.StockTable-header.sortable:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+.StockTable-header.col-sortable:hover {
+  transform: translateY(-2px);
+  background-color: rgba(0, 0, 0, 0.08);
 }
 
 .StockTable-header:after {
@@ -115,6 +116,28 @@
   bottom: 6px;
   height: 2px;
   background: rgba(0,0,0,0.08);
+}
+
+.StockTable-drop-line {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--bg-sunken);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.StockTable-drop-line--left {
+  left: 0;
+}
+
+.StockTable-drop-line--right {
+  right: 0;
+}
+
+.StockTable-drop-line--right-menu-offset {
+  right: 32px;
 }
 
 .StockTable-row {

@@ -1,6 +1,25 @@
 import React from 'react';
 import NavigationBar from '../Components/NavigationBar';
 import '../styles/HelpPage.css';
+import { columnDescriptions } from '../constants/columnDescriptions';
+
+const columnDescriptionItems: Array<{ key: keyof typeof columnDescriptions; label: string }> = [
+  { key: 'eps', label: 'EPS' },
+  { key: 'debt_to_equity', label: 'D/E Ratio' },
+  { key: 'high52', label: '52W High' },
+  { key: 'low52', label: '52W Low' },
+  { key: 'percentChange', label: '1 Day % Chg.' },
+  { key: 'volume', label: 'Vol.' },
+  { key: 'market_cap', label: 'Mkt. Cap' },
+  { key: 'outstanding_shares', label: 'Outstanding Shares' },
+  { key: 'share_class_figi', label: 'Share Class' },
+  { key: 'sic_description', label: 'Industry' },
+  { key: 'annual_eps_growth_rate', label: 'Annual EPS Growth' },
+  { key: 'price_per_earnings', label: 'P/E Ratio' },
+  { key: 'pe_per_growth', label: 'PEG Ratio' },
+  { key: 'revenue_per_share', label: 'Revenue/Share' },
+  { key: 'price_per_sales', label: 'P/S Ratio' },
+];
 
 const HelpPage: React.FC = () => {
   return (
@@ -37,6 +56,20 @@ const HelpPage: React.FC = () => {
             </article>
           </div>
         </section>
+
+        <section className="help-section">
+          <h2>Column Description Glossary</h2>
+          <p className="help-section-intro">These are the same definitions shown in the screener table info bubbles.</p>
+          <div className="help-column-grid">
+            {columnDescriptionItems.map((item) => (
+              <article className="help-column-card" key={item.key}>
+                <h3>{item.label}</h3>
+                <p>{columnDescriptions[item.key]}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
         <div className="help-detail-grid">
           <section className="help-section">
             <h2>Create a Screener</h2>
