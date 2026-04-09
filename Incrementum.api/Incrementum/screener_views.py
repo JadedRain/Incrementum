@@ -221,6 +221,19 @@ def update_screener_privacy(request, screener_id):
 
 
 @csrf_exempt
+@require_http_methods(["GET"])
+def search_community_screeners(request, query):
+    screeners = CustomScreener.objects.filter(
+        visibility='community',
+        screener_name__icontains=query
+    ).order_by('screener_name')[:8]
+    return JsonResponse([
+        {'id': s.id, 'screener_name': s.screener_name}
+        for s in screeners
+    ], safe=False)
+
+
+@csrf_exempt
 @require_http_methods(["POST"])
 def run_database_screener(request):
     """
