@@ -34,6 +34,21 @@
   max-height: 280px;
   overflow-y: auto;
   z-index: 1200;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-sunken) transparent;
+}
+
+.search-bar-suggestions::-webkit-scrollbar {
+  width: 4px;
+}
+
+.search-bar-suggestions::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.search-bar-suggestions::-webkit-scrollbar-thumb {
+  background: var(--bg-sunken);
+  border-radius: 2px;
 }
 
 .search-bar-suggestion-item {
@@ -65,6 +80,28 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.search-bar-suggestion-item--screener {
+  display: block;
+}
+
+.search-bar-suggestion-screener-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+}
+
+.search-bar-section-label {
+  padding: 4px 12px 2px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--bg-sunken);
+  margin-top: 2px;
 }
 
 @media (max-width: 1024px) {

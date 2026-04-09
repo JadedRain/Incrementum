@@ -171,6 +171,18 @@ export const fetchCustomScreeners = async (apiKey: string | null) => {
   return res.json();
 };
 
+export const searchCommunityScreeners = async (query: string): Promise<{ id: number; screener_name: string }[]> => {
+  try {
+    const res = await fetchWrapper(() =>
+      fetch(apiString(`/screeners/community/search/${encodeURIComponent(query)}/`))
+    );
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
+};
+
 export const updateScreenerPrivacy = async (
   screenerId: number,
   visibility: ScreenerVisibility,
