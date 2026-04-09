@@ -80,6 +80,30 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.help-column-grid {
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.help-column-card {
+  background: color-mix(in srgb, var(--bg-sunken) 70%, transparent);
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--text-secondary) 20%, transparent);
+  padding: 0.75rem 0.85rem;
+}
+
+.help-column-card h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.help-column-card p {
+  margin: 0.4rem 0 0;
+}
+
 .help-glance-card {
   background: color-mix(in srgb, var(--bg-sunken) 70%, transparent);
   border-radius: 10px;
@@ -203,6 +227,10 @@
   }
 
   .help-bullets {
+    grid-template-columns: 1fr;
+  }
+
+  .help-column-grid {
     grid-template-columns: 1fr;
   }
 }
