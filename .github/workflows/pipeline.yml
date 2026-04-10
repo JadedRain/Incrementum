@@ -175,10 +175,9 @@ jobs:
             exit 1
           fi
 
-          kubectl create secret generic incrementum-secrets \
-            --namespace=incrementum \
-            --from-literal=db-conn-string="$DB_CONN_STRING" \
-            --dry-run=client -o yaml | kubectl apply -f -
+          ENCODED=$(echo -n "$DB_CONN_STRING" | base64 -w0)
+          kubectl patch secret incrementum-secrets -n incrementum \
+            --type merge -p "{\"data\":{\"db-conn-string\":\"$ENCODED\"}}"
 
       - name: Preflight API secret keys
         run: |

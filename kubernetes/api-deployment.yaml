@@ -19,7 +19,12 @@ spec:
       - name: incrementum-api
         image: nhowell02/incrementum_api:latest
         imagePullPolicy: Always
-        command: ["python", "-m", "gunicorn", "api_project.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2", "--timeout", "120"]
+        command:
+        - sh
+        - -c
+        - |
+          python -m gunicorn api_project.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 120 || \
+          python manage.py runserver 0.0.0.0:8000
         ports:
         - containerPort: 8000
           name: http
@@ -70,6 +75,7 @@ spec:
             secretKeyRef:
               name: incrementum-secrets
               key: db-conn-string
+              optional: true
         - name: DATABASE_HOST
           valueFrom:
             configMapKeyRef:
