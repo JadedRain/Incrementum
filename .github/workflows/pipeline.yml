@@ -164,9 +164,10 @@ jobs:
       - name: Apply Kubernetes manifests
         run: kubectl apply -f kubernetes/
 
-      - name: Upsert DB connection string secret
+      - name: Upsert API runtime secrets
         env:
           DB_CONN_STRING: ${{ secrets.DB_CONN_STRING }}
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
         run: |
           set -e
 
@@ -174,10 +175,21 @@ jobs:
             echo "Missing required GitHub secret: DB_CONN_STRING"
             exit 1
           fi
+          if [[ -z "$DJANGO_SECRET_KEY" ]]; then
+            echo "Missing required GitHub secret: DJANGO_SECRET_KEY"
+            exit 1
+          fi
 
-          ENCODED=$(echo -n "$DB_CONN_STRING" | base64 -w0)
+          # Create the secret if it does not exist yet.
+          kubectl get secret incrementum-secrets -n incrementum >/dev/null 2>&1 || \
+            kubectl create secret generic incrementum-secrets -n incrementum
+
+          ENCODED_DB_CONN=$(printf %s "$DB_CONN_STRING" | base64 | tr -d '\n')
+          ENCODED_DJANGO_KEY=$(printf %s "$DJANGO_SECRET_KEY" | base64 | tr -d '\n')
+
           kubectl patch secret incrementum-secrets -n incrementum \
-            --type merge -p "{\"data\":{\"db-conn-string\":\"$ENCODED\"}}"
+            --type merge \
+            -p "{\"data\":{\"db-conn-string\":\"$ENCODED_DB_CONN\",\"django-secret-key\":\"$ENCODED_DJANGO_KEY\"}}"
 
       - name: Preflight API secret keys
         run: |
