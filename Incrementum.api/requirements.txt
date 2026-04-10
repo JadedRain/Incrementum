@@ -36,3 +36,4 @@ tensorflow
 dj-database-url
 python-keycloak
 dotenv
+gunicorn
