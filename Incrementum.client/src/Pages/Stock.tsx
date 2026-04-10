@@ -129,21 +129,7 @@ export default function Stock({ token: propToken }: { token?: string; }) {
                 </div>
               </div>
 
-              {showForecastLine && prediction && (
-                <div className="prediction-inline-change" style={{ marginTop: '12px' }}>
-                  <div className={`prediction-inline-badge ${((oneHourPrediction ?? prediction.last_close) - prediction.last_close) >= 0 ? 'positive' : 'negative'}`}>
-                    <span className="prediction-badge-icon">
-                      {((oneHourPrediction ?? prediction.last_close) - prediction.last_close) >= 0 ? '↑' : '↓'}
-                    </span>
-                    <span className="prediction-badge-value">
-                      {formatCurrency(Math.abs((oneHourPrediction ?? prediction.last_close) - prediction.last_close))}
-                    </span>
-                    <span className="prediction-badge-percent">
-                      {formatPercentage((((oneHourPrediction ?? prediction.last_close) - prediction.last_close) / prediction.last_close) * 100)}
-                    </span>
-                  </div>
-                </div>
-              )}
+
             </div>
           ) : null}
 
@@ -179,6 +165,8 @@ export default function Stock({ token: propToken }: { token?: string; }) {
                 forecastClosePrices={predictedClosePrices}
                 onForecastToggle={handleForecastToggle}
                 forecastLoading={predictionLoading}
+                prediction={prediction}
+                oneHourPrediction={oneHourPrediction}
               />
             </div>
           </div>

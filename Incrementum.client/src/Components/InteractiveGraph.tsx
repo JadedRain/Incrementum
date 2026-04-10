@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import StockChart from "./StockChart";
+import { formatCurrency, formatPercentage } from '../utils/formatUtils';
 
 type Props = {
   url?: string;
@@ -11,6 +12,8 @@ type Props = {
   forecastClosePrices?: number[];
   onForecastToggle?: () => void;
   forecastLoading?: boolean;
+  prediction?: any;
+  oneHourPrediction?: number;
 };
 
 
@@ -22,6 +25,8 @@ const InteractiveGraph: React.FC<Props> = ({
   forecastClosePrices = [],
   onForecastToggle,
   forecastLoading = false,
+  prediction,
+  oneHourPrediction,
 }) => {
   const { token } = useParams<{ token: string }>();
   const ticker = token ?? "";
@@ -97,6 +102,19 @@ const InteractiveGraph: React.FC<Props> = ({
           </span>
         </div>
         <div className="flex gap-2">
+          {showForecast && prediction && (
+            <div className={`prediction-inline-badge ${((oneHourPrediction ?? prediction.last_close) - prediction.last_close) >= 0 ? 'positive' : 'negative'}`}>
+              <span className="prediction-badge-icon">
+                {((oneHourPrediction ?? prediction.last_close) - prediction.last_close) >= 0 ? '↑' : '↓'}
+              </span>
+              <span className="prediction-badge-value">
+                {formatCurrency(Math.abs((oneHourPrediction ?? prediction.last_close) - prediction.last_close))}
+              </span>
+              <span className="prediction-badge-percent">
+                {formatPercentage((((oneHourPrediction ?? prediction.last_close) - prediction.last_close) / prediction.last_close) * 100)}
+              </span>
+            </div>
+          )}
           <button
             className="interactive-graph-btn"
             onClick={onForecastToggle}
