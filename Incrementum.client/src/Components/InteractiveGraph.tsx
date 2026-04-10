@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import StockChart from "./StockChart";
 
@@ -6,16 +6,34 @@ type Props = {
   url?: string;
   height?: string;
   period?: string;
-  interval?: string
+  interval?: string;
+  showForecast?: boolean;
+  forecastClosePrices?: number[];
+  onForecastToggle?: () => void;
+  forecastLoading?: boolean;
 };
 
 
-const InteractiveGraph: React.FC<Props> = ({ period = "1y", interval = "1d", height = "600px" }) => {
+const InteractiveGraph: React.FC<Props> = ({
+  period = "1y",
+  interval = "1d",
+  height = "600px",
+  showForecast = false,
+  forecastClosePrices = [],
+  onForecastToggle,
+  forecastLoading = false,
+}) => {
   const { token } = useParams<{ token: string }>();
   const ticker = token ?? "";
   const [graphType, setGraphType] = useState<'line' | 'candle'>('line');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
+
+  useEffect(() => {
+    if (showForecast && graphType === 'candle') {
+      setGraphType('line');
+    }
+  }, [showForecast, graphType]);
 
   const handleDateRangeChange = (start: string, end: string) => {
     // Convert to date format for input fields (YYYY-MM-DD)
@@ -78,12 +96,23 @@ const InteractiveGraph: React.FC<Props> = ({ period = "1y", interval = "1d", hei
             💡 Click two points on the graph to select a date range
           </span>
         </div>
-        <button
-          className="interactive-graph-btn"
-          onClick={() => setGraphType(graphType === 'line' ? 'candle' : 'line')}
-        >
-          {graphType === 'line' ? 'Show Candlestick' : 'Show Line Graph'}
-        </button>
+        <div className="flex gap-2">
+          <button
+            className="interactive-graph-btn"
+            onClick={onForecastToggle}
+            disabled={forecastLoading}
+          >
+            {forecastLoading ? 'Loading Forecast...' : (showForecast ? 'Hide 3hr Forecast' : 'Show 3hr Forecast')}
+          </button>
+          <button
+            className="interactive-graph-btn"
+            onClick={() => setGraphType(graphType === 'line' ? 'candle' : 'line')}
+            disabled={showForecast}
+            title={showForecast ? 'Disable forecast to use candlestick view' : undefined}
+          >
+            {graphType === 'line' ? 'Show Candlestick' : 'Show Line Graph'}
+          </button>
+        </div>
       </div>
       <StockChart
         ticker={ticker}
@@ -94,6 +123,8 @@ const InteractiveGraph: React.FC<Props> = ({ period = "1y", interval = "1d", hei
         startDate={startDate}
         endDate={endDate}
         onDateRangeChange={handleDateRangeChange}
+        showForecast={showForecast}
+        forecastClosePrices={forecastClosePrices}
       />
     </div>
   );
