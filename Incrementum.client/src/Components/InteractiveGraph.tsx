@@ -3,6 +3,12 @@ import { useParams } from "react-router-dom";
 import StockChart from "./StockChart";
 import { formatCurrency, formatPercentage } from '../utils/formatUtils';
 
+type Prediction = {
+  last_close: number;
+  predicted_close_prices?: number[];
+  predicted_price?: number;
+};
+
 type Props = {
   url?: string;
   height?: string;
@@ -12,7 +18,7 @@ type Props = {
   forecastClosePrices?: number[];
   onForecastToggle?: () => void;
   forecastLoading?: boolean;
-  prediction?: any;
+  prediction?: Prediction;
   oneHourPrediction?: number;
 };
 
