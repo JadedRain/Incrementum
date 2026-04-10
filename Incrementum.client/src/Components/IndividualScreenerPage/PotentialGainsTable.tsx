@@ -46,9 +46,14 @@ const StockTable: React.FC<StockTableProps> = ({ filteredSymbols = [] }) => {
     setLoading(true);
     setError("");
     try {
+      const apiKey = localStorage.getItem("apiKey");
+      if (!apiKey) {
+        throw new Error("Please log in to view stock potentials");
+      }
+
       const res = await fetch(API_URL, {
         headers: {
-          "X-User-Id": localStorage.getItem("userId") || "demo-user",
+          "X-User-Id": apiKey,
         },
       });
       if (!res.ok) throw new Error("Failed to fetch");
@@ -92,11 +97,16 @@ const StockTable: React.FC<StockTableProps> = ({ filteredSymbols = [] }) => {
     setLoading(true);
     setError("");
     try {
+      const apiKey = localStorage.getItem("apiKey");
+      if (!apiKey) {
+        throw new Error("Please log in to add stock potentials");
+      }
+
       const res = await fetch(API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-User-Id": localStorage.getItem("userId") || "demo-user",
+          "X-User-Id": apiKey,
         },
         body: JSON.stringify({
           stock_symbol: symbol,

@@ -28,6 +28,7 @@ type Stock = {
   pe_per_growth?: number | null;
   revenue_per_share?: number | null;
   price_per_sales?: number | null;
+  last_candle?: string | null;
 };
 
 type Props = {
@@ -141,6 +142,10 @@ export default function StockRow({ stock, onClick }: Props) {
             return <Cell key={k} className="StockTable-cell--numeric">{o.revenue_per_share != null ? `$${Number(o.revenue_per_share).toFixed(2)}` : 'N/A'}</Cell>;
           case 'price_per_sales':
             return <Cell key={k} className="StockTable-cell--numeric">{o.price_per_sales != null ? Number(o.price_per_sales).toFixed(2) : 'N/A'}</Cell>;
+          case 'last_candle':
+            return <Cell key={k} className="StockTable-cell--truncate" title={s.last_candle || 'N/A'}>
+              <span className="StockTable-cell__text">{s.last_candle || 'N/A'}</span>
+            </Cell>;
           default:
             return null;
         }

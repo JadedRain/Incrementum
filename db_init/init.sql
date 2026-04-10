@@ -17,10 +17,6 @@ create table incrementum.stock (
     symbol varchar(10) primary key,
     company_name varchar(100) not null,
     updated_at timestamp not null default current_timestamp,
-    percent_change numeric(12, 6),
-    price integer,
-    high52 integer,
-    low52 integer,
     description TEXT,
     market_cap BIGINT,
     primary_exchange varchar(100),
@@ -37,12 +33,22 @@ create table incrementum.stock (
     locale varchar(20),
     sic_code varchar(20),
     sic_description varchar(255),
+    day_percent_change numeric(12, 6),
+    price integer,
+    high52 integer,
+    low52 integer,
+    high52_updated_at timestamp,
+    low52_updated_at timestamp,
+    percent_change numeric(12, 6),
     debt_to_equity numeric(12, 4),
     annual_eps_growth_rate integer,
     price_per_earnings integer,
     pe_per_growth integer,
     revenue_per_share numeric(20, 2),
-    price_per_sales numeric(20, 2)
+    price_per_sales numeric(20, 2),
+    quarterly_financials_updated_at timestamp,
+    total_revenue bigint,
+    last_candle varchar(20)
 );
 
 create table incrementum.stock_history (

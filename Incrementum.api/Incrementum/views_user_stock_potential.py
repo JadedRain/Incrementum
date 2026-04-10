@@ -1,4 +1,6 @@
 import json
+import logging
+from datetime import datetime
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -8,29 +10,73 @@ from Incrementum.models.stock import StockModel
 from Incrementum.models.stock_history import StockHistory
 from Incrementum.models.custom_screener import CustomScreener
 
+logger = logging.getLogger(__name__)
+
 
 def get_user_from_request(request):
     return request.headers.get('X-User-Id')
 
 
-def calculate_stock_price_difference(stock_symbol_obj, purchase_date, quantity):
-    old_price_record = StockHistory.objects.filter(
-        stock_symbol=stock_symbol_obj,
-        day_and_time=purchase_date
-    ).first()
+def get_stock_price_at_date(stock_symbol_obj, purchase_date):
+    """
+    Get the closing price for a stock on or before a specific date.
+    Uses the most recent closing price on or before the purchase date.
+    """
+    try:
+        # Parse the date string if it's a string
+        if isinstance(purchase_date, str):
+            purchase_date_obj = datetime.strptime(purchase_date, '%Y-%m-%d').date()
+        else:
+            purchase_date_obj = purchase_date
 
-    new_price_record = StockHistory.objects.filter(
-        stock_symbol=stock_symbol_obj
-    ).order_by('-day_and_time').first()
+        # Get end of day for comparison
+        end_of_day = datetime.combine(purchase_date_obj, datetime.max.time())
 
-    if not old_price_record or not new_price_record:
+        # Find the most recent price on or before purchase date
+        price = StockHistory.objects.filter(
+            stock_symbol=stock_symbol_obj,
+            day_and_time__lte=end_of_day
+        ).order_by('-day_and_time').values_list('close_price', flat=True)[:1].first()
+
+        return price
+    except Exception as e:
+        logger.error(f"Error fetching stock price for {stock_symbol_obj.symbol}: {e}")
         return None
 
-    old_price = old_price_record.close_price
-    new_price = new_price_record.close_price
 
-    diff = (old_price - new_price) * quantity
-    return diff
+def calculate_stock_price_difference(stock_symbol_obj, purchase_amt, quantity):
+    """Calculate the price difference between purchase date and latest date"""
+    try:
+        # Get latest price
+        new_price = StockModel.objects.filter(
+            symbol=stock_symbol_obj.symbol
+        ).values_list('price', flat=True).first()
+
+        if new_price is None:
+            new_price = get_stock_price_at_date(
+                stock_symbol_obj, datetime.now().date()
+            )
+
+        if purchase_amt is None:
+            logger.warning(f"purchase_amt is None for {stock_symbol_obj.symbol}")
+            return None
+
+        if new_price is None:
+            logger.warning(
+                f"current price is None for {stock_symbol_obj.symbol} "
+                f"(not in StockModel or StockHistory)"
+            )
+            return None
+
+        # Price is in cents, convert to dollars
+        new_price_dollars = float(new_price) / 100
+        purchase_price_float = float(purchase_amt)
+
+        diff = (purchase_price_float - new_price_dollars) * float(quantity)
+        return diff
+    except Exception as e:
+        logger.error(f"Error calculating price difference for {stock_symbol_obj.symbol}: {e}")
+        return None
 
 
 def format_potential(potential):
@@ -42,7 +88,7 @@ def format_potential(potential):
     )
     diff = calculate_stock_price_difference(
         potential.stock_symbol,
-        potential.purchase_date,
+        potential.purchase_price,
         potential.quantity
     )
     return {
@@ -161,11 +207,11 @@ def create_user_stock_potential(request):
     purchase_price = data.get('purchase_price')
     screener_id = data.get('screener')
 
-    if not all([stock_symbol, purchase_date, quantity, purchase_price]):
+    # Validate required fields (purchase_price is now optional)
+    if not all([stock_symbol, purchase_date, quantity]):
         return JsonResponse({
             "error": (
-                "Missing required fields: stock_symbol, purchase_date, "
-                "quantity, purchase_price"
+                "Missing required fields: stock_symbol, purchase_date, quantity"
             )
         }, status=400)
 
@@ -176,6 +222,13 @@ def create_user_stock_potential(request):
             {"error": f"Stock {stock_symbol} not found"},
             status=404
         )
+
+    # If purchase_price is not provided, fetch it from history
+    if purchase_price is None:
+        fetched_price = get_stock_price_at_date(stock, purchase_date)
+        if fetched_price is not None:
+            purchase_price = fetched_price / 100  # Convert from cents to dollars
+        # If still None, that's okay - we'll store null in the database
 
     screener = None
     if screener_id:

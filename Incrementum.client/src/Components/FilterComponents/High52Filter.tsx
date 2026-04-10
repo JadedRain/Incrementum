@@ -78,7 +78,7 @@ const High52Filter: React.FC = () => {
   }, [maxHigh52, addFilter, removeAllWithPrefix]);
 
   return (
-    <ExpandableSidebarItem title="52W High">
+    <ExpandableSidebarItem title="52W High" description="The highest stock price over the last 52 weeks. Can indicate if stock was overvalued or currently at a low point.">
       <div className="filter-block">
         <div className="filter-block-label">52-Week High (USD)</div>
         <div className="filter-row">

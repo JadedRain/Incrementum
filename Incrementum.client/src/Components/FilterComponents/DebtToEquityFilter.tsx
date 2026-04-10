@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
 import { useDatabaseScreenerContext } from '../../Context/DatabaseScreenerContext';
 
 const DebtToEquityFilter: React.FC = () => {
   const { addFilter, removeFilter, filterDict } = useDatabaseScreenerContext();
 
-  const removeAllWithPrefix = (prefix: string) => {
+  const removeAllWithPrefix = useCallback((prefix: string) => {
     Object.keys(filterDict).forEach(key => {
       if (key.startsWith(prefix)) removeFilter(key);
     });
-  };
+  }, [filterDict, removeFilter]);
   const [min_debt_to_equity, setMinDebtToEquity] = useState<number | null>(null);
   const [max_debt_to_equity, setMaxDebtToEquity] = useState<number | null>(null);
 
@@ -35,7 +35,7 @@ const DebtToEquityFilter: React.FC = () => {
     } else {
       removeAllWithPrefix('debt_to_equity__greater_than_or_equal');
     }
-  }, [min_debt_to_equity]);
+  }, [min_debt_to_equity, addFilter, removeAllWithPrefix]);
 
   useEffect(() => {
     if (max_debt_to_equity !== null) {
@@ -48,10 +48,10 @@ const DebtToEquityFilter: React.FC = () => {
     } else {
       removeAllWithPrefix('debt_to_equity__less_than_or_equal');
     }
-  }, [max_debt_to_equity]);
+  }, [max_debt_to_equity, addFilter, removeAllWithPrefix]);
 
   return (
-    <ExpandableSidebarItem title="Debt-to-Equity">
+    <ExpandableSidebarItem title="Debt-to-Equity" description="Debt to equity ratio. Liability divided by shareholders equity. Lower indicates stability, higher indicates volatility.">
       <div className="filter-block">
         <div className="filter-block-label">Debt-to-Equity Ratio</div>
         <div className="filter-row">

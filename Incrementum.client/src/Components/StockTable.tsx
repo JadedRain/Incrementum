@@ -8,24 +8,7 @@ import { useDatabaseScreenerContext } from '../Context/DatabaseScreenerContext';
 import { useState } from 'react';
 import InfoIconSvg from '../assets/info-filled-svgrepo-com.svg';
 import { usePreferences } from '../Context/usePreferences';
-
-const columnDescriptions: Record<string, string> = {
-  eps: 'Earnings per share. Net income divided by average weighted outstanding shares. Higher typically means better return for investors.',
-  debt_to_equity: 'Debt to equity ratio. Liability divided by shareholders equity. Lower indicates stability, higher indicates volatility.',
-  high52: 'The highest stock price over the last 52 weeks. Can indicate if stock was overvalued or currently at a low point.',
-  low52: 'The lowest stock price over the last 52 weeks. Can be used to indicate growth potential.',
-  percentChange: 'The percentage change in stock price over 1 day. Red for losses, green for gains.',
-  volume: 'Current trading volume. Measure of all trades in a specific period. Indicates if a stock is actively traded.',
-  market_cap: 'Market capitalization. Total valuation of outstanding shares. Indicates potential gains in large scale trades.',
-  outstanding_shares: 'The amount of shares held by shareholders. Used as a component in other metrics.',
-  share_class_figi: 'Different classifications of shares (Class A, Class B, etc.). Class A is typically higher priority.',
-  sic_description: 'The industry sector or classification of the company.',
-  annual_eps_growth_rate: 'The percentage change in earnings per share over the last year. Indicates earnings growth.',
-  price_per_earnings: 'Price to earnings ratio. Stock price divided by EPS. Higher ratio indicates higher expected growth.',
-  pe_per_growth: '(Price per Share / EPS) divided by Expected Earnings Growth Rate. Compares valuation to growth.',
-  revenue_per_share: 'Total revenue divided by outstanding shares. Used to identify undervalued stocks.',
-  price_per_sales: 'Price to sales ratio. Stock price divided by revenue per share. Useful for identifying undervalued stocks.',
-};
+import { columnDescriptions } from '../constants/columnDescriptions';
 
 function InfoIcon({ description, position = 'left', showBubbles = true }: { description?: string; position?: 'left' | 'right' | 'bottom'; showBubbles?: boolean }) {
   const [showTooltip, setShowTooltip] = useState(false);
@@ -87,9 +70,10 @@ type Stock = {
   pe_per_growth?: number | null;
   revenue_per_share?: number | null;
   price_per_sales?: number | null;
+  last_candle?: string | null;
 };
 
-type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps' | 'debt_to_equity' | 'list_date' | 'outstanding_shares' | 'share_class_figi' | 'sic_description' | 'annual_eps_growth_rate' | 'price_per_earnings' | 'pe_per_growth' | 'revenue_per_share' | 'price_per_sales';
+type ColKey = 'symbol' | 'price' | 'high52' | 'low52' | 'percentChange' | 'volume' | 'market_cap' | 'eps' | 'debt_to_equity' | 'list_date' | 'outstanding_shares' | 'share_class_figi' | 'sic_description' | 'annual_eps_growth_rate' | 'price_per_earnings' | 'pe_per_growth' | 'revenue_per_share' | 'price_per_sales' | 'last_candle';
 type Col = { k: ColKey; l: string };
 
 type Props = { onRowClick?: (s: string) => void; stocks?: unknown[] };
@@ -128,6 +112,7 @@ export default function StockTable({ onRowClick, stocks: overrideStocks }: Props
     { k: 'pe_per_growth', l: 'PEG Ratio' },
     { k: 'revenue_per_share', l: 'Revenue/Share' },
     { k: 'price_per_sales', l: 'P/S Ratio' },
+    { k: 'last_candle', l: 'Last Candle' },
   ];
 
   return (
@@ -185,6 +170,7 @@ function InnerStockTable({
   const { visibleColumns, toggleColumn, menuOpen, setMenuOpen, menuRef, btnRef, columnOrder, moveColumn } = useColumnVisibility();
   const { showInfoBubbles } = usePreferences();
   const stocksArray = Array.isArray(stocks) ? (stocks as Stock[]) : [];
+  const [dropIndicator, setDropIndicator] = useState<{ index: number; side: 'left' | 'right' } | null>(null);
 
   // Map column keys to backend sort fields
   const colToSortField = (k: string): string | null => {
@@ -225,6 +211,8 @@ function InnerStockTable({
         return 'revenue_per_share';
       case 'price_per_sales':
         return 'price_per_sales';
+      case 'last_candle':
+        return 'last_candle';
       default:
         return null;
     }
@@ -237,19 +225,26 @@ function InnerStockTable({
   };
 
   const handleHeaderClick = (field: string) => {
-    if (sortBy === field) {
-      setSortAsc(!sortAsc);
-    } else {
+    if (sortBy !== field) {
       setSortBy(field);
       setSortAsc(true);
+      return;
     }
+
+    if (sortAsc) {
+      setSortAsc(false);
+      return;
+    }
+
+    setSortBy(null);
+    setSortAsc(true);
   };
   const btnStyle = 'bg-transparent border-none cursor-pointer p-1';
   const menuStyle = 'absolute right-0 mt-1 bg-[var(--bg-surface)] rounded-lg shadow-lg p-3 min-w-[240px]';
 
   return (
     <div className="StockTable-container stocktable-flex">
-      <div className="StockTable-header-row relative">
+      <div className="StockTable-header-row relative pr-12">
         <div className="absolute right-2 top-1 z-10">
           <button ref={btnRef} aria-label="Columns" onClick={() => setMenuOpen(!menuOpen)} className={btnStyle}><span className="text-[20px]">⋮</span></button>
           {menuOpen && (
@@ -273,25 +268,50 @@ function InnerStockTable({
           const labelMap: Record<string, string> = Object.fromEntries(cols.map(c => [c.k, c.l]));
           if (!visibleColumns[k]) return null;
           const sortableField = colToSortField(k);
+          const isDropLeft = dropIndicator?.index === idx && dropIndicator.side === 'left';
+          const isDropRight = dropIndicator?.index === idx && dropIndicator.side === 'right';
           return (
             <div
               key={k}
-              className={`StockTable-header ${sortableField ? 'col-sortable' : 'col-draggable'}`}
+              className={`StockTable-header ${sortableField ? 'col-sortable' : 'col-draggable'} ${isDropLeft ? 'drop-target-left' : ''} ${isDropRight ? 'drop-target-right' : ''}`}
               draggable={true}
               data-index={idx}
               onDragStart={(e) => {
                 e.dataTransfer?.setData('text/plain', String(idx));
                 e.dataTransfer!.effectAllowed = 'move';
               }}
-              onDragOver={(e) => { e.preventDefault(); }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                const rect = e.currentTarget.getBoundingClientRect();
+                const midpoint = rect.left + rect.width / 2;
+                const side: 'left' | 'right' = e.clientX < midpoint ? 'left' : 'right';
+                setDropIndicator((prev) => {
+                  if (prev?.index === idx && prev?.side === side) return prev;
+                  return { index: idx, side };
+                });
+              }}
+              onDragEnd={() => {
+                setDropIndicator(null);
+              }}
               onDrop={(e) => {
+                e.preventDefault();
                 const from = Number(e.dataTransfer?.getData('text/plain'));
-                const to = idx;
-                if (!Number.isNaN(from) && from !== to) moveColumn(from, to);
+                if (Number.isNaN(from) || !dropIndicator) {
+                  setDropIndicator(null);
+                  return;
+                }
+
+                let to = dropIndicator.index + (dropIndicator.side === 'right' ? 1 : 0);
+                if (from < to) to -= 1;
+
+                if (from !== to) moveColumn(from, to);
+                setDropIndicator(null);
               }}
               onClick={() => { if (sortableField) handleHeaderClick(sortableField); }}
               role={sortableField ? 'button' : undefined}
             >
+              {isDropLeft && <span className="StockTable-drop-line StockTable-drop-line--left" />}
+              {isDropRight && <span className="StockTable-drop-line StockTable-drop-line--right" />}
               <div className="flex items-center justify-center">
                 <span>{(labelMap[k] ?? k) + (sortableField ? getSortIndicator(sortableField) : '')}</span>
               </div>

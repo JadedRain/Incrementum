@@ -140,6 +140,7 @@ class Screener:
             'pe_per_growth': 'pe_per_growth',
             'revenue_per_share': 'revenue_per_share',
             'price_per_sales': 'price_per_sales',
+            'last_candle': 'last_candle',
         }
 
         field_name = field_mapping.get(operand, operand)

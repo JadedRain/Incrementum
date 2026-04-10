@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ExpandableSidebarItem from '../ExpandableSidebarItem';
 import { useDatabaseScreenerContext } from '../../Context/DatabaseScreenerContext';
 
 const PricePerSalesFilter: React.FC = () => {
   const { addFilter, removeFilter, filterDict } = useDatabaseScreenerContext();
 
-  const removeAllWithPrefix = (prefix: string) => {
+  const removeAllWithPrefix = useCallback((prefix: string) => {
     Object.keys(filterDict).forEach((key) => {
       if (key.startsWith(prefix)) removeFilter(key);
     });
-  };
+  }, [filterDict, removeFilter]);
 
   const [minPPS, setMinPPS] = useState<number | null>(null);
   const [maxPPS, setMaxPPS] = useState<number | null>(null);
@@ -37,7 +37,7 @@ const PricePerSalesFilter: React.FC = () => {
     } else {
       removeAllWithPrefix('price_per_sales__greater_than_or_equal');
     }
-  }, [minPPS]);
+  }, [minPPS, addFilter, removeAllWithPrefix]);
 
   useEffect(() => {
     if (maxPPS !== null) {
@@ -50,10 +50,10 @@ const PricePerSalesFilter: React.FC = () => {
     } else {
       removeAllWithPrefix('price_per_sales__less_than_or_equal');
     }
-  }, [maxPPS]);
+  }, [maxPPS, addFilter, removeAllWithPrefix]);
 
   return (
-    <ExpandableSidebarItem title="P/S Ratio">
+    <ExpandableSidebarItem title="P/S Ratio" description="Price to sales ratio. Stock price divided by revenue per share. Useful for identifying undervalued stocks.">
       <div className="filter-block">
         <div className="filter-block-label">Price-to-Sales (P/S)</div>
         <div className="filter-row">
