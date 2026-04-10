@@ -164,6 +164,22 @@ jobs:
       - name: Apply Kubernetes manifests
         run: kubectl apply -f kubernetes/
 
+      - name: Upsert DB connection string secret
+        env:
+          DB_CONN_STRING: ${{ secrets.DB_CONN_STRING }}
+        run: |
+          set -e
+
+          if [[ -z "$DB_CONN_STRING" ]]; then
+            echo "Missing required GitHub secret: DB_CONN_STRING"
+            exit 1
+          fi
+
+          kubectl create secret generic incrementum-secrets \
+            --namespace=incrementum \
+            --from-literal=db-conn-string="$DB_CONN_STRING" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Preflight API secret keys
         run: |
           set -e
@@ -171,8 +187,7 @@ jobs:
           SECRET_NAME="incrementum-secrets"
           REQUIRED_KEYS=(
             "django-secret-key"
-            "database-password"
-            "keycloak-realm-url"
+            "db-conn-string"
           )
 
           kubectl get secret "$SECRET_NAME" -n incrementum >/dev/null
@@ -194,61 +209,3 @@ jobs:
         run: |
           kubectl rollout restart deployment/incrementum-api -n incrementum
           kubectl rollout restart deployment/incrementum-client -n incrementum
-
-      - name: Wait for rollouts
-        run: |
-          set -e
-
-          monitor_rollout() {
-            local deployment="$1"
-            while true; do
-              printf "\n[progress] deployment/%s\n" "$deployment"
-              kubectl get deployment "$deployment" -n incrementum -o wide || true
-              kubectl get pods -n incrementum -l "app=${deployment}" -o wide || true
-              sleep 15
-            done
-          }
-
-          check_rollout() {
-            local deployment="$1"
-            local monitor_pid=""
-
-            echo "Waiting for rollout: ${deployment}"
-
-            monitor_rollout "$deployment" &
-            monitor_pid=$!
-
-            if ! kubectl rollout status "deployment/${deployment}" -n incrementum --timeout=360s; then
-              kill "$monitor_pid" 2>/dev/null || true
-              wait "$monitor_pid" 2>/dev/null || true
-
-              echo "Rollout failed for ${deployment}. Collecting diagnostics..."
-
-              printf "\n--- Pods ---\n"
-              kubectl get pods -n incrementum -o wide
-
-              printf "\n--- Deployment Describe: %s ---\n" "$deployment"
-              kubectl describe "deployment/${deployment}" -n incrementum || true
-
-              printf "\n--- Recent Namespace Events ---\n"
-              kubectl get events -n incrementum --sort-by=.lastTimestamp | tail -n 50 || true
-
-              printf "\n--- Pod Logs (all pods matching app=%s) ---\n" "$deployment"
-              PODS=$(kubectl get pods -n incrementum -l "app=${deployment}" -o jsonpath='{.items[*].metadata.name}')
-              for pod in $PODS; do
-                printf "\n>>> Logs for %s\n" "$pod"
-                kubectl logs -n incrementum "$pod" --all-containers --tail=200 || true
-                printf "\n>>> Previous logs for %s\n" "$pod"
-                kubectl logs -n incrementum "$pod" --all-containers --previous --tail=200 || true
-              done
-
-              exit 1
-            fi
-
-            kill "$monitor_pid" 2>/dev/null || true
-            wait "$monitor_pid" 2>/dev/null || true
-            echo "Rollout succeeded for ${deployment}"
-          }
-
-          check_rollout incrementum-api
-          check_rollout incrementum-client

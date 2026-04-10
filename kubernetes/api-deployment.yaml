@@ -63,6 +63,12 @@ spec:
             secretKeyRef:
               name: incrementum-secrets
               key: database-password
+              optional: true
+        - name: DB_CONN_STRING
+          valueFrom:
+            secretKeyRef:
+              name: incrementum-secrets
+              key: db-conn-string
         - name: DATABASE_HOST
           valueFrom:
             configMapKeyRef:
@@ -78,11 +84,13 @@ spec:
             secretKeyRef:
               name: incrementum-secrets
               key: keycloak-realm-url
+              optional: true
         - name: KEYCLOAK_CLIENT_ID
           valueFrom:
             configMapKeyRef:
               name: incrementum-config
               key: KEYCLOAK_CLIENT_ID
+              optional: true
         - name: KEYCLOAK_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
