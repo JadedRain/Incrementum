@@ -220,3 +220,30 @@ jobs:
         run: |
           kubectl rollout restart deployment/incrementum-api -n incrementum
           kubectl rollout restart deployment/incrementum-client -n incrementum
+
+      - name: Verify API deployment is healthy
+        run: |
+          set -e
+
+          if ! kubectl rollout status deployment/incrementum-api -n incrementum --timeout=240s; then
+            echo "API rollout failed. Collecting diagnostics..."
+            kubectl get pods -n incrementum -l app=incrementum-api -o wide || true
+            kubectl describe deployment/incrementum-api -n incrementum || true
+            for pod in $(kubectl get pods -n incrementum -l app=incrementum-api -o jsonpath='{.items[*].metadata.name}'); do
+              echo "\n>>> Describe pod: $pod"
+              kubectl describe pod "$pod" -n incrementum || true
+              echo "\n>>> Logs: $pod"
+              kubectl logs "$pod" -n incrementum --all-containers --tail=200 || true
+            done
+            exit 1
+          fi
+
+          ENDPOINTS=$(kubectl get endpoints incrementum-api-service -n incrementum -o jsonpath='{.subsets[*].addresses[*].ip}' 2>/dev/null || true)
+          if [[ -z "$ENDPOINTS" ]]; then
+            echo "incrementum-api-service has no ready endpoints; ingress will return 502"
+            kubectl get endpoints incrementum-api-service -n incrementum -o yaml || true
+            kubectl get pods -n incrementum -l app=incrementum-api -o wide || true
+            exit 1
+          fi
+
+          echo "API endpoints ready: $ENDPOINTS"
