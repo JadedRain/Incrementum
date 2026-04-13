@@ -44,6 +44,15 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
     }
     return true;
   };
+
+  const areFiltersEqual = (a: DatabaseScreenerFilter, b: DatabaseScreenerFilter) => {
+    return (
+      a.operand === b.operand &&
+      a.operator === b.operator &&
+      a.filter_type === b.filter_type &&
+      a.value === b.value
+    );
+  };
   const getKey = (filter: DatabaseScreenerFilter) => {
     if (filter.filter_type === 'numeric') {
       return `${filter.operand}__${filter.operator}`;
@@ -56,20 +65,36 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
 
   const addFilter = useCallback((filter: DatabaseScreenerFilter) => {
     const key = getKey(filter);
+    let didChange = false;
     setFilterDict((prev) => {
+      const existing = prev[key];
+      if (existing && areFiltersEqual(existing, filter)) {
+        return prev;
+      }
+
+      didChange = true;
       historyRef.current.push(prev);
       futureRef.current = [];
       const updated = { ...prev, [key]: filter };
       console.log('Filter added:', updated);
       return updated;
     });
-    // reset to first page when filters change
-    setPage(1);
+
+    if (didChange) {
+      // reset to first page only when filters actually change
+      setPage(1);
+    }
     return key;
   }, [setPage]);
 
   const removeFilter = useCallback((key: string) => {
+    let didChange = false;
     setFilterDict((prev) => {
+      if (!Object.prototype.hasOwnProperty.call(prev, key)) {
+        return prev;
+      }
+
+      didChange = true;
       historyRef.current.push(prev);
       futureRef.current = [];
       const updated = { ...prev };
@@ -77,18 +102,30 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
       console.log('Filter removed:', updated);
       return updated;
     });
-    // reset to first page when filters change
-    setPage(1);
+
+    if (didChange) {
+      // reset to first page only when filters actually change
+      setPage(1);
+    }
   }, [setPage]);
 
   const clearFilters = useCallback(() => {
+    let didChange = false;
     setFilterDict((prev) => {
+      if (Object.keys(prev).length === 0) {
+        return prev;
+      }
+
+      didChange = true;
       historyRef.current.push(prev);
       futureRef.current = [];
       return {};
     });
-    // reset to first page when filters are cleared
-    setPage(1);
+
+    if (didChange) {
+      // reset to first page when filters are cleared
+      setPage(1);
+    }
   }, [setPage]);
 
   const batchUpdateFilters = useCallback((
@@ -103,12 +140,20 @@ export const DatabaseScreenerProvider = ({ children }: { children: ReactNode }) 
       newFilterDict[key] = filter;
     });
     
+    let didChange = false;
     setFilterDict((prev) => {
+      if (areFilterDictsEqual(prev, newFilterDict)) {
+        return prev;
+      }
+
+      didChange = true;
       historyRef.current.push(prev);
       futureRef.current = [];
       return newFilterDict;
     });
-    setPage(1);
+    if (didChange) {
+      setPage(1);
+    }
     
     if (options?.sortBy !== undefined) {
       setSortBy(options.sortBy);
