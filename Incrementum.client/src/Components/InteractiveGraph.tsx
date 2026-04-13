@@ -1,21 +1,50 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import StockChart from "./StockChart";
+import { formatCurrency, formatPercentage } from '../utils/formatUtils';
+
+type Prediction = {
+  last_close: number;
+  predicted_close_prices?: number[];
+  predicted_price?: number;
+};
 
 type Props = {
   url?: string;
   height?: string;
   period?: string;
-  interval?: string
+  interval?: string;
+  showForecast?: boolean;
+  forecastClosePrices?: number[];
+  onForecastToggle?: () => void;
+  forecastLoading?: boolean;
+  prediction?: Prediction;
+  oneHourPrediction?: number;
 };
 
 
-const InteractiveGraph: React.FC<Props> = ({ period = "1y", interval = "1d", height = "600px" }) => {
+const InteractiveGraph: React.FC<Props> = ({
+  period = "1y",
+  interval = "1d",
+  height = "600px",
+  showForecast = false,
+  forecastClosePrices = [],
+  onForecastToggle,
+  forecastLoading = false,
+  prediction,
+  oneHourPrediction,
+}) => {
   const { token } = useParams<{ token: string }>();
   const ticker = token ?? "";
   const [graphType, setGraphType] = useState<'line' | 'candle'>('line');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
+
+  useEffect(() => {
+    if (showForecast && graphType === 'candle') {
+      setGraphType('line');
+    }
+  }, [showForecast, graphType]);
 
   const handleDateRangeChange = (start: string, end: string) => {
     // Convert to date format for input fields (YYYY-MM-DD)
@@ -78,12 +107,36 @@ const InteractiveGraph: React.FC<Props> = ({ period = "1y", interval = "1d", hei
             💡 Click two points on the graph to select a date range
           </span>
         </div>
-        <button
-          className="interactive-graph-btn"
-          onClick={() => setGraphType(graphType === 'line' ? 'candle' : 'line')}
-        >
-          {graphType === 'line' ? 'Show Candlestick' : 'Show Line Graph'}
-        </button>
+        <div className="flex gap-2">
+          {showForecast && prediction && (
+            <div className={`prediction-inline-badge ${((oneHourPrediction ?? prediction.last_close) - prediction.last_close) >= 0 ? 'positive' : 'negative'}`}>
+              <span className="prediction-badge-icon">
+                {((oneHourPrediction ?? prediction.last_close) - prediction.last_close) >= 0 ? '↑' : '↓'}
+              </span>
+              <span className="prediction-badge-value">
+                {formatCurrency(Math.abs((oneHourPrediction ?? prediction.last_close) - prediction.last_close))}
+              </span>
+              <span className="prediction-badge-percent">
+                {formatPercentage((((oneHourPrediction ?? prediction.last_close) - prediction.last_close) / prediction.last_close) * 100)}
+              </span>
+            </div>
+          )}
+          <button
+            className="interactive-graph-btn"
+            onClick={onForecastToggle}
+            disabled={forecastLoading}
+          >
+            {forecastLoading ? 'Loading Forecast...' : (showForecast ? 'Hide 3hr Forecast' : 'Show 3hr Forecast')}
+          </button>
+          <button
+            className="interactive-graph-btn"
+            onClick={() => setGraphType(graphType === 'line' ? 'candle' : 'line')}
+            disabled={showForecast}
+            title={showForecast ? 'Disable forecast to use candlestick view' : undefined}
+          >
+            {graphType === 'line' ? 'Show Candlestick' : 'Show Line Graph'}
+          </button>
+        </div>
       </div>
       <StockChart
         ticker={ticker}
@@ -94,6 +147,8 @@ const InteractiveGraph: React.FC<Props> = ({ period = "1y", interval = "1d", hei
         startDate={startDate}
         endDate={endDate}
         onDateRangeChange={handleDateRangeChange}
+        showForecast={showForecast}
+        forecastClosePrices={forecastClosePrices}
       />
     </div>
   );
