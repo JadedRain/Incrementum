@@ -46,6 +46,14 @@ interface StockChartProps {
   startDate?: string;
   endDate?: string;
   onDateRangeChange?: (startDate: string, endDate: string) => void;
+  showForecast?: boolean;
+  forecastClosePrices?: number[];
+}
+
+interface LineChartPoint extends StockDataPoint {
+  actualClose: number | null;
+  forecastClose: number | null;
+  isForecastPoint: boolean;
 }
 
 interface ApiResponse {
@@ -127,6 +135,9 @@ const LineTooltip = (props: CustomTooltipProps) => {
   const { active, payload } = props;
   if (active && payload && payload.length > 0) {
     const entry: StockDataPoint = payload[0].payload as StockDataPoint;
+    const predictedEntry = payload.find((item) => item && item.value !== undefined && (item.payload as { isForecastPoint?: boolean })?.isForecastPoint);
+    const isForecastPoint = Boolean((entry as unknown as { isForecastPoint?: boolean }).isForecastPoint);
+    const valueToDisplay = predictedEntry?.value ?? entry.close;
     return (
       <div
         style={{
@@ -140,7 +151,7 @@ const LineTooltip = (props: CustomTooltipProps) => {
         <p style={{ margin: '4px 0', fontWeight: 'bold' }}>
           {new Date(entry.time).toLocaleString()}
         </p>
-        <p style={{ margin: '4px 0' }}>{`Price: ${formatDollars(entry.close)}`}</p>
+        <p style={{ margin: '4px 0' }}>{`${isForecastPoint ? 'Forecast' : 'Price'}: ${formatDollars(Number(valueToDisplay))}`}</p>
       </div>
     );
   }
@@ -156,6 +167,8 @@ const StockChart: React.FC<StockChartProps> = ({
   startDate,
   endDate,
   onDateRangeChange,
+  showForecast = false,
+  forecastClosePrices = [],
 }) => {
   const [data, setData] = useState<StockDataPoint[]>([]);
   const [filteredData, setFilteredData] = useState<StockDataPoint[]>([]);
@@ -285,8 +298,46 @@ const StockChart: React.FC<StockChartProps> = ({
   }
 
   const displayData = filteredData.length > 0 ? filteredData : data;
-  const minPrice = Math.min(...displayData.map(d => d.low)) * 0.99;
-  const maxPrice = Math.max(...displayData.map(d => d.high)) * 1.01;
+
+  const lineChartData: LineChartPoint[] = displayData.map((point) => ({
+    ...point,
+    actualClose: point.close,
+    forecastClose: null,
+    isForecastPoint: false,
+  }));
+
+  if (showForecast && forecastClosePrices.length > 0 && displayData.length > 0) {
+    const basePoint = displayData[displayData.length - 1];
+    const baseDate = new Date(basePoint.time);
+    const oneHourMs = 60 * 60 * 1000;
+
+    lineChartData[lineChartData.length - 1] = {
+      ...lineChartData[lineChartData.length - 1],
+      forecastClose: basePoint.close,
+    };
+
+    forecastClosePrices.forEach((predictedPrice, index) => {
+      const futureDate = new Date(baseDate.getTime() + oneHourMs * (index + 1));
+      lineChartData.push({
+        time: futureDate.toISOString(),
+        date: futureDate,
+        open: predictedPrice,
+        high: predictedPrice,
+        low: predictedPrice,
+        close: predictedPrice,
+        actualClose: null,
+        forecastClose: predictedPrice,
+        isForecastPoint: true,
+      });
+    });
+  }
+
+  const rangeLow = Math.min(...displayData.map(d => d.low));
+  const rangeHigh = Math.max(...displayData.map(d => d.high));
+  const forecastMin = showForecast && forecastClosePrices.length > 0 ? Math.min(...forecastClosePrices) : rangeLow;
+  const forecastMax = showForecast && forecastClosePrices.length > 0 ? Math.max(...forecastClosePrices) : rangeHigh;
+  const minPrice = Math.min(rangeLow, forecastMin) * 0.99;
+  const maxPrice = Math.max(rangeHigh, forecastMax) * 1.01;
 
   return (
     <div style={{ width: '100%', height }}>
@@ -353,7 +404,7 @@ const StockChart: React.FC<StockChartProps> = ({
           </BarChart>
         ) : (
           <LineChart
-            data={displayData}
+            data={lineChartData}
             onMouseDown={handleMouseDown}
           >
             <CartesianGrid
@@ -375,11 +426,23 @@ const StockChart: React.FC<StockChartProps> = ({
             />
             <Line
               type="monotone"
-              dataKey="close"
+              dataKey="actualClose"
               stroke="var(--accent, #3b82f6)"
               strokeWidth={2}
               dot={false}
             />
+            {showForecast && forecastClosePrices.length > 0 && (
+              <Line
+                type="monotone"
+                dataKey="forecastClose"
+                stroke="#f97316"
+                strokeWidth={3}
+                strokeDasharray="6 4"
+                dot={false}
+                connectNulls={false}
+                isAnimationActive={false}
+              />
+            )}
             <Tooltip content={LineTooltip} />
             <Brush
               dataKey="time"

@@ -46,3 +46,11 @@
 .stock-table-collapsible-content {
   @apply bg-[var(--bg-sunken)] text-[var(--accent-hover)] p-8 transition-all duration-300;
 }
+
+.stock-table-loading-cell {
+  @apply bg-[var(--bg-sunken)] p-0;
+}
+
+.stock-table-loading-cell .loading-wrapper {
+  @apply min-h-20 m-0;
+}
