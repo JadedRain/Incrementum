@@ -136,7 +136,6 @@ const StockTable: React.FC<StockTableProps> = ({ filteredSymbols = [] }) => {
     <div className="w-full">
       <div className="stock-table-wrapper">
         {error && <div className="text-red-500 mb-2">{error}</div>}
-        {loading && <Loading loading={true} />}
         <table className="stock-table">
           <thead>
             <tr className="stock-table-header-row">
@@ -167,7 +166,14 @@ const StockTable: React.FC<StockTableProps> = ({ filteredSymbols = [] }) => {
                     <td className="stock-table-cell">{entries[0]?.purchase_date?.slice(0,10) ?? "-"}</td>
                     <td className="stock-table-expand-btn">+</td>
                   </tr>
-                  {openSymbol === symbol && (
+                  {openSymbol === symbol && loading && (
+                    <tr>
+                      <td colSpan={6} className="stock-table-loading-cell">
+                        <Loading loading={true} />
+                      </td>
+                    </tr>
+                  )}
+                  {openSymbol === symbol && !loading && (
                     <tr>
                       <td colSpan={6} className="stock-table-collapsible-row">
                         <div className="stock-table-collapsible-content">
