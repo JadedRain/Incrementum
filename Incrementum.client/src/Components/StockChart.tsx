@@ -437,6 +437,7 @@ const StockChart: React.FC<StockChartProps> = ({
                 dataKey="forecastClose"
                 stroke="#f97316"
                 strokeWidth={3}
+                strokeDasharray="6 4"
                 dot={false}
                 connectNulls={false}
                 isAnimationActive={false}
