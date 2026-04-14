@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import {Toaster} from "react-hot-toast";
+import { ToastProvider } from "./Context/ToastContext";
 import App from "./App";
 import {
   SearchResults, StocksPage, Stock, ScreenerTestPage,
@@ -23,12 +23,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <ThemeProvider>
       <PreferencesProvider>
         <AuthProvider>
-          <Toaster 
-                      position="top-right"
-                      toastOptions={{
-                        duration: 3000
-                      }}
-                  />
+          <ToastProvider>
           <QueryClientProvider client={queryClient}>
             <BrowserRouter>
             <Routes>
@@ -50,6 +45,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>
+          </ToastProvider>
     </AuthProvider>
       </PreferencesProvider>
     </ThemeProvider>
