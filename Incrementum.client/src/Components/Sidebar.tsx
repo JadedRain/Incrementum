@@ -3,6 +3,7 @@ import TickerSymbolFilter from './FilterComponents/TickerSymbolFilter';
 import IndustryFilter from './FilterComponents/IndustryFilter';
 import LastCandleFilter from './FilterComponents/LastCandleFilter';
 import MarketCapFilter from './FilterComponents/MarketCapFilter';
+import OutstandingSharesFilter from './FilterComponents/OutstandingSharesFilter';
 import EPSFilter from './FilterComponents/EPSFilter';
 import DebtToEquityFilter from './FilterComponents/DebtToEquityFilter';
 import AnnualEPSGrowthFilter from './FilterComponents/AnnualEPSGrowthFilter';
@@ -61,6 +62,8 @@ const Sidebar: React.FC<SidebarProps> = () => {
         <Low52Filter />
 
         <MarketCapFilter />
+
+        <OutstandingSharesFilter />
 
         <VolumeFilter />
 
