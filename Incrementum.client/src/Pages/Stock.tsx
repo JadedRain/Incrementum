@@ -61,6 +61,7 @@ export default function Stock({ token: propToken }: { token?: string; }) {
     ? prediction.predicted_close_prices
     : (prediction?.predicted_price !== undefined ? [prediction.predicted_price] : [])).slice(0, 3);
   const oneHourPrediction = predictedClosePrices[0] ?? prediction?.predicted_price;
+  const changeForColor = results?.changePercent ?? results?.change;
 
   if (loading) return <div className="stock-page-loading"><Loading loading={true} /></div>;
   if (!results) return <div className="stock-page-loading"><p>No stock data found.</p></div>;
@@ -98,7 +99,7 @@ export default function Stock({ token: propToken }: { token?: string; }) {
                 </div>
                 <div className="stock-financials-item">
                   <span className="stock-financials-label">Change</span>
-                  <span className={`stock-financials-value ${results.change !== null && results.change !== undefined && results.change >= 0 ? 'positive' : 'negative'}`}>
+                  <span className={`stock-financials-value ${changeForColor !== null && changeForColor !== undefined && changeForColor >= 0 ? 'positive' : 'negative'}`}>
                     {results.change !== null && results.change !== undefined ? formatCurrency(Math.abs(results.change)) : 'N/A'}
                     {results.changePercent !== null && results.changePercent !== undefined && ` (${formatPercentage(results.changePercent)})`}
                   </span>
@@ -165,7 +166,7 @@ export default function Stock({ token: propToken }: { token?: string; }) {
                 forecastClosePrices={predictedClosePrices}
                 onForecastToggle={handleForecastToggle}
                 forecastLoading={predictionLoading}
-                prediction={prediction}
+                prediction={prediction ?? undefined}
                 oneHourPrediction={oneHourPrediction}
               />
             </div>
