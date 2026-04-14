@@ -2,7 +2,6 @@ import json
 import logging
 import os
 import numpy as np
-from keras.models import load_model
 from Incrementum.stock_history_service import StockHistoryService
 
 logger = logging.getLogger(__name__)
@@ -43,6 +42,7 @@ class ModelInferenceService:
     def _load_model(self):
         """Load Keras model from disk."""
         try:
+            from keras.models import load_model
             self.model = load_model(self.model_path)
             logger.info(f"Model loaded successfully from {self.model_path}")
         except Exception as e:

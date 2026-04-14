@@ -71,7 +71,6 @@ echo -e "${YELLOW}Creating secrets from environment variables...${NC}"
 kubectl create secret generic incrementum-secrets \
     --from-literal=django-secret-key="$DJANGO_SECRET_KEY" \
     --from-literal=database-password="$DATABASE_PASSWORD" \
-    --from-literal=finnhub-token="$FINNHUB_TOKEN" \
     --from-literal=keycloak-realm-url="$KEYCLOAK_REALM_URL" \
     --from-literal=keycloak-client-secret="$KEYCLOAK_CLIENT_SECRET" \
     --namespace="$NAMESPACE" \

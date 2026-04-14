@@ -19,23 +19,9 @@ spec:
       - name: incrementum-client
         image: nhowell02/incrementum_client:latest
         imagePullPolicy: Always
-        command: ["pnpm", "run", "dev", "--host", "0.0.0.0"]
         ports:
-        - containerPort: 5173
+        - containerPort: 80
           name: http
-        env:
-        - name: VITE_API_BASE_URL
-          valueFrom:
-            configMapKeyRef:
-              name: incrementum-config
-              key: VITE_API_BASE_URL
-        - name: VITE_DASH_BASE_URL
-          valueFrom:
-            configMapKeyRef:
-              name: incrementum-config
-              key: VITE_DASH_BASE_URL
-        - name: DANGEROUSLY_DISABLE_HOST_CHECK
-          value: "true"
         resources:
           requests:
             memory: "128Mi"

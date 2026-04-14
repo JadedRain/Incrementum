@@ -47,7 +47,6 @@ if [[ ${#missing_vars[@]} -gt 0 ]]; then
 fi
 
 # Set defaults for optional variables
-FINNHUB_TOKEN=${FINNHUB_TOKEN:-"dummy-token"}
 KEYCLOAK_REALM_URL=${KEYCLOAK_REALM_URL:-"http://dummy-keycloak"}
 KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET:-"dummy-secret"}
 
@@ -64,7 +63,6 @@ echo -e "${YELLOW}Creating incrementum-secrets...${NC}"
 kubectl create secret generic incrementum-secrets \
   --from-literal=django-secret-key="$DJANGO_SECRET_KEY" \
   --from-literal=database-password="$DATABASE_PASSWORD" \
-  --from-literal=finnhub-token="$FINNHUB_TOKEN" \
   --from-literal=keycloak-realm-url="$KEYCLOAK_REALM_URL" \
   --from-literal=keycloak-client-secret="$KEYCLOAK_CLIENT_SECRET" \
   --namespace="$NAMESPACE"

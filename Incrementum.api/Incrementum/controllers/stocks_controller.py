@@ -16,7 +16,6 @@ from Incrementum.models.stock import StockModel
 from Incrementum.serializers import StockSerializer
 from Incrementum.get_stock_info import search_stocks, get_stock_by_ticker
 from ..services.stock_service import StockService
-from ..services.model_inference_service import ModelInferenceService
 logger = logging.getLogger(__name__)
 
 
@@ -265,6 +264,9 @@ def predict_stock_controller(request, ticker):
     - data_records_used: Actual number of records used
     """
     try:
+        # Lazy import prevents loading heavy native ML deps during worker boot.
+        from ..services.model_inference_service import ModelInferenceService
+
         # Initialize inference service (lazy-loads model and metadata)
         inference_service = ModelInferenceService()
 

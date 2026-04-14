@@ -10,7 +10,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Configuration
-NAMESPACE="Incrementum"
+NAMESPACE="incrementum"
 IMAGE_TAG=${IMAGE_TAG:-latest}
 
 echo -e "${GREEN}Starting Incrementum Kubernetes Deployment...${NC}"
@@ -47,7 +47,6 @@ if ! kubectl get secret incrementum-secrets -n $NAMESPACE &> /dev/null; then
     echo "kubectl create secret generic incrementum-secrets \\"
     echo "  --from-literal=django-secret-key='your-secret-key' \\"
     echo "  --from-literal=database-password='your-db-password' \\"
-    echo "  --from-literal=finnhub-token='your-finnhub-token' \\"
     echo "  --from-literal=keycloak-realm-url='your-keycloak-url' \\"
     echo "  --from-literal=keycloak-client-secret='your-keycloak-secret' \\"
     echo "  --namespace=$NAMESPACE"

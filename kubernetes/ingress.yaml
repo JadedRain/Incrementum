@@ -7,6 +7,11 @@ metadata:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://incremy.duckdns.org"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Accept,Accept-Language,Authorization,Content-Language,Content-Type,DNT,Origin,User-Agent,X-CSRFToken,X-Requested-With,X-User-Id,sortvalue,sortbool"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
 spec:
   ingressClassName: nginx
   tls:
