@@ -46,33 +46,33 @@ class TestCalculateStockPriceDifference(TestCase):
         """Test calculation when price increased"""
         stock, purchase_date = self._create_stock_with_history('TEST1', 100, 110)
         quantity = 10
-        # old_price (100) - new_price (110) = -10, -10 * 10 = -100
+        # new_price (110) - old_price (100) = 10, 10 * 10 = 100
         result = calculate_stock_price_difference(stock, purchase_date, quantity)
-        assert result == -100
+        assert result == 100
 
     def test_calculate_difference_with_price_decrease(self):
         """Test calculation when price decreased"""
         stock, purchase_date = self._create_stock_with_history('TEST2', 100, 90)
         quantity = 10
-        # old_price (100) - new_price (90) = 10, 10 * 10 = 100
+        # new_price (90) - old_price (100) = -10, -10 * 10 = -100
         result = calculate_stock_price_difference(stock, purchase_date, quantity)
-        assert result == 100
+        assert result == -100
 
     def test_calculate_difference_with_quantity_one(self):
         """Test calculation with quantity of 1"""
         stock, purchase_date = self._create_stock_with_history('TEST3', 100, 110)
         quantity = 1
-        # old_price (100) - new_price (110) = -10
+        # new_price (110) - old_price (100) = 10
         result = calculate_stock_price_difference(stock, purchase_date, quantity)
-        assert result == -10
+        assert result == 10
 
     def test_calculate_difference_with_large_quantity(self):
         """Test calculation with large quantity"""
         stock, purchase_date = self._create_stock_with_history('TEST4', 100, 110)
         quantity = 1000
-        # old_price (100) - new_price (110) = -10, -10 * 1000 = -10000
+        # new_price (110) - old_price (100) = 10, 10 * 1000 = 10000
         result = calculate_stock_price_difference(stock, purchase_date, quantity)
-        assert result == -10000
+        assert result == 10000
 
     def test_missing_old_price_returns_none(self):
         """Test when purchase amount is None"""
