@@ -74,17 +74,20 @@ def get_stock_metadata(request, ticker):
         lows_52w = fifty_two_week_low_dict(stock=symbol)
         percent_changes = day_percent_change(stock=symbol)
 
-        # Get open, high, low from most recent day
+        # Get latest two rows so previous close comes from history, not calculation
         query = """
-            SELECT open_price, high, low
+            SELECT open_price, high, low, close_price
             FROM incrementum.stock_history
             WHERE stock_symbol = %s
             ORDER BY day_and_time DESC
-            LIMIT 1
+            LIMIT 2
         """
         with connection.cursor() as cursor:
             cursor.execute(query, [symbol])
-            result = cursor.fetchone()
+            results = cursor.fetchall()
+
+        latest_row = results[0] if results else None
+        previous_row = results[1] if len(results) > 1 else None
 
         current_price = current_prices.get(symbol)
         high_52w = highs_52w.get(symbol)
@@ -92,18 +95,21 @@ def get_stock_metadata(request, ticker):
         percent_change = percent_changes.get(symbol)
 
         # Convert from cents to dollars
-        open_price = result[0] / 100 if result and result[0] else None
-        day_high = result[1] / 100 if result and result[1] else None
-        day_low = result[2] / 100 if result and result[2] else None
+        open_price = latest_row[0] / 100 if latest_row and latest_row[0] else None
+        day_high = latest_row[1] / 100 if latest_row and latest_row[1] else None
+        day_low = latest_row[2] / 100 if latest_row and latest_row[2] else None
+        previous_close = (
+            previous_row[3] / 100
+            if previous_row and previous_row[3]
+            else None
+        )
         current_price = current_price / 100 if current_price else None
         high_52w = high_52w / 100 if high_52w else None
         low_52w = low_52w / 100 if low_52w else None
 
-        # Calculate previous close from current and percent change
-        previous_close = None
+        # Change is still derived from current price vs prior close
         change = None
-        if current_price and percent_change is not None:
-            previous_close = current_price / (1 + percent_change / 100)
+        if current_price and previous_close is not None:
             change = current_price - previous_close
 
         return JsonResponse({
