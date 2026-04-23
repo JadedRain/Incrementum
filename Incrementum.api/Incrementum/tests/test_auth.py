@@ -132,7 +132,7 @@ class TestLogin:
 
 
 class TestKeycloakLogin:
-    @patch('Incrementum.views_auth.get_token_with_password')
+    @patch('Incrementum.views.auth.get_token_with_password')
     def test_successful_keycloak_login(self, mock_get_token, client):
         mock_get_token.return_value = 'fake-access-token-123'
 
@@ -151,7 +151,7 @@ class TestKeycloakLogin:
         assert 'access_token' in response_data
         mock_get_token.assert_called_once_with('testuser', 'password123')
 
-    @patch('Incrementum.views_auth.get_token_with_password')
+    @patch('Incrementum.views.auth.get_token_with_password')
     def test_keycloak_login_invalid_credentials(self, mock_get_token, client):
         mock_get_token.return_value = None
 
@@ -169,7 +169,7 @@ class TestKeycloakLogin:
 
 
 class TestSyncKeycloakUser:
-    @patch('Incrementum.views_auth.verify_keycloak_token')
+    @patch('Incrementum.views.auth.verify_keycloak_token')
     def test_sync_new_keycloak_user(self, mock_verify, client):
         mock_verify.return_value = {
             'sub': 'keycloak-id-new',
@@ -193,7 +193,7 @@ class TestSyncKeycloakUser:
         assert user.email == 'newkeycloak@example.com'
         assert user.password_hash == ''
 
-    @patch('Incrementum.views_auth.verify_keycloak_token')
+    @patch('Incrementum.views.auth.verify_keycloak_token')
     def test_sync_invalid_token(self, mock_verify, client):
         mock_verify.return_value = None
 
