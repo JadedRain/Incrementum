@@ -1,8 +1,14 @@
 from django.urls import path
-from .views_auth import (
+from .views.auth import (
     login, signup, account_info, sync_keycloak_user, keycloak_login
 )
-from . import views, screener_views, filter_views, views_user_stock_potential, views_candlestick
+from .views import (
+     fear_greed,
+     screener as screener_views,
+     filters as filter_views,
+     user_stock_potential as views_user_stock_potential,
+     candlestick as views_candlestick,
+)
 from .controllers import stocks_controller as stocks
 
 urlpatterns = [
@@ -105,7 +111,7 @@ urlpatterns = [
 
     # Data endpoints
     path('fear-greed/csv/',
-         views.get_fear_greed_from_csv,
+         fear_greed.get_fear_greed_from_csv,
          name='fear_greed_csv'),
 
     path('custom-screeners',

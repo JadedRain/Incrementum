@@ -1,6 +1,6 @@
 import logging
-from .models.custom_screener import CustomScreener
-from .models.account import Account
+from Incrementum.models.custom_screener import CustomScreener
+from Incrementum.models.account import Account
 from django.db import transaction
 from django.core.exceptions import PermissionDenied
 

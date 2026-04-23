@@ -3,7 +3,7 @@ from datetime import datetime
 from django.test import TestCase
 from Incrementum.models.stock import StockModel
 from Incrementum.models.stock_history import StockHistory
-from Incrementum.views_user_stock_potential import calculate_stock_price_difference
+from Incrementum.views.user_stock_potential import calculate_stock_price_difference
 
 
 @pytest.mark.django_db(transaction=True)

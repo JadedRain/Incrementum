@@ -1,13 +1,10 @@
 export { default as SearchResults } from "./SearchResults";
 export { default as StocksPage } from "./StocksPage";
 export { default as Stock } from "./Stock";
-export { default as ScreenerPage } from "./ScreenerPage";
-export { default as ScreenerTestPage } from "./ScreenerTestPage";
 export { default as IndividualScreenPage } from "./IndividualScreenPage";
 export { default as CustomScreenerPage } from "./CustomScreenerPage";
 export { default as SignInPage } from "./LogInPage";
 export { default as SignupPage } from "./SignupPage";
 export { default as SettingsPage } from "./SettingsPage";
-export { default as SidebarTestPage } from "./SidebarTestPage";
 export { default as AdminPage } from "./AdminPage";
 export { default as HelpPage } from "./HelpPage";

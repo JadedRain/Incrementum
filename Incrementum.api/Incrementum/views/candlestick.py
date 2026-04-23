@@ -7,7 +7,7 @@ import pandas as pd
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from Incrementum.stock_history_service import StockHistoryService
+from Incrementum.services.stock_history_service import StockHistoryService
 from Incrementum.services.candlestick_patterns import CandlestickPatternAnalyzer
 
 

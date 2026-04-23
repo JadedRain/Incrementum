@@ -1,4 +1,4 @@
-from .stock_history_service import StockHistoryService
+from .services.stock_history_service import StockHistoryService
 from .models.stock import StockModel
 from .stocks_class import Stock
 import logging
