@@ -2,7 +2,13 @@ from django.urls import path
 from .views.auth import (
     login, signup, account_info, sync_keycloak_user, keycloak_login
 )
-from .views import fear_greed, screener as screener_views, filters as filter_views, user_stock_potential as views_user_stock_potential, candlestick as views_candlestick
+from .views import (
+     fear_greed,
+     screener as screener_views,
+     filters as filter_views,
+     user_stock_potential as views_user_stock_potential,
+     candlestick as views_candlestick,
+)
 from .controllers import stocks_controller as stocks
 
 urlpatterns = [
