@@ -3,9 +3,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ToastProvider } from "./Context/ToastContext";
 import App from "./App";
 import {
-  SearchResults, StocksPage, Stock, ScreenerTestPage,
+  SearchResults, StocksPage, Stock,
   IndividualScreenPage, CustomScreenerPage, SignInPage, SignupPage,
-  SettingsPage, SidebarTestPage, AdminPage, HelpPage
+  SettingsPage, AdminPage, HelpPage
 } from "./Pages";
 import AdminRoute from "./Components/AdminRoute";
 import ProtectedRoute from "./Components/ProtectedRoute";
@@ -27,7 +27,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <QueryClientProvider client={queryClient}>
             <BrowserRouter>
             <Routes>
-            <Route path="/screener-test" element={<ProtectedRoute><ScreenerTestPage /></ProtectedRoute>} />
             <Route path="/" element={<FilterDataProvider><IndividualScreenPage /></FilterDataProvider>} />
             <Route index element={<FilterDataProvider><IndividualScreenPage /></FilterDataProvider>} />
             <Route path="/account" element={<App />} />
@@ -40,7 +39,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route path="/create-custom-screener" element={<CustomScreenerPage />} />
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             <Route path="/help" element={<ProtectedRoute><HelpPage /></ProtectedRoute>} />
-            <Route path="/sidebar-test" element={<ProtectedRoute><SidebarTestPage /></ProtectedRoute>} />
             <Route path="/admin-page" element={<AdminRoute><AdminPage /></AdminRoute>} />
           </Routes>
         </BrowserRouter>

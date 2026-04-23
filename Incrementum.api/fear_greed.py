@@ -1,7 +1,7 @@
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_GET
 
-from Incrementum.fear_greed_service import fetch_fear_greed_json
+from Incrementum.services.fear_greed_service import fetch_fear_greed_json
 
 
 @require_GET
