@@ -1,0 +1,73 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0">
+  <diagram id="backend-architecture" name="Backend Architecture">
+    <mxGraphModel dx="1235" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=22;fontStyle=1;" value="Incrementum Backend Architecture" vertex="1">
+          <mxGeometry height="40" width="420" x="60" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="client" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;" value="Frontend Client" vertex="1">
+          <mxGeometry height="60" width="180" x="70" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="url_router" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" value="api_project/urls.py&#xa;include(Incrementum.urls)" vertex="1">
+          <mxGeometry height="80" width="250" x="320" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="app_router" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=13;" value="Incrementum/urls.py&#xa;Endpoint Routing" vertex="1">
+          <mxGeometry height="80" width="240" x="640" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="views_layer" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;spacingLeft=12;fontSize=13;" value="Views + Controllers&#xa;auth, screener, filters, candlestick, fear_greed, user_stock_potential&#xa;stocks_controller" vertex="1">
+          <mxGeometry height="140" width="560" x="320" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="services_layer" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;spacingLeft=12;fontSize=13;" value="Services&#xa;keycloak_service, screener_service, stock_history_service,&#xa;stock_service, model_inference_service, candlestick_patterns,&#xa;fear_greed_service" vertex="1">
+          <mxGeometry height="150" width="560" x="320" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="models" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;spacingLeft=12;fontSize=13;" value="Django Models&#xa;Account, StockModel, StockHistory, CustomScreener,&#xa;CategoricalFilter, NumericFilter, UserStockPotential" vertex="1">
+          <mxGeometry height="120" width="560" x="320" y="660" as="geometry" />
+        </mxCell>
+        <mxCell id="db" parent="1" style="shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=13;" value="PostgreSQL" vertex="1">
+          <mxGeometry height="80" width="140" x="940" y="685" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_header" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=16;fontStyle=1;" value="External Integrations" vertex="1">
+          <mxGeometry height="30" width="240" x="1020" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_keycloak" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" value="Keycloak" vertex="1">
+          <mxGeometry height="60" width="210" x="1030" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_market" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" value="Market Data APIs&#xa;(yfinance / other providers)" vertex="1">
+          <mxGeometry height="70" width="210" x="1030" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_cnn" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" value="CNN Fear &amp; Greed API" vertex="1">
+          <mxGeometry height="60" width="210" x="1030" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="client" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=classic;html=1;strokeWidth=2;" target="url_router">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="url_router" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=classic;html=1;strokeWidth=2;" target="app_router">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="app_router" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=classic;html=1;strokeWidth=2;" target="views_layer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="views_layer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=classic;html=1;strokeWidth=2;" target="services_layer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="services_layer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=classic;html=1;strokeWidth=2;" target="models">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="models" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=classic;html=1;strokeWidth=2;" target="db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="services_layer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=classic;html=1;dashed=1;strokeWidth=2;" target="ext_keycloak">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="services_layer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=classic;html=1;dashed=1;strokeWidth=2;" target="ext_market">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="services_layer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;endArrow=classic;html=1;dashed=1;strokeWidth=2;" target="ext_cnn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
