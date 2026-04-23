@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.core.exceptions import PermissionDenied
 from Incrementum.models.custom_screener import CustomScreener
 from Incrementum.models.account import Account
-from Incrementum.screener_service import ScreenerService
+from Incrementum.services.screener_service import ScreenerService
 pytestmark = pytest.mark.django_db
 
 

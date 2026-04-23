@@ -1,5 +1,5 @@
 from django.utils import timezone
-from Incrementum.stock_history_service import StockHistoryService
+from Incrementum.services.stock_history_service import StockHistoryService
 from logging import Logger
 
 logger = Logger("logs")

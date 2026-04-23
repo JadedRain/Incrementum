@@ -5,7 +5,7 @@ from django.core import signing
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from Incrementum.screener_service import ScreenerService
+from Incrementum.services.screener_service import ScreenerService
 from Incrementum.screener import Screener
 from Incrementum.DTOs.ifilterdata import FilterData
 from Incrementum.models.custom_screener import CustomScreener

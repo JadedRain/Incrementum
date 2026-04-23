@@ -1,4 +1,4 @@
-from ..stock_history_service import StockHistoryService
+from Incrementum.services.stock_history_service import StockHistoryService
 from ..yrhilo import (
     current_price_dict,
     fifty_two_week_high_dict,

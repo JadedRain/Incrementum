@@ -3,7 +3,7 @@ import logging
 import os
 import numpy as np
 from keras.models import load_model
-from Incrementum.stock_history_service import StockHistoryService
+from Incrementum.services.stock_history_service import StockHistoryService
 
 logger = logging.getLogger(__name__)
 
