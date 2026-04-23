@@ -1,0 +1,179 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 OPR/129.0.0.0" version="29.6.6">
+  <diagram name="Page-1" id="e7zce4hiDhdcv8ElUmJm">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1000" pageHeight="1250" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-4" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="Main Server" vertex="1">
+          <mxGeometry height="180" width="140" x="740" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-5" parent="iMzXw7-LtFSP-O9LAeiz-4" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="Desc: Orchestrates all of the running services by keeping track of the stock list.&amp;nbsp;" vertex="1">
+          <mxGeometry height="80" width="140" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-8" parent="iMzXw7-LtFSP-O9LAeiz-4" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="sends batch of about 4000 stocks to each separate service" vertex="1">
+          <mxGeometry height="70" width="140" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-9" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="Server" vertex="1">
+          <mxGeometry height="190" width="140" x="190" y="-30" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-10" parent="iMzXw7-LtFSP-O9LAeiz-9" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="stock_tickers" vertex="1">
+          <mxGeometry height="50" width="140" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="4_KyU_PCAXXYyA4L_vxO-3" parent="iMzXw7-LtFSP-O9LAeiz-9" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="&#xa;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(236, 236, 236); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;lock(stock_data)&lt;/span&gt;&#xa;&#xa;" vertex="1">
+          <mxGeometry height="50" width="140" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-13" parent="iMzXw7-LtFSP-O9LAeiz-9" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;makes minute level requests for batch size of about 200 stocks&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="140" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-23" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="Server" vertex="1">
+          <mxGeometry height="200" width="140" x="190" y="625" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-24" parent="iMzXw7-LtFSP-O9LAeiz-23" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="stock_tickers" vertex="1">
+          <mxGeometry height="50" width="140" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="4_KyU_PCAXXYyA4L_vxO-5" parent="iMzXw7-LtFSP-O9LAeiz-23" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="&#xa;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(236, 236, 236); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;lock(stock_data)&lt;/span&gt;&#xa;&#xa;" vertex="1">
+          <mxGeometry height="50" width="140" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-25" parent="iMzXw7-LtFSP-O9LAeiz-23" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="make week size requests for minute level data for the 200 stocks&amp;nbsp;" vertex="1">
+          <mxGeometry height="70" width="140" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-27" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="Server" vertex="1">
+          <mxGeometry height="190" width="140" x="20" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-28" parent="iMzXw7-LtFSP-O9LAeiz-27" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="stock_tickers" vertex="1">
+          <mxGeometry height="50" width="140" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="4_KyU_PCAXXYyA4L_vxO-4" parent="iMzXw7-LtFSP-O9LAeiz-27" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="&#xa;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(236, 236, 236); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;lock(stock_data)&lt;/span&gt;&#xa;&#xa;" vertex="1">
+          <mxGeometry height="50" width="140" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-29" parent="iMzXw7-LtFSP-O9LAeiz-27" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="makes minute level requests for batch size of about 200 stocks" vertex="1">
+          <mxGeometry height="60" width="140" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-43" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="Server" vertex="1">
+          <mxGeometry height="200" width="140" x="-150" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-44" parent="iMzXw7-LtFSP-O9LAeiz-43" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="stock_tickers" vertex="1">
+          <mxGeometry height="50" width="140" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="4_KyU_PCAXXYyA4L_vxO-1" parent="iMzXw7-LtFSP-O9LAeiz-43" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="lock(stock_data)" vertex="1">
+          <mxGeometry height="50" width="140" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-45" parent="iMzXw7-LtFSP-O9LAeiz-43" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="makes minute level requests for batch size of about 200 stocks" vertex="1">
+          <mxGeometry height="70" width="140" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-47" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="Server" vertex="1">
+          <mxGeometry height="200" width="140" x="20" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-48" parent="iMzXw7-LtFSP-O9LAeiz-47" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="stock_tickers" vertex="1">
+          <mxGeometry height="50" width="140" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="4_KyU_PCAXXYyA4L_vxO-2" parent="iMzXw7-LtFSP-O9LAeiz-47" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="&#xa;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Helvetica; font-size: 12px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(236, 236, 236); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;&quot;&gt;lock(stock_data)&lt;/span&gt;&#xa;&#xa;" vertex="1">
+          <mxGeometry height="50" width="140" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-49" parent="iMzXw7-LtFSP-O9LAeiz-47" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="makes minute level requests for batch size of about 200 stocks" vertex="1">
+          <mxGeometry height="70" width="140" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-73" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="DB" vertex="1">
+          <mxGeometry height="155" width="220" x="-750" y="215" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-74" edge="1" parent="1" source="iMzXw7-LtFSP-O9LAeiz-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="iMzXw7-LtFSP-O9LAeiz-73">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-225" y="110" />
+              <mxPoint x="-225" y="292" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-75" edge="1" parent="1" source="iMzXw7-LtFSP-O9LAeiz-45" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="iMzXw7-LtFSP-O9LAeiz-73">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-76" edge="1" parent="1" source="iMzXw7-LtFSP-O9LAeiz-49" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="iMzXw7-LtFSP-O9LAeiz-73">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-77" edge="1" parent="1" source="iMzXw7-LtFSP-O9LAeiz-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="iMzXw7-LtFSP-O9LAeiz-73">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-78" edge="1" parent="1" source="iMzXw7-LtFSP-O9LAeiz-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="iMzXw7-LtFSP-O9LAeiz-73">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-79" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="We are limited to maybe 80 requests a minute, but we can make those requests in batches of around 200 stocks. 200 stocks a minute per server, can get 18 months worth of data for 22000 stocks in about 20 min" vertex="1">
+          <mxGeometry height="150" width="230" x="-890" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-80" edge="1" parent="1" source="iMzXw7-LtFSP-O9LAeiz-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="iMzXw7-LtFSP-O9LAeiz-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-81" edge="1" parent="1" source="iMzXw7-LtFSP-O9LAeiz-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="iMzXw7-LtFSP-O9LAeiz-44">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-82" edge="1" parent="1" source="iMzXw7-LtFSP-O9LAeiz-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="iMzXw7-LtFSP-O9LAeiz-48">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-83" edge="1" parent="1" source="iMzXw7-LtFSP-O9LAeiz-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="iMzXw7-LtFSP-O9LAeiz-28">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-84" edge="1" parent="1" source="iMzXw7-LtFSP-O9LAeiz-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="iMzXw7-LtFSP-O9LAeiz-24">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-86" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="From then on, we will make requests each day for two days (overlap is better than gaps). We could also do what we are doing with the current stock data and just fetch it if it hasn&#39;t been updated in the last 15 minutes" vertex="1">
+          <mxGeometry height="120" width="190" x="-640" y="15" as="geometry" />
+        </mxCell>
+        <mxCell id="iMzXw7-LtFSP-O9LAeiz-87" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="For DB, we can do multiple threads to store the data. This might add on to the time a little bit, but it would give us a total of around 30 minutes. We put a lock around the stock tickers, and check tickers off the list once you&#39;ve fetched and stored them in the database" vertex="1">
+          <mxGeometry height="120" width="190" x="-430" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="LA_UJfXVows51yYC584T-1" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="Main Server" vertex="1">
+          <mxGeometry height="180" width="140" x="1800" y="1440" as="geometry" />
+        </mxCell>
+        <mxCell id="LA_UJfXVows51yYC584T-2" parent="LA_UJfXVows51yYC584T-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="Desc: Orchestrates all of the running services by keeping track of the stock list.&amp;nbsp;" vertex="1">
+          <mxGeometry height="80" width="140" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="LA_UJfXVows51yYC584T-3" parent="LA_UJfXVows51yYC584T-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="sends batch of about 1000 stocks to each separate service" vertex="1">
+          <mxGeometry height="70" width="140" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="LA_UJfXVows51yYC584T-20" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="History Data Fetcher" vertex="1">
+          <mxGeometry height="130" width="140" x="1080" y="1477.5" as="geometry" />
+        </mxCell>
+        <mxCell id="LA_UJfXVows51yYC584T-21" parent="LA_UJfXVows51yYC584T-20" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="requests batches from orchestrator to update historical data" vertex="1">
+          <mxGeometry height="50" width="140" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="HJIFzym9l6om9_EUqdki-1" parent="LA_UJfXVows51yYC584T-20" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="gap detection" vertex="1">
+          <mxGeometry height="50" width="140" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="LA_UJfXVows51yYC584T-24" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="DB" vertex="1">
+          <mxGeometry height="155" width="220" x="310" y="1465" as="geometry" />
+        </mxCell>
+        <mxCell id="LA_UJfXVows51yYC584T-27" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="LA_UJfXVows51yYC584T-24">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1080" y="1545" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="LA_UJfXVows51yYC584T-33" edge="1" parent="1" source="LA_UJfXVows51yYC584T-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="LA_UJfXVows51yYC584T-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="LA_UJfXVows51yYC584T-39" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="Stock Data Calculator" vertex="1">
+          <mxGeometry height="150" width="140" x="1080" y="1740" as="geometry" />
+        </mxCell>
+        <mxCell id="LA_UJfXVows51yYC584T-40" parent="LA_UJfXVows51yYC584T-39" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="pull data from financial reports and use data to calculate ratios" vertex="1">
+          <mxGeometry height="60" width="140" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="LA_UJfXVows51yYC584T-41" parent="LA_UJfXVows51yYC584T-39" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" value="update other values like price, high52, low52, and percent change using new historical data" vertex="1">
+          <mxGeometry height="60" width="140" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="LA_UJfXVows51yYC584T-47" edge="1" parent="1" source="LA_UJfXVows51yYC584T-40" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="LA_UJfXVows51yYC584T-24">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="LA_UJfXVows51yYC584T-56" edge="1" parent="1" source="LA_UJfXVows51yYC584T-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="LA_UJfXVows51yYC584T-40">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="LA_UJfXVows51yYC584T-59" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Scalable: There can be as many of these as we want" vertex="1">
+          <mxGeometry height="40" width="210" x="1060" y="1410" as="geometry" />
+        </mxCell>
+        <mxCell id="LA_UJfXVows51yYC584T-60" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Scalable: There can be as many of these as we want" vertex="1">
+          <mxGeometry height="40" width="210" x="1040" y="1670" as="geometry" />
+        </mxCell>
+        <mxCell id="LA_UJfXVows51yYC584T-61" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Getting historical data is an incredibly slow process so we may want more than 5 data fetchers and smaller batches" vertex="1">
+          <mxGeometry height="70" width="240" x="1030" y="1330" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
