@@ -16,7 +16,7 @@ Incrementum.api/.venv
 __pycache__/
 Incrementum.api/api_project/.my_pgpass
 .pytest_cache/
-.env
+.env*
 .venv
 
 Incrementum.api/hello/__pycache__/__init__.cpython-310.pyc
